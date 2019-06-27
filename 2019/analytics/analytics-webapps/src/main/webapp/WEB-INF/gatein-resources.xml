@@ -1,0 +1,88 @@
+<gatein-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/gatein_resources_1_4 http://www.exoplatform.org/xml/ns/gatein_resources_1_4" xmlns="http://www.exoplatform.org/xml/ns/gatein_resources_1_4">
+<!-- 
+  We can't use this due to:
+  https://jira.exoplatform.org/browse/PLF-8100
+
+  <portlet-skin>
+    <application-name>analytics</application-name>
+    <portlet-name>Analytics</portlet-name>
+    <skin-name>Default</skin-name>
+    <css-path>/css/analytics.css</css-path>
+  </portlet-skin>
+  <portlet-skin>
+    <application-name>analytics</application-name>
+    <portlet-name>Analytics</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/css/analytics.css</css-path>
+  </portlet-skin>
+-->
+
+  <portlet>
+    <name>Analytics</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/analytics.bundle.js</path>
+      </script>
+      <depends>
+        <module>analyticsVuetify</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>fetchPolyfill</module>
+      </depends>
+      <depends>
+        <module>customEventPolyfill</module>
+      </depends>
+      <depends>
+        <module>iePolyfills</module>
+      </depends>
+      <depends>
+        <module>analyticsVueChart</module>
+        <as>VueChart</as>
+      </depends>
+    </module>
+  </portlet>
+
+  <module>
+    <name>analyticsVuetify</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/lib/vuetify.min.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>analyticsVueChart</name>
+    <as>VueChart</as>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+          <include>/js/lib/vue-chartjs.min.js</include>
+          return VueChartJs;
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>analyticsChart</module>
+      <as>Chart</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>analyticsChart</name>
+    <as>Chart</as>
+    <script>
+      <minify>false</minify>
+      <path>/js/lib/Chart.bundle.min.js</path>
+    </script>
+  </module>
+
+</gatein-resources>

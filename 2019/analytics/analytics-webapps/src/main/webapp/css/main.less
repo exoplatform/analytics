@@ -1,0 +1,121 @@
+@import './lib/fontawesome.css';
+@import './lib/materialdesign-icons.css';
+@import './lib/vuetify.css';
+
+.v-btn,
+.v-input,
+.v-select,
+.v-textarea {
+  background-color: transparent;
+  border-style: none;
+  color: inherit;
+}
+.v-textarea>.v-input__control>.v-input__slot:before {
+   border: 0;
+}
+.hide-scroll {
+  overflow: hidden;
+}
+.v-btn--icon {
+  border: 0;
+}
+
+.border-box-sizing {
+  box-sizing: border-box;
+}
+
+.v-input.text-xs-center input {
+  text-align: center;
+}
+
+#AnalyticsApp {
+  min-height: ~"calc( 100vh - 60px)";
+
+  textarea {
+    margin-bottom: 0;
+  }
+
+  .no-wrap {
+    white-space: nowrap;
+    flex-direction: row;
+    flex-wrap: nowrap;
+  }
+
+  .ellipsis {
+    max-width: 100%;
+  }
+
+  select.small, input.small {
+    width: auto;
+    height: 32px;
+  }
+
+  label {
+    margin-bottom: 0;
+  }
+
+  .v-divider--vertical {
+    vertical-align: middle;
+  }
+
+  .v-messages {
+    min-height: auto;
+  }
+
+  .v-select__selections {
+    max-width: 80%;
+  }
+
+  .v-divider {
+    margin: 0;
+  }
+
+  .layout {
+    max-width: 100%;
+  }
+
+  .primary--text {
+    color: #578dc9 !important;
+  }
+
+  .primary:not([disabled]) {
+    background-color: #578dc9 !important;
+    color: #fff;
+  }
+
+  .primary[disabled] {
+    background-color: #afc9e5 !important;
+    color: #fff !important;
+    opacity: 1;
+
+    i {
+      color: #fff !important;
+    }
+  }
+
+  .v-input input {
+    margin-bottom: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .application--wrap {
+    min-height: auto;
+  }
+
+  .v-autocomplete label {
+    z-index: 1002;
+  }
+
+  code {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .application-toolbar {
+    margin: 12px 10px 0 !important;
+    max-width: ~"calc(100% - 24px)" !important;
+    border: 1px solid #e1e8ee !important;
+    border-radius: 0 0 3px 3px !important;
+  }
+}
