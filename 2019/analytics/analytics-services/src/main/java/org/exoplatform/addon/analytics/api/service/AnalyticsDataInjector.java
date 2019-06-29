@@ -1,8 +1,9 @@
-package org.exoplatform.addon.analytics.service;
+package org.exoplatform.addon.analytics.api.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.picocontainer.Startable;
 
 import org.exoplatform.addon.analytics.model.StatisticData;
+import org.exoplatform.addon.analytics.model.StatisticStatus;
 import org.exoplatform.addon.analytics.utils.AnalyticsUtils;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
@@ -23,8 +25,7 @@ import org.exoplatform.services.log.Log;
  * TODO: use org.exoplatform.services.bench.DataInjectorService // NOSONAR
  */
 public class AnalyticsDataInjector implements Startable {
-  private static final Log    LOG                                 =
-                                  ExoLogger.getLogger(AnalyticsDataInjector.class);
+  private static final Log    LOG                                 = ExoLogger.getLogger(AnalyticsDataInjector.class);
 
   private static final String ANALYTICS_INJECTION_DATA_PATH_PARAM = "file.path";
 
@@ -76,6 +77,10 @@ public class AnalyticsDataInjector implements Startable {
     setDataInjected();
   }
 
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
   public void reinjectData() {
     if (StringUtils.isBlank(startupDataInjectionFilePath)) {
       LOG.info("No configured analytics data to inject");
@@ -114,13 +119,41 @@ public class AnalyticsDataInjector implements Startable {
       return;
     }
     for (StatisticData statisticData : statisticList) {
-      analyticsService.save(statisticData);
+      analyticsService.create(statisticData);
     }
   }
 
   @Override
   public void stop() {
     // Nothing to stop for now
+  }
+
+  public static void main(String[] args) {
+    Map<String, String> parameters = new HashMap<>();
+    parameters.put("activityId", "1");
+
+    int numberOfDays = 120;
+    Random random = new Random(1);
+
+    for (int i = 1; i < numberOfDays; i++) {
+      LocalDateTime date = LocalDateTime.now().minusDays(i);
+
+      int numberOfItemsPerDay = random.nextInt(30);
+      for (int j = 0; j < numberOfItemsPerDay; j++) {
+        StatisticData statisticData = new StatisticData(AnalyticsUtils.timeToSeconds(date.minusMinutes(j * 10)),
+                                                        null,
+                                                        1L,
+                                                        1L,
+                                                        "social",
+                                                        "activityStream",
+                                                        "addActivity",
+                                                        StatisticStatus.OK,
+                                                        null,
+                                                        0L,
+                                                        parameters);
+        System.out.println(AnalyticsUtils.toJsonString(statisticData));
+      }
+    }
   }
 
   public boolean isDataInjected() {

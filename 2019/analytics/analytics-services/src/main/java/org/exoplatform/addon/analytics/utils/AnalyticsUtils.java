@@ -6,56 +6,65 @@ import java.io.ByteArrayInputStream;
 import java.time.*;
 import java.time.format.*;
 import java.time.temporal.IsoFields;
+import java.util.Collection;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 
 import org.exoplatform.ws.frameworks.json.JsonGenerator;
 import org.exoplatform.ws.frameworks.json.JsonParser;
 import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class AnalyticsUtils {
-  public static final String            ANALYTICS_NEW_DATA_EVENT  = "exo.addon.analytics.data.new";
+  public static final String            ANALYTICS_NEW_DATA_EVENT         = "exo.addon.analytics.data.new";
 
-  public static final String            ES_ANALYTICS_PROCESSOR_ID = "exo.addon.analytics.processor.es";
+  public static final String            ES_ANALYTICS_PROCESSOR_ID        = "exo.addon.analytics.processor.es";
 
-  public static final JsonParser        JSON_PARSER               = new JsonParserImpl();
+  public static final JsonParser        JSON_PARSER                      = new JsonParserImpl();
 
-  public static final JsonGenerator     JSON_GENERATOR            = new JsonGeneratorImpl();
+  public static final JsonGenerator     JSON_GENERATOR                   = new JsonGeneratorImpl();
 
-  public static final DateTimeFormatter YEAR_WEEK                 = new DateTimeFormatterBuilder()
-                                                                                                  .parseCaseInsensitive()
-                                                                                                  .appendValue(IsoFields.WEEK_BASED_YEAR,
-                                                                                                               4,
-                                                                                                               10,
-                                                                                                               SignStyle.EXCEEDS_PAD)
-                                                                                                  .appendLiteral("-W")
-                                                                                                  .appendValue(IsoFields.WEEK_OF_WEEK_BASED_YEAR,
-                                                                                                               2)
-                                                                                                  .optionalStart()
-                                                                                                  .appendOffsetId()
-                                                                                                  .toFormatter();
+  private static final Pattern          JSON_CLEANER_REPLACEMENT_PATTERN = Pattern.compile("([\\]}]+),([\\]}]+)");
 
-  public static final DateTimeFormatter YEAR_MONTH                = new DateTimeFormatterBuilder()
-                                                                                                  .appendValue(YEAR,
-                                                                                                               4,
-                                                                                                               10,
-                                                                                                               SignStyle.EXCEEDS_PAD)
-                                                                                                  .appendLiteral('-')
-                                                                                                  .appendValue(MONTH_OF_YEAR, 2)
-                                                                                                  .toFormatter();
+  public static final DateTimeFormatter YEAR_WEEK                        = new DateTimeFormatterBuilder()
+                                                                                                         .parseCaseInsensitive()
+                                                                                                         .appendValue(IsoFields.WEEK_BASED_YEAR,
+                                                                                                                      4,
+                                                                                                                      10,
+                                                                                                                      SignStyle.EXCEEDS_PAD)
+                                                                                                         .appendLiteral("-W")
+                                                                                                         .appendValue(IsoFields.WEEK_OF_WEEK_BASED_YEAR,
+                                                                                                                      2)
+                                                                                                         .optionalStart()
+                                                                                                         .appendOffsetId()
+                                                                                                         .toFormatter();
 
-  public static final DateTimeFormatter YEAR_MONTH_DATE_HOUR      = new DateTimeFormatterBuilder()
-                                                                                                  .appendValue(YEAR,
-                                                                                                               4,
-                                                                                                               10,
-                                                                                                               SignStyle.EXCEEDS_PAD)
-                                                                                                  .appendLiteral('-')
-                                                                                                  .appendValue(MONTH_OF_YEAR, 2)
-                                                                                                  .appendLiteral('-')
-                                                                                                  .appendValue(DAY_OF_MONTH, 2)
-                                                                                                  .appendLiteral('T')
-                                                                                                  .appendValue(HOUR_OF_DAY, 2)
-                                                                                                  .toFormatter();
+  public static final DateTimeFormatter YEAR_MONTH                       = new DateTimeFormatterBuilder()
+                                                                                                         .appendValue(YEAR,
+                                                                                                                      4,
+                                                                                                                      10,
+                                                                                                                      SignStyle.EXCEEDS_PAD)
+                                                                                                         .appendLiteral('-')
+                                                                                                         .appendValue(MONTH_OF_YEAR,
+                                                                                                                      2)
+                                                                                                         .toFormatter();
+
+  public static final DateTimeFormatter YEAR_MONTH_DATE_HOUR             = new DateTimeFormatterBuilder()
+                                                                                                         .appendValue(YEAR,
+                                                                                                                      4,
+                                                                                                                      10,
+                                                                                                                      SignStyle.EXCEEDS_PAD)
+                                                                                                         .appendLiteral('-')
+                                                                                                         .appendValue(MONTH_OF_YEAR,
+                                                                                                                      2)
+                                                                                                         .appendLiteral('-')
+                                                                                                         .appendValue(DAY_OF_MONTH,
+                                                                                                                      2)
+                                                                                                         .appendLiteral('T')
+                                                                                                         .appendValue(HOUR_OF_DAY,
+                                                                                                                      2)
+                                                                                                         .toFormatter();
 
   private AnalyticsUtils() {
   }
@@ -118,7 +127,20 @@ public class AnalyticsUtils {
   }
 
   public static long timeToSeconds(LocalDateTime time) {
-    return time.atZone(ZoneOffset.systemDefault()).toEpochSecond();
+    return time.atZone(ZoneOffset.systemDefault()).toEpochSecond() * 1000;
+  }
+
+  public static final String fixJSONStringFormat(String jsonString) {
+    do {
+      jsonString = jsonString.replaceAll(" ", "")
+                             .replaceAll("\n", "")
+                             .replaceAll("([\\]}]+),([\\]}]+)", "$1$2");
+    } while (JSON_CLEANER_REPLACEMENT_PATTERN.matcher(jsonString).find());
+    return jsonString;
+  }
+
+  public static final String collectionToJSONString(Collection<String> collection) {
+    return new JSONArray(collection).toString();
   }
 
 }

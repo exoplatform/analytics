@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd" xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
   <component>
-    <type>org.exoplatform.addon.analytics.service.AnalyticsService</type>
+    <key>org.exoplatform.addon.analytics.api.service.AnalyticsService</key>
+    <type>org.exoplatform.addon.analytics.es.ESAnalyticsService</type>
   </component>
 
   <component>
-    <type>org.exoplatform.addon.analytics.service.es.ElasticSearchStatisticDataProcessor</type>
+    <key>org.exoplatform.addon.analytics.api.service.AnalyticsQueueService</key>
+    <type>org.exoplatform.addon.analytics.dummy.queue.DummyAnalyticsQueueService</type>
   </component>
 
   <component>
-    <type>org.exoplatform.addon.analytics.service.AnalyticsDataInjector</type>
+    <type>org.exoplatform.addon.analytics.api.service.AnalyticsDataInjector</type>
     <init-params>
       <value-param>
         <name>enabled</name>
@@ -27,17 +29,31 @@
   </component>
 
   <external-component-plugins>
+    <target-component>org.exoplatform.addon.analytics.api.service.AnalyticsQueueService</target-component>
+    <component-plugin>
+      <name>elasticsearch</name>
+      <set-method>addProcessor</set-method>
+      <type>org.exoplatform.addon.analytics.es.processor.ElasticSearchStatisticDataProcessor</type>
+      <description>ElasticSearch analytics data persister</description>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
     <target-component>org.exoplatform.commons.search.index.IndexingOperationProcessor</target-component>
     <component-plugin>
       <name>AnalyticsIndexingServiceConnector</name>
       <set-method>addConnector</set-method>
-      <type>org.exoplatform.addon.analytics.service.es.AnalyticsIndexingServiceConnector</type>
+      <type>org.exoplatform.addon.analytics.es.AnalyticsIndexingServiceConnector</type>
       <description>Analytics ElasticSearch Indexing Connector</description>
       <init-params>
+        <value-param>
+          <name>mapping.file.path</name>
+          <value>${exo.addon.analytics.es.mapping.path:jar:/analytics-es-mapping.json}</value>
+        </value-param>
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="analytics_alias"/>
-          <property name="index_previous" value=""/>
+          <property name="index_previous" value="analytics_v1"/>
           <property name="index_current" value="analytics_v1"/>
           <property name="type" value="analytics"/>
         </properties-param>

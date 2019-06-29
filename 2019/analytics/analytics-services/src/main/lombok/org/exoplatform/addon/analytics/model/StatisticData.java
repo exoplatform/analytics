@@ -1,14 +1,11 @@
 package org.exoplatform.addon.analytics.model;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.time.*;
+import java.time.temporal.IsoFields;
 import java.util.Map;
 
-import org.exoplatform.addon.analytics.utils.AnalyticsUtils;
-
 import lombok.*;
-import lombok.EqualsAndHashCode.Exclude;
 
 @Data
 @ToString
@@ -18,56 +15,73 @@ public class StatisticData implements Serializable {
 
   private static final long   serialVersionUID = -2660993500359866340L;
 
-  private StatisticDate       date;
+  private long                timestamp;
 
-  @Exclude
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  @Getter(lombok.AccessLevel.NONE)
+  @Setter(lombok.AccessLevel.NONE)
+  private LocalDateTime       localDate;
+
+  @EqualsAndHashCode.Exclude
   private long                userId;
 
-  @Exclude
+  @EqualsAndHashCode.Exclude
   private long                spaceId;
 
-  @Exclude
+  @EqualsAndHashCode.Exclude
   private String              module;
 
-  @Exclude
+  @EqualsAndHashCode.Exclude
   private String              subModule;
 
-  @Exclude
+  @EqualsAndHashCode.Exclude
   private String              operation;
 
-  @Exclude
+  @EqualsAndHashCode.Exclude
   private StatisticStatus     status;
 
-  @Exclude
+  @EqualsAndHashCode.Exclude
   private String              errorMessage;
 
-  @Exclude
+  @EqualsAndHashCode.Exclude
   private long                errorCode;
 
-  @Exclude
+  @EqualsAndHashCode.Exclude
   private Map<String, String> parameters;
 
-  public static void main(String[] args) {
-    Map<String, String> parameters = new HashMap<>();
+  public int getHour() {
+    return this.getLocalDate().getHour();
+  }
 
-    for (int i = 1; i < 120; i++) {
-      LocalDateTime date = LocalDateTime.now().minusDays(i);
+  public int getDayOfMonth() {
+    return this.getLocalDate().getDayOfMonth();
+  }
 
-      int numberOfItems = (int) (Math.random() * 30);
-      for (int j = 0; j < numberOfItems; j++) {
-        StatisticDate statisticDate = new StatisticDate(date.minusMinutes(j * 10));
-        StatisticData statisticData = new StatisticData(statisticDate,
-                                                        1L,
-                                                        1L,
-                                                        "social",
-                                                        "activityStream",
-                                                        "addActivity",
-                                                        StatisticStatus.OK,
-                                                        null,
-                                                        0L,
-                                                        parameters);
-        System.out.println(AnalyticsUtils.toJsonString(statisticData));
-      }
+  public int getDayOfWeek() {
+    return this.getLocalDate().getDayOfWeek().getValue();
+  }
+
+  public int getDayOfYear() {
+    return this.getLocalDate().getDayOfYear();
+  }
+
+  public int getWeek() {
+    return this.getLocalDate().get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+  }
+
+  public int getMonth() {
+    return this.getLocalDate().getMonthValue();
+  }
+
+  public int getYear() {
+    return this.getLocalDate().getYear();
+  }
+
+  private LocalDateTime getLocalDate() {
+    if (localDate == null) {
+      this.localDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
     }
+    return localDate;
   }
 }

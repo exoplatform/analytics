@@ -5,9 +5,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.exoplatform.addon.analytics.api.service.AnalyticsService;
 import org.exoplatform.addon.analytics.model.chart.ChartType;
 import org.exoplatform.addon.analytics.model.chart.LineChartData;
-import org.exoplatform.addon.analytics.service.AnalyticsService;
 
 @Path("/analytics")
 @RolesAllowed("users")
@@ -20,7 +20,6 @@ public class AnalyticsREST {
   }
 
   @GET
-  @Path("collaboration/productivity")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
   public Response getChartData(@QueryParam("type") String chartType) {

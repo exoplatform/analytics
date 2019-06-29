@@ -16,27 +16,65 @@
  */
 package org.exoplatform.addon.analytics.test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
+
+import java.util.List;
 
 import org.junit.Test;
 
-import org.exoplatform.addon.analytics.service.AnalyticsDataInjector;
-import org.exoplatform.addon.analytics.service.AnalyticsService;
+import org.exoplatform.addon.analytics.model.AnalyticsFilter;
+import org.exoplatform.addon.analytics.model.StatisticData;
+import org.exoplatform.commons.search.index.IndexingOperationProcessor;
 
 public class AnalyticsServiceTest extends BaseAnalyticsTest {
 
   @Test
   public void testServicesStarted() {
-    assertNotNull(getService(AnalyticsService.class));
-    assertNotNull(getService(AnalyticsDataInjector.class));
+    assertNotNull("Analytics Service is not instantiated", analyticsService);
+    assertNotNull("Analytics Queue Service is not instantiated", analyticsQueueService);
+    assertNotNull("Analytics Data Injector Service is not instantiated", analyticsDataInjector);
+
+    assertNotNull("Empty analytics queue consumers", analyticsQueueService.getProcessors());
+    assertEquals("Unexpected number of processors", 1, analyticsQueueService.getProcessors().size());
   }
 
   @Test
-  public void testAnalyticsInjection() {
-    AnalyticsDataInjector analyticsDataInjector = getService(AnalyticsDataInjector.class);
-    assertNotNull(analyticsDataInjector);
+  public void testAnalyticsInjection() throws InterruptedException {
     assertFalse("Analytics data shouldn't be injected", analyticsDataInjector.isDataInjected());
+
+    analyticsDataInjector.setEnabled(true);
+    analyticsDataInjector.start();
+    assertTrue("Analytics data should be injected", analyticsDataInjector.isDataInjected());
+
+    IndexingOperationProcessor indexingOperationProcessor = getService(IndexingOperationProcessor.class);
+    do {
+      indexingOperationProcessor.process();
+      Thread.sleep(1000);
+    } while (analyticsQueueService.queueSize() > 0);
+
+    assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
+
+    List<StatisticData> injectedDate = analyticsService.getData(null);
+    assertNotNull("Returned injected data is null", injectedDate);
+    assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+
+    AnalyticsFilter filter = new AnalyticsFilter();
+    assertEquals("Unexpected injected data size", 1633, analyticsService.count(filter));
+
+    filter.addEqualFilter("activityId", "1");
+    assertEquals("Unexpected injected data size", 1633, analyticsService.count(filter));
+
+    filter.addEqualFilter("module", "social");
+
+    filter.addLessFilter("spaceId", 5);
+
+    filter.addGreaterFilter("month", 6);
+
+    filter.addRangeFilter("year", 2018, 2019);
+
+    filter.addInSetFilter("dayOfMonth", "2", "3", "4");
+
+    assertEquals("Unexpected injected data size", 27, analyticsService.count(filter));
   }
 
 }
