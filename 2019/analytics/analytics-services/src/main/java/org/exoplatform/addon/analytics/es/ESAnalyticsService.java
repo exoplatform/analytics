@@ -5,7 +5,6 @@ import static org.exoplatform.addon.analytics.utils.AnalyticsUtils.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.json.*;
 
 import org.exoplatform.addon.analytics.api.service.AnalyticsQueueService;
@@ -13,19 +12,17 @@ import org.exoplatform.addon.analytics.api.service.AnalyticsService;
 import org.exoplatform.addon.analytics.model.*;
 import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregation;
 import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregationType;
-import org.exoplatform.addon.analytics.model.search.AnalyticsFieldFilter;
-import org.exoplatform.addon.analytics.model.search.AnalyticsSearchFilter;
-import org.exoplatform.addon.analytics.utils.AnalyticsUtils;
+import org.exoplatform.addon.analytics.model.search.*;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 public class ESAnalyticsService extends AnalyticsService {
+  private static final Log       LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
+
   private static final String    AGGREGATION_RESULT_PARAM       = "aggregation_result";
 
   private static final String    AGGREGATION_RESULT_VALUE_PARAM = "aggregation_result_value";
-
-  private static final Log       LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
 
   private List<String>           esKnownDataFields              = null;
 
@@ -159,7 +156,7 @@ public class ESAnalyticsService extends AnalyticsService {
             esQuery.append("        {\"match\" : {\"")
                    .append(field)
                    .append("\" : \"")
-                   .append(fieldFilter.getValue())
+                   .append(fieldFilter.getValueString())
                    .append("\"")
                    .append("        }},\n");
             break;
@@ -168,7 +165,7 @@ public class ESAnalyticsService extends AnalyticsService {
                    .append(field)
                    .append("\" : {")
                    .append("\"gte\" : ")
-                   .append(fieldFilter.getValue())
+                   .append(fieldFilter.getValueString())
                    .append("        }}},\n");
             break;
           case LESS:
@@ -176,29 +173,25 @@ public class ESAnalyticsService extends AnalyticsService {
                    .append(field)
                    .append("\" : {")
                    .append("\"lte\" : ")
-                   .append(fieldFilter.getValue())
+                   .append(fieldFilter.getValueString())
                    .append("        }}},\n");
             break;
           case RANGE:
-            @SuppressWarnings("unchecked")
-            ImmutablePair<Long, Long> range = (ImmutablePair<Long, Long>) fieldFilter.getValue();
+            Range range = fieldFilter.getRange();
             esQuery.append("        {\"range\" : {\"")
                    .append(field)
                    .append("\" : {")
                    .append("\"gte\" : ")
-                   .append(range.getKey())
+                   .append(range.getMin())
                    .append(",\"lte\" : ")
-                   .append(range.getValue())
+                   .append(range.getMax())
                    .append("        }}},\n");
             break;
           case IN_SET:
-            @SuppressWarnings("unchecked")
-            Set<String> set = (Set<String>) fieldFilter.getValue();
-            AnalyticsUtils.toJsonString(set);
             esQuery.append("        {\"terms\" : {\"")
                    .append(field)
                    .append("\" : ")
-                   .append(collectionToJSONString(set))
+                   .append(collectionToJSONString(fieldFilter.getValuesString()))
                    .append("        }},\n");
             break;
           default:
@@ -252,11 +245,20 @@ public class ESAnalyticsService extends AnalyticsService {
 
     String parentKey = "";
 
-    computeAggregatedResultEntry(result, aggregations, parentKey);
+    Map<String, String> resultInMap = new HashMap<>();
+    computeAggregatedResultEntry(resultInMap, aggregations, parentKey);
+    List<String> keys = new ArrayList<>(resultInMap.keySet());
+    Collections.sort(keys);
+    for (String key : keys) {
+      result.getLabels().add(key);
+      result.getData().add(resultInMap.get(key));
+    }
     return result;
   }
 
-  private void computeAggregatedResultEntry(ChartData chartData, JSONObject aggregations, String parentKey) throws JSONException {
+  private void computeAggregatedResultEntry(Map<String, String> resultInMap,
+                                            JSONObject aggregations,
+                                            String parentKey) throws JSONException {
     JSONObject aggsResult = aggregations.getJSONObject(AGGREGATION_RESULT_PARAM);
     JSONArray buckets = aggsResult.getJSONArray("buckets");
     if (buckets.length() > 0) {
@@ -264,15 +266,14 @@ public class ESAnalyticsService extends AnalyticsService {
         JSONObject bucketResult = buckets.getJSONObject(i);
         String key = parentKey + bucketResult.getString("key") + "_";
         if (bucketResult.isNull(AGGREGATION_RESULT_PARAM)) {
-          chartData.getChartXLabels().add(key);
           if (bucketResult.isNull(AGGREGATION_RESULT_VALUE_PARAM)) {
-            chartData.getChartYData().add(bucketResult.get("doc_count").toString());
+            resultInMap.put(key, bucketResult.get("doc_count").toString());
           } else {
             JSONObject valueResult = bucketResult.getJSONObject(AGGREGATION_RESULT_VALUE_PARAM);
-            chartData.getChartYData().add(valueResult.get("value").toString());
+            resultInMap.put(key, valueResult.get("value").toString());
           }
         } else {
-          computeAggregatedResultEntry(chartData, bucketResult, key);
+          computeAggregatedResultEntry(resultInMap, bucketResult, key);
         }
       }
     }

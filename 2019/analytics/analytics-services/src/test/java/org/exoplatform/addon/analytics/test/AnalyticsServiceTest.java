@@ -118,10 +118,10 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
     ChartData chartData = analyticsService.getChartData(analyticsFilter);
 
     assertNotNull("Unexpected injected data size", chartData);
-    assertEquals("Unexpected injected labels (X axis) data size", 40, chartData.getChartXLabels().size());
+    assertEquals("Unexpected injected labels (X axis) data size", 40, chartData.getLabels().size());
     assertEquals("Unexpected injected values (Y axis) data size",
-                 chartData.getChartXLabels().size(),
-                 chartData.getChartYData().size());
+                 chartData.getLabels().size(),
+                 chartData.getData().size());
   }
 
 }

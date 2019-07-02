@@ -16,9 +16,9 @@ public class ChartData implements Serializable {
 
   private String            chartTitle;
 
-  private List<String>      chartXLabels     = new ArrayList<>();
+  private List<String>      labels           = new ArrayList<>();
 
-  private List<String>      chartYData       = new ArrayList<>();
+  private List<String>      data             = new ArrayList<>();
 
   private long              searchDate;
 

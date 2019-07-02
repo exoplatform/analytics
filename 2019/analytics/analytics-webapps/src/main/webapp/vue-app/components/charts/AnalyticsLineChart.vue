@@ -2,20 +2,8 @@
 export default {
   extends: VueChart.Line,
   props: {
-    data: {
-      type: Array,
-      default: function() {
-        return null;
-      },
-    },
-    chartLabel: {
-      type: Array,
-      default: function() {
-        return null;
-      },
-    },
-    labels: {
-      type: Array,
+    chartTitle: {
+      type: String,
       default: function() {
         return null;
       },
@@ -32,18 +20,17 @@ export default {
     }
   },
   methods: {
-    init() {
-      if (!this.data) {
-        console.debug('No chart data', this.data);
+    init(labels, data) {
+      if (!data) {
+        console.debug('No chart data', data);
         return;
       }
-      if (!this.labels) {
-        console.debug('No chart labels', this.labels);
+      if (!labels) {
+        console.debug('No chart labels', labels);
         return;
       }
-      if (!this.chartLabel) {
-        console.debug('No chart label', this.chartLabel);
-        return;
+      if (!this.chartTitle) {
+        console.debug('No chart label', this.chartTitle);
       }
       this.gradient = this.$refs.canvas.getContext('2d').createLinearGradient(0, 0, 0, 450)
       this.gradient.addColorStop(0, 'rgba(255, 0,0, 0.5)')
@@ -51,16 +38,16 @@ export default {
       this.gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
 
       this.renderChart({
-        labels: this.labels,
+        labels: labels,
         datasets: [
           {
-            label: this.chartLabel,
+            label: this.chartTitle || 'Chart title',
             borderColor: '#05CBE1',
             pointBackgroundColor: 'white',
             pointBorderColor: 'white',
             borderWidth: 1,
             backgroundColor: this.gradient,
-            data: this.data,
+            data: data,
           }
         ]
       }, {responsive: true, maintainAspectRatio: false});

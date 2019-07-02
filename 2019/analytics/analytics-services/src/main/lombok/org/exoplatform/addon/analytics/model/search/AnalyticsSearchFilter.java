@@ -5,8 +5,6 @@ import static org.exoplatform.addon.analytics.model.search.AnalyticsFieldFilterT
 import java.io.Serializable;
 import java.util.*;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
 import groovy.transform.ToString;
 import lombok.*;
 
@@ -25,7 +23,7 @@ public class AnalyticsSearchFilter implements Serializable {
   private long                       limit            = 0;
 
   public void addEqualFilter(String field, String value) {
-    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, EQUAL, value);
+    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, EQUAL, String.valueOf(value));
     this.filters.add(fieldFilter);
   }
 
@@ -36,18 +34,20 @@ public class AnalyticsSearchFilter implements Serializable {
     }
   }
 
-  public void addRangeFilter(String field, long start, long end) {
-    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, RANGE, new ImmutablePair<Long, Long>(start, end));
+  public void addRangeFilter(String field, double start, double end) {
+    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field,
+                                                                RANGE,
+                                                                new Range(String.valueOf(start), String.valueOf(end)));
     this.filters.add(fieldFilter);
   }
 
   public void addGreaterFilter(String field, long value) {
-    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, GREATER, value);
+    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, GREATER, String.valueOf(value));
     this.filters.add(fieldFilter);
   }
 
   public void addLessFilter(String field, long value) {
-    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, LESS, value);
+    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, LESS, String.valueOf(value));
     this.filters.add(fieldFilter);
   }
 }
