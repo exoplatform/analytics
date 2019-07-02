@@ -1,4 +1,4 @@
-package org.exoplatform.addon.analytics.model;
+package org.exoplatform.addon.analytics.model.search;
 
 public enum AnalyticsFieldFilterType {
   RANGE,

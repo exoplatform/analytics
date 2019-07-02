@@ -1,48 +1,22 @@
 package org.exoplatform.addon.analytics.model;
 
-import static org.exoplatform.addon.analytics.model.AnalyticsFieldFilterType.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.*;
+import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregation;
+import org.exoplatform.addon.analytics.model.search.AnalyticsSearchFilter;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
-import lombok.*;
+import groovy.transform.ToString;
+import lombok.Data;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class AnalyticsFilter {
+@ToString
+public class AnalyticsFilter implements Serializable {
 
-  private List<AnalyticsFieldFilter> filters = new ArrayList<>();
+  private static final long          serialVersionUID = 5699550622069979910L;
 
-  private long                       offset  = 0;
+  private AnalyticsSearchFilter      searchFilter     = new AnalyticsSearchFilter();
 
-  private long                       limit   = 0;
-
-  public void addEqualFilter(String field, String value) {
-    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, EQUAL, value);
-    this.filters.add(fieldFilter);
-  }
-
-  public void addInSetFilter(String field, String... values) {
-    if (values != null && values.length > 0) {
-      AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, IN_SET, new HashSet<>(Arrays.asList(values)));
-      this.filters.add(fieldFilter);
-    }
-  }
-
-  public void addRangeFilter(String field, long start, long end) {
-    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, RANGE, new ImmutablePair<Long, Long>(start, end));
-    this.filters.add(fieldFilter);
-  }
-
-  public void addGreaterFilter(String field, long value) {
-    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, GREATER, value);
-    this.filters.add(fieldFilter);
-  }
-
-  public void addLessFilter(String field, long value) {
-    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, LESS, value);
-    this.filters.add(fieldFilter);
-  }
+  private List<AnalyticsAggregation> aggregations     = new ArrayList<>();
 }

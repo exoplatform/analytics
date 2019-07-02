@@ -59,4 +59,15 @@ public class BaseAnalyticsTest {
   public static final <T> T getService(Class<T> componentType) {
     return container.getComponentInstanceOfType(componentType);
   }
+
+  protected void processIndexingQueue() throws InterruptedException {
+    IndexingOperationProcessor indexingOperationProcessor = getService(IndexingOperationProcessor.class);
+    do {
+      indexingOperationProcessor.process();
+      Thread.sleep(1000);
+    } while (analyticsQueueService.queueSize() > 0);
+    indexingOperationProcessor.process();
+    Thread.sleep(1000);
+  }
+
 }

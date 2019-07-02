@@ -134,6 +134,7 @@ public class AnalyticsUtils {
     do {
       jsonString = jsonString.replaceAll(" ", "")
                              .replaceAll("\n", "")
+                             .replaceAll(",+", ",")
                              .replaceAll("([\\]}]+),([\\]}]+)", "$1$2");
     } while (JSON_CLEANER_REPLACEMENT_PATTERN.matcher(jsonString).find());
     return jsonString;

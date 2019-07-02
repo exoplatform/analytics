@@ -11,16 +11,23 @@ import org.json.*;
 import org.exoplatform.addon.analytics.api.service.AnalyticsQueueService;
 import org.exoplatform.addon.analytics.api.service.AnalyticsService;
 import org.exoplatform.addon.analytics.model.*;
-import org.exoplatform.addon.analytics.model.chart.ChartType;
-import org.exoplatform.addon.analytics.model.chart.LineChartData;
+import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregation;
+import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregationType;
+import org.exoplatform.addon.analytics.model.search.AnalyticsFieldFilter;
+import org.exoplatform.addon.analytics.model.search.AnalyticsSearchFilter;
 import org.exoplatform.addon.analytics.utils.AnalyticsUtils;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 public class ESAnalyticsService extends AnalyticsService {
-  // private static final Log LOG =
-  // ExoLogger.getLogger(ESAnalyticsService.class);
+  private static final String    AGGREGATION_RESULT_PARAM       = "aggregation_result";
 
-  private List<String>           esKnownDataFields = null;
+  private static final String    AGGREGATION_RESULT_VALUE_PARAM = "aggregation_result_value";
+
+  private static final Log       LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
+
+  private List<String>           esKnownDataFields              = null;
 
   private ElasticSearchingClient esClient;
 
@@ -38,54 +45,89 @@ public class ESAnalyticsService extends AnalyticsService {
   }
 
   @Override
-  public LineChartData getChartData(ChartType chartType) {
-    // TODO Auto-generated method stub
-    return null;
-  }
+  public ChartData getChartData(AnalyticsFilter filter) {
+    boolean retrieveUsedTuples = false;
 
-  @Override
-  public List<StatisticData> getData(AnalyticsFilter filter) {
-    StringBuilder esQuery = buildFilterQuery(filter, false);
-    String jsonResponse = this.esClient.sendRequest(esQuery.toString(),
-                                                    AnalyticsIndexingServiceConnector.ES_ALIAS,
-                                                    AnalyticsIndexingServiceConnector.ES_TYPE);
-    try {
-      return buildResult(jsonResponse);
-    } catch (JSONException e) {
-      throw new IllegalStateException("Error parsing results with filter: " + filter + ", response: " + jsonResponse, e);
-    }
-  }
+    StringBuilder esQuery = new StringBuilder();
+    buildAnalyticsQuery(filter, retrieveUsedTuples, esQuery);
 
-  @Override
-  public int count(AnalyticsFilter filter) {
-    StringBuilder esQuery = buildFilterQuery(filter, true);
     String esQueryString = esQuery.toString();
     esQueryString = fixJSONStringFormat(esQueryString);
+    LOG.info("ES query to compute chart data with filter {} \n{}", filter, esQueryString);
+
     String jsonResponse = this.esClient.sendRequest(esQueryString,
                                                     AnalyticsIndexingServiceConnector.ES_ALIAS,
                                                     AnalyticsIndexingServiceConnector.ES_TYPE);
     try {
-      return getCount(jsonResponse);
+      return buildChartDataFromESResponse(jsonResponse);
     } catch (JSONException e) {
       throw new IllegalStateException("Error parsing results with filter: " + filter + ", response: " + jsonResponse, e);
     }
   }
 
-  private StringBuilder buildFilterQuery(AnalyticsFilter filter, boolean isCount) {
+  @Override
+  public List<StatisticData> getData(AnalyticsSearchFilter searchFilter) {
+    StringBuilder esQuery = buildFilterQuery(searchFilter, false);
+
+    String esQueryString = esQuery.toString();
+    esQueryString = fixJSONStringFormat(esQueryString);
+    LOG.info("ES query to compute search count with filter {}: \n{}", searchFilter, esQueryString);
+
+    String jsonResponse = this.esClient.sendRequest(esQueryString,
+                                                    AnalyticsIndexingServiceConnector.ES_ALIAS,
+                                                    AnalyticsIndexingServiceConnector.ES_TYPE);
+    try {
+      return buildSearchResultFromESResponse(jsonResponse);
+    } catch (JSONException e) {
+      throw new IllegalStateException("Error parsing results with filter: " + searchFilter + ", response: " + jsonResponse, e);
+    }
+  }
+
+  @Override
+  public int count(AnalyticsSearchFilter searchFilter) {
+    StringBuilder esQuery = buildFilterQuery(searchFilter, true);
+
+    String esQueryString = esQuery.toString();
+    esQueryString = fixJSONStringFormat(esQueryString);
+
+    LOG.info("ES query to compute search count with filter {}: \n{}", searchFilter, esQueryString);
+    String jsonResponse = this.esClient.sendRequest(esQueryString,
+                                                    AnalyticsIndexingServiceConnector.ES_ALIAS,
+                                                    AnalyticsIndexingServiceConnector.ES_TYPE);
+    try {
+      return getSearchCountFromESResponse(jsonResponse);
+    } catch (JSONException e) {
+      throw new IllegalStateException("Error parsing results with filter: " + searchFilter + ", response: " + jsonResponse, e);
+    }
+  }
+
+  private void buildAnalyticsQuery(AnalyticsFilter filter, boolean retrieveUsedTuples, StringBuilder esQuery) {
+    esQuery.append("{\n");
+    buildSearchFilterQuery(esQuery, filter.getSearchFilter(), !retrieveUsedTuples);
+    buildAggregationQuery(esQuery, filter.getAggregations());
+    esQuery.append("}");
+  }
+
+  private StringBuilder buildFilterQuery(AnalyticsSearchFilter searchFilter, boolean isCount) {
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{\n");
+    buildSearchFilterQuery(esQuery, searchFilter, isCount);
+    esQuery.append("}");
+    return esQuery;
+  }
 
+  private void buildSearchFilterQuery(StringBuilder esQuery, AnalyticsSearchFilter searchFilter, boolean isCount) {
     // If it's a count query, no need for results and no need for sort neither
     if (isCount) {
       esQuery.append("     \"size\" : 0");
     } else {
       // Offset
-      long offset = filter == null ? 0 : filter.getOffset();
+      long offset = searchFilter == null ? 0 : searchFilter.getOffset();
       if (offset > 0) {
         esQuery.append("     \"from\" : ").append(offset).append(",\n");
       }
       // Limit
-      long limit = filter == null ? 10 : filter.getLimit();
+      long limit = searchFilter == null ? 10 : searchFilter.getLimit();
       if (limit >= 0 && limit < Long.MAX_VALUE) {
         limit = 10;
       }
@@ -95,17 +137,14 @@ public class ESAnalyticsService extends AnalyticsService {
     }
 
     // Query body
-    appendFilterConditions(filter, esQuery);
+    appendSearchFilterConditions(searchFilter, esQuery);
     // End query body
-
-    esQuery.append("}");
-    return esQuery;
   }
 
-  private void appendFilterConditions(AnalyticsFilter filter, StringBuilder esQuery) {
-    if (filter != null && !filter.getFilters().isEmpty()) {
+  private void appendSearchFilterConditions(AnalyticsSearchFilter searchFilter, StringBuilder esQuery) {
+    if (searchFilter != null && !searchFilter.getFilters().isEmpty()) {
       esQuery.append(",\n");
-      List<AnalyticsFieldFilter> filters = filter.getFilters();
+      List<AnalyticsFieldFilter> filters = searchFilter.getFilters();
       if (filters != null && !filters.isEmpty()) {
         esQuery.append("    \"query\": {\n");
         esQuery.append("      \"bool\" : {\n");
@@ -171,11 +210,75 @@ public class ESAnalyticsService extends AnalyticsService {
       }
       esQuery.append("     },\n");
     }
-
-    // TODO in a Set of values guery // NOSONAR
   }
 
-  private List<StatisticData> buildResult(String jsonResponse) throws JSONException {
+  private void buildAggregationQuery(StringBuilder esQuery,
+                                     List<AnalyticsAggregation> aggregations) {
+    if (aggregations != null && !aggregations.isEmpty()) {
+      StringBuffer endOfQuery = new StringBuffer();
+      for (AnalyticsAggregation analyticsAggregation : aggregations) {
+        esQuery.append("     ,\"aggs\": {");
+
+        if (AnalyticsAggregationType.COUNT == analyticsAggregation.getType()) {
+          esQuery.append("       \"").append(AGGREGATION_RESULT_PARAM).append("\": {");
+        } else {
+          esQuery.append("       \"").append(AGGREGATION_RESULT_VALUE_PARAM).append("\": {");
+        }
+
+        esQuery.append("         \"").append(analyticsAggregation.getType().getName()).append("\": {");
+        esQuery.append("           \"field\": \"").append(analyticsAggregation.getField()).append("\"");
+        esQuery.append("         }");
+
+        // Appended at the end
+        endOfQuery.append("       }");
+        endOfQuery.append("     }");
+      }
+      esQuery.append(endOfQuery);
+    }
+  }
+
+  private ChartData buildChartDataFromESResponse(String jsonResponse) throws JSONException {
+    ChartData result = new ChartData();
+    JSONObject json = new JSONObject(jsonResponse);
+
+    JSONObject aggregations = json.getJSONObject("aggregations");
+    if (aggregations == null) {
+      return result;
+    }
+    JSONObject hitsResult = (JSONObject) json.get("hits");
+
+    result.setComputingTime(json.getLong("took"));
+    result.setDataCount(hitsResult.getLong("total"));
+
+    String parentKey = "";
+
+    computeAggregatedResultEntry(result, aggregations, parentKey);
+    return result;
+  }
+
+  private void computeAggregatedResultEntry(ChartData chartData, JSONObject aggregations, String parentKey) throws JSONException {
+    JSONObject aggsResult = aggregations.getJSONObject(AGGREGATION_RESULT_PARAM);
+    JSONArray buckets = aggsResult.getJSONArray("buckets");
+    if (buckets.length() > 0) {
+      for (int i = 0; i < buckets.length(); i++) {
+        JSONObject bucketResult = buckets.getJSONObject(i);
+        String key = parentKey + bucketResult.getString("key") + "_";
+        if (bucketResult.isNull(AGGREGATION_RESULT_PARAM)) {
+          chartData.getChartXLabels().add(key);
+          if (bucketResult.isNull(AGGREGATION_RESULT_VALUE_PARAM)) {
+            chartData.getChartYData().add(bucketResult.get("doc_count").toString());
+          } else {
+            JSONObject valueResult = bucketResult.getJSONObject(AGGREGATION_RESULT_VALUE_PARAM);
+            chartData.getChartYData().add(valueResult.get("value").toString());
+          }
+        } else {
+          computeAggregatedResultEntry(chartData, bucketResult, key);
+        }
+      }
+    }
+  }
+
+  private List<StatisticData> buildSearchResultFromESResponse(String jsonResponse) throws JSONException {
     List<StatisticData> results = new ArrayList<>();
     JSONObject json = new JSONObject(jsonResponse);
 
@@ -203,7 +306,7 @@ public class ESAnalyticsService extends AnalyticsService {
     return results;
   }
 
-  private int getCount(String jsonResponse) throws JSONException {
+  private int getSearchCountFromESResponse(String jsonResponse) throws JSONException {
     JSONObject json = new JSONObject(jsonResponse);
     JSONObject jsonResult = json.getJSONObject("hits");
     if (jsonResult == null)

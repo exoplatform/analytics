@@ -2,10 +2,8 @@ package org.exoplatform.addon.analytics.api.service;
 
 import java.util.List;
 
-import org.exoplatform.addon.analytics.model.AnalyticsFilter;
-import org.exoplatform.addon.analytics.model.StatisticData;
-import org.exoplatform.addon.analytics.model.chart.ChartType;
-import org.exoplatform.addon.analytics.model.chart.LineChartData;
+import org.exoplatform.addon.analytics.model.*;
+import org.exoplatform.addon.analytics.model.search.AnalyticsSearchFilter;
 
 public abstract class AnalyticsService {
 
@@ -23,10 +21,10 @@ public abstract class AnalyticsService {
     queueService.put(data);
   }
 
-  public abstract LineChartData getChartData(ChartType chartType);
+  public abstract ChartData getChartData(AnalyticsFilter filter);
 
-  public abstract List<StatisticData> getData(AnalyticsFilter filter);
+  public abstract List<StatisticData> getData(AnalyticsSearchFilter filter);
 
-  public abstract int count(AnalyticsFilter filter);
+  public abstract int count(AnalyticsSearchFilter filter);
 
 }

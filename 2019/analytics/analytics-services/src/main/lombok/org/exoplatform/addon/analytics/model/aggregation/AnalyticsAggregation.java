@@ -1,10 +1,12 @@
-package org.exoplatform.addon.analytics.model;
+package org.exoplatform.addon.analytics.model.aggregation;
 
 import java.io.Serializable;
 
+import groovy.transform.ToString;
 import lombok.Data;
 
 @Data
+@ToString
 public class AnalyticsAggregation implements Serializable {
 
   private static final long        serialVersionUID = 2130321038232532587L;
