@@ -41,4 +41,9 @@ public class AnalyticsFieldFilter implements Serializable {
     this.type = type;
     this.range = range;
   }
+
+  public AnalyticsFieldFilter(String field, AnalyticsFieldFilterType type) {
+    this.field = field;
+    this.type = type;
+  }
 }

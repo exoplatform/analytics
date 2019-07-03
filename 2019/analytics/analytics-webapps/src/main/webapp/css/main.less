@@ -29,7 +29,6 @@
 }
 
 #AnalyticsApp {
-  min-height: ~"calc( 100vh - 60px)";
 
   textarea {
     margin-bottom: 0;
@@ -106,6 +105,10 @@
   .v-autocomplete label {
     z-index: 1002;
   }
+  .v-autocomplete__content {
+    position: fixed;
+    z-index: 1100 !important;
+  }
 
   code {
     padding: 0;
@@ -117,5 +120,16 @@
     max-width: ~"calc(100% - 24px)" !important;
     border: 1px solid #e1e8ee !important;
     border-radius: 0 0 3px 3px !important;
+  }
+
+  canvas {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .searchFilterForm, .aggregationForm {
+    .operatorInput {
+      margin: auto;
+    }
   }
 }

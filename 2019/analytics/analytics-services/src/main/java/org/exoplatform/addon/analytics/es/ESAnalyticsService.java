@@ -152,6 +152,18 @@ public class ESAnalyticsService extends AnalyticsService {
             field += ".keyword";
           }
           switch (fieldFilter.getType()) {
+          case NOT_NULL:
+            esQuery.append("        {\"exists\" : {\"")
+                   .append("field")
+                   .append("\" : \"")
+                   .append(field)
+                   .append("\"      }},\n");
+            break;
+          case IS_NULL:
+            esQuery.append("        {\"bool\": {\"must_not\": {\"exists\": {\"field\": \"")
+                   .append(field)
+                   .append("\"      }}}},\n");
+            break;
           case EQUAL:
             esQuery.append("        {\"match\" : {\"")
                    .append(field)
