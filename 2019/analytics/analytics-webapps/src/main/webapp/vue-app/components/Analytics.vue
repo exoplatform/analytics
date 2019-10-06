@@ -1,139 +1,147 @@
 <template>
   <v-app 
-    id="AnalyticsApp"
-    class="transparent"
+    :id="appId"
+    class="transparent analytics-application"
     flat>
     <main>
-      <v-card class="px-3">
+      <v-card class="px-3 ma-auto">
         <v-card-title
           v-if="loading"
           primary-title
-          class="">
+          class="ma-auto">
           <v-progress-circular
             color="primary"
             indeterminate
             size="20" />
         </v-card-title>
-    
-        <v-card-title v-if="!loading && chartData" primary-title>
+
+        <v-card-title v-else-if="chartsData" primary-title>
           <div>
-            <h3 class="headline mb-0">{{ chartData.chartTitle || 'Chart title' }}</h3>
-            <div v-if="chartData.dataCount"> Total samples count {{ chartData.dataCount }} </div>
-            <div v-if="chartData.computingTime"> Computing time: {{ chartData.computingTime }} ms</div>
-            <div v-if="searchDate"> {{ searchDate }} </div>
+            <h3 v-if="chartTitle" class="headline my-auto">{{ chartTitle }}</h3>
+            <div v-if="chartSetting.displayComputingTime && chartsData.dataCount"> Total samples count {{ chartsData.dataCount }} </div>
+            <div v-if="chartSetting.displaySamplesCount && chartsData.computingTime"> Computing time: {{ chartsData.computingTime }} ms</div>
           </div>
+          <analytics-chart-setting
+            v-if="chartSetting"
+            :parent-id="modalParentId"
+            :settings="chartSetting"
+            class="mt-0"
+            @save="saveSettings" />
         </v-card-title>
-    
+
         <v-card-text class="px-0 mx-0">
-          <analytics-line-chart
-            ref="analyticsChart"
-            :chart-title="chartData.chartTitle" />
-        </v-card-text>
-    
-        <v-card-text class="px-0">
-          <v-container>
-            <v-layout wrap>
-              <v-flex md6 sm12>
-                <search-filter-form :search-filters-content="chartFilter.searchFilter.filters" />
-              </v-flex>
-              <v-flex md6 sm12>
-                <aggregation-form :aggregations="chartFilter.aggregations" />
-              </v-flex>
-              <v-flex md6 sm12>
-                <v-btn color="primary" @click="updateChart">
-                  Update chart
-                </v-btn>
-              </v-flex>
-            </v-layout>
-          </v-container>
+          <analytics-chart ref="analyticsChart" />
         </v-card-text>
       </v-card>
+      <div :id="modalParentId"></div>
     </main>
   </v-app>
 </template>
 
 <script>
-import AnalyticsLineChart from './chart/AnalyticsLineChart.vue';
-import SearchFilterForm from './filter/SearchFilterForm.vue';
-import AggregationForm from './filter/AggregationForm.vue';
+import AnalyticsChart from './chart/AnalyticsChart.vue';
+import AnalyticsChartSetting from './dialog/AnalyticsChartSetting.vue';
 
 export default {
   components: {
-    AnalyticsLineChart,
-    SearchFilterForm,
-    AggregationForm,
+    AnalyticsChart,
+    AnalyticsChartSetting,
+  },
+  props: {
+    retrieveSettingsURL: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
+    saveSettingsURL: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
   },
   data: () => ({
     loading: true,
-    chartData: {},
-    chartFilter: {
-      searchFilter: {
-        filters: [
-          {
-            field: "activityId",
-            type : "EQUAL",
-            valueString : "1",
-          },
-          {
-            field: "module",
-            type : "IN_SET",
-            valuesString : ["social", "no_module"],
-          },
-          {
-            field: "month",
-            type : "RANGE",
-            range : {
-              min: 1,
-              max: 12,
-            }
-          },
-          {
-            field: "year",
-            type : "LESS",
-            valueString : "2020"
-          },
-          {
-            field: "dayOfMonth",
-            type : "GREATER",
-            valueString : "1"
-          },
-          {
-            field: "subModule",
-            type : "NOT_NULL",
-          },
-          {
-            field: "errorMessage",
-            type : "IS_NULL",
-          },
-        ],
-        offset: 0,
-        limit: 0
-      },
-      aggregations: [
-        {
-          type: "COUNT",
-          field: "year"
-        },
-        {
-          type: "COUNT",
-          field: "month"
-        },
-        {
-          type: "COUNT",
-          field: "dayOfMonth"
-        },
-      ],
-    },
+    appId: `AnalyticsApplication${parseInt(Math.random() * 10000)
+      .toString()
+      .toString()}`,
+    modalParentId: `analyticsModals${parseInt(Math.random() * 10000)
+      .toString()
+      .toString()}`,
+    chartsData: {},
+    chartSetting: null,
   }),
   computed: {
-    searchDate() {
-      return this.chartData && this.chartData.searchDate && new Date(this.chartData.searchDate);
+    chartTitle() {
+      return this.chartSetting && this.chartSetting.title;
     },
   },
-  created() {
-    window.setTimeout(this.updateChart, 500);
+  mounted() {
+    this.init();
   },
   methods: {
+    init() {
+      return this.getSettings().then(this.updateChart);
+    },
+    getSettings() {
+      return fetch(this.retrieveSettingsURL, {
+        method: 'GET',
+        credentials: 'include',
+      })
+        .then((resp) => {
+          if (resp && resp.ok) {
+            return resp.json();
+          } else {
+            throw new Error(`Error getting analytics of ${JSON.stringify(this.settings)}`);
+          }
+        })
+        .then((preferences) => {
+          this.chartSetting = preferences && preferences.settings && JSON.parse(preferences.settings);
+          if (!this.chartSetting) {
+            this.chartSetting = {
+              filters: [],
+              aggregations: [],
+            };
+          }
+          if (!this.chartSetting.filters) {
+            this.chartSetting.filters = [];
+          }
+          if (!this.chartSetting.xAxisAggregations) {
+            this.chartSetting.xAxisAggregations = [];
+          }
+          if (!this.chartSetting.yAxisAggregation) {
+            this.chartSetting.yAxisAggregation = {};
+          }
+        });
+    },
+    saveSettings(chartSetting) {
+      this.loading = true;
+
+      this.chartSetting = chartSetting;
+
+      return fetch(this.saveSettingsURL, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: $.param({
+          settings : JSON.stringify(this.chartSetting)
+        }),
+      })
+        .then((resp) => {
+          if (!resp || !resp.ok) {
+            throw new Error('Error saving chart settings', this.chartSetting);
+          }
+          return this.updateChart();
+        })
+        .catch((e) => {
+          console.warn('Error saving chart settings', e);
+          this.error = 'Error saving chart settings';
+        })
+        .finally(() => this.loading = false);
+    },
     updateChart() {
       this.loading = true;
 
@@ -144,18 +152,25 @@ export default {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(this.chartFilter),
+        body: JSON.stringify({
+          filters: this.chartSetting.filters,
+          xAxisAggregations: this.chartSetting.xAxisAggregations,
+          yAxisAggregation: this.chartSetting.yAxisAggregation,
+          multipleChartsField: this.chartSetting.multipleChartsField,
+          offset: this.chartSetting.offset,
+          limit: this.chartSetting.limit,
+        }),
       })
         .then((resp) => {
           if (resp && resp.ok) {
             return resp.json();
           } else {
-            throw new Error(`Error getting analytics of ${JSON.stringify(this.chartFilter)}`);
+            throw new Error('Error getting analytics with settings:', this.chartSetting);
           }
         })
-        .then((chartData) => {
-          this.chartData = chartData;
-          this.$refs.analyticsChart.init(this.chartData.labels, this.chartData.data);
+        .then((chartsData) => {
+          this.chartsData = chartsData;
+          this.$refs.analyticsChart.init(this.chartsData, this.chartSetting);
         })
         .catch((e) => {
           console.debug('fetch analytics - error', e);

@@ -14,15 +14,8 @@ public class ChartData implements Serializable {
 
   private static final long serialVersionUID = 7951982952095482899L;
 
-  private String            chartTitle;
-
-  private List<String>      labels           = new ArrayList<>();
+  private String            chartKey;
 
   private List<String>      data             = new ArrayList<>();
 
-  private long              searchDate;
-
-  private long              computingTime;
-
-  private long              dataCount;
 }

@@ -13,12 +13,13 @@
       "vue"
     ],
     "globals": {
-        "$": true,
-        "global": true,
-        "eXo": true,
         "Vue": true,
         "Vuetify": true,
-        "VueChart": true
+        "eXo": true,
+        "$": true,
+        "global": true,
+        "exoi18n": true,
+        "echarts": true
     },
     "parserOptions": {
         "sourceType": "module",

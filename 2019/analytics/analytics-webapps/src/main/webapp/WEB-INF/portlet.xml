@@ -5,13 +5,9 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
 
    <portlet>
-     <portlet-name>Analytics</portlet-name>
-     <display-name xml:lang="EN">Perk Store Application</display-name>
-     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-     <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/analytics.html</value>
-     </init-param>
+     <portlet-name>AnalyticsPortlet</portlet-name>
+     <display-name xml:lang="EN">Analytics Application</display-name>
+     <portlet-class>org.exoplatform.addon.analytics.portlet.AnalyticsPortlet</portlet-class>
      <expiration-cache>-1</expiration-cache>
      <cache-scope>PUBLIC</cache-scope>
      <supports>
@@ -22,6 +18,24 @@
        <title>Analytics Application</title>
        <keywords>Analytics Application</keywords>
      </portlet-info>
+     <portlet-preferences>
+      <preference>
+        <name>settings</name>
+        <value>
+          {
+            "title": "Chart title",
+            "xAxisAggregations": [],
+            "yAxisAggregations": {},
+            "multipleChartsField": '',
+            "filters": [],
+            "offset": 0,
+            "limit": -1,
+            "displayComputingTime": true,
+            "displaySamplesCount": true,
+          }
+        </value>
+      </preference>
+     </portlet-preferences>
    </portlet>
 
 </portlet-app>

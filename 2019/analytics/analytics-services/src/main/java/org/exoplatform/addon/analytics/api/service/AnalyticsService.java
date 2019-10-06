@@ -3,7 +3,6 @@ package org.exoplatform.addon.analytics.api.service;
 import java.util.List;
 
 import org.exoplatform.addon.analytics.model.*;
-import org.exoplatform.addon.analytics.model.search.AnalyticsSearchFilter;
 
 public abstract class AnalyticsService {
 
@@ -21,10 +20,10 @@ public abstract class AnalyticsService {
     queueService.put(data);
   }
 
-  public abstract ChartData getChartData(AnalyticsFilter filter);
+  public abstract ChartDataList getChartData(AnalyticsFilter filter);
 
-  public abstract List<StatisticData> getData(AnalyticsSearchFilter filter);
+  public abstract List<StatisticData> getData(AnalyticsFilter searchFilter);
 
-  public abstract int count(AnalyticsSearchFilter filter);
+  public abstract int count(AnalyticsFilter searchFilter);
 
 }

@@ -31,7 +31,72 @@
     <portlet-application>
       <portlet>
         <application-ref>analytics</application-ref>
-        <portlet-ref>Analytics</portlet-ref>
+        <portlet-ref>AnalyticsPortlet</portlet-ref>
+        <preferences>
+          <preference>
+            <name>settings</name>
+            <value>
+              [{
+                searchFilter: {
+                  filters: [
+                    {
+                      field: "activityId",
+                      type : "EQUAL",
+                      valueString : "1",
+                    },
+                    {
+                      field: "module",
+                      type : "IN_SET",
+                      valuesString : ["social", "no_module"],
+                    },
+                    {
+                      field: "month",
+                      type : "RANGE",
+                      range : {
+                        min: 1,
+                        max: 12,
+                      }
+                    },
+                    {
+                      field: "year",
+                      type : "LESS",
+                      valueString : "2020"
+                    },
+                    {
+                      field: "dayOfMonth",
+                      type : "GREATER",
+                      valueString : "1"
+                    },
+                    {
+                      field: "subModule",
+                      type : "NOT_NULL",
+                    },
+                    {
+                      field: "errorMessage",
+                      type : "IS_NULL",
+                    },
+                  ],
+                  offset: 0,
+                  limit: 0
+                },
+                aggregations: [
+                  {
+                    type: "COUNT",
+                    field: "year"
+                  },
+                  {
+                    type: "COUNT",
+                    field: "month"
+                  },
+                  {
+                    type: "COUNT",
+                    field: "dayOfMonth"
+                  },
+                ],
+              }]
+            </value>
+          </preference>
+        </preferences>
       </portlet>
       <title>Analytics</title>
       <access-permissions>*:/platform/users</access-permissions>

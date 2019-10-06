@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.exoplatform.addon.analytics.model.*;
 import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregation;
 import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregationType;
-import org.exoplatform.addon.analytics.model.search.AnalyticsSearchFilter;
 
 public class AnalyticsServiceTest extends BaseAnalyticsTest {
 
@@ -68,7 +67,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
     assertNotNull("Returned injected data is null", injectedDate);
     assertFalse("Returned injected data is empty", injectedDate.isEmpty());
 
-    AnalyticsSearchFilter filter = new AnalyticsSearchFilter();
+    AnalyticsFilter filter = new AnalyticsFilter();
     assertEquals("Unexpected injected data size", 1633, analyticsService.count(filter));
 
     filter.addEqualFilter("activityId", "1");
@@ -96,11 +95,10 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
     assertFalse("Returned injected data is empty", injectedDate.isEmpty());
 
     AnalyticsFilter analyticsFilter = new AnalyticsFilter();
-    AnalyticsSearchFilter filter = analyticsFilter.getSearchFilter();
     List<AnalyticsAggregation> aggregations = analyticsFilter.getAggregations();
 
-    filter.addEqualFilter("activityId", "1");
-    filter.addInSetFilter("module", "no_module", "social");
+    analyticsFilter.addEqualFilter("activityId", "1");
+    analyticsFilter.addInSetFilter("module", "no_module", "social");
 
     AnalyticsAggregation yearAggregation = new AnalyticsAggregation();
     yearAggregation.setField("year");
@@ -115,12 +113,17 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
     dayOfMonthAggregation.setType(AnalyticsAggregationType.COUNT);
     aggregations.add(dayOfMonthAggregation);
 
-    ChartData chartData = analyticsService.getChartData(analyticsFilter);
+    ChartDataList chartDataList = analyticsService.getChartData(analyticsFilter);
+    assertNotNull("Unexpected empty charts data", chartDataList);
+    assertNotNull("Unexpected empty charts data size", chartDataList.getCharts());
+    assertEquals("Unexpected empty charts data size", 1, chartDataList.getCharts().size());
+
+    ChartData chartData = chartDataList.getCharts().get(0);
 
     assertNotNull("Unexpected injected data size", chartData);
-    assertEquals("Unexpected injected labels (X axis) data size", 40, chartData.getLabels().size());
+    assertEquals("Unexpected injected labels (X axis) data size", 40, chartDataList.getLabels().size());
     assertEquals("Unexpected injected values (Y axis) data size",
-                 chartData.getLabels().size(),
+                 chartDataList.getLabels().size(),
                  chartData.getData().size());
   }
 

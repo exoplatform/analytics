@@ -54,7 +54,7 @@ const config = {
     jquery: '$',
   },
   plugins: [
-    new ExtractTextWebpackPlugin('css/analytics-v1.0.0.css')
+    new ExtractTextWebpackPlugin('css/analytics.css')
   ]
 };
 

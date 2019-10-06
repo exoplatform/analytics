@@ -8,6 +8,18 @@
   <artifactId>analytics-webapps</artifactId>
   <packaging>war</packaging>
   <name>eXo Add-on:: eXo Analytics - Application</name>
+  <dependencies>
+    <dependency>
+      <groupId>javax.portlet</groupId>
+      <artifactId>portlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
   <build>
     <finalName>analytics</finalName>
     <plugins>

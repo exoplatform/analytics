@@ -34,10 +34,10 @@ public class AnalyticsREST implements ResourceContainer {
       return Response.status(400).build();
     }
     if (filter.getAggregations() != null && !filter.getAggregations().isEmpty()) {
-      ChartData chartData = this.analyticsService.getChartData(filter);
-      return Response.ok(chartData).build();
+      ChartDataList chartsData = this.analyticsService.getChartData(filter);
+      return Response.ok(chartsData).build();
     } else {
-      List<StatisticData> searchResults = this.analyticsService.getData(filter.getSearchFilter());
+      List<StatisticData> searchResults = this.analyticsService.getData(filter);
       return Response.ok(searchResults).build();
     }
   }

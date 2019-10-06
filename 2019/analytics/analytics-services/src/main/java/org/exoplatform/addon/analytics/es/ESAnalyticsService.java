@@ -5,6 +5,7 @@ import static org.exoplatform.addon.analytics.utils.AnalyticsUtils.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.*;
 
 import org.exoplatform.addon.analytics.api.service.AnalyticsQueueService;
@@ -18,6 +19,8 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 public class ESAnalyticsService extends AnalyticsService {
+  private static final String    AGGREGATION_KEYS_SEPARATOR     = "-";
+
   private static final Log       LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
 
   private static final String    AGGREGATION_RESULT_PARAM       = "aggregation_result";
@@ -42,7 +45,7 @@ public class ESAnalyticsService extends AnalyticsService {
   }
 
   @Override
-  public ChartData getChartData(AnalyticsFilter filter) {
+  public ChartDataList getChartData(AnalyticsFilter filter) {
     boolean retrieveUsedTuples = false;
 
     StringBuilder esQuery = new StringBuilder();
@@ -56,14 +59,14 @@ public class ESAnalyticsService extends AnalyticsService {
                                                     AnalyticsIndexingServiceConnector.ES_ALIAS,
                                                     AnalyticsIndexingServiceConnector.ES_TYPE);
     try {
-      return buildChartDataFromESResponse(jsonResponse);
+      return buildChartDataFromESResponse(filter, jsonResponse);
     } catch (JSONException e) {
       throw new IllegalStateException("Error parsing results with filter: " + filter + ", response: " + jsonResponse, e);
     }
   }
 
   @Override
-  public List<StatisticData> getData(AnalyticsSearchFilter searchFilter) {
+  public List<StatisticData> getData(AnalyticsFilter searchFilter) {
     StringBuilder esQuery = buildFilterQuery(searchFilter, false);
 
     String esQueryString = esQuery.toString();
@@ -81,7 +84,7 @@ public class ESAnalyticsService extends AnalyticsService {
   }
 
   @Override
-  public int count(AnalyticsSearchFilter searchFilter) {
+  public int count(AnalyticsFilter searchFilter) {
     StringBuilder esQuery = buildFilterQuery(searchFilter, true);
 
     String esQueryString = esQuery.toString();
@@ -98,121 +101,163 @@ public class ESAnalyticsService extends AnalyticsService {
     }
   }
 
-  private void buildAnalyticsQuery(AnalyticsFilter filter, boolean retrieveUsedTuples, StringBuilder esQuery) {
+  private void buildAnalyticsQuery(AnalyticsFilter analyticsFilter, boolean retrieveUsedTuples, StringBuilder esQuery) {
+    List<AnalyticsSortField> sortFields = getSortFields(analyticsFilter.getXAxisAggregations());
+
     esQuery.append("{\n");
-    buildSearchFilterQuery(esQuery, filter.getSearchFilter(), !retrieveUsedTuples);
-    buildAggregationQuery(esQuery, filter.getAggregations());
+    buildSearchFilterQuery(esQuery,
+                           analyticsFilter.getFilters(),
+                           sortFields,
+                           analyticsFilter.getOffset(),
+                           analyticsFilter.getLimit(),
+                           !retrieveUsedTuples);
+    buildAggregationQuery(esQuery, analyticsFilter.getAggregations());
     esQuery.append("}");
   }
 
-  private StringBuilder buildFilterQuery(AnalyticsSearchFilter searchFilter, boolean isCount) {
+  private List<AnalyticsSortField> getSortFields(List<AnalyticsAggregation> aggregations) {
+    List<AnalyticsSortField> sortFields = new ArrayList<>();
+    aggregations.forEach(agg -> {
+      AnalyticsSortField sortField = new AnalyticsSortField(agg.getField(), agg.getSortDirection());
+      sortFields.add(sortField);
+    });
+    return sortFields;
+  }
+
+  private StringBuilder buildFilterQuery(AnalyticsFilter analyticsFilter, boolean isCount) {
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{\n");
-    buildSearchFilterQuery(esQuery, searchFilter, isCount);
+    buildSearchFilterQuery(esQuery,
+                           analyticsFilter.getFilters(),
+                           null,
+                           analyticsFilter.getOffset(),
+                           analyticsFilter.getLimit(),
+                           isCount);
     esQuery.append("}");
     return esQuery;
   }
 
-  private void buildSearchFilterQuery(StringBuilder esQuery, AnalyticsSearchFilter searchFilter, boolean isCount) {
+  private void buildSearchFilterQuery(StringBuilder esQuery,
+                                      List<AnalyticsFieldFilter> filters,
+                                      List<AnalyticsSortField> sortFields,
+                                      long offset,
+                                      long limit,
+                                      boolean isCount) {
     // If it's a count query, no need for results and no need for sort neither
     if (isCount) {
       esQuery.append("     \"size\" : 0");
     } else {
-      // Offset
-      long offset = searchFilter == null ? 0 : searchFilter.getOffset();
       if (offset > 0) {
         esQuery.append("     \"from\" : ").append(offset).append(",\n");
       }
-      // Limit
-      long limit = searchFilter == null ? 10 : searchFilter.getLimit();
-      if (limit >= 0 && limit < Long.MAX_VALUE) {
-        limit = 10;
+      if (limit <= 0 || limit > Integer.MAX_VALUE) {
+        limit = 10000;
       }
       esQuery.append("     \"size\" : ").append(limit).append(",\n");
-      // Sort by date
-      esQuery.append("     \"sort\" : [{ \"timestamp\":{\"order\" : \"desc\"}}]");
+      if (sortFields == null || sortFields.isEmpty()) {
+        // Sort by date
+        esQuery.append("     \"sort\" : [{ \"timestamp\":{\"order\" : \"asc\"}}]");
+      } else {
+        esQuery.append("     \"sort\" : [");
+        for (int i = 0; i < sortFields.size(); i++) {
+          AnalyticsSortField sortField = sortFields.get(i);
+          if (sortField == null || sortField.getField() == null) {
+            continue;
+          }
+          if (i > 0) {
+            esQuery.append(",");
+          }
+          String direction = sortField.getDirection();
+          if (direction == null) {
+            direction = "asc";
+          }
+          esQuery.append("{ \"")
+                 .append(sortField.getField())
+                 .append("\":{\"order\" : \"")
+                 .append(direction)
+                 .append("\"}}");
+        }
+        esQuery.append("]");
+      }
     }
 
     // Query body
-    appendSearchFilterConditions(searchFilter, esQuery);
+    appendSearchFilterConditions(filters, esQuery);
     // End query body
   }
 
-  private void appendSearchFilterConditions(AnalyticsSearchFilter searchFilter, StringBuilder esQuery) {
-    if (searchFilter != null && !searchFilter.getFilters().isEmpty()) {
+  private void appendSearchFilterConditions(List<AnalyticsFieldFilter> filters, StringBuilder esQuery) {
+    if (filters != null && !filters.isEmpty()) {
       esQuery.append(",\n");
-      List<AnalyticsFieldFilter> filters = searchFilter.getFilters();
-      if (filters != null && !filters.isEmpty()) {
-        esQuery.append("    \"query\": {\n");
-        esQuery.append("      \"bool\" : {\n");
-        esQuery.append("        \"must\" : [\n");
-        for (AnalyticsFieldFilter fieldFilter : filters) {
-          String field = fieldFilter.getField();
-          if (!esKnownDataFields.contains(field.toLowerCase())) {
-            field += ".keyword";
-          }
-          switch (fieldFilter.getType()) {
-          case NOT_NULL:
-            esQuery.append("        {\"exists\" : {\"")
-                   .append("field")
-                   .append("\" : \"")
-                   .append(field)
-                   .append("\"      }},\n");
-            break;
-          case IS_NULL:
-            esQuery.append("        {\"bool\": {\"must_not\": {\"exists\": {\"field\": \"")
-                   .append(field)
-                   .append("\"      }}}},\n");
-            break;
-          case EQUAL:
-            esQuery.append("        {\"match\" : {\"")
-                   .append(field)
-                   .append("\" : \"")
-                   .append(fieldFilter.getValueString())
-                   .append("\"")
-                   .append("        }},\n");
-            break;
-          case GREATER:
-            esQuery.append("        {\"range\" : {\"")
-                   .append(field)
-                   .append("\" : {")
-                   .append("\"gte\" : ")
-                   .append(fieldFilter.getValueString())
-                   .append("        }}},\n");
-            break;
-          case LESS:
-            esQuery.append("        {\"range\" : {\"")
-                   .append(field)
-                   .append("\" : {")
-                   .append("\"lte\" : ")
-                   .append(fieldFilter.getValueString())
-                   .append("        }}},\n");
-            break;
-          case RANGE:
-            Range range = fieldFilter.getRange();
-            esQuery.append("        {\"range\" : {\"")
-                   .append(field)
-                   .append("\" : {")
-                   .append("\"gte\" : ")
-                   .append(range.getMin())
-                   .append(",\"lte\" : ")
-                   .append(range.getMax())
-                   .append("        }}},\n");
-            break;
-          case IN_SET:
-            esQuery.append("        {\"terms\" : {\"")
-                   .append(field)
-                   .append("\" : ")
-                   .append(collectionToJSONString(fieldFilter.getValuesString()))
-                   .append("        }},\n");
-            break;
-          default:
-            break;
-          }
+      esQuery.append("    \"query\": {\n");
+      esQuery.append("      \"bool\" : {\n");
+      esQuery.append("        \"must\" : [\n");
+      for (AnalyticsFieldFilter fieldFilter : filters) {
+        String field = fieldFilter.getField();
+        if (!esKnownDataFields.contains(field.toLowerCase())) {
+          field += ".keyword";
         }
-        esQuery.append("        ],\n");
-        esQuery.append("      },\n");
+        switch (fieldFilter.getType()) {
+        case NOT_NULL:
+          esQuery.append("        {\"exists\" : {\"")
+                 .append("field")
+                 .append("\" : \"")
+                 .append(field)
+                 .append("\"      }},\n");
+          break;
+        case IS_NULL:
+          esQuery.append("        {\"bool\": {\"must_not\": {\"exists\": {\"field\": \"")
+                 .append(field)
+                 .append("\"      }}}},\n");
+          break;
+        case EQUAL:
+          esQuery.append("        {\"match\" : {\"")
+                 .append(field)
+                 .append("\" : \"")
+                 .append(fieldFilter.getValueString())
+                 .append("\"")
+                 .append("        }},\n");
+          break;
+        case GREATER:
+          esQuery.append("        {\"range\" : {\"")
+                 .append(field)
+                 .append("\" : {")
+                 .append("\"gte\" : ")
+                 .append(fieldFilter.getValueString())
+                 .append("        }}},\n");
+          break;
+        case LESS:
+          esQuery.append("        {\"range\" : {\"")
+                 .append(field)
+                 .append("\" : {")
+                 .append("\"lte\" : ")
+                 .append(fieldFilter.getValueString())
+                 .append("        }}},\n");
+          break;
+        case RANGE:
+          Range range = fieldFilter.getRange();
+          esQuery.append("        {\"range\" : {\"")
+                 .append(field)
+                 .append("\" : {")
+                 .append("\"gte\" : ")
+                 .append(range.getMin())
+                 .append(",\"lte\" : ")
+                 .append(range.getMax())
+                 .append("        }}},\n");
+          break;
+        case IN_SET:
+          esQuery.append("        {\"terms\" : {\"")
+                 .append(field)
+                 .append("\" : ")
+                 .append(collectionToJSONString(fieldFilter.getValuesString()))
+                 .append("        }},\n");
+          break;
+        default:
+          break;
+        }
       }
+      esQuery.append("        ],\n");
+      esQuery.append("      },\n");
       esQuery.append("     },\n");
     }
   }
@@ -242,30 +287,58 @@ public class ESAnalyticsService extends AnalyticsService {
     }
   }
 
-  private ChartData buildChartDataFromESResponse(String jsonResponse) throws JSONException {
-    ChartData result = new ChartData();
+  private ChartDataList buildChartDataFromESResponse(AnalyticsFilter filter, String jsonResponse) throws JSONException {
+    ChartDataList charts = new ChartDataList();
+
     JSONObject json = new JSONObject(jsonResponse);
 
     JSONObject aggregations = json.getJSONObject("aggregations");
     if (aggregations == null) {
-      return result;
+      return charts;
     }
     JSONObject hitsResult = (JSONObject) json.get("hits");
 
-    result.setComputingTime(json.getLong("took"));
-    result.setDataCount(hitsResult.getLong("total"));
+    charts.setComputingTime(json.getLong("took"));
+    charts.setDataCount(hitsResult.getLong("total"));
 
     String parentKey = "";
 
     Map<String, String> resultInMap = new HashMap<>();
     computeAggregatedResultEntry(resultInMap, aggregations, parentKey);
+
     List<String> keys = new ArrayList<>(resultInMap.keySet());
-    Collections.sort(keys);
-    for (String key : keys) {
-      result.getLabels().add(key);
-      result.getData().add(resultInMap.get(key));
+    if (filter.isMultipleCharts()) {
+      for (String key : keys) {
+        String[] chartLabelKeys = key.split(AGGREGATION_KEYS_SEPARATOR);
+
+        charts.addChartData(chartLabelKeys[0]);
+
+        String xAxisLabel = StringUtils.join(chartLabelKeys, AGGREGATION_KEYS_SEPARATOR, 1, chartLabelKeys.length);
+        if (!charts.getLabels().contains(xAxisLabel)) {
+          charts.addKey(xAxisLabel);
+        }
+      }
+
+      List<String> xAxisKeys = charts.getXAxisKeys();
+      for (String xAxisKey : xAxisKeys) {
+        for (ChartData chartData : charts.getCharts()) {
+          String yAxisData = resultInMap.get(chartData.getChartKey() + AGGREGATION_KEYS_SEPARATOR + xAxisKey);
+          if (yAxisData == null) {
+            yAxisData = "0";
+          }
+          chartData.getData().add(yAxisData);
+        }
+      }
+    } else {
+      ChartData chartData = new ChartData();
+      for (String key : keys) {
+        charts.addKey(key);
+        chartData.getData().add(resultInMap.get(key));
+      }
+      charts.addChart(chartData);
     }
-    return result;
+
+    return charts;
   }
 
   private void computeAggregatedResultEntry(Map<String, String> resultInMap,
@@ -276,8 +349,8 @@ public class ESAnalyticsService extends AnalyticsService {
     if (buckets.length() > 0) {
       for (int i = 0; i < buckets.length(); i++) {
         JSONObject bucketResult = buckets.getJSONObject(i);
-        String key = parentKey + bucketResult.getString("key") + "_";
         if (bucketResult.isNull(AGGREGATION_RESULT_PARAM)) {
+          String key = parentKey + bucketResult.getString("key");
           if (bucketResult.isNull(AGGREGATION_RESULT_VALUE_PARAM)) {
             resultInMap.put(key, bucketResult.get("doc_count").toString());
           } else {
@@ -285,6 +358,7 @@ public class ESAnalyticsService extends AnalyticsService {
             resultInMap.put(key, valueResult.get("value").toString());
           }
         } else {
+          String key = parentKey + bucketResult.getString("key") + AGGREGATION_KEYS_SEPARATOR;
           computeAggregatedResultEntry(resultInMap, bucketResult, key);
         }
       }
