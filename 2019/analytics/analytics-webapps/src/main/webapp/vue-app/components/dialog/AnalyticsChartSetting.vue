@@ -33,18 +33,22 @@
           background-color="transparent"
           color="primary">
           <v-tab>General</v-tab>
-          <v-tab>Axis</v-tab>
+          <v-tab>X axis</v-tab>
+          <v-tab>Y axis</v-tab>
           <v-tab>Data filters</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-tab-item>
-            <general-setting-form :settings="settings" />
+            <general-setting-form :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item>
-            <aggregation-form :settings="settings" />
+            <x-axis-form :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item>
-            <search-filter-form :filters="settings.filters" />
+            <y-axis-form :settings="chartSettings" />
+          </v-tab-item>
+          <v-tab-item>
+            <search-filter-form :filters="chartSettings.filters" />
           </v-tab-item>
         </v-tabs-items>
       </v-card-text>
@@ -66,13 +70,15 @@
 <script>
 import GeneralSettingForm from './tabs/GeneralSettingForm.vue';
 import SearchFilterForm from './tabs/SearchFilterForm.vue';
-import AggregationForm from './tabs/AggregationForm.vue';
+import XAxisForm from './tabs/XAxisAggregationForm.vue';
+import YAxisForm from './tabs/YAxisAggregationForm.vue';
 
 export default {
   components: {
     GeneralSettingForm,
     SearchFilterForm,
-    AggregationForm,
+    XAxisForm,
+    YAxisForm,
   },
   props: {
     parentId: {
@@ -94,9 +100,14 @@ export default {
       tab: 0,
     };
   },
+  computed: {
+    chartSettings() {
+      return Object.assign({}, this.settings);
+    }
+  },
   methods: {
     save() {
-      this.$emit('save', this.settings);
+      this.$emit('save', this.chartSettings);
       this.dialog = false;
     }
   },

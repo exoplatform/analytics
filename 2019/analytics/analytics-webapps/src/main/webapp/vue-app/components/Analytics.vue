@@ -159,6 +159,7 @@ export default {
           multipleChartsField: this.chartSetting.multipleChartsField,
           offset: this.chartSetting.offset,
           limit: this.chartSetting.limit,
+          lang: eXo.env.portal.language,
         }),
       })
         .then((resp) => {

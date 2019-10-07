@@ -1,4 +1,4 @@
-package org.exoplatform.addon.analytics.model.search;
+package org.exoplatform.addon.analytics.model.filter.search;
 
 public enum AnalyticsFieldFilterType {
   IS_NULL,

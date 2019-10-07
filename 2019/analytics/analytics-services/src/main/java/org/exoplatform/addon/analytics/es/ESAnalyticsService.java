@@ -10,16 +10,17 @@ import org.json.*;
 
 import org.exoplatform.addon.analytics.api.service.AnalyticsQueueService;
 import org.exoplatform.addon.analytics.api.service.AnalyticsService;
-import org.exoplatform.addon.analytics.model.*;
-import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregation;
-import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregationType;
-import org.exoplatform.addon.analytics.model.search.*;
+import org.exoplatform.addon.analytics.model.StatisticData;
+import org.exoplatform.addon.analytics.model.chart.*;
+import org.exoplatform.addon.analytics.model.filter.AnalyticsFilter;
+import org.exoplatform.addon.analytics.model.filter.aggregation.AnalyticsAggregation;
+import org.exoplatform.addon.analytics.model.filter.aggregation.AnalyticsAggregationType;
+import org.exoplatform.addon.analytics.model.filter.search.*;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 public class ESAnalyticsService extends AnalyticsService {
-  private static final String    AGGREGATION_KEYS_SEPARATOR     = "-";
 
   private static final Log       LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
 
@@ -46,6 +47,12 @@ public class ESAnalyticsService extends AnalyticsService {
 
   @Override
   public ChartDataList getChartData(AnalyticsFilter filter) {
+    if (filter == null) {
+      throw new IllegalArgumentException("Filter is mandatory");
+    }
+    if (filter.getAggregations() == null || filter.getAggregations().isEmpty()) {
+      throw new IllegalArgumentException("Filter aggregations is mandatory");
+    }
     boolean retrieveUsedTuples = false;
 
     StringBuilder esQuery = new StringBuilder();
@@ -53,7 +60,7 @@ public class ESAnalyticsService extends AnalyticsService {
 
     String esQueryString = esQuery.toString();
     esQueryString = fixJSONStringFormat(esQueryString);
-    LOG.info("ES query to compute chart data with filter {} \n{}", filter, esQueryString);
+    LOG.debug("ES query to compute chart data with filter {} \n{}", filter, esQueryString);
 
     String jsonResponse = this.esClient.sendRequest(esQueryString,
                                                     AnalyticsIndexingServiceConnector.ES_ALIAS,
@@ -61,7 +68,8 @@ public class ESAnalyticsService extends AnalyticsService {
     try {
       return buildChartDataFromESResponse(filter, jsonResponse);
     } catch (JSONException e) {
-      throw new IllegalStateException("Error parsing results with filter: " + filter + ", response: " + jsonResponse, e);
+      throw new IllegalStateException("Error parsing results with \n - filter: " + filter + "\n - query: " + esQueryString
+          + "\n - response: " + jsonResponse, e);
     }
   }
 
@@ -71,7 +79,7 @@ public class ESAnalyticsService extends AnalyticsService {
 
     String esQueryString = esQuery.toString();
     esQueryString = fixJSONStringFormat(esQueryString);
-    LOG.info("ES query to compute search count with filter {}: \n{}", searchFilter, esQueryString);
+    LOG.debug("ES query to compute search count with filter {}: \n{}", searchFilter, esQueryString);
 
     String jsonResponse = this.esClient.sendRequest(esQueryString,
                                                     AnalyticsIndexingServiceConnector.ES_ALIAS,
@@ -90,7 +98,7 @@ public class ESAnalyticsService extends AnalyticsService {
     String esQueryString = esQuery.toString();
     esQueryString = fixJSONStringFormat(esQueryString);
 
-    LOG.info("ES query to compute search count with filter {}: \n{}", searchFilter, esQueryString);
+    LOG.debug("ES query to compute search count with filter {}: \n{}", searchFilter, esQueryString);
     String jsonResponse = this.esClient.sendRequest(esQueryString,
                                                     AnalyticsIndexingServiceConnector.ES_ALIAS,
                                                     AnalyticsIndexingServiceConnector.ES_TYPE);
@@ -102,15 +110,14 @@ public class ESAnalyticsService extends AnalyticsService {
   }
 
   private void buildAnalyticsQuery(AnalyticsFilter analyticsFilter, boolean retrieveUsedTuples, StringBuilder esQuery) {
-    List<AnalyticsSortField> sortFields = getSortFields(analyticsFilter.getXAxisAggregations());
-
     esQuery.append("{\n");
     buildSearchFilterQuery(esQuery,
                            analyticsFilter.getFilters(),
-                           sortFields,
+                           null,
                            analyticsFilter.getOffset(),
                            analyticsFilter.getLimit(),
-                           !retrieveUsedTuples);
+                           !retrieveUsedTuples,
+                           false);
     buildAggregationQuery(esQuery, analyticsFilter.getAggregations());
     esQuery.append("}");
   }
@@ -125,14 +132,21 @@ public class ESAnalyticsService extends AnalyticsService {
   }
 
   private StringBuilder buildFilterQuery(AnalyticsFilter analyticsFilter, boolean isCount) {
+    List<AnalyticsSortField> sortFields = isCount
+        || analyticsFilter == null ? null : getSortFields(analyticsFilter.getXAxisAggregations());
+    List<AnalyticsFieldFilter> filters = analyticsFilter == null ? Collections.emptyList() : analyticsFilter.getFilters();
+    long offset = analyticsFilter == null ? 0 : analyticsFilter.getOffset();
+    long limit = analyticsFilter == null ? 0 : analyticsFilter.getLimit();
+
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{\n");
     buildSearchFilterQuery(esQuery,
-                           analyticsFilter.getFilters(),
-                           null,
-                           analyticsFilter.getOffset(),
-                           analyticsFilter.getLimit(),
-                           isCount);
+                           filters,
+                           sortFields,
+                           offset,
+                           limit,
+                           isCount,
+                           !isCount);
     esQuery.append("}");
     return esQuery;
   }
@@ -142,10 +156,14 @@ public class ESAnalyticsService extends AnalyticsService {
                                       List<AnalyticsSortField> sortFields,
                                       long offset,
                                       long limit,
-                                      boolean isCount) {
+                                      boolean isCount,
+                                      boolean useSort) {
     // If it's a count query, no need for results and no need for sort neither
     if (isCount) {
       esQuery.append("     \"size\" : 0");
+      if (useSort) {
+        esQuery.append(",");
+      }
     } else {
       if (offset > 0) {
         esQuery.append("     \"from\" : ").append(offset).append(",\n");
@@ -154,6 +172,9 @@ public class ESAnalyticsService extends AnalyticsService {
         limit = 10000;
       }
       esQuery.append("     \"size\" : ").append(limit).append(",\n");
+    }
+
+    if (useSort) {
       if (sortFields == null || sortFields.isEmpty()) {
         // Sort by date
         esQuery.append("     \"sort\" : [{ \"timestamp\":{\"order\" : \"asc\"}}]");
@@ -269,14 +290,26 @@ public class ESAnalyticsService extends AnalyticsService {
       for (AnalyticsAggregation analyticsAggregation : aggregations) {
         esQuery.append("     ,\"aggs\": {");
 
-        if (AnalyticsAggregationType.COUNT == analyticsAggregation.getType()) {
-          esQuery.append("       \"").append(AGGREGATION_RESULT_PARAM).append("\": {");
+        String fieldNabme = null;
+        AnalyticsAggregationType aggregationType = analyticsAggregation.getType();
+        if (AnalyticsAggregationType.COUNT == aggregationType) {
+          fieldNabme = AGGREGATION_RESULT_PARAM;
         } else {
-          esQuery.append("       \"").append(AGGREGATION_RESULT_VALUE_PARAM).append("\": {");
+          fieldNabme = AGGREGATION_RESULT_VALUE_PARAM;
         }
 
-        esQuery.append("         \"").append(analyticsAggregation.getType().getName()).append("\": {");
-        esQuery.append("           \"field\": \"").append(analyticsAggregation.getField()).append("\"");
+        String sortDirection = analyticsAggregation.getSortDirection() == null ? "asc" : analyticsAggregation.getSortDirection();
+
+        esQuery.append("       \"").append(fieldNabme).append("\": {");
+        esQuery.append("         \"").append(aggregationType.getName()).append("\": {");
+        esQuery.append("           \"field\": \"").append(analyticsAggregation.getField()).append("\",");
+        if (aggregationType.isUseInterval()) {
+          if (StringUtils.isBlank(analyticsAggregation.getInterval())) {
+            throw new IllegalStateException("");
+          }
+          esQuery.append("           \"interval\": \"").append(analyticsAggregation.getInterval()).append("\",");
+        }
+        esQuery.append("           \"order\": {\"_term\": \"").append(sortDirection).append("\"}");
         esQuery.append("         }");
 
         // Appended at the end
@@ -288,81 +321,95 @@ public class ESAnalyticsService extends AnalyticsService {
   }
 
   private ChartDataList buildChartDataFromESResponse(AnalyticsFilter filter, String jsonResponse) throws JSONException {
-    ChartDataList charts = new ChartDataList();
+    ChartDataList chartsData = new ChartDataList(filter.getLang());
 
     JSONObject json = new JSONObject(jsonResponse);
 
     JSONObject aggregations = json.getJSONObject("aggregations");
     if (aggregations == null) {
-      return charts;
+      return chartsData;
     }
     JSONObject hitsResult = (JSONObject) json.get("hits");
 
-    charts.setComputingTime(json.getLong("took"));
-    charts.setDataCount(hitsResult.getLong("total"));
+    chartsData.setComputingTime(json.getLong("took"));
+    chartsData.setDataCount(hitsResult.getLong("total"));
 
-    String parentKey = "";
-
-    Map<String, String> resultInMap = new HashMap<>();
-    computeAggregatedResultEntry(resultInMap, aggregations, parentKey);
-
-    List<String> keys = new ArrayList<>(resultInMap.keySet());
-    if (filter.isMultipleCharts()) {
-      for (String key : keys) {
-        String[] chartLabelKeys = key.split(AGGREGATION_KEYS_SEPARATOR);
-
-        charts.addChartData(chartLabelKeys[0]);
-
-        String xAxisLabel = StringUtils.join(chartLabelKeys, AGGREGATION_KEYS_SEPARATOR, 1, chartLabelKeys.length);
-        if (!charts.getLabels().contains(xAxisLabel)) {
-          charts.addKey(xAxisLabel);
-        }
-      }
-
-      List<String> xAxisKeys = charts.getXAxisKeys();
-      for (String xAxisKey : xAxisKeys) {
-        for (ChartData chartData : charts.getCharts()) {
-          String yAxisData = resultInMap.get(chartData.getChartKey() + AGGREGATION_KEYS_SEPARATOR + xAxisKey);
-          if (yAxisData == null) {
-            yAxisData = "0";
-          }
-          chartData.getData().add(yAxisData);
-        }
-      }
-    } else {
-      ChartData chartData = new ChartData();
-      for (String key : keys) {
-        charts.addKey(key);
-        chartData.getData().add(resultInMap.get(key));
-      }
-      charts.addChart(chartData);
-    }
-
-    return charts;
+    int level = filter.isMultipleCharts() ? -1 : 0;
+    AnalyticsAggregation multipleChartsAggregation = filter.getMultipleChartsAggregation();
+    computeAggregatedResultEntry(filter, aggregations, chartsData, multipleChartsAggregation, null, null, level);
+    chartsData.checkResults();
+    return chartsData;
   }
 
-  private void computeAggregatedResultEntry(Map<String, String> resultInMap,
+  private void computeAggregatedResultEntry(AnalyticsFilter filter,
                                             JSONObject aggregations,
-                                            String parentKey) throws JSONException {
+                                            ChartDataList chartsData,
+                                            AnalyticsAggregation multipleChartsAggregation,
+                                            ChartAggregationValue parentAggregation,
+                                            ArrayList<ChartAggregationValue> aggregationValues,
+                                            int level) throws JSONException {
     JSONObject aggsResult = aggregations.getJSONObject(AGGREGATION_RESULT_PARAM);
     JSONArray buckets = aggsResult.getJSONArray("buckets");
     if (buckets.length() > 0) {
+      int nextLevel = level + 1;
       for (int i = 0; i < buckets.length(); i++) {
         JSONObject bucketResult = buckets.getJSONObject(i);
+        ArrayList<ChartAggregationValue> childrenAggregationValues = new ArrayList<>();
+        if (aggregationValues != null) {
+          childrenAggregationValues.addAll(aggregationValues);
+        }
         if (bucketResult.isNull(AGGREGATION_RESULT_PARAM)) {
-          String key = parentKey + bucketResult.getString("key");
+          // Final result is found: last element in term of depth of
+          // aggregations
+          String key = bucketResult.getString("key");
+          String result = null;
           if (bucketResult.isNull(AGGREGATION_RESULT_VALUE_PARAM)) {
-            resultInMap.put(key, bucketResult.get("doc_count").toString());
+            result = bucketResult.get("doc_count").toString();
           } else {
             JSONObject valueResult = bucketResult.getJSONObject(AGGREGATION_RESULT_VALUE_PARAM);
-            resultInMap.put(key, valueResult.get("value").toString());
+            result = valueResult.get("value").toString();
           }
+          addAggregationValue(key, filter, childrenAggregationValues, level);
+          ChartAggregationLabel chartLabel = new ChartAggregationLabel(childrenAggregationValues);
+          ChartAggregationResult aggregationResult = new ChartAggregationResult(chartLabel, result);
+          chartsData.addResult(parentAggregation, aggregationResult);
         } else {
-          String key = parentKey + bucketResult.getString("key") + AGGREGATION_KEYS_SEPARATOR;
-          computeAggregatedResultEntry(resultInMap, bucketResult, key);
+          // An aggresgation in the middle of aggregations tree
+          String key = bucketResult.getString("key");
+          ChartAggregationValue parentAggregationToUse = parentAggregation;
+          if (multipleChartsAggregation != null && level == -1) {
+            parentAggregationToUse = new ChartAggregationValue(multipleChartsAggregation, key);
+          } else {
+            addAggregationValue(key, filter, childrenAggregationValues, level);
+          }
+
+          computeAggregatedResultEntry(filter,
+                                       bucketResult,
+                                       chartsData,
+                                       multipleChartsAggregation,
+                                       parentAggregationToUse,
+                                       childrenAggregationValues,
+                                       nextLevel);
         }
       }
     }
+  }
+
+  private void addAggregationValue(String key,
+                                   AnalyticsFilter filter,
+                                   ArrayList<ChartAggregationValue> aggregationValues,
+                                   int level) {
+    AnalyticsAggregation aggregation = null;
+    if (filter.getXAxisAggregations().size() < level) {
+      if (filter.getYAxisAggregation() == null) {
+        throw new IllegalStateException("Can't find relative aggregation to index " + level);
+      }
+      aggregation = filter.getYAxisAggregation();
+    } else {
+      aggregation = filter.getXAxisAggregations().get(level);
+    }
+    ChartAggregationValue aggregationValue = new ChartAggregationValue(aggregation, key);
+    aggregationValues.add(aggregationValue);
   }
 
   private List<StatisticData> buildSearchResultFromESResponse(String jsonResponse) throws JSONException {

@@ -22,109 +22,176 @@ import java.util.List;
 
 import org.junit.Test;
 
-import org.exoplatform.addon.analytics.model.*;
-import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregation;
-import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregationType;
+import org.exoplatform.addon.analytics.model.StatisticData;
+import org.exoplatform.addon.analytics.model.chart.ChartData;
+import org.exoplatform.addon.analytics.model.chart.ChartDataList;
+import org.exoplatform.addon.analytics.model.filter.AnalyticsFilter;
+import org.exoplatform.addon.analytics.model.filter.aggregation.AnalyticsAggregation;
+import org.exoplatform.addon.analytics.model.filter.aggregation.AnalyticsAggregationType;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 public class AnalyticsServiceTest extends BaseAnalyticsTest {
+  private static final Log LOG = ExoLogger.getLogger(AnalyticsServiceTest.class);
 
   @Test
   public void testServicesStarted() {
-    assertNotNull("Analytics Service is not instantiated", analyticsService);
-    assertNotNull("Analytics Queue Service is not instantiated", analyticsQueueService);
-    assertNotNull("Analytics Data Injector Service is not instantiated", analyticsDataInjector);
+    try {
+      assertNotNull("Analytics Service is not instantiated", analyticsService);
+      assertNotNull("Analytics Queue Service is not instantiated", analyticsQueueService);
+      assertNotNull("Analytics Data Injector Service is not instantiated", analyticsDataInjector);
 
-    assertNotNull("Empty analytics queue consumers", analyticsQueueService.getProcessors());
-    assertEquals("Unexpected number of processors", 1, analyticsQueueService.getProcessors().size());
+      assertNotNull("Empty analytics queue consumers", analyticsQueueService.getProcessors());
+      assertEquals("Unexpected number of processors", 1, analyticsQueueService.getProcessors().size());
+    } catch (Exception e) {
+      LOG.error("Error occurred in test", e);
+      fail(e.getMessage());
+    }
   }
 
   @Test
   public void testAnalyticsInjection() throws InterruptedException {
-    assertFalse("Analytics data shouldn't be injected", analyticsDataInjector.isDataInjected());
+    try {
+      assertFalse("Analytics data shouldn't be injected", analyticsDataInjector.isDataInjected());
 
-    analyticsDataInjector.setEnabled(true);
-    analyticsDataInjector.start();
-    assertTrue("Analytics data should be injected", analyticsDataInjector.isDataInjected());
+      analyticsDataInjector.setEnabled(true);
+      analyticsDataInjector.start();
+      assertTrue("Analytics data should be injected", analyticsDataInjector.isDataInjected());
 
-    processIndexingQueue();
+      processIndexingQueue();
 
-    assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
+      assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
 
-    List<StatisticData> injectedDate = analyticsService.getData(null);
-    assertNotNull("Returned injected data is null", injectedDate);
-    assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+      List<StatisticData> injectedDate = analyticsService.getData(null);
+      assertNotNull("Returned injected data is null", injectedDate);
+      assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+    } catch (Exception e) {
+      LOG.error("Error occurred in test", e);
+      fail(e.getMessage());
+    }
   }
 
   @Test
   public void testSearchAnalyticsData() throws InterruptedException {
-    analyticsDataInjector.reinjectData();
+    try {
+      analyticsDataInjector.reinjectData();
 
-    processIndexingQueue();
+      processIndexingQueue();
 
-    assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
+      assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
 
-    List<StatisticData> injectedDate = analyticsService.getData(null);
-    assertNotNull("Returned injected data is null", injectedDate);
-    assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+      List<StatisticData> injectedDate = analyticsService.getData(null);
+      assertNotNull("Returned injected data is null", injectedDate);
+      assertFalse("Returned injected data is empty", injectedDate.isEmpty());
 
-    AnalyticsFilter filter = new AnalyticsFilter();
-    assertEquals("Unexpected injected data size", 1633, analyticsService.count(filter));
+      AnalyticsFilter filter = new AnalyticsFilter();
+      assertEquals("Unexpected injected data size", 1633, analyticsService.count(filter));
 
-    filter.addEqualFilter("activityId", "1");
-    assertEquals("Unexpected injected data size", 1633, analyticsService.count(filter));
+      filter.addEqualFilter("activityId", "1");
+      assertEquals("Unexpected injected data size", 1633, analyticsService.count(filter));
 
-    filter.addEqualFilter("module", "social");
-    filter.addLessFilter("spaceId", 5);
-    filter.addGreaterFilter("month", 6);
-    filter.addRangeFilter("year", 2018, 2019);
-    filter.addInSetFilter("dayOfMonth", "2", "3", "4");
+      filter.addEqualFilter("module", "social");
+      filter.addLessFilter("spaceId", 5);
+      filter.addGreaterFilter("month", 6);
+      filter.addRangeFilter("year", 2018, 2019);
+      filter.addInSetFilter("dayOfMonth", "2", "3", "4");
 
-    assertEquals("Unexpected injected data size", 27, analyticsService.count(filter));
+      assertEquals("Unexpected injected data size", 27, analyticsService.count(filter));
+    } catch (Exception e) {
+      LOG.error("Error occurred in test", e);
+      fail(e.getMessage());
+    }
   }
 
   @Test
   public void testGetAnalyticsChart() throws InterruptedException {
-    analyticsDataInjector.reinjectData();
+    try {
+      analyticsDataInjector.reinjectData();
 
-    processIndexingQueue();
+      processIndexingQueue();
 
-    assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
+      assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
 
-    List<StatisticData> injectedDate = analyticsService.getData(null);
-    assertNotNull("Returned injected data is null", injectedDate);
-    assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+      List<StatisticData> injectedDate = analyticsService.getData(null);
+      assertNotNull("Returned injected data is null", injectedDate);
+      assertFalse("Returned injected data is empty", injectedDate.isEmpty());
 
-    AnalyticsFilter analyticsFilter = new AnalyticsFilter();
-    List<AnalyticsAggregation> aggregations = analyticsFilter.getAggregations();
+      AnalyticsFilter analyticsFilter = new AnalyticsFilter();
+      analyticsFilter.addEqualFilter("activityId", "1");
+      analyticsFilter.addInSetFilter("module", "no_module", "social");
 
-    analyticsFilter.addEqualFilter("activityId", "1");
-    analyticsFilter.addInSetFilter("module", "no_module", "social");
+      AnalyticsAggregation yearAggregation = new AnalyticsAggregation();
+      yearAggregation.setField("year");
+      yearAggregation.setType(AnalyticsAggregationType.COUNT);
+      analyticsFilter.addXAxisAggregation(yearAggregation);
+      AnalyticsAggregation monthAggregation = new AnalyticsAggregation();
+      monthAggregation.setField("month");
+      monthAggregation.setType(AnalyticsAggregationType.COUNT);
+      analyticsFilter.addXAxisAggregation(monthAggregation);
+      AnalyticsAggregation dayOfMonthAggregation = new AnalyticsAggregation();
+      dayOfMonthAggregation.setField("dayOfMonth");
+      dayOfMonthAggregation.setType(AnalyticsAggregationType.COUNT);
+      analyticsFilter.addXAxisAggregation(dayOfMonthAggregation);
 
-    AnalyticsAggregation yearAggregation = new AnalyticsAggregation();
-    yearAggregation.setField("year");
-    yearAggregation.setType(AnalyticsAggregationType.COUNT);
-    aggregations.add(yearAggregation);
-    AnalyticsAggregation monthAggregation = new AnalyticsAggregation();
-    monthAggregation.setField("month");
-    monthAggregation.setType(AnalyticsAggregationType.COUNT);
-    aggregations.add(monthAggregation);
-    AnalyticsAggregation dayOfMonthAggregation = new AnalyticsAggregation();
-    dayOfMonthAggregation.setField("dayOfMonth");
-    dayOfMonthAggregation.setType(AnalyticsAggregationType.COUNT);
-    aggregations.add(dayOfMonthAggregation);
+      ChartDataList chartDataList = analyticsService.getChartData(analyticsFilter);
+      assertNotNull("Unexpected empty charts data", chartDataList);
+      assertNotNull("Unexpected empty charts data size", chartDataList.getCharts());
+      assertEquals("Unexpected empty charts data size", 1, chartDataList.getCharts().size());
 
-    ChartDataList chartDataList = analyticsService.getChartData(analyticsFilter);
-    assertNotNull("Unexpected empty charts data", chartDataList);
-    assertNotNull("Unexpected empty charts data size", chartDataList.getCharts());
-    assertEquals("Unexpected empty charts data size", 1, chartDataList.getCharts().size());
+      ChartData chartData = chartDataList.getCharts().get(0);
 
-    ChartData chartData = chartDataList.getCharts().get(0);
+      assertNotNull("Unexpected injected data size", chartData);
+      assertEquals("Unexpected injected labels (X axis) data size", 40, chartDataList.getLabels().size());
+      assertEquals("Unexpected injected values (Y axis) data size",
+                   chartDataList.getLabels().size(),
+                   chartData.getValues().size());
+    } catch (Exception e) {
+      LOG.error("Error occurred in test", e);
+      fail(e.getMessage());
+    }
+  }
 
-    assertNotNull("Unexpected injected data size", chartData);
-    assertEquals("Unexpected injected labels (X axis) data size", 40, chartDataList.getLabels().size());
-    assertEquals("Unexpected injected values (Y axis) data size",
-                 chartDataList.getLabels().size(),
-                 chartData.getData().size());
+  @Test
+  public void testGetAnalyticsMultipleCharts() throws InterruptedException {
+    try {
+      analyticsDataInjector.reinjectData();
+
+      processIndexingQueue();
+
+      assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
+
+      List<StatisticData> injectedDate = analyticsService.getData(null);
+      assertNotNull("Returned injected data is null", injectedDate);
+      assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+
+      AnalyticsFilter analyticsFilter = new AnalyticsFilter();
+      analyticsFilter.addEqualFilter("activityId", "1");
+      analyticsFilter.addInSetFilter("module", "no_module", "social");
+
+      analyticsFilter.setMultipleChartsField("month");
+
+      AnalyticsAggregation dayOfMonthAggregation = new AnalyticsAggregation();
+      dayOfMonthAggregation.setField("dayOfMonth");
+      dayOfMonthAggregation.setType(AnalyticsAggregationType.COUNT);
+      analyticsFilter.addXAxisAggregation(dayOfMonthAggregation);
+
+      ChartDataList chartDataList = analyticsService.getChartData(analyticsFilter);
+
+      assertNotNull("Unexpected empty charts data", chartDataList);
+      assertNotNull("Unexpected empty charts data list", chartDataList.getCharts());
+      assertEquals("Unexpected charts data size", 4, chartDataList.getCharts().size());
+      assertEquals("Unexpected injected labels (X axis) data size", 12, chartDataList.getLabels().size());
+
+      for (int i = 0; i < chartDataList.getCharts().size(); i++) {
+        ChartData chartData = chartDataList.getCharts().get(i);
+        assertEquals("Unexpected injected values (Y axis) data size",
+                     chartDataList.getLabels().size(),
+                     chartData.getValues().size());
+      }
+    } catch (Exception e) {
+      LOG.error("Error occurred in test", e);
+      fail(e.getMessage());
+    }
   }
 
 }

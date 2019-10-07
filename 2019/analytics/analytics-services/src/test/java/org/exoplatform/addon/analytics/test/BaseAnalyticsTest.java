@@ -13,7 +13,7 @@ import org.exoplatform.container.*;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.naming.InitialContextInitializer;
 
-public class BaseAnalyticsTest {
+public abstract class BaseAnalyticsTest {
 
   protected static PortalContainer       container;
 

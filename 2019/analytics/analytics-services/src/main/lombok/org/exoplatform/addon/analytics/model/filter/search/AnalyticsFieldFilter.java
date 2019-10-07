@@ -1,4 +1,4 @@
-package org.exoplatform.addon.analytics.model.search;
+package org.exoplatform.addon.analytics.model.filter.search;
 
 import java.io.Serializable;
 import java.util.Set;

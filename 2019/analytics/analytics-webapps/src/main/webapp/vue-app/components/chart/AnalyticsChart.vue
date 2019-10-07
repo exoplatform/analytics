@@ -32,10 +32,10 @@ export default {
       chartsData.charts.forEach(chartData => {
         const serie = {
             type: settings && settings.chartType || 'bar',
-            data: chartData.data,
+            data: chartData.values,
         };
-        if (chartData.chartKey) {
-          serie.name = chartData.chartKey;
+        if (chartData.key && chartData.key.fieldValue) {
+          serie.name = chartData.key.fieldValue;
         }
         series.push(serie);
       });

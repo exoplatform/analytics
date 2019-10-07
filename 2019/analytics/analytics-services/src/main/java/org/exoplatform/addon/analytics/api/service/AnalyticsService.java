@@ -2,7 +2,9 @@ package org.exoplatform.addon.analytics.api.service;
 
 import java.util.List;
 
-import org.exoplatform.addon.analytics.model.*;
+import org.exoplatform.addon.analytics.model.StatisticData;
+import org.exoplatform.addon.analytics.model.chart.ChartDataList;
+import org.exoplatform.addon.analytics.model.filter.AnalyticsFilter;
 
 public abstract class AnalyticsService {
 

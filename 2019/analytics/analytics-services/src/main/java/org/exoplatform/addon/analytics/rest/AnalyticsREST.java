@@ -8,7 +8,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.exoplatform.addon.analytics.api.service.AnalyticsService;
-import org.exoplatform.addon.analytics.model.*;
+import org.exoplatform.addon.analytics.model.StatisticData;
+import org.exoplatform.addon.analytics.model.chart.ChartDataList;
+import org.exoplatform.addon.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;

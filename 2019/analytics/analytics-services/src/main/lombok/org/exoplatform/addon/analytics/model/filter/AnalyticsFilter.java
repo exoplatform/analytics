@@ -1,15 +1,15 @@
-package org.exoplatform.addon.analytics.model;
+package org.exoplatform.addon.analytics.model.filter;
 
-import static org.exoplatform.addon.analytics.model.search.AnalyticsFieldFilterType.*;
+import static org.exoplatform.addon.analytics.model.filter.search.AnalyticsFieldFilterType.*;
 
 import java.io.Serializable;
 import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.exoplatform.addon.analytics.model.aggregation.AnalyticsAggregation;
-import org.exoplatform.addon.analytics.model.search.AnalyticsFieldFilter;
-import org.exoplatform.addon.analytics.model.search.Range;
+import org.exoplatform.addon.analytics.model.filter.aggregation.AnalyticsAggregation;
+import org.exoplatform.addon.analytics.model.filter.search.AnalyticsFieldFilter;
+import org.exoplatform.addon.analytics.model.filter.search.Range;
 
 import groovy.transform.ToString;
 import lombok.Data;
@@ -28,6 +28,8 @@ public class AnalyticsFilter implements Serializable {
 
   private AnalyticsAggregation       yAxisAggregation    = null;
 
+  private String                     lang                = null;
+
   private long                       offset              = 0;
 
   private long                       limit               = 0;
@@ -35,8 +37,9 @@ public class AnalyticsFilter implements Serializable {
   public List<AnalyticsAggregation> getAggregations() {
     List<AnalyticsAggregation> aggregations = new ArrayList<>();
 
-    if (isMultipleCharts()) {
-      aggregations.add(new AnalyticsAggregation(multipleChartsField));
+    AnalyticsAggregation multipleChartsAggregation = getMultipleChartsAggregation();
+    if (multipleChartsAggregation != null) {
+      aggregations.add(multipleChartsAggregation);
     }
 
     aggregations.addAll(xAxisAggregations);
@@ -45,7 +48,18 @@ public class AnalyticsFilter implements Serializable {
       aggregations.add(yAxisAggregation);
     }
 
-    return aggregations;
+    return Collections.unmodifiableList(aggregations);
+  }
+
+  public AnalyticsAggregation getMultipleChartsAggregation() {
+    if (isMultipleCharts()) {
+      return new AnalyticsAggregation(multipleChartsField);
+    }
+    return null;
+  }
+
+  public void addXAxisAggregation(AnalyticsAggregation aggregation) {
+    xAxisAggregations.add(aggregation);
   }
 
   public boolean isMultipleCharts() {
