@@ -152,8 +152,8 @@ public class AnalyticsDataInjector implements Startable {
         int subModuleIndex = random.nextInt(subModules.length - 1);
         int operationIndex = random.nextInt(operations.length - 1);
         String module = modules[moduleIndex];
-        String subModule = modules[subModuleIndex];
-        String operation = modules[operationIndex];
+        String subModule = subModules[subModuleIndex];
+        String operation = operations[operationIndex];
 
         StatisticData statisticData = new StatisticData(AnalyticsUtils.timeToSeconds(date.minusMinutes(j * 10)),
                                                         null,
