@@ -5,7 +5,7 @@
     :attach="`#${parentId}`"
     content-class="uiPopup with-overflow"
     class="editChatSettings"
-    width="600px"
+    width="700px"
     max-width="100vw"
     persistent
     @keydown.esc="dialog = false">
@@ -35,6 +35,7 @@
           <v-tab>General</v-tab>
           <v-tab>X axis</v-tab>
           <v-tab>Y axis</v-tab>
+          <v-tab>Multiple charts</v-tab>
           <v-tab>Data filters</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
@@ -46,6 +47,9 @@
           </v-tab-item>
           <v-tab-item>
             <y-axis-form :settings="chartSettings" />
+          </v-tab-item>
+          <v-tab-item>
+            <multiple-charts :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item>
             <search-filter-form :filters="chartSettings.filters" />
@@ -72,6 +76,7 @@ import GeneralSettingForm from './tabs/GeneralSettingForm.vue';
 import SearchFilterForm from './tabs/SearchFilterForm.vue';
 import XAxisForm from './tabs/XAxisAggregationForm.vue';
 import YAxisForm from './tabs/YAxisAggregationForm.vue';
+import MultipleCharts from './tabs/MultipleChartsAggregationForm.vue';
 
 export default {
   components: {
@@ -79,6 +84,7 @@ export default {
     SearchFilterForm,
     XAxisForm,
     YAxisForm,
+    MultipleCharts,
   },
   props: {
     parentId: {

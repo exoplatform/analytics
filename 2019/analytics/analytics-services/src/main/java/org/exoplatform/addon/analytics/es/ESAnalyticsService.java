@@ -287,29 +287,33 @@ public class ESAnalyticsService extends AnalyticsService {
                                      List<AnalyticsAggregation> aggregations) {
     if (aggregations != null && !aggregations.isEmpty()) {
       StringBuffer endOfQuery = new StringBuffer();
-      for (AnalyticsAggregation analyticsAggregation : aggregations) {
+      Iterator<AnalyticsAggregation> aggregationsIterator = aggregations.iterator();
+      while (aggregationsIterator.hasNext()) {
+        AnalyticsAggregation analyticsAggregation = aggregationsIterator.next();
         esQuery.append("     ,\"aggs\": {");
 
-        String fieldNabme = null;
+        String fieldName = null;
         AnalyticsAggregationType aggregationType = analyticsAggregation.getType();
-        if (AnalyticsAggregationType.COUNT == aggregationType) {
-          fieldNabme = AGGREGATION_RESULT_PARAM;
+        if (AnalyticsAggregationType.COUNT == aggregationType || AnalyticsAggregationType.DATE == aggregationType
+            || AnalyticsAggregationType.HISTOGRAM == aggregationType) {
+          fieldName = AGGREGATION_RESULT_PARAM;
         } else {
-          fieldNabme = AGGREGATION_RESULT_VALUE_PARAM;
+          fieldName = AGGREGATION_RESULT_VALUE_PARAM;
         }
 
         String sortDirection = analyticsAggregation.getSortDirection() == null ? "asc" : analyticsAggregation.getSortDirection();
 
-        esQuery.append("       \"").append(fieldNabme).append("\": {");
+        esQuery.append("       \"").append(fieldName).append("\": {");
         esQuery.append("         \"").append(aggregationType.getName()).append("\": {");
         esQuery.append("           \"field\": \"").append(analyticsAggregation.getField()).append("\",");
         if (aggregationType.isUseInterval()) {
           if (StringUtils.isBlank(analyticsAggregation.getInterval())) {
             throw new IllegalStateException("");
           }
-          esQuery.append("           \"interval\": \"").append(analyticsAggregation.getInterval()).append("\",");
+          esQuery.append("           \"interval\": \"").append(analyticsAggregation.getInterval()).append("\"");
+        } else {
+          esQuery.append("           \"order\": {\"_term\": \"").append(sortDirection).append("\"}");
         }
-        esQuery.append("           \"order\": {\"_term\": \"").append(sortDirection).append("\"}");
         esQuery.append("         }");
 
         // Appended at the end

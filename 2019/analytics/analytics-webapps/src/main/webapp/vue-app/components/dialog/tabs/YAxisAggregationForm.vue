@@ -29,19 +29,6 @@
             label="Aggragation field"
             required />
         </v-flex>
-        <v-flex class="my-auto px-2" xs6>
-          <v-switch
-            v-model="multipleCharts"
-            label="Multiple charts"
-            required />
-        </v-flex>
-        <v-flex class="my-auto px-2" xs6>
-          <v-text-field
-            v-if="multipleCharts"
-            v-model="settings.multipleChartsField"
-            label="Field comparator"
-            required />
-        </v-flex>
       </v-layout>
     </v-card-text>
   </v-form>
@@ -59,7 +46,6 @@ export default {
     },
   },
   data: () => ({
-    multipleCharts: false,
     aggregationTypes: [
       {
         text: 'Count results',
@@ -80,18 +66,7 @@ export default {
       return this.settings && this.settings.yAxisAggregation;
     },
   },
-  watch: {
-    settings() {
-      this.multipleCharts = this.settings && this.settings.multipleChartsField;
-    },
-    multipleCharts() {
-      if (!this.multipleCharts) {
-        this.settings.multipleChartsField = null;
-      }
-    },
-  },
   mounted() {
-    this.multipleCharts = this.settings && this.settings.multipleChartsField;
     if (!this.yAxisAggregation.type) {
       this.yAxisAggregation.type = 'COUNT';
     }

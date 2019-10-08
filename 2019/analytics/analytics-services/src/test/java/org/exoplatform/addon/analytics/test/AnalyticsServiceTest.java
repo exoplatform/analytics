@@ -60,7 +60,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
 
       processIndexingQueue();
 
-      assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
+      assertEquals("Unexpected injected data size", 1721, analyticsService.count(null));
 
       List<StatisticData> injectedDate = analyticsService.getData(null);
       assertNotNull("Returned injected data is null", injectedDate);
@@ -78,17 +78,17 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
 
       processIndexingQueue();
 
-      assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
+      assertEquals("Unexpected injected data size", 1721, analyticsService.count(null));
 
       List<StatisticData> injectedDate = analyticsService.getData(null);
       assertNotNull("Returned injected data is null", injectedDate);
       assertFalse("Returned injected data is empty", injectedDate.isEmpty());
 
       AnalyticsFilter filter = new AnalyticsFilter();
-      assertEquals("Unexpected injected data size", 1633, analyticsService.count(filter));
+      assertEquals("Unexpected injected data size", 1721, analyticsService.count(filter));
 
       filter.addEqualFilter("activityId", "1");
-      assertEquals("Unexpected injected data size", 1633, analyticsService.count(filter));
+      assertEquals("Unexpected injected data size", 1721, analyticsService.count(filter));
 
       filter.addEqualFilter("module", "social");
       filter.addLessFilter("spaceId", 5);
@@ -96,7 +96,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
       filter.addRangeFilter("year", 2018, 2019);
       filter.addInSetFilter("dayOfMonth", "2", "3", "4");
 
-      assertEquals("Unexpected injected data size", 27, analyticsService.count(filter));
+      assertEquals("Unexpected injected data size", 2, analyticsService.count(filter));
     } catch (Exception e) {
       LOG.error("Error occurred in test", e);
       fail(e.getMessage());
@@ -110,7 +110,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
 
       processIndexingQueue();
 
-      assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
+      assertEquals("Unexpected injected data size", 1721, analyticsService.count(null));
 
       List<StatisticData> injectedDate = analyticsService.getData(null);
       assertNotNull("Returned injected data is null", injectedDate);
@@ -141,7 +141,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
       ChartData chartData = chartDataList.getCharts().get(0);
 
       assertNotNull("Unexpected injected data size", chartData);
-      assertEquals("Unexpected injected labels (X axis) data size", 40, chartDataList.getLabels().size());
+      assertEquals("Unexpected injected labels (X axis) data size", 46, chartDataList.getLabels().size());
       assertEquals("Unexpected injected values (Y axis) data size",
                    chartDataList.getLabels().size(),
                    chartData.getValues().size());
@@ -158,7 +158,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
 
       processIndexingQueue();
 
-      assertEquals("Unexpected injected data size", 1633, analyticsService.count(null));
+      assertEquals("Unexpected injected data size", 1721, analyticsService.count(null));
 
       List<StatisticData> injectedDate = analyticsService.getData(null);
       assertNotNull("Returned injected data is null", injectedDate);
@@ -179,8 +179,50 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
 
       assertNotNull("Unexpected empty charts data", chartDataList);
       assertNotNull("Unexpected empty charts data list", chartDataList.getCharts());
-      assertEquals("Unexpected charts data size", 4, chartDataList.getCharts().size());
-      assertEquals("Unexpected injected labels (X axis) data size", 12, chartDataList.getLabels().size());
+      assertEquals("Unexpected charts data size", 5, chartDataList.getCharts().size());
+      assertEquals("Unexpected injected labels (X axis) data size", 21, chartDataList.getLabels().size());
+
+      for (int i = 0; i < chartDataList.getCharts().size(); i++) {
+        ChartData chartData = chartDataList.getCharts().get(i);
+        assertEquals("Unexpected injected values (Y axis) data size",
+                     chartDataList.getLabels().size(),
+                     chartData.getValues().size());
+      }
+    } catch (Exception e) {
+      LOG.error("Error occurred in test", e);
+      fail(e.getMessage());
+    }
+  }
+
+  @Test
+  public void testGetAnalyticsMultipleChartsByInterval() throws InterruptedException {
+    try {
+      analyticsDataInjector.reinjectData();
+
+      processIndexingQueue();
+
+      assertEquals("Unexpected injected data size", 1721, analyticsService.count(null));
+
+      List<StatisticData> injectedDate = analyticsService.getData(null);
+      assertNotNull("Returned injected data is null", injectedDate);
+      assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+
+      AnalyticsFilter analyticsFilter = new AnalyticsFilter();
+
+      analyticsFilter.setMultipleChartsField("module");
+
+      AnalyticsAggregation monthIntervalAggregation = new AnalyticsAggregation();
+      monthIntervalAggregation.setField("timestamp");
+      monthIntervalAggregation.setType(AnalyticsAggregationType.DATE);
+      monthIntervalAggregation.setInterval("month");
+      analyticsFilter.addXAxisAggregation(monthIntervalAggregation);
+
+      ChartDataList chartDataList = analyticsService.getChartData(analyticsFilter);
+
+      assertNotNull("Unexpected empty charts data", chartDataList);
+      assertNotNull("Unexpected empty charts data list", chartDataList.getCharts());
+      assertEquals("Unexpected charts data size", 6, chartDataList.getCharts().size());
+      assertEquals("Unexpected injected labels (X axis) data size", 5, chartDataList.getLabels().size());
 
       for (int i = 0; i < chartDataList.getCharts().size(); i++) {
         ChartData chartData = chartDataList.getCharts().get(i);

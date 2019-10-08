@@ -135,18 +135,33 @@ public class AnalyticsDataInjector implements Startable {
     int numberOfDays = 120;
     Random random = new Random(1);
 
+    String[] modules = { "social", "knowledge", "portal", "ecms", "task", "chat", "calendar" };
+    String[] subModules = { "Activity stream", "Task administration", "User Profile", "Space management", "Space task project",
+        "mini chat", "space calendar" };
+    String[] operations = { "addActivity", "removeActivity", "joinSpace", "leftSpace", "addTask", "addChatRoom", "addEvent",
+        "removeEvent" };
+
     for (int i = 1; i < numberOfDays; i++) {
       LocalDateTime date = LocalDateTime.now().minusDays(i);
 
       int numberOfItemsPerDay = random.nextInt(30);
       for (int j = 0; j < numberOfItemsPerDay; j++) {
+        long userId = random.nextInt(100);
+        long spaceId = random.nextInt(100);
+        int moduleIndex = random.nextInt(modules.length - 1);
+        int subModuleIndex = random.nextInt(subModules.length - 1);
+        int operationIndex = random.nextInt(operations.length - 1);
+        String module = modules[moduleIndex];
+        String subModule = modules[subModuleIndex];
+        String operation = modules[operationIndex];
+
         StatisticData statisticData = new StatisticData(AnalyticsUtils.timeToSeconds(date.minusMinutes(j * 10)),
                                                         null,
-                                                        1L,
-                                                        1L,
-                                                        "social",
-                                                        "activityStream",
-                                                        "addActivity",
+                                                        userId,
+                                                        spaceId,
+                                                        module,
+                                                        subModule,
+                                                        operation,
                                                         StatisticStatus.OK,
                                                         null,
                                                         0L,
