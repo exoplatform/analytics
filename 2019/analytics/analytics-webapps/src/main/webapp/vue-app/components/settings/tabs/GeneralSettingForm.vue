@@ -23,14 +23,15 @@
         <v-select
           v-model="settings.chartType"
           :items="chartTypes"
-          :item-text="text"
-          :item-value="value"
           :value-comparator="selectedValueComparator"
+          item-text="text"
+          item-value="value"
           label="Chart type"
           class="operatorInput"
           hide-selected
           persistent-hint
-          chips />
+          chips
+          @change="$emit('type-changed')" />
       </v-flex>
       <v-flex
         class="my-auto px-2"
@@ -81,5 +82,12 @@ export default {
       },
     ],
   }),
+  methods: {
+    selectedValueComparator(item1, item2){
+      const item1Value = (item1 && item1.value) || item1;
+      const item2Value = (item2 && item2.value) || item2;
+      return item1Value === item2Value;
+    },
+  },
 };
 </script>

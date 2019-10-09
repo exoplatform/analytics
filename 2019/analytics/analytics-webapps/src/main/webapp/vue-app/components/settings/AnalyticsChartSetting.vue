@@ -39,20 +39,23 @@
           <v-tab>Data filters</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
-          <v-tab-item>
-            <general-setting-form :settings="chartSettings" />
+          <v-tab-item eager>
+            <general-setting-form
+              ref="settingForm"
+              :settings="chartSettings"
+              @type-changed="chartTypeChanged" />
           </v-tab-item>
-          <v-tab-item>
-            <x-axis-form :settings="chartSettings" />
+          <v-tab-item eager>
+            <x-axis-form ref="xAxis" :settings="chartSettings" />
           </v-tab-item>
-          <v-tab-item>
-            <y-axis-form :settings="chartSettings" />
+          <v-tab-item eager>
+            <y-axis-form ref="yAxis" :settings="chartSettings" />
           </v-tab-item>
-          <v-tab-item>
-            <multiple-charts :settings="chartSettings" />
+          <v-tab-item eager>
+            <multiple-charts ref="multipleCharts" :settings="chartSettings" />
           </v-tab-item>
-          <v-tab-item>
-            <search-filter-form :filters="chartSettings.filters" />
+          <v-tab-item eager>
+            <search-filter-form ref="searchFilter" :filters="chartSettings.filters" />
           </v-tab-item>
         </v-tabs-items>
       </v-card-text>
@@ -112,6 +115,13 @@ export default {
     }
   },
   methods: {
+    chartTypeChanged() {
+      if (this.settings.chartType === 'pie') {
+        this.settings.multipleChartsField = null;
+        this.$forceUpdate();
+        this.$refs.multipleCharts.update();
+      }
+    },
     save() {
       this.$emit('save', this.chartSettings);
       this.dialog = false;

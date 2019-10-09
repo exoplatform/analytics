@@ -11,15 +11,18 @@
         <v-flex class="my-auto px-2" xs6>
           <v-switch
             v-model="multipleCharts"
+            :disabled="disabled"
             label="Multiple charts"
             required />
         </v-flex>
-        <v-flex class="my-auto px-2" xs6>
-          <v-text-field
-            v-if="multipleCharts"
+        <v-flex
+          v-if="multipleCharts && !disabled"
+          class="my-auto px-2"
+          xs6>
+          <field-selection
             v-model="settings.multipleChartsField"
             label="Field comparator"
-            required />
+            aggregation />
         </v-flex>
       </v-layout>
     </v-card-text>
@@ -27,8 +30,12 @@
 </template>
 
 <script>
+import FieldSelection from '../form/FieldSelection.vue';
 
 export default {
+  components: {
+    FieldSelection,
+  },
   props: {
     settings: {
       type: Object,
@@ -39,6 +46,7 @@ export default {
   },
   data: () => ({
     multipleCharts: false,
+    disabled: false,
   }),
   computed: {
     yAxisAggregation() {
@@ -46,6 +54,11 @@ export default {
     },
   },
   watch: {
+    disabled() {
+      if (this.disabled) {
+        this.settings.multipleChartsField = null;
+      }
+    },
     settings() {
       this.multipleCharts = this.settings && this.settings.multipleChartsField;
     },
@@ -56,7 +69,14 @@ export default {
     },
   },
   mounted() {
-    this.multipleCharts = this.settings && this.settings.multipleChartsField;
+    this.update();
+  },
+  methods: {
+    update() {
+      // To disable multiple chart for 'pie' type
+      // this.disabled = this.settings && this.settings.chartType !== 'line' && this.settings.chartType !== 'bar';
+      this.multipleCharts = !this.disabled && this.settings && this.settings.multipleChartsField;
+    }
   },
 };
 </script>

@@ -19,4 +19,8 @@ public enum AnalyticsAggregationType {
     this.name = name;
     this.useInterval = useInterval;
   }
+
+  public boolean allowSort() {
+    return this == COUNT;
+  }
 }

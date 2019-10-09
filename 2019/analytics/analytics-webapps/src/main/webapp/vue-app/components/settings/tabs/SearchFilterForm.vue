@@ -10,70 +10,58 @@
         ">
         <template v-if="filters && filters.length">
           <v-layout v-for="(item, index) in filters" :key="index">
-            <v-flex xs2>
-              <v-text-field
+            <v-flex xs4 class="my-auto">
+              <field-selection
                 v-model="item.field"
-                label="Field name"
-                required />
+                label="Field name" />
             </v-flex>
-            <v-flex xs4 class="my-auto px-2">
+            <v-flex xs3 class="my-auto px-2">
               <v-select
                 v-model="item.type"
                 :items="searchFilterTypes"
-                :item-text="text"
-                :item-value="value"
                 :value-comparator="selectedValueComparator"
+                :return-object="false"
+                item-text="text"
+                item-value="value"
                 class="operatorInput"
                 hide-selected
                 persistent-hint
                 chips
                 label="Operator" />
             </v-flex>
-            <v-flex
-              v-if="item.type === 'EQUAL' || item.type === 'LESS' || item.type === 'GREATER'"
-              xs2
-              class="my-auto">
+            <v-flex xs3 class="my-auto">
               <v-text-field
+                v-if="item.type === 'EQUAL' || item.type === 'LESS' || item.type === 'GREATER'"
                 v-model="item.valueString"
                 label="Value"
                 required />
-            </v-flex>
-            <v-flex
-              v-else-if="item.type === 'IN_SET'"
-              xs4
-              class="my-auto">
               <v-text-field
+                v-else-if="item.type === 'IN_SET'"
                 v-model="item.valuesString"
                 label="Values"
+                placeholder="Values (Separator ',')"
                 required />
-            </v-flex>
-            <template v-else-if="item.type === 'RANGE' && (item.range || (item.range = {}))" class="my-auto">
-              <v-flex xs2>
+              <template v-else-if="item.type === 'RANGE' && (item.range || (item.range = {}))">
                 <v-text-field
                   v-model="item.range.min"
                   label="Min"
                   required />
-              </v-flex>
-              <v-flex xs2>
                 <v-text-field
                   v-model="item.range.max"
                   label="Max"
                   required />
-              </v-flex>
-            </template>
-            <v-flex
-              :class="((item.type === 'EQUAL' || item.type === 'LESS' || item.type === 'GREATER') && 'offset-xs2') || ((item.type === 'IS_NULL' || item.type === 'NOT_NULL') && 'offset-xs4')"
-              xs1
-              class="my-auto">
+              </template>
+            </v-flex>
+            <v-flex xs1 class="my-auto">
               <v-btn icon @click="deleteFilter(index)">
                 <v-icon>fa-minus-circle</v-icon>
               </v-btn>
             </v-flex>
-            <v-flex
-              v-if="(index +1) === filters.length"
-              class="my-auto"
-              xs1>
-              <v-btn icon @click="addFilter">
+            <v-flex class="my-auto" xs1>
+              <v-btn
+                v-if="(index +1) === filters.length"
+                icon
+                @click="addFilter">
                 <v-icon>fa-plus-circle</v-icon>
               </v-btn>
             </v-flex>
@@ -92,8 +80,12 @@
 </template>
 
 <script>
+import FieldSelection from '../form/FieldSelection.vue';
 
 export default {
+  components: {
+    FieldSelection,
+  },
   props: {
     filters: {
       type: Array,
@@ -142,6 +134,11 @@ export default {
     ],
   }),
   methods: {
+    selectedValueComparator(item1, item2){
+      const item1Value = item1 && item1.value || item1;
+      const item2Value = item2 && item2.value || item2;
+      return item1Value === item2Value;
+    },
     deleteFilter(searchFilterIndex){
       this.filters.splice(searchFilterIndex, 1);
     },

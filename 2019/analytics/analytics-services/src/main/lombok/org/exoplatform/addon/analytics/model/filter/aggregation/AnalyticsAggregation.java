@@ -87,7 +87,7 @@ public class AnalyticsAggregation implements Serializable {
       dateFormatter = WEEK_DATE_FORMATTER;
       break;
     case DAY_INTERVAL:
-      dateFormatter = YEAR_DATE_FORMATTER;
+      dateFormatter = DAY_DATE_FORMATTER;
       break;
     case HOUR_INTERVAL:
       dateFormatter = HOUR_DATE_FORMATTER;

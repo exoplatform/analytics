@@ -45,7 +45,7 @@ public class ChartDataList implements Serializable {
                                 .orElse(null);
     if (chartData == null) {
       List<ChartAggregationResult> results = new ArrayList<>();
-      chartData = new ChartData(chartParentAggregation, results);
+      chartData = new ChartData(chartParentAggregation, results, lang);
       charts.add(chartData);
     }
     chartData.addAggregationResult(aggregationResult, true);
@@ -54,7 +54,7 @@ public class ChartDataList implements Serializable {
 
   public List<String> getLabels() {
     Collections.sort(aggregationLabels);
-    return aggregationLabels.stream().map(result -> result.getLabel(lang)).collect(Collectors.toList());
+    return aggregationLabels.stream().map(result -> result.getLabel()).collect(Collectors.toList());
   }
 
   public void checkResults() {

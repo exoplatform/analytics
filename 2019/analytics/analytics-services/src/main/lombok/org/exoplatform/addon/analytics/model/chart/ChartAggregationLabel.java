@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode.Exclude;
 
 @Data
 @AllArgsConstructor
@@ -19,7 +20,10 @@ public class ChartAggregationLabel implements Comparable<ChartAggregationLabel>,
 
   private List<ChartAggregationValue> aggregationValues;                                // NOSONAR
 
-  public String getLabel(String lang) {
+  @Exclude
+  private String                      lang;
+
+  public String getLabel() {
     List<String> labels = aggregationValues.stream().map(value -> value.getLabel(lang)).collect(Collectors.toList());
     return StringUtils.join(labels, AGGREGATION_KEYS_SEPARATOR);
   }

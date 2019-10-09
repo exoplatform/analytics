@@ -1,7 +1,8 @@
 <template>
   <v-app 
     :id="appId"
-    class="transparent analytics-application"
+    class="analytics-application"
+    color="transaprent"
     flat>
     <main>
       <v-card class="px-3 ma-auto">
@@ -40,7 +41,7 @@
 
 <script>
 import AnalyticsChart from './chart/AnalyticsChart.vue';
-import AnalyticsChartSetting from './dialog/AnalyticsChartSetting.vue';
+import AnalyticsChartSetting from './settings/AnalyticsChartSetting.vue';
 
 export default {
   components: {

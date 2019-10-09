@@ -301,18 +301,18 @@ public class ESAnalyticsService extends AnalyticsService {
           fieldName = AGGREGATION_RESULT_VALUE_PARAM;
         }
 
-        String sortDirection = analyticsAggregation.getSortDirection() == null ? "asc" : analyticsAggregation.getSortDirection();
-
         esQuery.append("       \"").append(fieldName).append("\": {");
         esQuery.append("         \"").append(aggregationType.getName()).append("\": {");
-        esQuery.append("           \"field\": \"").append(analyticsAggregation.getField()).append("\",");
+        esQuery.append("           \"field\": \"").append(analyticsAggregation.getField()).append("\"");
         if (aggregationType.isUseInterval()) {
           if (StringUtils.isBlank(analyticsAggregation.getInterval())) {
             throw new IllegalStateException("");
           }
-          esQuery.append("           \"interval\": \"").append(analyticsAggregation.getInterval()).append("\"");
-        } else {
-          esQuery.append("           \"order\": {\"_term\": \"").append(sortDirection).append("\"}");
+          esQuery.append(",").append("           \"interval\": \"").append(analyticsAggregation.getInterval()).append("\"");
+        } else if (aggregationType.allowSort()) {
+          String sortDirection =
+                               analyticsAggregation.getSortDirection() == null ? "asc" : analyticsAggregation.getSortDirection();
+          esQuery.append(",").append("           \"order\": {\"_term\": \"").append(sortDirection).append("\"}");
         }
         esQuery.append("         }");
 
@@ -374,7 +374,7 @@ public class ESAnalyticsService extends AnalyticsService {
             result = valueResult.get("value").toString();
           }
           addAggregationValue(key, filter, childrenAggregationValues, level);
-          ChartAggregationLabel chartLabel = new ChartAggregationLabel(childrenAggregationValues);
+          ChartAggregationLabel chartLabel = new ChartAggregationLabel(childrenAggregationValues, filter.getLang());
           ChartAggregationResult aggregationResult = new ChartAggregationResult(chartLabel, result);
           chartsData.addResult(parentAggregation, aggregationResult);
         } else {

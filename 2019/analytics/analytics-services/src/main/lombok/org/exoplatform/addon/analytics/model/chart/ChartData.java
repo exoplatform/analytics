@@ -17,6 +17,8 @@ public class ChartData implements Serializable {
 
   private List<ChartAggregationResult> aggregationResults = new ArrayList<>();
 
+  private String                       lang;
+
   public String getChartKey() {
     return key == null || key.getAggregation() == null ? null
                                                        : key.getAggregation().getField();
@@ -43,9 +45,6 @@ public class ChartData implements Serializable {
   public List<String> getValues() {
     Collections.sort(aggregationResults);
     return aggregationResults.stream().map(ChartAggregationResult::getValue).collect(Collectors.toList());
-  }
-
-  public void addAggregationLabel(ChartAggregationLabel chartLabel, boolean replaceIfExists) {
   }
 
 }

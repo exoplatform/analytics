@@ -4,12 +4,11 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import lombok.EqualsAndHashCode.Exclude;
 
-@Data
 @AllArgsConstructor
+@EqualsAndHashCode
 public class ChartAggregationResult implements Comparable<ChartAggregationResult>, Serializable {
 
   private static final long     serialVersionUID = 4036864369153698277L;
@@ -17,10 +16,15 @@ public class ChartAggregationResult implements Comparable<ChartAggregationResult
   private ChartAggregationLabel chartLabel;
 
   @Exclude
-  private String                aggregationResult;
+  @Getter
+  private String                result;
+
+  public String getLabel() {
+    return chartLabel.getLabel();
+  }
 
   public String getValue() {
-    return StringUtils.isBlank(aggregationResult) ? "0" : aggregationResult;
+    return StringUtils.isBlank(result) ? "0" : result;
   }
 
   @Override
@@ -28,14 +32,18 @@ public class ChartAggregationResult implements Comparable<ChartAggregationResult
     if (o == null) {
       return 1;
     }
-    ChartAggregationLabel otherChartLabel = o.getChartLabel();
-    if (chartLabel == otherChartLabel) {
+    if (chartLabel == o.chartLabel) {
       return 0;
     } else if (chartLabel == null) {
       return -1;
-    } else if (otherChartLabel == null) {
+    } else if (o.chartLabel == null) {
       return 1;
     }
-    return chartLabel.compareTo(otherChartLabel);
+    return chartLabel.compareTo(o.chartLabel);
   }
+
+  protected ChartAggregationLabel getChartLabel() {
+    return chartLabel;
+  }
+
 }
