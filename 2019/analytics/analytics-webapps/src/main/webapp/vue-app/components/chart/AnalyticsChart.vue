@@ -79,14 +79,11 @@ export default {
           data: labels,
         };
 
-        const chartsLength = charts.length > 4 ? 4 : charts.length;
+        const chartsLength = charts.length;
         const chartsDividerLength = parseInt((chartsLength + 1) / 2) + 1;
         const chartsPercentagePart = parseInt(100 / chartsDividerLength);
 
         charts.forEach((chartData, index) => {
-          if (index > 3) {
-            return;
-          }
           const chartDataValues = chartData.aggregationResults.map(result => {
             return {
               name: result.label,

@@ -42,8 +42,7 @@
           <v-tab-item eager>
             <general-setting-form
               ref="settingForm"
-              :settings="chartSettings"
-              @type-changed="chartTypeChanged" />
+              :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
             <x-axis-form ref="xAxis" :settings="chartSettings" />
@@ -115,13 +114,6 @@ export default {
     }
   },
   methods: {
-    chartTypeChanged() {
-      if (this.settings.chartType === 'pie') {
-        this.settings.multipleChartsField = null;
-        this.$forceUpdate();
-        this.$refs.multipleCharts.update();
-      }
-    },
     save() {
       this.$emit('save', this.chartSettings);
       this.dialog = false;

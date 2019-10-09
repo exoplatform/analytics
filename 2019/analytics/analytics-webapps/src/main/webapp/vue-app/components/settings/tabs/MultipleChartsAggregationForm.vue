@@ -11,12 +11,11 @@
         <v-flex class="my-auto px-2" xs6>
           <v-switch
             v-model="multipleCharts"
-            :disabled="disabled"
             label="Multiple charts"
             required />
         </v-flex>
         <v-flex
-          v-if="multipleCharts && !disabled"
+          v-if="multipleCharts"
           class="my-auto px-2"
           xs6>
           <field-selection
@@ -46,7 +45,6 @@ export default {
   },
   data: () => ({
     multipleCharts: false,
-    disabled: false,
   }),
   computed: {
     yAxisAggregation() {
@@ -54,29 +52,12 @@ export default {
     },
   },
   watch: {
-    disabled() {
-      if (this.disabled) {
-        this.settings.multipleChartsField = null;
-      }
-    },
     settings() {
       this.multipleCharts = this.settings && this.settings.multipleChartsField;
     },
-    multipleCharts() {
-      if (!this.multipleCharts) {
-        this.settings.multipleChartsField = null;
-      }
-    },
   },
   mounted() {
-    this.update();
-  },
-  methods: {
-    update() {
-      // To disable multiple chart for 'pie' type
-      // this.disabled = this.settings && this.settings.chartType !== 'line' && this.settings.chartType !== 'bar';
-      this.multipleCharts = !this.disabled && this.settings && this.settings.multipleChartsField;
-    }
+    this.multipleCharts = this.settings && this.settings.multipleChartsField;
   },
 };
 </script>
