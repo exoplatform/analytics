@@ -60,14 +60,18 @@ public abstract class BaseAnalyticsTest {
     return container.getComponentInstanceOfType(componentType);
   }
 
-  protected void processIndexingQueue() throws InterruptedException {
-    IndexingOperationProcessor indexingOperationProcessor = getService(IndexingOperationProcessor.class);
-    do {
+  protected void processIndexingQueue() {
+    try {
+      IndexingOperationProcessor indexingOperationProcessor = getService(IndexingOperationProcessor.class);
+      do {
+        indexingOperationProcessor.process();
+        Thread.sleep(1000);
+      } while (analyticsQueueService.queueSize() > 0);
       indexingOperationProcessor.process();
       Thread.sleep(1000);
-    } while (analyticsQueueService.queueSize() > 0);
-    indexingOperationProcessor.process();
-    Thread.sleep(1000);
+    } catch (InterruptedException e) { // NOSONAR
+      throw new IllegalStateException("Process interrupted", e);
+    }
   }
 
 }

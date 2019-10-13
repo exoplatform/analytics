@@ -165,6 +165,7 @@ public class AnalyticsDataInjector implements Startable {
                                                         StatisticStatus.OK,
                                                         null,
                                                         0L,
+                                                        0L,
                                                         parameters);
         System.out.println(AnalyticsUtils.toJsonString(statisticData));
       }

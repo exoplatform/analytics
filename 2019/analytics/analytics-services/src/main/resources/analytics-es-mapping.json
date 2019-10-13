@@ -1,9 +1,6 @@
 {
-  "_default_": {
-    "_all": {
-      "enabled": true
-    }
-  },
+  "numeric_detection": true,
+  "dynamic_date_formats": ["yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss Z"],
 	"properties": {
     "timestamp": {
       "type": "date",
@@ -47,6 +44,9 @@
     },
     "status": {
       "type": "short"
+    },
+    "duration": {
+      "type": "long"
     },
     "errorCode": {
       "type": "long"

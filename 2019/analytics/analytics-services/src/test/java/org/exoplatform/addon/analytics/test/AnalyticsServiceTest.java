@@ -19,9 +19,11 @@ package org.exoplatform.addon.analytics.test;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
+import org.exoplatform.addon.analytics.es.FieldMapping;
 import org.exoplatform.addon.analytics.model.StatisticData;
 import org.exoplatform.addon.analytics.model.chart.ChartData;
 import org.exoplatform.addon.analytics.model.chart.ChartDataList;
@@ -50,7 +52,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
   }
 
   @Test
-  public void testAnalyticsInjection() throws InterruptedException {
+  public void testAnalyticsInjection() {
     try {
       assertFalse("Analytics data shouldn't be injected", analyticsDataInjector.isDataInjected());
 
@@ -72,7 +74,26 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
   }
 
   @Test
-  public void testSearchAnalyticsData() throws InterruptedException {
+  public void testRetrieveFieldsMapping() {
+    try {
+      analyticsDataInjector.reinjectData();
+
+      processIndexingQueue();
+
+      assertEquals("Unexpected injected data size", 1721, analyticsService.count(null));
+
+      Set<FieldMapping> fieldsMappings = analyticsService.retrieveMapping(false);
+      assertNotNull("Returned fields mapping is null", fieldsMappings);
+      assertFalse("Returned fields mapping is empty", fieldsMappings.isEmpty());
+      assertEquals("Returned fields mapping count is wrong", 18, fieldsMappings.size());
+    } catch (Exception e) {
+      LOG.error("Error occurred in test", e);
+      fail(e.getMessage());
+    }
+  }
+
+  @Test
+  public void testSearchAnalyticsData() {
     try {
       analyticsDataInjector.reinjectData();
 
@@ -104,7 +125,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
   }
 
   @Test
-  public void testGetAnalyticsChart() throws InterruptedException {
+  public void testGetAnalyticsChart() {
     try {
       analyticsDataInjector.reinjectData();
 
@@ -152,7 +173,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
   }
 
   @Test
-  public void testGetAnalyticsMultipleCharts() throws InterruptedException {
+  public void testGetAnalyticsMultipleCharts() {
     try {
       analyticsDataInjector.reinjectData();
 
@@ -195,7 +216,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
   }
 
   @Test
-  public void testGetAnalyticsMultipleChartsByInterval() throws InterruptedException {
+  public void testGetAnalyticsMultipleChartsByInterval() {
     try {
       analyticsDataInjector.reinjectData();
 

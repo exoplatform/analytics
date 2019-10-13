@@ -63,7 +63,10 @@ export default {
               type: chartType,
               data: chartData.values,
           };
-          if (chartData.key && chartData.key.fieldValue) {
+          if (chartData.chartValue) {
+            chartData.chartKey = chartData.chartKey.replace('.keyword', '');
+            serie.name = `${chartData.chartKey}=${chartData.chartValue}`;
+          } else if (chartData.key && chartData.key.fieldValue) {
             serie.name = chartData.key.fieldValue;
           }
           series.push(serie);
@@ -114,9 +117,9 @@ export default {
           }
 
           if (chartData.chartValue) {
-            serie.name = chartData.chartValue;
-          }
-          if (chartData.key && chartData.key.fieldValue) {
+            chartData.chartKey = chartData.chartKey.replace('.keyword', '');
+            serie.name = `${chartData.chartKey}=${chartData.chartValue}`;
+          } else if (chartData.key && chartData.key.fieldValue) {
             serie.name = chartData.key.fieldValue;
           }
           series.push(serie);

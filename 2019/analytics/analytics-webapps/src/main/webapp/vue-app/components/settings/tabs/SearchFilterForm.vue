@@ -13,6 +13,7 @@
             <v-flex xs4 class="my-auto">
               <field-selection
                 v-model="item.field"
+                :fields-mappings="fieldsMappings"
                 label="Field name" />
             </v-flex>
             <v-flex xs3 class="my-auto px-2">
@@ -91,6 +92,12 @@ export default {
       type: Array,
       default: function() {
         return null;
+      },
+    },
+    fieldsMappings: {
+      type: Array,
+      default: function() {
+        return [];
       },
     },
   },

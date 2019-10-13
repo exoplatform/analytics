@@ -5,8 +5,8 @@
     :label="label"
     :value-comparator="selectedValueComparator"
     :return-object="false"
-    item-text="text"
-    item-value="value"
+    item-text="label"
+    :item-value="aggregation ? 'aggregationFieldName' : 'searchFieldName'"
     class="operatorInput"
     hide-selected
     persistent-hint
@@ -17,13 +17,19 @@
 <script>
 export default {
   props: {
+    fieldsMappings: {
+      type: Array,
+      default: function() {
+        return [];
+      },
+    },
     aggregation: {
       type: Boolean,
       default: function() {
         return false;
       },
     },
-    number: {
+    numeric: {
       type: Boolean,
       default: function() {
         return false;
@@ -44,99 +50,38 @@ export default {
   },
   data () {
     return {
-      fieldNames:[
-        {
-          text: 'Module',
-          value: 'module',
-          aggregation: true,
-        },
-        {
-          text: 'Sub-module',
-          value: 'subModule',
-          aggregation: true,
-        },
-        {
-          text: 'Operation',
-          value: 'operation',
-          aggregation: true,
-        },
-        {
-          text: 'Status code',
-          value: 'status',
-          aggregation: true,
-          number: true,
-        },
-        {
-          text: 'Error code',
-          value: 'errorCode',
-          aggregation: true,
-          number: true,
-        },
-        {
-          text: 'Error message',
-          value: 'errorMessage',
-          aggregation: false,
-        },
-        {
-          text: 'Year',
-          value: 'year',
-          aggregation: true,
-          number: true,
-        },
-        {
-          text: 'Month',
-          value: 'month',
-          aggregation: true,
-          number: true,
-        },
-        {
-          text: 'Week',
-          value: 'week',
-          aggregation: true,
-          number: true,
-        },
-        {
-          text: 'Day of month',
-          value: 'dayOfMonth',
-          aggregation: true,
-          number: true,
-        },
-        {
-          text: 'Day of week',
-          value: 'dayOfWeek',
-          aggregation: true,
-          number: true,
-        },
-        {
-          text: 'Day of year',
-          value: 'dayOfYear',
-          aggregation: true,
-          number: true,
-        },
-        {
-          text: 'Hour of day',
-          value: 'hour',
-          aggregation: true,
-          number: true,
-        },
-        {
-          text: 'User social id',
-          value: 'userId',
-          aggregation: true,
-          number: true,
-        },
-        {
-          text: 'Space id',
-          value: 'spaceId',
-          aggregation: true,
-          number: true,
-        },
-      ],
+      fieldLabels: {
+        module: 'Module',
+        subModule: 'Sub-module',
+        operation: 'Operation',
+        status: 'Status code',
+        errorCode: 'Error code',
+        errorMessage: 'Error message',
+        year: 'Year',
+        month: 'Month',
+        week: 'Week',
+        dayOfMonth: 'Day of month',
+        dayOfWeek: 'Day of week',
+        dayOfYear: 'Day of year',
+        hour: 'Hour of day',
+        userId: 'User',
+        spaceId: 'Space',
+      },
     };
   },
   computed: {
+    fieldNames() {
+      this.fieldsMappings.forEach(fieldMapping => {
+        if (!fieldMapping.label && this.fieldsMappings[fieldMapping.name]) {
+          fieldMapping.label = this.fieldLabels[fieldMapping.name];
+        } else {
+          fieldMapping.label = fieldMapping.name;
+        }
+      });
+      return this.fieldsMappings;
+    },
     fields() {
-      return this.fieldNames.filter(field => (!this.aggregation || field.aggregation) && (!this.number || field.number));
+      return this.fieldNames.filter(field => (!this.aggregation || field.aggregation) && (!this.numeric || field.numeric));
     },
   },
   methods: {

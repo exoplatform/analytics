@@ -1,5 +1,7 @@
 package org.exoplatform.addon.analytics.es;
 
+import static org.exoplatform.addon.analytics.utils.AnalyticsUtils.*;
+
 import java.io.InputStream;
 import java.util.*;
 
@@ -83,22 +85,22 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     String timestampString = String.valueOf(data.getTimestamp());
 
     Map<String, String> fields = new HashMap<>();
-    fields.put("timestamp", timestampString);
-    fields.put("year", String.valueOf(data.getYear()));
-    fields.put("month", String.valueOf(data.getMonth()));
-    fields.put("week", String.valueOf(data.getWeek()));
-    fields.put("dayOfMonth", String.valueOf(data.getDayOfMonth()));
-    fields.put("dayOfWeek", String.valueOf(data.getDayOfWeek()));
-    fields.put("dayOfYear", String.valueOf(data.getDayOfYear()));
-    fields.put("hour", String.valueOf(data.getHour()));
-    fields.put("userId", String.valueOf(data.getUserId()));
-    fields.put("spaceId", String.valueOf(data.getSpaceId()));
-    fields.put("module", data.getModule());
-    fields.put("subModule", data.getSubModule());
-    fields.put("operation", data.getModule());
-    fields.put("status", String.valueOf(data.getStatus().ordinal()));
-    fields.put("errorCode", String.valueOf(data.getErrorCode()));
-    fields.put("errorMessage", data.getErrorMessage());
+    fields.put(FIELD_TIMESTAMP, timestampString);
+    fields.put(FIELD_YEAR, String.valueOf(data.getYear()));
+    fields.put(FIELD_MONTH, String.valueOf(data.getMonth()));
+    fields.put(FIELD_WEEK, String.valueOf(data.getWeek()));
+    fields.put(FIELD_DAY_OF_MONTH, String.valueOf(data.getDayOfMonth()));
+    fields.put(FIELD_DAY_OF_WEEK, String.valueOf(data.getDayOfWeek()));
+    fields.put(FIELD_DAY_OF_YEAR, String.valueOf(data.getDayOfYear()));
+    fields.put(FIELD_HOUR, String.valueOf(data.getHour()));
+    fields.put(FIELD_USER_ID, String.valueOf(data.getUserId()));
+    fields.put(FIELD_SPACE_ID, String.valueOf(data.getSpaceId()));
+    fields.put(FIELD_MODULE, data.getModule());
+    fields.put(FIELD_SUB_MODULE, data.getSubModule());
+    fields.put(FIELD_OPERATION, data.getModule());
+    fields.put(FIELD_STATUS, String.valueOf(data.getStatus().ordinal()));
+    fields.put(FIELD_ERROR_CODE, String.valueOf(data.getErrorCode()));
+    fields.put(FIELD_ERROR_MESSAGE, data.getErrorMessage());
     if (data.getParameters() != null && !data.getParameters().isEmpty()) {
       fields.putAll(data.getParameters());
     }

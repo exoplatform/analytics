@@ -45,16 +45,28 @@
               :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
-            <x-axis-form ref="xAxis" :settings="chartSettings" />
+            <x-axis-form
+              ref="xAxis"
+              :fields-mappings="fieldsMappings"
+              :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
-            <y-axis-form ref="yAxis" :settings="chartSettings" />
+            <y-axis-form
+              ref="yAxis"
+              :fields-mappings="fieldsMappings"
+              :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
-            <multiple-charts ref="multipleCharts" :settings="chartSettings" />
+            <multiple-charts
+              ref="multipleCharts"
+              :fields-mappings="fieldsMappings"
+              :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
-            <search-filter-form ref="searchFilter" :filters="chartSettings.filters" />
+            <search-filter-form
+              ref="searchFilter"
+              :fields-mappings="fieldsMappings"
+              :filters="chartSettings.filters" />
           </v-tab-item>
         </v-tabs-items>
       </v-card-text>
@@ -104,6 +116,7 @@ export default {
   },
   data() {
     return {
+      fieldsMappings: [],
       dialog: false,
       tab: 0,
     };
@@ -113,7 +126,40 @@ export default {
       return Object.assign({}, this.settings);
     }
   },
+  watch: {
+    dialog() {
+      if (this.dialog) {
+        this.init();
+      }
+    },
+  },
   methods: {
+    init() {
+      this.loading = true;
+  
+      return fetch('/portal/rest/analytics', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Accept: 'application/json',
+        },
+      })
+        .then((resp) => {
+          if (resp && resp.ok) {
+            return resp.json();
+          } else {
+            throw new Error('Error getting analytics fields mappings:');
+          }
+        })
+        .then((fieldsMappings) => {
+          this.fieldsMappings = fieldsMappings;
+        })
+        .catch((e) => {
+          console.debug('fetch analytics - error', e);
+          this.error = 'Error getting analytics';
+        })
+        .finally(() => this.loading = false);
+    },
     save() {
       this.$emit('save', this.chartSettings);
       this.dialog = false;

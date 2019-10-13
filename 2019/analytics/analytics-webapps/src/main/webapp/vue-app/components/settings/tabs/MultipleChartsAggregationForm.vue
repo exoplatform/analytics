@@ -20,6 +20,7 @@
           xs6>
           <field-selection
             v-model="settings.multipleChartsField"
+            :fields-mappings="fieldsMappings"
             label="Field comparator"
             aggregation />
         </v-flex>
@@ -42,6 +43,12 @@ export default {
         return null;
       },
     },
+    fieldsMappings: {
+      type: Array,
+      default: function() {
+        return [];
+      },
+    },
   },
   data: () => ({
     multipleCharts: false,
@@ -54,6 +61,11 @@ export default {
   watch: {
     settings() {
       this.multipleCharts = this.settings && this.settings.multipleChartsField;
+    },
+    multipleCharts() {
+      if (!this.multipleCharts) {
+        this.settings.multipleChartsField = null;
+      }
     },
   },
   mounted() {

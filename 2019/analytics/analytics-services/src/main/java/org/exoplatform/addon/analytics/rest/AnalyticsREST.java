@@ -1,6 +1,7 @@
 package org.exoplatform.addon.analytics.rest;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
@@ -8,6 +9,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.exoplatform.addon.analytics.api.service.AnalyticsService;
+import org.exoplatform.addon.analytics.es.FieldMapping;
 import org.exoplatform.addon.analytics.model.StatisticData;
 import org.exoplatform.addon.analytics.model.chart.ChartDataList;
 import org.exoplatform.addon.analytics.model.filter.AnalyticsFilter;
@@ -24,6 +26,14 @@ public class AnalyticsREST implements ResourceContainer {
 
   public AnalyticsREST(AnalyticsService analyticsService) {
     this.analyticsService = analyticsService;
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  public Response getMappings() {
+    Set<FieldMapping> fieldsMapping = analyticsService.retrieveMapping(false);
+    return Response.ok(fieldsMapping).build();
   }
 
   @POST

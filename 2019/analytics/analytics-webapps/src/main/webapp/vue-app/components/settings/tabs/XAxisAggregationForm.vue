@@ -29,6 +29,7 @@
               <v-flex xs10>
                 <field-selection
                   v-model="item.field"
+                  :fields-mappings="fieldsMappings"
                   label="Field name"
                   aggregation />
               </v-flex>
@@ -65,6 +66,12 @@ export default {
       type: Object,
       default: function() {
         return null;
+      },
+    },
+    fieldsMappings: {
+      type: Array,
+      default: function() {
+        return [];
       },
     },
   },

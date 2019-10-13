@@ -3,10 +3,11 @@ package org.exoplatform.addon.analytics.es;
 import static org.exoplatform.addon.analytics.utils.AnalyticsUtils.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.*;
+import org.picocontainer.Startable;
 
 import org.exoplatform.addon.analytics.api.service.AnalyticsQueueService;
 import org.exoplatform.addon.analytics.api.service.AnalyticsService;
@@ -16,33 +17,85 @@ import org.exoplatform.addon.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.addon.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.addon.analytics.model.filter.aggregation.AnalyticsAggregationType;
 import org.exoplatform.addon.analytics.model.filter.search.*;
-import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
+import org.exoplatform.commons.search.es.client.*;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-public class ESAnalyticsService extends AnalyticsService {
+public class ESAnalyticsService extends AnalyticsService implements Startable {
 
-  private static final Log       LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
+  private static final Log          LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
 
-  private static final String    AGGREGATION_RESULT_PARAM       = "aggregation_result";
+  private static final String       AGGREGATION_RESULT_PARAM       = "aggregation_result";
 
-  private static final String    AGGREGATION_RESULT_VALUE_PARAM = "aggregation_result_value";
+  private static final String       AGGREGATION_RESULT_VALUE_PARAM = "aggregation_result_value";
 
-  private List<String>           esKnownDataFields              = null;
+  private ElasticSearchingClient    esClient;
 
-  private ElasticSearchingClient esClient;
+  private Map<String, FieldMapping> esMappings                     = new HashMap<>();
+
+  private ScheduledExecutorService  esMappingUpdater               = Executors.newScheduledThreadPool(1);
 
   public ESAnalyticsService(ElasticSearchingClient esClient, AnalyticsQueueService analyticsQueueService) {
     super(analyticsQueueService);
     this.esClient = esClient;
+  }
 
-    esKnownDataFields = Arrays.stream(StatisticData.class.getDeclaredFields())
-                              .map(field -> field.getName().toLowerCase())
-                              .collect(Collectors.toList());
-    esKnownDataFields.addAll(Arrays.stream(StatisticData.class.getDeclaredMethods())
-                                   .filter(method -> method.getName().startsWith("get"))
-                                   .map(method -> method.getName().replaceFirst("get", "").toLowerCase())
-                                   .collect(Collectors.toList()));
+  @Override
+  public void start() {
+    // Blockchain connection verifier
+    esMappingUpdater.scheduleAtFixedRate(() -> {
+      try {
+        retrieveMapping(true);
+      } catch (Throwable e) {
+        if (LOG.isDebugEnabled()) {
+          LOG.warn("Error while checking connection status to Etherreum Websocket endpoint", e);
+        } else {
+          LOG.warn("Error while checking connection status to Etherreum Websocket endpoint: {}", e.getMessage());
+        }
+      }
+    }, 0, 2, TimeUnit.MINUTES);
+  }
+
+  @Override
+  public void stop() {
+    esMappingUpdater.shutdown();
+  }
+
+  @Override
+  public Set<FieldMapping> retrieveMapping(boolean forceRefresh) {
+    if (!forceRefresh && !esMappings.isEmpty()) {
+      return new HashSet<>(esMappings.values());
+    }
+    try {
+      ElasticResponse response = ESClientUtils.getMappings(this.esClient);
+      if (ElasticIndexingAuditTrail.isError(response.getStatusCode())) {
+        LOG.warn("Error getting mapping of analytics : - \n\t\tcode : {} - \n\t\tmessage: {}",
+                 response.getStatusCode(),
+                 response.getMessage());
+      } else {
+        String mappingJsonString = response.getMessage();
+        JSONObject result = new JSONObject(mappingJsonString);
+        JSONObject mappingObject = getJSONObject(result,
+                                                 0,
+                                                 AnalyticsIndexingServiceConnector.ES_INDEX,
+                                                 "mappings",
+                                                 AnalyticsIndexingServiceConnector.ES_TYPE,
+                                                 "properties");
+        if (mappingObject != null) {
+          String[] fieldNames = JSONObject.getNames(mappingObject);
+          for (String fieldName : fieldNames) {
+            JSONObject esField = mappingObject.getJSONObject(fieldName);
+            String fieldType = esField.getString("type");
+            JSONObject keywordField = getJSONObject(esField, 0, "fields", "keyword");
+            FieldMapping esFieldMapping = new FieldMapping(fieldName, fieldType, keywordField != null);
+            esMappings.put(fieldName, esFieldMapping);
+          }
+        }
+      }
+    } catch (Exception e) {
+      LOG.error("Error getting mapping of analytics", e);
+    }
+    return new HashSet<>(esMappings.values());
   }
 
   @Override
@@ -215,9 +268,7 @@ public class ESAnalyticsService extends AnalyticsService {
       esQuery.append("        \"must\" : [\n");
       for (AnalyticsFieldFilter fieldFilter : filters) {
         String field = fieldFilter.getField();
-        if (!esKnownDataFields.contains(field.toLowerCase())) {
-          field += ".keyword";
-        }
+        FieldMapping fieldMapping = getFieldMapping(field);
         switch (fieldFilter.getType()) {
         case NOT_NULL:
           esQuery.append("        {\"exists\" : {\"")
@@ -234,9 +285,8 @@ public class ESAnalyticsService extends AnalyticsService {
         case EQUAL:
           esQuery.append("        {\"match\" : {\"")
                  .append(field)
-                 .append("\" : \"")
-                 .append(fieldFilter.getValueString())
-                 .append("\"")
+                 .append("\" : ")
+                 .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
                  .append("        }},\n");
           break;
         case GREATER:
@@ -244,7 +294,7 @@ public class ESAnalyticsService extends AnalyticsService {
                  .append(field)
                  .append("\" : {")
                  .append("\"gte\" : ")
-                 .append(fieldFilter.getValueString())
+                 .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
                  .append("        }}},\n");
           break;
         case LESS:
@@ -252,7 +302,7 @@ public class ESAnalyticsService extends AnalyticsService {
                  .append(field)
                  .append("\" : {")
                  .append("\"lte\" : ")
-                 .append(fieldFilter.getValueString())
+                 .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
                  .append("        }}},\n");
           break;
         case RANGE:
@@ -399,6 +449,27 @@ public class ESAnalyticsService extends AnalyticsService {
     }
   }
 
+  private JSONObject getJSONObject(JSONObject jsonObject, int i, String... keys) {
+    if (keys == null || i >= keys.length) {
+      return null;
+    }
+    if (jsonObject.has(keys[i])) {
+      try {
+        jsonObject = jsonObject.getJSONObject(keys[i]);
+        i++;
+        if (i == keys.length) {
+          return jsonObject;
+        } else {
+          return getJSONObject(jsonObject, i, keys);
+        }
+      } catch (JSONException e) {
+        LOG.warn("Error getting key object with {}", keys[i], e);
+        return null;
+      }
+    }
+    return null;
+  }
+
   private void addAggregationValue(String key,
                                    AnalyticsFilter filter,
                                    ArrayList<ChartAggregationValue> aggregationValues,
@@ -430,7 +501,7 @@ public class ESAnalyticsService extends AnalyticsService {
       JSONObject jsonObject = jsonHits.getJSONObject(i);
       JSONObject statisticDataJsonObject = jsonObject.getJSONObject("_source");
       StatisticData statisticData = fromJsonString(jsonObject.toString(), StatisticData.class);
-      esKnownDataFields.stream().forEach(fieldName -> statisticDataJsonObject.remove(fieldName));
+      DEFAULT_FIELDS.stream().forEach(fieldName -> statisticDataJsonObject.remove(fieldName));
 
       statisticData.setParameters(new HashMap<>());
       Iterator<?> remainingKeys = statisticDataJsonObject.keys();
@@ -452,4 +523,7 @@ public class ESAnalyticsService extends AnalyticsService {
     return jsonResult.getInt("total");
   }
 
+  private FieldMapping getFieldMapping(String name) {
+    return esMappings.get(name);
+  }
 }

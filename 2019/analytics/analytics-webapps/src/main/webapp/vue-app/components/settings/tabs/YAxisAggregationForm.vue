@@ -23,9 +23,10 @@
           xs6>
           <field-selection
             v-model="yAxisAggregation.field"
+            :fields-mappings="fieldsMappings"
             label="Aggragation field"
             aggregation
-            number />
+            numeric />
         </v-flex>
       </v-layout>
     </v-card-text>
@@ -44,6 +45,12 @@ export default {
       type: Object,
       default: function() {
         return null;
+      },
+    },
+    fieldsMappings: {
+      type: Array,
+      default: function() {
+        return [];
       },
     },
   },

@@ -3,6 +3,7 @@ package org.exoplatform.addon.analytics.model;
 import java.io.Serializable;
 import java.time.*;
 import java.time.temporal.IsoFields;
+import java.util.HashMap;
 import java.util.Map;
 
 import lombok.*;
@@ -45,6 +46,9 @@ public class StatisticData implements Serializable {
   private String              errorMessage;
 
   @EqualsAndHashCode.Exclude
+  private long                duration;
+
+  @EqualsAndHashCode.Exclude
   private long                errorCode;
 
   @EqualsAndHashCode.Exclude
@@ -78,10 +82,18 @@ public class StatisticData implements Serializable {
     return this.getLocalDate().getYear();
   }
 
+  public void addParameter(String key, String value) {
+    if (parameters == null) {
+      parameters = new HashMap<>();
+    }
+    parameters.put(key, value);
+  }
+
   private LocalDateTime getLocalDate() {
     if (localDate == null) {
       this.localDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
     }
     return localDate;
   }
+
 }

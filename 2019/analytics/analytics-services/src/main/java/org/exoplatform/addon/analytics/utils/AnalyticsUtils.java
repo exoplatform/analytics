@@ -6,7 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.time.*;
 import java.time.format.*;
 import java.time.temporal.IsoFields;
-import java.util.Collection;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +17,57 @@ import org.exoplatform.ws.frameworks.json.JsonParser;
 import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class AnalyticsUtils {
+
+  public static final String            FIELD_ERROR_MESSAGE              = "errorMessage";
+
+  public static final String            FIELD_ERROR_CODE                 = "errorCode";
+
+  public static final String            FIELD_STATUS                     = "status";
+
+  public static final String            FIELD_OPERATION                  = "operation";
+
+  public static final String            FIELD_SUB_MODULE                 = "subModule";
+
+  public static final String            FIELD_MODULE                     = "module";
+
+  public static final String            FIELD_SPACE_ID                   = "spaceId";
+
+  public static final String            FIELD_USER_ID                    = "userId";
+
+  public static final String            FIELD_HOUR                       = "hour";
+
+  public static final String            FIELD_DAY_OF_YEAR                = "dayOfYear";
+
+  public static final String            FIELD_DAY_OF_WEEK                = "dayOfWeek";
+
+  public static final String            FIELD_DAY_OF_MONTH               = "dayOfMonth";
+
+  public static final String            FIELD_WEEK                       = "week";
+
+  public static final String            FIELD_MONTH                      = "month";
+
+  public static final String            FIELD_YEAR                       = "year";
+
+  public static final String            FIELD_TIMESTAMP                  = "timestamp";
+
+  public static final List<String>      DEFAULT_FIELDS                   = Arrays.asList(FIELD_ERROR_MESSAGE,
+                                                                                         FIELD_ERROR_CODE,
+                                                                                         FIELD_STATUS,
+                                                                                         FIELD_OPERATION,
+                                                                                         FIELD_MODULE,
+                                                                                         FIELD_SUB_MODULE,
+                                                                                         FIELD_SPACE_ID,
+                                                                                         FIELD_USER_ID,
+                                                                                         FIELD_HOUR,
+                                                                                         FIELD_DAY_OF_YEAR,
+                                                                                         FIELD_DAY_OF_YEAR,
+                                                                                         FIELD_DAY_OF_WEEK,
+                                                                                         FIELD_DAY_OF_MONTH,
+                                                                                         FIELD_WEEK,
+                                                                                         FIELD_MONTH,
+                                                                                         FIELD_YEAR,
+                                                                                         FIELD_TIMESTAMP);
+
   public static final String            ANALYTICS_NEW_DATA_EVENT         = "exo.addon.analytics.data.new";
 
   public static final String            ES_ANALYTICS_PROCESSOR_ID        = "exo.addon.analytics.processor.es";

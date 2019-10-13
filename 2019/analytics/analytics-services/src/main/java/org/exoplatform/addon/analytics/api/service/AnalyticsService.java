@@ -1,7 +1,9 @@
 package org.exoplatform.addon.analytics.api.service;
 
 import java.util.List;
+import java.util.Set;
 
+import org.exoplatform.addon.analytics.es.FieldMapping;
 import org.exoplatform.addon.analytics.model.StatisticData;
 import org.exoplatform.addon.analytics.model.chart.ChartDataList;
 import org.exoplatform.addon.analytics.model.filter.AnalyticsFilter;
@@ -27,5 +29,11 @@ public abstract class AnalyticsService {
   public abstract List<StatisticData> getData(AnalyticsFilter searchFilter);
 
   public abstract int count(AnalyticsFilter searchFilter);
+
+  /**
+   * @param forceRefresh whether force refresh from ES or not
+   * @return a {@link Set} of ES mapping fields
+   */
+  public abstract Set<FieldMapping> retrieveMapping(boolean forceRefresh);
 
 }
