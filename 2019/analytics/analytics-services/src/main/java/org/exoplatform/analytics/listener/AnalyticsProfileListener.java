@@ -1,5 +1,8 @@
 package org.exoplatform.analytics.listener;
 
+import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
+
+import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
 import org.exoplatform.social.core.profile.ProfileListenerPlugin;
 
@@ -7,32 +10,42 @@ public class AnalyticsProfileListener extends ProfileListenerPlugin {
 
   @Override
   public void avatarUpdated(ProfileLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    StatisticData statisticData = buildStatisticData("avatar", event.getSource());
+    addStatisticData(statisticData);
   }
 
   @Override
   public void bannerUpdated(ProfileLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    StatisticData statisticData = buildStatisticData("banner", event.getSource());
+    addStatisticData(statisticData);
   }
 
   @Override
   public void contactSectionUpdated(ProfileLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    StatisticData statisticData = buildStatisticData("contactSection", event.getSource());
+    addStatisticData(statisticData);
   }
 
   @Override
   public void experienceSectionUpdated(ProfileLifeCycleEvent event) {
-    // TODO Auto-generated method stub
-
+    StatisticData statisticData = buildStatisticData("experienceSection", event.getSource());
+    addStatisticData(statisticData);
   }
 
   @Override
   public void createProfile(ProfileLifeCycleEvent event) {
-    // TODO Auto-generated method stub
+    StatisticData statisticData = buildStatisticData("createProfile", event.getSource());
+    addStatisticData(statisticData);
+  }
 
+  private StatisticData buildStatisticData(String operation, String username) {
+    StatisticData statisticData = new StatisticData();
+    statisticData.setModule("social");
+    statisticData.setSubModule("profile");
+    statisticData.setOperation(operation);
+    statisticData.setUserId(getUserIdentityId(username));
+    statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, getCurrentUserIdentityId());
+    return statisticData;
   }
 
 }
