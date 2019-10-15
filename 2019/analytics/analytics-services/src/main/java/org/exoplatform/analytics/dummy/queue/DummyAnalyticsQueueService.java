@@ -7,6 +7,7 @@ import org.picocontainer.Startable;
 import org.exoplatform.analytics.api.processor.StatisticDataProcessorPlugin;
 import org.exoplatform.analytics.api.service.AnalyticsQueueService;
 import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.analytics.model.StatisticStatus;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.services.listener.*;
 import org.exoplatform.services.log.ExoLogger;
@@ -48,6 +49,12 @@ public class DummyAnalyticsQueueService implements AnalyticsQueueService, Starta
 
   @Override
   public void put(StatisticData data) {
+    if (data.getTimestamp() <= 0) {
+      data.setTimestamp(System.currentTimeMillis());
+    }
+    if (data.getStatus() == null) {
+      data.setStatus(StatisticStatus.OK);
+    }
     this.statisticDatas.add(data);
 
     try {
@@ -77,7 +84,7 @@ public class DummyAnalyticsQueueService implements AnalyticsQueueService, Starta
 
   public void remove(StatisticData data) {
     // Creating entity into ES is async, thus, it's not possible for now to
-    // remove after, it's processed
+    // remove after processing data
     // TODO this.statisticDatas.remove(data);
   }
 

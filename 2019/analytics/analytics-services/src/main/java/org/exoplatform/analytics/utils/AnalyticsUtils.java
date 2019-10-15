@@ -12,6 +12,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 
+import org.exoplatform.analytics.api.service.AnalyticsQueueService;
+import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.IdentityConstants;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.ws.frameworks.json.JsonGenerator;
 import org.exoplatform.ws.frameworks.json.JsonParser;
 import org.exoplatform.ws.frameworks.json.impl.*;
@@ -49,6 +57,8 @@ public class AnalyticsUtils {
   public static final String            FIELD_YEAR                       = "year";
 
   public static final String            FIELD_TIMESTAMP                  = "timestamp";
+
+  public static final String            FIELD_MODIFIER_USER_SOCIAL_ID    = "modifierSocialId";
 
   public static final List<String>      DEFAULT_FIELDS                   = Arrays.asList(FIELD_ERROR_MESSAGE,
                                                                                          FIELD_ERROR_CODE,
@@ -195,4 +205,44 @@ public class AnalyticsUtils {
     return new JSONArray(collection).toString();
   }
 
+  public static final void addStatisticData(StatisticData statisticData) {
+    AnalyticsQueueService analyticsQueueService = CommonsUtils.getService(AnalyticsQueueService.class);
+    analyticsQueueService.put(statisticData);
+  }
+
+  public static long getUserIdentityId(String username) {
+    return getIdentityId(OrganizationIdentityProvider.NAME, username);
+  }
+
+  public static long getIdentityId(String providerId, String remoteId) {
+    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+    Identity identity = identityManager.getOrCreateIdentity(providerId, remoteId, true);
+    return identity == null ? 0 : Long.parseLong(identity.getId());
+  }
+
+  public static long getUserIdentityId(ConversationState currentState) {
+    String username = getUsername(currentState);
+    boolean unkownUser = isUnkownUser(username);
+    if (unkownUser) {
+      return 0;
+    }
+    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username, true);
+    return identity == null ? 0 : Long.parseLong(identity.getId());
+  }
+
+  public static long getCurrentUserIdentityId() {
+    ConversationState currentState = ConversationState.getCurrent();
+    return getUserIdentityId(currentState);
+  }
+
+  public static boolean isUnkownUser(String username) {
+    return username == null || StringUtils.equals(username, IdentityConstants.ANONIM)
+        || StringUtils.equals(username, IdentityConstants.SYSTEM);
+  }
+
+  public static String getUsername(ConversationState currentState) {
+    return currentState == null || currentState.getIdentity() == null
+        || currentState.getIdentity().getUserId() == null ? null : currentState.getIdentity().getUserId();
+  }
 }

@@ -80,4 +80,57 @@
     </component-plugin>
   </external-component-plugins>
 
+  <!-- Statistic listeners -->
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.space.spi.SpaceService</target-component>
+    <component-plugin>
+      <name>SpaceAnalyticsListener</name>
+      <set-method>addSpaceListener</set-method>
+      <type>org.exoplatform.analytics.listener.SpaceAnalyticsListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>exo.core.security.ConversationRegistry.register</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.LoginAnalyticsListener</type>
+      <description>Listener for user login event statistics</description>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.core.security.ConversationRegistry.unregister</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.LoginAnalyticsListener</type>
+      <description>Listener for user logout event statistics</description>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.ActivityManager</target-component>
+    <component-plugin>
+      <name>AnalyticsActivityListener</name>
+      <set-method>addActivityEventListener</set-method>
+      <type>org.exoplatform.analytics.listener.AnalyticsActivityListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.IdentityManager</target-component>
+    <component-plugin>
+      <name>AnalyticsProfileListener</name>
+      <set-method>registerProfileListener</set-method>
+      <type>org.exoplatform.analytics.listener.AnalyticsProfileListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.RelationshipManager</target-component>
+    <component-plugin>
+      <name>AnalyticsRelationshipListener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.analytics.listener.AnalyticsRelationshipListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
 </configuration>

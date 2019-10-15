@@ -82,11 +82,11 @@ public class StatisticData implements Serializable {
     return this.getLocalDate().getYear();
   }
 
-  public void addParameter(String key, String value) {
+  public void addParameter(String key, Object value) {
     if (parameters == null) {
       parameters = new HashMap<>();
     }
-    parameters.put(key, value);
+    parameters.put(key, String.valueOf(value));
   }
 
   private LocalDateTime getLocalDate() {
