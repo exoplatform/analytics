@@ -48,18 +48,18 @@ public class AnalyticsAggregation implements Serializable {
 
   public static final DateTimeFormatter HOUR_DATE_FORMATTER    = DateTimeFormatter.ofPattern("hh a, d MMM uuuu");
 
+  private AnalyticsAggregationType      type;
+
+  private String                        field;
+
+  private String                        sortDirection;
+
+  private String                        interval;
+
   public AnalyticsAggregation(String field) {
     this.field = field;
     this.type = AnalyticsAggregationType.COUNT;
   }
-
-  private AnalyticsAggregationType type;
-
-  private String                   field;
-
-  private String                   sortDirection;
-
-  private String                   interval;
 
   public String getLabel(String fieldValue, String lang) {
     if (type == AnalyticsAggregationType.DATE) {

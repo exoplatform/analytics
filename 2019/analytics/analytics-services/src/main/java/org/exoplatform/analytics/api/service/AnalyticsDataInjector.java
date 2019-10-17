@@ -2,8 +2,7 @@ package org.exoplatform.analytics.api.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -11,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.picocontainer.Startable;
 
 import org.exoplatform.analytics.model.StatisticData;
-import org.exoplatform.analytics.model.StatisticStatus;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
@@ -126,50 +124,6 @@ public class AnalyticsDataInjector implements Startable {
   @Override
   public void stop() {
     // Nothing to stop for now
-  }
-
-  public static void main(String[] args) {
-    Map<String, String> parameters = new HashMap<>();
-    parameters.put("activityId", "1");
-
-    int numberOfDays = 120;
-    Random random = new Random(1);
-
-    String[] modules = { "social", "knowledge", "portal", "ecms", "task", "chat", "calendar" };
-    String[] subModules = { "Activity stream", "Task administration", "User Profile", "Space management", "Space task project",
-        "mini chat", "space calendar" };
-    String[] operations = { "addActivity", "removeActivity", "joinSpace", "leftSpace", "addTask", "addChatRoom", "addEvent",
-        "removeEvent" };
-
-    for (int i = 1; i < numberOfDays; i++) {
-      LocalDateTime date = LocalDateTime.now().minusDays(i);
-
-      int numberOfItemsPerDay = random.nextInt(30);
-      for (int j = 0; j < numberOfItemsPerDay; j++) {
-        long userId = random.nextInt(100);
-        long spaceId = random.nextInt(100);
-        int moduleIndex = random.nextInt(modules.length - 1);
-        int subModuleIndex = random.nextInt(subModules.length - 1);
-        int operationIndex = random.nextInt(operations.length - 1);
-        String module = modules[moduleIndex];
-        String subModule = subModules[subModuleIndex];
-        String operation = operations[operationIndex];
-
-        StatisticData statisticData = new StatisticData(AnalyticsUtils.timeToSeconds(date.minusMinutes(j * 10)),
-                                                        null,
-                                                        userId,
-                                                        spaceId,
-                                                        module,
-                                                        subModule,
-                                                        operation,
-                                                        StatisticStatus.OK,
-                                                        null,
-                                                        0L,
-                                                        0L,
-                                                        parameters);
-        System.out.println(AnalyticsUtils.toJsonString(statisticData));
-      }
-    }
   }
 
   public boolean isDataInjected() {

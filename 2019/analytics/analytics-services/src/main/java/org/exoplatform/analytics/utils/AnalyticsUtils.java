@@ -60,7 +60,9 @@ public class AnalyticsUtils {
 
   public static final String            FIELD_MODIFIER_USER_SOCIAL_ID    = "modifierSocialId";
 
-  public static final List<String>      DEFAULT_FIELDS                   = Arrays.asList(FIELD_ERROR_MESSAGE,
+  public static final DateTimeFormatter DATE_FORMATTER                   = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
+
+  public static final List<String>      DEFAULT_FIELDS                   = Arrays.asList(FIELD_ERROR_MESSAGE,                                           // NOSONAR
                                                                                          FIELD_ERROR_CODE,
                                                                                          FIELD_STATUS,
                                                                                          FIELD_OPERATION,
@@ -187,7 +189,7 @@ public class AnalyticsUtils {
     }
   }
 
-  public static long timeToSeconds(LocalDateTime time) {
+  public static long timeToMilliseconds(LocalDateTime time) {
     return time.atZone(ZoneOffset.systemDefault()).toEpochSecond() * 1000;
   }
 
@@ -244,5 +246,11 @@ public class AnalyticsUtils {
   public static String getUsername(ConversationState currentState) {
     return currentState == null || currentState.getIdentity() == null
         || currentState.getIdentity().getUserId() == null ? null : currentState.getIdentity().getUserId();
+  }
+
+  public static String formatDate(long timeInMilliseconds) {
+    LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(String.valueOf(timeInMilliseconds))),
+                                                     TimeZone.getDefault().toZoneId());
+    return dateTime.format(DATE_FORMATTER);
   }
 }

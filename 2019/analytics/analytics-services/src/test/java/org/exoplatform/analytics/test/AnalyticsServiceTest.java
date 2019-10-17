@@ -18,8 +18,7 @@ package org.exoplatform.analytics.test;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.Test;
 
@@ -159,7 +158,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
       assertNotNull("Unexpected empty charts data size", chartDataList.getCharts());
       assertEquals("Unexpected empty charts data size", 1, chartDataList.getCharts().size());
 
-      ChartData chartData = chartDataList.getCharts().get(0);
+      ChartData chartData = chartDataList.getCharts().iterator().next();
 
       assertNotNull("Unexpected injected data size", chartData);
       assertEquals("Unexpected injected labels (X axis) data size", 46, chartDataList.getLabels().size());
@@ -199,12 +198,14 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
       ChartDataList chartDataList = analyticsService.getChartData(analyticsFilter);
 
       assertNotNull("Unexpected empty charts data", chartDataList);
-      assertNotNull("Unexpected empty charts data list", chartDataList.getCharts());
-      assertEquals("Unexpected charts data size", 5, chartDataList.getCharts().size());
+      Set<ChartData> charts = chartDataList.getCharts();
+      assertNotNull("Unexpected empty charts data list", charts);
+      assertEquals("Unexpected charts data size", 5, charts.size());
       assertEquals("Unexpected injected labels (X axis) data size", 21, chartDataList.getLabels().size());
 
-      for (int i = 0; i < chartDataList.getCharts().size(); i++) {
-        ChartData chartData = chartDataList.getCharts().get(i);
+      Iterator<ChartData> chartsIterator = charts.iterator();
+      while (chartsIterator.hasNext()) {
+        ChartData chartData = chartsIterator.next();
         assertEquals("Unexpected injected values (Y axis) data size",
                      chartDataList.getLabels().size(),
                      chartData.getValues().size());
@@ -245,8 +246,10 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
       assertEquals("Unexpected charts data size", 6, chartDataList.getCharts().size());
       assertEquals("Unexpected injected labels (X axis) data size", 5, chartDataList.getLabels().size());
 
-      for (int i = 0; i < chartDataList.getCharts().size(); i++) {
-        ChartData chartData = chartDataList.getCharts().get(i);
+      Set<ChartData> charts = chartDataList.getCharts();
+      Iterator<ChartData> chartsIterator = charts.iterator();
+      while (chartsIterator.hasNext()) {
+        ChartData chartData = chartsIterator.next();
         assertEquals("Unexpected injected values (Y axis) data size",
                      chartDataList.getLabels().size(),
                      chartData.getValues().size());

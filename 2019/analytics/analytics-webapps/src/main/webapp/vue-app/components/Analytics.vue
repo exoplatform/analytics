@@ -1,11 +1,10 @@
 <template>
   <v-app 
     :id="appId"
-    class="analytics-application"
-    color="transaprent"
+    class="analytics-application transparent"
     flat>
     <main>
-      <v-card class="px-3 ma-auto">
+      <v-card class="px-3 ma-auto transparent" flat>
         <v-card-title
           v-if="loading"
           primary-title
@@ -83,7 +82,12 @@ export default {
   },
   methods: {
     init() {
-      return this.getSettings().then(this.updateChart);
+      this.loading = true;
+      return this.getSettings()
+              .then(this.updateChart)
+              .finally(() => {
+                this.loading = false;
+              });
     },
     getSettings() {
       return fetch(this.retrieveSettingsURL, {

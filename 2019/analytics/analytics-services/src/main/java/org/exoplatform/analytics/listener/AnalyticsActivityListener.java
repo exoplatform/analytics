@@ -32,7 +32,7 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
 
   @Override
   public void saveComment(ActivityLifeCycleEvent event) {
-    StatisticData statisticData = addActivityStatisticEvent(event, "saveComment");
+    StatisticData statisticData = addActivityStatisticEvent(event, "createComment");
     addStatisticData(statisticData);
   }
 
@@ -97,6 +97,7 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
     statisticData.setUserId(userId);
     statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, modifierUserId);
     statisticData.addParameter("streamIdentityId", streamIdentityId);
+    statisticData.addParameter("activityType", activity.getType());
     if (StringUtils.isNotBlank(activityId)) {
       statisticData.addParameter("activityId", activityId);
     }
@@ -108,4 +109,5 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
     }
     return statisticData;
   }
+
 }

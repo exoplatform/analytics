@@ -40,7 +40,7 @@ public class StatisticData implements Serializable {
   private String              operation;
 
   @EqualsAndHashCode.Exclude
-  private StatisticStatus     status;
+  private StatisticStatus     status           = StatisticStatus.OK;
 
   @EqualsAndHashCode.Exclude
   private String              errorMessage;
