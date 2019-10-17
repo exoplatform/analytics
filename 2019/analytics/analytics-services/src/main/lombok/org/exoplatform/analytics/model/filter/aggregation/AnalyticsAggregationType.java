@@ -7,7 +7,8 @@ public enum AnalyticsAggregationType {
   AVG("avg", false),
   COUNT("terms", false),
   DATE("date_histogram", true),
-  HISTOGRAM("histogram", true);
+  HISTOGRAM("histogram", true),
+  CARDINALITY("cardinality", false);
 
   @Getter
   private String  name;

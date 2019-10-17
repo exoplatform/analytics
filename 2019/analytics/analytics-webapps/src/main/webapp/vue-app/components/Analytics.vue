@@ -88,10 +88,10 @@ export default {
       return this.chartSetting && this.chartSetting.title;
     },
     displayComputingTime() {
-      return this.chartSetting && this.chartsData && this.chartSetting.displayComputingTime && this.chartsData.dataCount;
+      return this.chartSetting && this.chartsData && this.chartSetting.displayComputingTime;
     },
     displaySamplesCount() {
-      return this.chartSetting && this.chartsData && this.chartSetting.displaySamplesCount && this.chartsData.computingTime;
+      return this.chartSetting && this.chartsData && this.chartSetting.displaySamplesCount;
     },
   },
   watch: {

@@ -24,9 +24,9 @@
           <field-selection
             v-model="yAxisAggregation.field"
             :fields-mappings="fieldsMappings"
-            label="Aggragation field"
-            aggregation
-            numeric />
+            :label="yAxisAggregationCardinality ? 'Distinct field (optinal)' : 'Numeric field'"
+            :numeric="!yAxisAggregationCardinality"
+            aggregation />
         </v-flex>
       </v-layout>
     </v-card-text>
@@ -61,6 +61,10 @@ export default {
         value: 'COUNT',
       },
       {
+        text: 'Count samples with distinct field',
+        value: 'CARDINALITY',
+      },
+      {
         text: 'Sum of',
         value: 'SUM',
       },
@@ -76,7 +80,10 @@ export default {
     },
     yAxisAggregationCount() {
       return this.yAxisAggregation && this.yAxisAggregation.type === 'COUNT';
-    }
+    },
+    yAxisAggregationCardinality() {
+      return this.yAxisAggregation && this.yAxisAggregation.type === 'CARDINALITY';
+    },
   },
   watch: {
     yAxisAggregationCount() {
