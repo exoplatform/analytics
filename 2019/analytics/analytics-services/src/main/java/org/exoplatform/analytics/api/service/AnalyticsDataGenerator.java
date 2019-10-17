@@ -17,7 +17,7 @@ public class AnalyticsDataGenerator {
   private static final Log          LOG                                             =
                                         ExoLogger.getLogger(AnalyticsDataGenerator.class);
 
-  private static final String       ANALYTICS_GENERATED_DATA_PARENT_FOLDER_PATH     = "/tmp/analytics-generated-data";           // NOSONAR
+  public static final String        ANALYTICS_GENERATED_DATA_PARENT_FOLDER_PATH     = "/tmp/analytics-generated-data";           // NOSONAR
 
   private static final String       ANALYTICS_GENERATED_SPACE_DATA_FILE_PATH        =
                                                                              ANALYTICS_GENERATED_DATA_PARENT_FOLDER_PATH
