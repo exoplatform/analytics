@@ -18,7 +18,7 @@ public class DummyAnalyticsQueueService implements AnalyticsQueueService, Starta
 
   private ArrayList<StatisticDataProcessorPlugin> dataProcessorPlugins = new ArrayList<>();
 
-  private Vector<StatisticData>                   statisticDatas       = new Vector<>();
+  private Vector<StatisticData>                   statisticDatas       = new Vector<>();                                       // NOSONAR
 
   private ListenerService                         listenerService;
 

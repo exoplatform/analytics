@@ -1,31 +1,14 @@
 {
   "numeric_detection": true,
-  "dynamic_date_formats": ["yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss Z"],
-	"properties": {
+  "dynamic_date_formats": [
+    "yyyy/MM/dd",
+    "yyyy/MM/dd HH:mm:ss",
+    "yyyy/MM/dd HH:mm:ss Z"
+  ],
+  "properties": {
     "timestamp": {
       "type": "date",
       "format": "epoch_millis"
-    },
-    "year": {
-      "type": "long"
-    },
-    "month": {
-      "type": "long"
-    },
-    "week": {
-      "type": "long"
-    },
-    "dayOfMonth": {
-      "type": "long"
-    },
-    "dayOfWeek": {
-      "type": "long"
-    },
-    "dayOfYear": {
-      "type": "long"
-    },
-    "hour": {
-      "type": "long"
     },
     "userId": {
       "type": "long"
@@ -34,7 +17,7 @@
       "type": "long"
     },
     "module": {
-      "type":  "keyword"
+      "type": "keyword"
     },
     "subModule": {
       "type": "keyword"
@@ -55,5 +38,5 @@
       "type": "text",
       "index_options": "offsets"
     }
-	}
+  }
 }

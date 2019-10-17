@@ -42,20 +42,6 @@ public class AnalyticsUtils {
 
   public static final String            FIELD_USER_ID                    = "userId";
 
-  public static final String            FIELD_HOUR                       = "hour";
-
-  public static final String            FIELD_DAY_OF_YEAR                = "dayOfYear";
-
-  public static final String            FIELD_DAY_OF_WEEK                = "dayOfWeek";
-
-  public static final String            FIELD_DAY_OF_MONTH               = "dayOfMonth";
-
-  public static final String            FIELD_WEEK                       = "week";
-
-  public static final String            FIELD_MONTH                      = "month";
-
-  public static final String            FIELD_YEAR                       = "year";
-
   public static final String            FIELD_TIMESTAMP                  = "timestamp";
 
   public static final String            FIELD_MODIFIER_USER_SOCIAL_ID    = "modifierSocialId";
@@ -70,14 +56,6 @@ public class AnalyticsUtils {
                                                                                          FIELD_SUB_MODULE,
                                                                                          FIELD_SPACE_ID,
                                                                                          FIELD_USER_ID,
-                                                                                         FIELD_HOUR,
-                                                                                         FIELD_DAY_OF_YEAR,
-                                                                                         FIELD_DAY_OF_YEAR,
-                                                                                         FIELD_DAY_OF_WEEK,
-                                                                                         FIELD_DAY_OF_MONTH,
-                                                                                         FIELD_WEEK,
-                                                                                         FIELD_MONTH,
-                                                                                         FIELD_YEAR,
                                                                                          FIELD_TIMESTAMP);
 
   public static final String            ANALYTICS_NEW_DATA_EVENT         = "exo.addon.analytics.data.new";

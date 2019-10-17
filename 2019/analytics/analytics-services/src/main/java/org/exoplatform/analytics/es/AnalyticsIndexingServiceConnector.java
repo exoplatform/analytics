@@ -86,13 +86,6 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
 
     Map<String, String> fields = new HashMap<>();
     fields.put(FIELD_TIMESTAMP, timestampString);
-    fields.put(FIELD_YEAR, String.valueOf(data.getYear()));
-    fields.put(FIELD_MONTH, String.valueOf(data.getMonth()));
-    fields.put(FIELD_WEEK, String.valueOf(data.getWeek()));
-    fields.put(FIELD_DAY_OF_MONTH, String.valueOf(data.getDayOfMonth()));
-    fields.put(FIELD_DAY_OF_WEEK, String.valueOf(data.getDayOfWeek()));
-    fields.put(FIELD_DAY_OF_YEAR, String.valueOf(data.getDayOfYear()));
-    fields.put(FIELD_HOUR, String.valueOf(data.getHour()));
     fields.put(FIELD_USER_ID, String.valueOf(data.getUserId()));
     fields.put(FIELD_SPACE_ID, String.valueOf(data.getSpaceId()));
     fields.put(FIELD_MODULE, data.getModule());

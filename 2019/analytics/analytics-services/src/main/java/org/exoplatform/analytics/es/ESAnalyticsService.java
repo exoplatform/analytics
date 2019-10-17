@@ -11,7 +11,6 @@ import org.picocontainer.Startable;
 
 import org.exoplatform.analytics.api.service.AnalyticsQueueService;
 import org.exoplatform.analytics.api.service.AnalyticsService;
-import org.exoplatform.analytics.es.FieldMapping;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.chart.*;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
