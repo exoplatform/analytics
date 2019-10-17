@@ -33,9 +33,6 @@ export default {
             text: settings.chartTitle,
             x:'center'
           },
-          toolbox: {
-            feature: {saveAsImage: {}}
-          },
           series : series,
       };
 

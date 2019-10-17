@@ -11,9 +11,10 @@
     @keydown.esc="dialog = false">
     <template v-slot:activator="{ on }">
       <v-btn
-        text
+        icon
+        title="Settings"
         v-on="on">
-        Edit
+        <v-icon>fa-cog</v-icon>
       </v-btn>
     </template>
     <v-card class="elevation-12">

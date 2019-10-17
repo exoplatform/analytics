@@ -5,30 +5,36 @@
     flat>
     <main>
       <v-card class="px-3 ma-auto transparent" flat>
+        <v-card-title v-if="chartsData" primary-title>
+          <h3 v-if="chartTitle" class="headline my-auto">{{ chartTitle }}</h3>
+          <v-spacer />
+          <div class="no-wrap">
+            <analytics-chart-setting
+              v-if="chartSetting"
+              :parent-id="modalParentId"
+              :settings="chartSetting"
+              class="mt-0"
+              @save="saveSettings" />
+            <select-period v-model="selectedPeriod" />
+          </div>
+        </v-card-title>
+
+        <div v-if="displayComputingTime || displaySamplesCount" class="pl-4">
+          <div v-if="displayComputingTime" class="subtitle-1"> Total samples count {{ chartsData.dataCount }} </div>
+          <div v-if="displaySamplesCount" class="subtitle-1"> Computing time: {{ chartsData.computingTime }} ms</div>
+        </div>
+
         <v-card-title
           v-if="loading"
           primary-title
           class="ma-auto">
+          <v-spacer />
           <v-progress-circular
             color="primary"
             indeterminate
             size="20" />
+          <v-spacer />
         </v-card-title>
-
-        <v-card-title v-else-if="chartsData" primary-title>
-          <div>
-            <h3 v-if="chartTitle" class="headline my-auto">{{ chartTitle }}</h3>
-            <div v-if="chartSetting.displayComputingTime && chartsData.dataCount"> Total samples count {{ chartsData.dataCount }} </div>
-            <div v-if="chartSetting.displaySamplesCount && chartsData.computingTime"> Computing time: {{ chartsData.computingTime }} ms</div>
-          </div>
-          <analytics-chart-setting
-            v-if="chartSetting"
-            :parent-id="modalParentId"
-            :settings="chartSetting"
-            class="mt-0"
-            @save="saveSettings" />
-        </v-card-title>
-
         <v-card-text class="px-0 mx-0">
           <analytics-chart ref="analyticsChart" />
         </v-card-text>
@@ -40,11 +46,13 @@
 
 <script>
 import AnalyticsChart from './chart/AnalyticsChart.vue';
+import SelectPeriod from './chart/SelectPeriod.vue';
 import AnalyticsChartSetting from './settings/AnalyticsChartSetting.vue';
 
 export default {
   components: {
     AnalyticsChart,
+    SelectPeriod,
     AnalyticsChartSetting,
   },
   props: {
@@ -62,6 +70,7 @@ export default {
     },
   },
   data: () => ({
+    selectedPeriod: null,
     loading: true,
     appId: `AnalyticsApplication${parseInt(Math.random() * 10000)
       .toString()
@@ -75,6 +84,19 @@ export default {
   computed: {
     chartTitle() {
       return this.chartSetting && this.chartSetting.title;
+    },
+    displayComputingTime() {
+      return this.chartSetting && this.chartsData && this.chartSetting.displayComputingTime && this.chartsData.dataCount;
+    },
+    displaySamplesCount() {
+      return this.chartSetting && this.chartsData && this.chartSetting.displaySamplesCount && this.chartsData.computingTime;
+    },
+  },
+  watch: {
+    selectedPeriod() {
+      if (this.selectedPeriod) {
+        this.updateChart();
+      }
     },
   },
   mounted() {
@@ -148,7 +170,23 @@ export default {
         .finally(() => this.loading = false);
     },
     updateChart() {
+      if (!this.chartSetting) {
+        return;
+      }
+      if (!this.selectedPeriod) {
+        return;
+      }
+
       this.loading = true;
+
+      const filters = this.chartSetting.filters.slice();
+      if (this.selectedPeriod) {
+        filters.push({
+          field: "timestamp",
+          type: "RANGE",
+          range: this.selectedPeriod,
+        });
+      }
 
       return fetch('/portal/rest/analytics', {
         method: 'POST',
@@ -158,7 +196,7 @@ export default {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          filters: this.chartSetting.filters,
+          filters: filters,
           xAxisAggregations: this.chartSetting.xAxisAggregations,
           yAxisAggregation: this.chartSetting.yAxisAggregation,
           multipleChartsField: this.chartSetting.multipleChartsField,
