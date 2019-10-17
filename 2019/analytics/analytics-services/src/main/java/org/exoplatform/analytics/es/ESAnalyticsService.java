@@ -320,7 +320,7 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
           esQuery.append("        {\"terms\" : {\"")
                  .append(field)
                  .append("\" : ")
-                 .append(collectionToJSONString(fieldFilter.getValuesString()))
+                 .append(collectionToJSONString(fieldFilter.getValueString()))
                  .append("        }},\n");
           break;
         default:

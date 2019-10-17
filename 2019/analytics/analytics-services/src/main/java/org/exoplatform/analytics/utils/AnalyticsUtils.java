@@ -26,6 +26,8 @@ import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class AnalyticsUtils {
 
+  public static final String            VALUES_SEPARATOR                 = ",";
+
   public static final String            FIELD_ERROR_MESSAGE              = "errorMessage";
 
   public static final String            FIELD_ERROR_CODE                 = "errorCode";
@@ -175,14 +177,19 @@ public class AnalyticsUtils {
     do {
       jsonString = jsonString.replaceAll(" ", "")
                              .replaceAll("\n", "")
-                             .replaceAll(",+", ",")
+                             .replaceAll(",+", VALUES_SEPARATOR)
                              .replaceAll("([\\]}]+),([\\]}]+)", "$1$2");
     } while (JSON_CLEANER_REPLACEMENT_PATTERN.matcher(jsonString).find());
     return jsonString;
   }
 
-  public static final String collectionToJSONString(Collection<String> collection) {
-    return new JSONArray(collection).toString();
+  public static final String collectionToJSONString(String value) {
+    String[] valuesString = value.split(VALUES_SEPARATOR);
+    List<String> valuesList = new ArrayList<>();
+    for (String valueString : valuesString) {
+      valuesList.add(valueString);
+    }
+    return new JSONArray(valuesList).toString();
   }
 
   public static final void addStatisticData(StatisticData statisticData) {

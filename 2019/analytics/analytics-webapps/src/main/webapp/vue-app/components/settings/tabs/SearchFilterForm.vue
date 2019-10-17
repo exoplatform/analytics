@@ -38,7 +38,7 @@
                 required />
               <v-text-field
                 v-else-if="item.type === 'IN_SET'"
-                v-model="item.valuesString"
+                v-model="item.valueString"
                 label="Values"
                 placeholder="Values (Separator ',')"
                 required />

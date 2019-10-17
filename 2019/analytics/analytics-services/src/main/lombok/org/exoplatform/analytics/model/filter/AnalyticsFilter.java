@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
 import org.exoplatform.analytics.model.filter.search.Range;
+import org.exoplatform.analytics.utils.AnalyticsUtils;
 
 import groovy.transform.ToString;
 import lombok.Data;
@@ -73,7 +74,9 @@ public class AnalyticsFilter implements Serializable {
 
   public void addInSetFilter(String field, String... values) {
     if (values != null && values.length > 0) {
-      AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, IN_SET, new HashSet<>(Arrays.asList(values)));
+      AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field,
+                                                                  IN_SET,
+                                                                  StringUtils.join(values, AnalyticsUtils.VALUES_SEPARATOR));
       this.filters.add(fieldFilter);
     }
   }

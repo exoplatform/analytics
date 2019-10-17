@@ -1,7 +1,6 @@
 package org.exoplatform.analytics.model.filter.search;
 
 import java.io.Serializable;
-import java.util.Set;
 
 import groovy.transform.ToString;
 import lombok.Data;
@@ -20,20 +19,12 @@ public class AnalyticsFieldFilter implements Serializable {
 
   private String                   valueString;
 
-  private Set<String>              valuesString;
-
   private Range                    range;
 
   public AnalyticsFieldFilter(String field, AnalyticsFieldFilterType type, String valueString) {
     this.field = field;
     this.type = type;
     this.valueString = valueString;
-  }
-
-  public AnalyticsFieldFilter(String field, AnalyticsFieldFilterType type, Set<String> valuesString) {
-    this.field = field;
-    this.type = type;
-    this.valuesString = valuesString;
   }
 
   public AnalyticsFieldFilter(String field, AnalyticsFieldFilterType type, Range range) {
