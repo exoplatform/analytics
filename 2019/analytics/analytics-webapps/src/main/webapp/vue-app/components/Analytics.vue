@@ -37,8 +37,12 @@
         </v-card-text>
 
         <div v-if="displayComputingTime || displaySamplesCount" class="pl-4">
-          <div v-if="displayComputingTime" class="subtitle-1"> Total samples count {{ chartsData.dataCount }} </div>
-          <div v-if="displaySamplesCount" class="subtitle-1"> Computing time: {{ chartsData.computingTime }} ms</div>
+          <div v-if="displayComputingTime" class="subtitle-1">
+            Total samples count {{ chartsData.dataCount }}
+          </div>
+          <div v-if="displaySamplesCount" class="subtitle-1">
+            Computing time: {{ chartsData.computingTime }} ms
+          </div>
         </div>
       </v-card>
       <div :id="modalParentId"></div>

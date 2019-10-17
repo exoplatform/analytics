@@ -5,7 +5,7 @@
     :attach="`#${parentId}`"
     content-class="uiPopup with-overflow"
     class="editChatSettings"
-    width="700px"
+    width="750px"
     max-width="100vw"
     persistent
     @keydown.esc="dialog = false">
@@ -38,6 +38,7 @@
           <v-tab>Y axis</v-tab>
           <v-tab>Multiple charts</v-tab>
           <v-tab>Data filters</v-tab>
+          <v-tab v-show="tab === 5">JSON pannel</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-tab-item eager>
@@ -69,12 +70,22 @@
               :fields-mappings="fieldsMappings"
               :filters="chartSettings.filters" />
           </v-tab-item>
+          <v-tab-item>
+            <v-textarea
+              v-model="settingJsonContent"
+              class="jsonSetting"
+              readonly />
+          </v-tab-item>
         </v-tabs-items>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
         <button class="btn btn-primary ignore-vuetify-classes" @click="save">
           Save settings
+        </button>
+        <v-spacer />
+        <button class="btn ignore-vuetify-classes" @click="tab = 5">
+          Display JSON
         </button>
         <v-spacer />
         <button class="btn ignore-vuetify-classes" @click="dialog = false">
@@ -125,7 +136,10 @@ export default {
   computed: {
     chartSettings() {
       return Object.assign({}, this.settings);
-    }
+    },
+    settingJsonContent() {
+      return this.settings && JSON.stringify(this.settings, null, 2);
+    },
   },
   watch: {
     dialog() {
