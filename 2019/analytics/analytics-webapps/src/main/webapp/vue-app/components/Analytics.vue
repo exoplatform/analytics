@@ -4,25 +4,21 @@
     class="analytics-application transparent"
     flat>
     <main>
-      <v-card class="px-3 ma-auto transparent" flat>
-        <v-card-title v-if="chartsData" primary-title>
-          <h3 v-if="chartTitle" class="headline my-auto">{{ chartTitle }}</h3>
+      <v-card class="px-3 pt-4 ma-auto transparent" flat>
+        <v-toolbar
+          v-if="chartSetting"
+          color="transparent"
+          class="elevation-1">
+          <v-toolbar-title :title="chartTitle">{{ chartTitle }}</v-toolbar-title>
           <v-spacer />
-          <div class="no-wrap">
-            <analytics-chart-setting
-              v-if="chartSetting"
-              :parent-id="modalParentId"
-              :settings="chartSetting"
-              class="mt-0"
-              @save="saveSettings" />
-            <select-period v-model="selectedPeriod" />
-          </div>
-        </v-card-title>
-
-        <div v-if="displayComputingTime || displaySamplesCount" class="pl-4">
-          <div v-if="displayComputingTime" class="subtitle-1"> Total samples count {{ chartsData.dataCount }} </div>
-          <div v-if="displaySamplesCount" class="subtitle-1"> Computing time: {{ chartsData.computingTime }} ms</div>
-        </div>
+          <select-period v-model="selectedPeriod" />
+          <analytics-chart-setting
+            v-if="chartSetting"
+            :parent-id="modalParentId"
+            :settings="chartSetting"
+            class="mt-0"
+            @save="saveSettings" />
+        </v-toolbar>
 
         <v-card-title
           v-if="loading"
@@ -35,9 +31,15 @@
             size="20" />
           <v-spacer />
         </v-card-title>
+
         <v-card-text class="px-0 mx-0">
           <analytics-chart ref="analyticsChart" />
         </v-card-text>
+
+        <div v-if="displayComputingTime || displaySamplesCount" class="pl-4">
+          <div v-if="displayComputingTime" class="subtitle-1"> Total samples count {{ chartsData.dataCount }} </div>
+          <div v-if="displaySamplesCount" class="subtitle-1"> Computing time: {{ chartsData.computingTime }} ms</div>
+        </div>
       </v-card>
       <div :id="modalParentId"></div>
     </main>
