@@ -97,7 +97,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     fields.put(FIELD_SPACE_ID, String.valueOf(data.getSpaceId()));
     fields.put(FIELD_MODULE, data.getModule());
     fields.put(FIELD_SUB_MODULE, data.getSubModule());
-    fields.put(FIELD_OPERATION, data.getModule());
+    fields.put(FIELD_OPERATION, data.getOperation());
     fields.put(FIELD_STATUS, String.valueOf(data.getStatus().ordinal()));
     fields.put(FIELD_ERROR_CODE, String.valueOf(data.getErrorCode()));
     fields.put(FIELD_ERROR_MESSAGE, data.getErrorMessage());
