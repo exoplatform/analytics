@@ -8,7 +8,7 @@
     width="700"
     max-width="100vw"
     class="samplesDrawer">
-    <v-toolbar>
+    <v-toolbar color="blue lighten-5">
       <v-toolbar-title>
         Data of chart
         <span class="primary--text">{{ chartSettings && chartSettings.title }}</span>

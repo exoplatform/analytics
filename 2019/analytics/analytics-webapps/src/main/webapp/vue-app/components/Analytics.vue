@@ -26,7 +26,7 @@
         class="mt-0" />
       <v-card class="px-3 pt-4 ma-auto transparent" flat>
         <v-toolbar
-          color="transparent"
+          color="white"
           class="elevation-1">
           <v-toolbar-title :title="chartTitle">{{ chartTitle }}</v-toolbar-title>
           <v-spacer />
