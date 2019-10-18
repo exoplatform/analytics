@@ -115,13 +115,14 @@
           </execution>
         </executions>
       </plugin>
-<!--       <plugin> -->
-<!--         <groupId>org.apache.maven.plugins</groupId> -->
-<!--         <artifactId>maven-surefire-plugin</artifactId> -->
-<!--         <configuration> -->
-<!--           <skipTests>true</skipTests> -->
-<!--         </configuration> -->
-<!--       </plugin> -->
+      <!-- we need to have a ES to execute Unit tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skipTests>true</skipTests>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

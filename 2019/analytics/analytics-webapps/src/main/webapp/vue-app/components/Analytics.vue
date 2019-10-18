@@ -4,6 +4,26 @@
     class="analytics-application transparent"
     flat>
     <main>
+      <analytics-chart-setting
+        v-if="chartSetting"
+        ref="chartSettingDialog"
+        :parent-id="modalParentId"
+        :settings="chartSetting"
+        class="mt-0"
+        @save="saveSettings" />
+      <json-panel-dialog
+        v-if="chartSetting"
+        ref="jsonPanelDialog"
+        :parent-id="modalParentId"
+        :settings="chartSetting"
+        class="mt-0" />
+      <view-samples-drawer
+        v-if="chartSetting"
+        ref="viewSamplesDrawer"
+        :parent-id="modalParentId"
+        :settings="chartSetting"
+        :selected-period="selectedPeriod"
+        class="mt-0" />
       <v-card class="px-3 pt-4 ma-auto transparent" flat>
         <v-toolbar
           color="transparent"
@@ -11,12 +31,24 @@
           <v-toolbar-title :title="chartTitle">{{ chartTitle }}</v-toolbar-title>
           <v-spacer />
           <select-period v-model="selectedPeriod" />
-          <analytics-chart-setting
-            v-if="chartSetting"
-            :parent-id="modalParentId"
-            :settings="chartSetting"
-            class="mt-0"
-            @save="saveSettings" />
+          <v-menu open-on-hover>
+            <template v-slot:activator="{ on }">
+              <v-btn icon v-on="on">
+                <v-icon>mdi-dots-vertical</v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item v-if="$refs.chartSettingDialog" @click="$refs.chartSettingDialog.open()">
+                <v-list-item-title>Settings</v-list-item-title>
+              </v-list-item>
+              <v-list-item v-if="$refs.jsonPanelDialog" @click="$refs.jsonPanelDialog.open()">
+                <v-list-item-title>View JSON panel</v-list-item-title>
+              </v-list-item>
+              <v-list-item v-if="$refs.viewSamplesDrawer" @click="$refs.viewSamplesDrawer.open()">
+                <v-list-item-title>View samples</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </v-toolbar>
 
         <v-card-title
@@ -53,12 +85,16 @@
 import AnalyticsChart from './chart/AnalyticsChart.vue';
 import SelectPeriod from './chart/SelectPeriod.vue';
 import AnalyticsChartSetting from './settings/AnalyticsChartSetting.vue';
+import JsonPanelDialog from './settings/JsonPanelDialog.vue';
+import ViewSamplesDrawer from './samples/ViewSamplesDrawer.vue';
 
 export default {
   components: {
     AnalyticsChart,
     SelectPeriod,
     AnalyticsChartSetting,
+    JsonPanelDialog,
+    ViewSamplesDrawer,
   },
   props: {
     retrieveSettingsURL: {

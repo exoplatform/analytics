@@ -12,6 +12,7 @@ import org.picocontainer.Startable;
 import org.exoplatform.analytics.api.service.AnalyticsQueueService;
 import org.exoplatform.analytics.api.service.AnalyticsService;
 import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.analytics.model.StatisticStatus;
 import org.exoplatform.analytics.model.chart.*;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
@@ -191,6 +192,10 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
     long offset = analyticsFilter == null ? 0 : analyticsFilter.getOffset();
     long limit = analyticsFilter == null ? 0 : analyticsFilter.getLimit();
 
+    if (!isCount && (sortFields == null || sortFields.isEmpty())) {
+      sortFields = new ArrayList<>();
+      sortFields.add(new AnalyticsSortField("timestamp", "desc"));
+    }
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{\n");
     buildSearchFilterQuery(esQuery,
@@ -498,9 +503,10 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
 
     JSONArray jsonHits = jsonResult.getJSONArray("hits");
     for (int i = 0; i < jsonHits.length(); i++) {
-      JSONObject jsonObject = jsonHits.getJSONObject(i);
-      JSONObject statisticDataJsonObject = jsonObject.getJSONObject("_source");
-      StatisticData statisticData = fromJsonString(jsonObject.toString(), StatisticData.class);
+      JSONObject statisticDataJsonObject = jsonHits.getJSONObject(i).getJSONObject("_source");
+      int statusOrdinal = statisticDataJsonObject.getInt("status");
+      statisticDataJsonObject.put("status", StatisticStatus.values()[statusOrdinal]);
+      StatisticData statisticData = fromJsonString(statisticDataJsonObject.toString(), StatisticData.class);
       DEFAULT_FIELDS.stream().forEach(fieldName -> statisticDataJsonObject.remove(fieldName));
 
       statisticData.setParameters(new HashMap<>());

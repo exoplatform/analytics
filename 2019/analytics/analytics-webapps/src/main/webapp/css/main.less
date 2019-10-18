@@ -1,3 +1,7 @@
+.hide-scroll {
+  overflow: hidden;
+}
+
 .analytics-application {
   background: transparent !important;
   max-width: fit-content;
@@ -5,6 +9,19 @@
 
   textarea {
     margin-bottom: 0;
+  }
+
+  code {
+    height: auto!important;
+    line-height: 10px!important;
+    vertical-align: middle;
+    margin: 0!important;
+    padding: 5px!important;
+    white-space: initial !important;
+
+    &:after, &:before {
+      content: none !important;
+    }
   }
 
   label {
@@ -49,5 +66,9 @@
     textarea {
       height: 200px;
     }
+  }
+
+  .samplesDrawer {
+    z-index: 2000
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    id="sendTokensModal"
+    id="analyticsChartSettingsModal"
     v-model="dialog"
     :attach="`#${parentId}`"
     content-class="uiPopup with-overflow"
@@ -9,14 +9,6 @@
     max-width="100vw"
     persistent
     @keydown.esc="dialog = false">
-    <template v-slot:activator="{ on }">
-      <v-btn
-        icon
-        title="Settings"
-        v-on="on">
-        <v-icon>fa-cog</v-icon>
-      </v-btn>
-    </template>
     <v-card class="elevation-12">
       <div class="ignore-vuetify-classes popupHeader ClearFix">
         <a
@@ -38,7 +30,6 @@
           <v-tab>Y axis</v-tab>
           <v-tab>Multiple charts</v-tab>
           <v-tab>Data filters</v-tab>
-          <v-tab v-show="tab === 5">JSON pannel</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-tab-item eager>
@@ -70,25 +61,14 @@
               :fields-mappings="fieldsMappings"
               :filters="chartSettings.filters" />
           </v-tab-item>
-          <v-tab-item>
-            <v-textarea
-              v-model="settingJsonContent"
-              class="jsonSetting"
-              readonly />
-          </v-tab-item>
         </v-tabs-items>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <button class="btn btn-primary ignore-vuetify-classes" @click="save">
+        <button class="btn btn-primary ignore-vuetify-classes mr-1" @click="save">
           Save settings
         </button>
-        <v-spacer />
-        <button class="btn ignore-vuetify-classes" @click="tab = 5">
-          Display JSON
-        </button>
-        <v-spacer />
-        <button class="btn ignore-vuetify-classes" @click="dialog = false">
+        <button class="btn ignore-vuetify-classes ml-1" @click="dialog = false">
           Close
         </button>
         <v-spacer />
@@ -174,6 +154,9 @@ export default {
           this.error = 'Error getting analytics';
         })
         .finally(() => this.loading = false);
+    },
+    open() {
+      this.dialog = true;
     },
     save() {
       this.$emit('save', this.chartSettings);
