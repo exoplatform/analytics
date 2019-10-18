@@ -2,7 +2,29 @@
   <v-flex :id="id" style="width:600px; height:400px;" />
 </template>
 <script>
+import {loadUser, loadSpace} from '../../js/utils.js';
+
 export default {
+  props: {
+    settings: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+    users: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+    spaces: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+  },
   data () {
     return {
       id: `Chart${parseInt(Math.random() * 10000)
@@ -16,10 +38,10 @@ export default {
     }
   },
   methods: {
-    init(chartsData, settings) {
+    init(chartsData) {
       const charts = (chartsData && chartsData.charts) || [];
       const labels = (chartsData && chartsData.labels) || [];
-      const chartType = settings && settings.chartType || 'line';
+      const chartType = this.settings && this.settings.chartType || 'line';
 
       const $container = $(`#${this.id}`);
       if (!$container.length) {
@@ -30,8 +52,8 @@ export default {
       const series = [];
       const chartOptions = {
           title : {
-            text: settings.chartTitle,
-            x:'center'
+            text: this.settings.chartTitle,
+            x: 'center'
           },
           series : series,
       };
@@ -57,14 +79,31 @@ export default {
         chartOptions.yAxis = [{type : 'value'}];
         charts.forEach(chartData => {
           const serie = {
-              type: chartType,
-              data: chartData.values,
+            type: chartType,
+            data: chartData.values,
           };
+
+          let fieldName;
+          let fieldValue;
           if (chartData.chartValue) {
-            chartData.chartKey = chartData.chartKey.replace('.keyword', '');
-            serie.name = `${chartData.chartKey}=${chartData.chartValue}`;
+            fieldName = chartData.chartKey = chartData.chartKey.replace('.keyword', '');
+            fieldValue = chartData.chartValue;
           } else if (chartData.key && chartData.key.fieldValue) {
-            serie.name = chartData.key.fieldValue;
+            fieldName = chartData.key.aggregation && chartData.key.aggregation.field;
+            fieldValue = chartData.key.fieldValue;
+          }
+          serie.name = `${fieldName}=${fieldValue}`;
+
+          if (fieldName === 'userId' || fieldName === 'modifierSocialId') {
+            const obj = this.users[fieldValue];
+            if (obj && obj.displayName) {
+              serie.name = obj.displayName;
+            }
+          } else if (fieldName === 'spaceId') {
+            const obj = this.spaces[fieldValue];
+            if (obj && obj.displayName) {
+              serie.name = obj.displayName;
+            }
           }
           series.push(serie);
         });

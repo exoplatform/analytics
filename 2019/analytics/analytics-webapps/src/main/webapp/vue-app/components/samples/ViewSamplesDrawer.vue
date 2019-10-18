@@ -29,8 +29,8 @@
           v-for="(chartData, i) in chartDatas"
           :key="i"
           :chart-data="chartData"
-          :users="userObjects"
-          :spaces="spaceObjects" />
+          :users="users"
+          :spaces="spaces" />
       </v-expansion-panels>
       <v-progress-circular
         v-else
@@ -53,6 +53,8 @@
 
 <script>
 import SampleItem from './SampleItem.vue';
+
+import {loadUser, loadSpace} from '../../js/utils.js';
 
 export default {
   components: {
@@ -77,13 +79,23 @@ export default {
         return null;
       },
     },
+    users: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+    spaces: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
   },
   data: () => ({
     drawer: false,
     loading: false,
     chartDatas: null,
-    userObjects: {},
-    spaceObjects: {},
     pageSize: 10,
     limit: 10,
   }),
@@ -169,65 +181,10 @@ export default {
       }
       const chartData = chartDatas[index];
       if (chartData) {
-        return this.loadUser(chartData.userId)
-          .then(() => this.loadUser(chartData.parameters && chartData.parameters.modifierSocialId))
-          .then(() => this.loadSpace(chartData.spaceId))
+        return loadUser(this.users, chartData.userId)
+          .then(() => loadUser(this.users, chartData.parameters && chartData.parameters.modifierSocialId))
+          .then(() => loadSpace(this.spaces, chartData.spaceId))
           .then(() => this.loadUsersAndSpacesObjects(chartDatas, ++index));
-      }
-    },
-    loadUser(userId) {
-      if (this.userObjects[userId]) {
-        return Promise.resolve(this.userObjects[userId]);
-      } else {
-        return fetch(`/portal/rest/v1/social/identities/${userId}`)
-        .then((resp) => {
-          if (resp && resp.ok) {
-            return resp.json();
-          }
-        })
-        .then((obj) => {
-          obj = obj || {};
-          const userObject = {
-            identityId: userId,
-            providerId: obj.globalId && obj.globalId.domain,
-            remoteId: obj.globalId && obj.globalId.localId,
-            avatar: obj.avatar || '/eXoSkin/skin/images/system/UserAvtDefault.png',
-            displayName: obj.profile && obj.profile.fullname,
-          };
-          this.userObjects[userId] = userObject;
-        })
-      }
-    },
-    loadSpace(spaceId) {
-      if (this.spaceObjects[spaceId]) {
-        return Promise.resolve(this.spaceObjects[spaceId]);
-      } else {
-        let spaceDisplayName;
-        return fetch(`/portal/rest/v1/social/spaces/${spaceId}`)
-        .then((resp) => {
-          if (resp && resp.ok) {
-            return resp.json();
-          }
-        })
-        .then(obj => {
-          if (obj && obj.identity) {
-            spaceDisplayName = obj.displayName;
-            return fetch(`${obj.identity}`)
-              .then((resp) => resp && resp.ok && resp.json());
-          }
-        })
-        .then((obj) => {
-          obj = obj || {};
-          const spaceObject = {
-            identityId: obj.id,
-            providerId: obj.globalId && obj.globalId.domain,
-            remoteId: obj.globalId && obj.globalId.localId,
-            avatar: obj.avatar || '/eXoSkin/skin/images/system/SpaceAvtDefault.png',
-            spaceId: spaceId,
-            displayName: spaceDisplayName,
-          };
-          this.spaceObjects[spaceId] = spaceObject;
-        })
       }
     },
   }

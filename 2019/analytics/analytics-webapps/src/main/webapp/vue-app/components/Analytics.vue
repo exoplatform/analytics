@@ -5,24 +5,28 @@
     flat>
     <main>
       <analytics-chart-setting
-        v-if="chartSetting"
+        v-if="chartSettings"
         ref="chartSettingDialog"
         :parent-id="modalParentId"
-        :settings="chartSetting"
+        :settings="chartSettings"
+        :users="userObjects"
+        :spaces="spaceObjects"
         class="mt-0"
         @save="saveSettings" />
       <json-panel-dialog
-        v-if="chartSetting"
+        v-if="chartSettings"
         ref="jsonPanelDialog"
         :parent-id="modalParentId"
-        :settings="chartSetting"
+        :settings="chartSettings"
         class="mt-0" />
       <view-samples-drawer
-        v-if="chartSetting"
+        v-if="chartSettings"
         ref="viewSamplesDrawer"
         :parent-id="modalParentId"
-        :settings="chartSetting"
+        :settings="chartSettings"
         :selected-period="selectedPeriod"
+        :users="userObjects"
+        :spaces="spaceObjects"
         class="mt-0" />
       <v-card class="px-3 pt-4 ma-auto transparent" flat>
         <v-toolbar
@@ -64,7 +68,11 @@
         </v-card-title>
 
         <v-card-text class="px-0 mx-0">
-          <analytics-chart ref="analyticsChart" />
+          <analytics-chart
+            ref="analyticsChart"
+            :settings="chartSettings"
+            :users="userObjects"
+            :spaces="spaceObjects" />
         </v-card-text>
 
         <div v-if="displayComputingTime || displaySamplesCount" class="pl-4">
@@ -87,6 +95,8 @@ import SelectPeriod from './chart/SelectPeriod.vue';
 import AnalyticsChartSetting from './settings/AnalyticsChartSetting.vue';
 import JsonPanelDialog from './settings/JsonPanelDialog.vue';
 import ViewSamplesDrawer from './samples/ViewSamplesDrawer.vue';
+
+import {loadUser, loadSpace} from '../js/utils.js';
 
 export default {
   components: {
@@ -112,6 +122,8 @@ export default {
   },
   data: () => ({
     selectedPeriod: null,
+    userObjects: {},
+    spaceObjects: {},
     loading: true,
     appId: `AnalyticsApplication${parseInt(Math.random() * 10000)
       .toString()
@@ -120,17 +132,17 @@ export default {
       .toString()
       .toString()}`,
     chartsData: {},
-    chartSetting: null,
+    chartSettings: null,
   }),
   computed: {
     chartTitle() {
-      return this.chartSetting && this.chartSetting.title;
+      return this.chartSettings && this.chartSettings.title;
     },
     displayComputingTime() {
-      return this.chartSetting && this.chartsData && this.chartSetting.displayComputingTime;
+      return this.chartSettings && this.chartsData && this.chartSettings.displayComputingTime;
     },
     displaySamplesCount() {
-      return this.chartSetting && this.chartsData && this.chartSetting.displaySamplesCount;
+      return this.chartSettings && this.chartsData && this.chartSettings.displaySamplesCount;
     },
   },
   watch: {
@@ -164,28 +176,28 @@ export default {
           }
         })
         .then((preferences) => {
-          this.chartSetting = preferences && preferences.settings && JSON.parse(preferences.settings);
-          if (!this.chartSetting) {
-            this.chartSetting = {
+          this.chartSettings = preferences && preferences.settings && JSON.parse(preferences.settings);
+          if (!this.chartSettings) {
+            this.chartSettings = {
               filters: [],
               aggregations: [],
             };
           }
-          if (!this.chartSetting.filters) {
-            this.chartSetting.filters = [];
+          if (!this.chartSettings.filters) {
+            this.chartSettings.filters = [];
           }
-          if (!this.chartSetting.xAxisAggregations) {
-            this.chartSetting.xAxisAggregations = [];
+          if (!this.chartSettings.xAxisAggregations) {
+            this.chartSettings.xAxisAggregations = [];
           }
-          if (!this.chartSetting.yAxisAggregation) {
-            this.chartSetting.yAxisAggregation = {};
+          if (!this.chartSettings.yAxisAggregation) {
+            this.chartSettings.yAxisAggregation = {};
           }
         });
     },
-    saveSettings(chartSetting) {
+    saveSettings(chartSettings) {
       this.loading = true;
 
-      this.chartSetting = chartSetting;
+      this.chartSettings = chartSettings;
 
       return fetch(this.saveSettingsURL, {
         method: 'POST',
@@ -194,12 +206,12 @@ export default {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: $.param({
-          settings : JSON.stringify(this.chartSetting)
+          settings : JSON.stringify(this.chartSettings)
         }),
       })
         .then((resp) => {
           if (!resp || !resp.ok) {
-            throw new Error('Error saving chart settings', this.chartSetting);
+            throw new Error('Error saving chart settings', this.chartSettings);
           }
           return this.updateChart();
         })
@@ -210,7 +222,7 @@ export default {
         .finally(() => this.loading = false);
     },
     updateChart() {
-      if (!this.chartSetting) {
+      if (!this.chartSettings) {
         return;
       }
       if (!this.selectedPeriod) {
@@ -219,7 +231,7 @@ export default {
 
       this.loading = true;
 
-      const filters = this.chartSetting.filters.slice();
+      const filters = this.chartSettings.filters.slice();
       if (this.selectedPeriod) {
         filters.push({
           field: "timestamp",
@@ -228,6 +240,7 @@ export default {
         });
       }
 
+      let loadedChartData;
       return fetch('/portal/rest/analytics', {
         method: 'POST',
         credentials: 'include',
@@ -237,11 +250,11 @@ export default {
         },
         body: JSON.stringify({
           filters: filters,
-          xAxisAggregations: this.chartSetting.xAxisAggregations,
-          yAxisAggregation: this.chartSetting.yAxisAggregation,
-          multipleChartsField: this.chartSetting.multipleChartsField,
-          offset: this.chartSetting.offset,
-          limit: this.chartSetting.limit,
+          xAxisAggregations: this.chartSettings.xAxisAggregations,
+          yAxisAggregation: this.chartSettings.yAxisAggregation,
+          multipleChartsField: this.chartSettings.multipleChartsField,
+          offset: this.chartSettings.offset,
+          limit: this.chartSettings.limit,
           lang: eXo.env.portal.language,
         }),
       })
@@ -249,18 +262,42 @@ export default {
           if (resp && resp.ok) {
             return resp.json();
           } else {
-            throw new Error('Error getting analytics with settings:', this.chartSetting);
+            throw new Error('Error getting analytics with settings:', this.chartSettings);
           }
         })
         .then((chartsData) => {
-          this.chartsData = chartsData;
-          this.$refs.analyticsChart.init(this.chartsData, this.chartSetting);
+          loadedChartData = chartsData;
+          // TODO This is disabled for now until this computing is handeled
+          // in Server Side with a better performances
+          // return this.loadUsersAndSpacesObjects(chartsData);
+        })
+        .then(() => {
+          this.chartsData = loadedChartData;
+          this.$refs.analyticsChart.init(this.chartsData);
         })
         .catch((e) => {
           console.debug('fetch analytics - error', e);
           this.error = 'Error getting analytics';
         })
         .finally(() => this.loading = false);
+    },
+    loadUsersAndSpacesObjects(chartsData, index) {
+      index = index || 0;
+      if (!chartsData || !chartsData.charts || index >= chartsData.charts.length) {
+        return;
+      }
+      const chartData = chartsData.charts[index];
+      if (chartData) {
+        const fieldName = chartData.chartKey;
+        const fieldValue = chartData.chartValue;
+        if (fieldName === 'userId' || fieldName === 'modifierSocialId') {
+          return loadUser(this.userObjects, fieldValue)
+            .then(() => this.loadUsersAndSpacesObjects(chartsData, ++index));
+        } else if (fieldName === 'spaceId') {
+          return loadSpace(this.spaceObjects, fieldValue)
+            .then(() => this.loadUsersAndSpacesObjects(chartsData, ++index));
+        }
+      }
     },
   }
 };
