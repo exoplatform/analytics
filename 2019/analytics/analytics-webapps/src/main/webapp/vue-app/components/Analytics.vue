@@ -6,7 +6,6 @@
     <main>
       <v-card class="px-3 pt-4 ma-auto transparent" flat>
         <v-toolbar
-          v-if="chartSetting"
           color="transparent"
           class="elevation-1">
           <v-toolbar-title :title="chartTitle">{{ chartTitle }}</v-toolbar-title>
@@ -99,14 +98,13 @@ export default {
     },
   },
   watch: {
-    selectedPeriod() {
-      if (this.selectedPeriod) {
+    selectedPeriod(newValue, oldValue) {
+      if (!oldValue && newValue) {
+        this.init();
+      } else if (newValue) {
         this.updateChart();
       }
     },
-  },
-  mounted() {
-    this.init();
   },
   methods: {
     init() {
