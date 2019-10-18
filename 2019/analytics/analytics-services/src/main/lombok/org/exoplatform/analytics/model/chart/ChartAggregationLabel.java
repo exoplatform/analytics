@@ -24,7 +24,7 @@ public class ChartAggregationLabel implements Comparable<ChartAggregationLabel>,
   private String                      lang;
 
   public String getLabel() {
-    List<String> labels = aggregationValues.stream().map(value -> value.getLabel(lang)).collect(Collectors.toList());
+    List<String> labels = aggregationValues.stream().map(value -> value.getFieldLabel()).collect(Collectors.toList());
     return StringUtils.join(labels, AGGREGATION_KEYS_SEPARATOR);
   }
 

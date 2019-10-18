@@ -409,6 +409,7 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
                                             int level) throws JSONException {
     JSONObject aggsResult = aggregations.getJSONObject(AGGREGATION_RESULT_PARAM);
     JSONArray buckets = aggsResult.getJSONArray("buckets");
+    String lang = filter.getLang();
     if (buckets.length() > 0) {
       int nextLevel = level + 1;
       for (int i = 0; i < buckets.length(); i++) {
@@ -429,7 +430,7 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
             result = valueResult.get("value").toString();
           }
           addAggregationValue(key, filter, childrenAggregationValues, level);
-          ChartAggregationLabel chartLabel = new ChartAggregationLabel(childrenAggregationValues, filter.getLang());
+          ChartAggregationLabel chartLabel = new ChartAggregationLabel(childrenAggregationValues, lang);
           ChartAggregationResult aggregationResult = new ChartAggregationResult(chartLabel, result);
           chartsData.addResult(parentAggregation, aggregationResult);
         } else {
@@ -437,7 +438,7 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
           String key = bucketResult.getString("key");
           ChartAggregationValue parentAggregationToUse = parentAggregation;
           if (multipleChartsAggregation != null && level == -1) {
-            parentAggregationToUse = new ChartAggregationValue(multipleChartsAggregation, key);
+            parentAggregationToUse = new ChartAggregationValue(multipleChartsAggregation, key, lang, null);
           } else {
             addAggregationValue(key, filter, childrenAggregationValues, level);
           }
@@ -488,7 +489,7 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
     } else {
       aggregation = filter.getXAxisAggregations().get(level);
     }
-    ChartAggregationValue aggregationValue = new ChartAggregationValue(aggregation, key);
+    ChartAggregationValue aggregationValue = new ChartAggregationValue(aggregation, key, filter.getLang(), null);
     aggregationValues.add(aggregationValue);
   }
 

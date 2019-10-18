@@ -2,23 +2,9 @@
   <v-flex :id="id" style="width:600px; height:400px;" />
 </template>
 <script>
-import {loadUser, loadSpace} from '../../js/utils.js';
-
 export default {
   props: {
     settings: {
-      type: Object,
-      default: function() {
-        return null;
-      },
-    },
-    users: {
-      type: Object,
-      default: function() {
-        return null;
-      },
-    },
-    spaces: {
       type: Object,
       default: function() {
         return null;
@@ -83,39 +69,13 @@ export default {
             data: chartData.values,
           };
 
-          let fieldName;
-          let fieldValue;
-          if (chartData.chartValue) {
-            fieldName = chartData.chartKey = chartData.chartKey.replace('.keyword', '');
-            fieldValue = chartData.chartValue;
-          } else if (chartData.key && chartData.key.fieldValue) {
-            fieldName = chartData.key.aggregation && chartData.key.aggregation.field;
-            fieldValue = chartData.key.fieldValue;
-          }
-          serie.name = `${fieldName}=${fieldValue}`;
-
-          if (fieldName === 'userId' || fieldName === 'modifierSocialId') {
-            const obj = this.users[fieldValue];
-            if (obj && obj.displayName) {
-              serie.name = obj.displayName;
-            }
-          } else if (fieldName === 'spaceId') {
-            const obj = this.spaces[fieldValue];
-            if (obj && obj.displayName) {
-              serie.name = obj.displayName;
-            }
-          }
+          serie.name = chartData.chartLabel;
           series.push(serie);
         });
       } else if (chartType === 'pie') {
         chartOptions.tooltip = {
           trigger: 'item',
           formatter: "{b} : {c} ({d}%)"
-        };
-        chartOptions.legend = {
-          orient: 'vertical',
-          left: 'left',
-          data: labels,
         };
 
         const chartsLength = charts.length;
@@ -152,12 +112,7 @@ export default {
             serie.center = ['50%', '50%'];
           }
 
-          if (chartData.chartValue) {
-            chartData.chartKey = chartData.chartKey.replace('.keyword', '');
-            serie.name = `${chartData.chartKey}=${chartData.chartValue}`;
-          } else if (chartData.key && chartData.key.fieldValue) {
-            serie.name = chartData.key.fieldValue;
-          }
+          serie.name = chartData.chartLabel;
           series.push(serie);
         });
       }

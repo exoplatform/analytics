@@ -19,6 +19,8 @@ public class ChartData implements Serializable {
 
   private String                       lang;
 
+  private String                       chartLabel;
+
   public String getChartKey() {
     return key == null || key.getAggregation() == null ? null
                                                        : key.getAggregation().getField();

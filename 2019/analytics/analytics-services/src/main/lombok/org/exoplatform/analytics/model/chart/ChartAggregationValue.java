@@ -19,11 +19,18 @@ public class ChartAggregationValue implements Comparable<ChartAggregationValue>,
 
   private String               fieldValue;
 
-  public String getLabel(String lang) {
-    if (aggregation == null) {
-      return fieldValue;
+  private String               lang;
+
+  private String               fieldLabel;
+
+  public String getFieldLabel() {
+    if (fieldLabel == null) {
+      if (aggregation == null) {
+        return fieldValue;
+      }
+      fieldLabel = aggregation.getLabel(fieldValue, lang);
     }
-    return aggregation.getLabel(fieldValue, lang);
+    return this.fieldLabel;
   }
 
   @Override
@@ -50,4 +57,5 @@ public class ChartAggregationValue implements Comparable<ChartAggregationValue>,
 
     return fieldValue.compareTo(otherFieldValue);
   }
+
 }

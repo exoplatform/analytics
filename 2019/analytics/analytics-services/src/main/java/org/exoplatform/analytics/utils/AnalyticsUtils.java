@@ -20,6 +20,8 @@ import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.ws.frameworks.json.JsonGenerator;
 import org.exoplatform.ws.frameworks.json.JsonParser;
 import org.exoplatform.ws.frameworks.json.impl.*;
@@ -47,6 +49,10 @@ public class AnalyticsUtils {
   public static final String            FIELD_TIMESTAMP                  = "timestamp";
 
   public static final String            FIELD_MODIFIER_USER_SOCIAL_ID    = "modifierSocialId";
+
+  public static final List<String>      COMPUTED_CHART_LABEL             = Arrays.asList(FIELD_MODIFIER_USER_SOCIAL_ID,                                 // NOSONAR
+                                                                                         FIELD_USER_ID,
+                                                                                         FIELD_SPACE_ID);
 
   public static final DateTimeFormatter DATE_FORMATTER                   = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
 
@@ -153,6 +159,31 @@ public class AnalyticsUtils {
       return JSON_GENERATOR.createJsonObject(object).toString();
     } catch (JsonException e) {
       throw new IllegalStateException("Error parsing object to string " + object, e);
+    }
+  }
+
+  public static final String compueLabel(String chartKey, String chartValue) {
+    String defaultLabel = (chartKey == null ? "" : chartKey.replace(".keyword", "") + "=") + chartValue;
+    if (StringUtils.isBlank(chartKey) || StringUtils.isBlank(chartValue) || !COMPUTED_CHART_LABEL.contains(chartKey)) {
+      return defaultLabel;
+    }
+
+    if (StringUtils.equals(chartKey, FIELD_SPACE_ID)) {
+      SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+      Space space = spaceService.getSpaceById(chartValue);
+      if (space == null) {
+        return defaultLabel;
+      } else {
+        return space.getDisplayName();
+      }
+    } else {
+      IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+      Identity identity = identityManager.getIdentity(chartValue, true);
+      if (identity == null) {
+        return defaultLabel;
+      } else {
+        return identity.getProfile().getFullName();
+      }
     }
   }
 

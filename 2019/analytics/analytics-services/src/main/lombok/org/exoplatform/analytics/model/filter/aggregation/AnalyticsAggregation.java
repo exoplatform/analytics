@@ -9,6 +9,8 @@ import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.analytics.utils.AnalyticsUtils;
+
 import groovy.transform.ToString;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -66,7 +68,7 @@ public class AnalyticsAggregation implements Serializable {
       long timestamp = Long.parseLong(fieldValue);
       return formatTime(timestamp, lang);
     }
-    return fieldValue;
+    return AnalyticsUtils.compueLabel(field, fieldValue);
   }
 
   private String formatTime(long timestamp, String lang) {

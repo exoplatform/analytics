@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.exoplatform.analytics.utils.AnalyticsUtils;
+
 import lombok.Data;
 import lombok.ToString;
 
@@ -27,10 +29,6 @@ public class ChartDataList implements Serializable {
     this.lang = lang;
   }
 
-  public void addChart(ChartData chartData) {
-    charts.add(chartData);
-  }
-
   public ChartData addResult(ChartAggregationValue chartParentAggregation, ChartAggregationResult aggregationResult) {
     ChartAggregationLabel chartLabel = aggregationResult.getChartLabel();
 
@@ -45,7 +43,14 @@ public class ChartDataList implements Serializable {
                                 .orElse(null);
     if (chartData == null) {
       List<ChartAggregationResult> results = new ArrayList<>();
-      chartData = new ChartData(chartParentAggregation, results, lang);
+
+      chartData = new ChartData(chartParentAggregation, results, lang, null);
+
+      String chartValue = chartData.getChartValue();
+      String chartKey = chartData.getChartKey();
+      String label = AnalyticsUtils.compueLabel(chartKey, chartValue);
+
+      chartData.setChartLabel(label);
       charts.add(chartData);
     }
     chartData.addAggregationResult(aggregationResult, true);

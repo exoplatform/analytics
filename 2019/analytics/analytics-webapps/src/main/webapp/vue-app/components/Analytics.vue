@@ -70,9 +70,7 @@
         <v-card-text class="px-0 mx-0">
           <analytics-chart
             ref="analyticsChart"
-            :settings="chartSettings"
-            :users="userObjects"
-            :spaces="spaceObjects" />
+            :settings="chartSettings" />
         </v-card-text>
 
         <div v-if="displayComputingTime || displaySamplesCount" class="pl-4">
@@ -240,7 +238,6 @@ export default {
         });
       }
 
-      let loadedChartData;
       return fetch('/portal/rest/analytics', {
         method: 'POST',
         credentials: 'include',
@@ -266,13 +263,7 @@ export default {
           }
         })
         .then((chartsData) => {
-          loadedChartData = chartsData;
-          // TODO This is disabled for now until this computing is handeled
-          // in Server Side with a better performances
-          // return this.loadUsersAndSpacesObjects(chartsData);
-        })
-        .then(() => {
-          this.chartsData = loadedChartData;
+          this.chartsData = chartsData;
           this.$refs.analyticsChart.init(this.chartsData);
         })
         .catch((e) => {
@@ -280,24 +271,6 @@ export default {
           this.error = 'Error getting analytics';
         })
         .finally(() => this.loading = false);
-    },
-    loadUsersAndSpacesObjects(chartsData, index) {
-      index = index || 0;
-      if (!chartsData || !chartsData.charts || index >= chartsData.charts.length) {
-        return;
-      }
-      const chartData = chartsData.charts[index];
-      if (chartData) {
-        const fieldName = chartData.chartKey;
-        const fieldValue = chartData.chartValue;
-        if (fieldName === 'userId' || fieldName === 'modifierSocialId') {
-          return loadUser(this.userObjects, fieldValue)
-            .then(() => this.loadUsersAndSpacesObjects(chartsData, ++index));
-        } else if (fieldName === 'spaceId') {
-          return loadSpace(this.spaceObjects, fieldValue)
-            .then(() => this.loadUsersAndSpacesObjects(chartsData, ++index));
-        }
-      }
     },
   }
 };
