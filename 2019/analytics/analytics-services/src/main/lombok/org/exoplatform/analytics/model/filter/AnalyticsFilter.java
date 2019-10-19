@@ -9,11 +9,10 @@ import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
-import org.exoplatform.analytics.model.filter.search.Range;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 
 import groovy.transform.ToString;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @ToString
@@ -96,5 +95,19 @@ public class AnalyticsFilter implements Serializable {
   public void addLessFilter(String field, long value) {
     AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, LESS, String.valueOf(value));
     this.filters.add(fieldFilter);
+  }
+
+  @Data
+  @ToString
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class Range implements Serializable {
+
+    private static final long serialVersionUID = 570632355720481459L;
+
+    private String            min;
+
+    private String            max;
+
   }
 }

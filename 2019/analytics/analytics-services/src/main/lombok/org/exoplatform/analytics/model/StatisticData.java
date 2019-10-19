@@ -1,7 +1,7 @@
 package org.exoplatform.analytics.model;
 
 import java.io.Serializable;
-import java.time.*;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 

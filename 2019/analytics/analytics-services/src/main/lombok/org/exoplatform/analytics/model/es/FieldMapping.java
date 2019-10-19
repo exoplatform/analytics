@@ -1,4 +1,4 @@
-package org.exoplatform.analytics.es;
+package org.exoplatform.analytics.model.es;
 
 import java.util.Arrays;
 import java.util.List;

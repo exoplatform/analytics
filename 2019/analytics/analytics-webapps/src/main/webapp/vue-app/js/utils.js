@@ -1,4 +1,7 @@
 export function loadUser(users, userId) {
+  if (!userId) {
+    return;
+  }
   if (users[userId]) {
     return Promise.resolve(users[userId]);
   } else {
@@ -23,6 +26,9 @@ export function loadUser(users, userId) {
 }
 
 export function loadSpace(spaces, spaceId) {
+  if (!spaceId) {
+    return;
+  }
   if (spaces[spaceId]) {
     return Promise.resolve(spaces[spaceId]);
   } else {

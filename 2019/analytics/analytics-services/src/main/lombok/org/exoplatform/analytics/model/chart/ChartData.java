@@ -1,7 +1,8 @@
 package org.exoplatform.analytics.model.chart;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.*;
@@ -27,15 +28,11 @@ public class ChartData implements Serializable {
   }
 
   public void addAggregationResult(ChartAggregationResult aggregationResult, boolean replaceIfExists) {
-    ChartAggregationResult foundResult = aggregationResults.stream()
-                                                           .filter(result -> result.getChartLabel()
-                                                                                   .compareTo(aggregationResult.getChartLabel()) == 0)
-                                                           .findFirst()
-                                                           .orElse(null);
-    if (foundResult == null) {
+    int index = aggregationResults.indexOf(aggregationResult);
+    if (index < 0) {
       aggregationResults.add(aggregationResult);
     } else if (replaceIfExists) {
-      aggregationResults.remove(foundResult);
+      aggregationResults.remove(index);
       aggregationResults.add(aggregationResult);
     }
   }
@@ -45,7 +42,6 @@ public class ChartData implements Serializable {
   }
 
   public List<String> getValues() {
-    Collections.sort(aggregationResults);
     return aggregationResults.stream().map(ChartAggregationResult::getValue).collect(Collectors.toList());
   }
 

@@ -3,37 +3,33 @@ package org.exoplatform.analytics.api.service;
 import java.util.List;
 import java.util.Set;
 
-import org.exoplatform.analytics.es.FieldMapping;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.chart.ChartDataList;
+import org.exoplatform.analytics.model.es.FieldMapping;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 
-public abstract class AnalyticsService {
+public interface AnalyticsService {
 
-  private AnalyticsQueueService queueService;
+  /**
+   * Retrieve analytics chart data
+   * 
+   * @param filter used search filters and aggregations to compute data
+   * @return computed analytics chart data
+   */
+  ChartDataList compueChartData(AnalyticsFilter filter);
 
-  public AnalyticsService(AnalyticsQueueService queueService) {
-    this.queueService = queueService;
-  }
-
-  void create(StatisticData data) {
-    if (data == null) {
-      throw new IllegalArgumentException("Statistic data to store is mandatory");
-    }
-
-    queueService.put(data);
-  }
-
-  public abstract ChartDataList getChartData(AnalyticsFilter filter);
-
-  public abstract List<StatisticData> getData(AnalyticsFilter searchFilter);
-
-  public abstract int count(AnalyticsFilter searchFilter);
+  /**
+   * Retrieve data using search filters
+   * 
+   * @param searchFilter
+   * @return {@link List} of {@link StatisticData}
+   */
+  List<StatisticData> retrieveData(AnalyticsFilter searchFilter);
 
   /**
    * @param forceRefresh whether force refresh from ES or not
    * @return a {@link Set} of ES mapping fields
    */
-  public abstract Set<FieldMapping> retrieveMapping(boolean forceRefresh);
+  Set<FieldMapping> retrieveMapping(boolean forceRefresh);
 
 }

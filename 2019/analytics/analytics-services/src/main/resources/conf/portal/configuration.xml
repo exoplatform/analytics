@@ -1,27 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd" xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
+
   <component>
     <key>org.exoplatform.analytics.api.service.AnalyticsService</key>
-    <type>org.exoplatform.analytics.es.ESAnalyticsService</type>
+    <type>org.exoplatform.analytics.es.service.ESAnalyticsService</type>
   </component>
 
   <component>
-    <key>org.exoplatform.analytics.api.service.AnalyticsQueueService</key>
-    <type>org.exoplatform.analytics.dummy.queue.DummyAnalyticsQueueService</type>
+    <key>org.exoplatform.analytics.api.service.StatisticDataQueueService</key>
+    <type>org.exoplatform.analytics.queue.service.DummyStatisticDataQueueService</type>
   </component>
 
   <component>
-    <type>org.exoplatform.analytics.api.service.AnalyticsDataInjector</type>
-    <init-params>
-      <value-param>
-        <name>enabled</name>
-        <value>${exo.addon.analytics.data.injection.enabled:false}</value>
-      </value-param>
-      <value-param>
-        <name>file.path</name>
-        <value>${exo.addon.analytics.data.injection.path:}</value>
-      </value-param>
-    </init-params>
+    <type>org.exoplatform.analytics.api.service.StatisticDataProcessorService</type>
   </component>
 
   <component>
@@ -29,7 +20,7 @@
   </component>
 
   <external-component-plugins>
-    <target-component>org.exoplatform.analytics.api.service.AnalyticsQueueService</target-component>
+    <target-component>org.exoplatform.analytics.api.service.StatisticDataProcessorService</target-component>
     <component-plugin>
       <name>elasticsearch</name>
       <set-method>addProcessor</set-method>
@@ -43,7 +34,7 @@
     <component-plugin>
       <name>AnalyticsIndexingServiceConnector</name>
       <set-method>addConnector</set-method>
-      <type>org.exoplatform.analytics.es.AnalyticsIndexingServiceConnector</type>
+      <type>org.exoplatform.analytics.es.connector.AnalyticsIndexingServiceConnector</type>
       <description>Analytics ElasticSearch Indexing Connector</description>
       <init-params>
         <value-param>

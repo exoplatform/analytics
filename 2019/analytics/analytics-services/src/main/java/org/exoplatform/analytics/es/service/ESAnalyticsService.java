@@ -1,30 +1,36 @@
-package org.exoplatform.analytics.es;
+package org.exoplatform.analytics.es.service;
 
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.*;
 import org.picocontainer.Startable;
 
-import org.exoplatform.analytics.api.service.AnalyticsQueueService;
 import org.exoplatform.analytics.api.service.AnalyticsService;
+import org.exoplatform.analytics.es.connector.AnalyticsIndexingServiceConnector;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticStatus;
 import org.exoplatform.analytics.model.chart.*;
+import org.exoplatform.analytics.model.es.FieldMapping;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
+import org.exoplatform.analytics.model.filter.AnalyticsFilter.Range;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
-import org.exoplatform.analytics.model.filter.search.*;
+import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
+import org.exoplatform.analytics.model.filter.search.AnalyticsSortField;
 import org.exoplatform.commons.search.es.client.*;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-public class ESAnalyticsService extends AnalyticsService implements Startable {
+public class ESAnalyticsService implements AnalyticsService, Startable {
 
   private static final Log          LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
+
+  private static final String       AGGREGATION_KEYS_SEPARATOR     = "-";
 
   private static final String       AGGREGATION_RESULT_PARAM       = "aggregation_result";
 
@@ -36,8 +42,7 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
 
   private ScheduledExecutorService  esMappingUpdater               = Executors.newScheduledThreadPool(1);
 
-  public ESAnalyticsService(ElasticSearchingClient esClient, AnalyticsQueueService analyticsQueueService) {
-    super(analyticsQueueService);
+  public ESAnalyticsService(ElasticSearchingClient esClient) {
     this.esClient = esClient;
   }
 
@@ -100,7 +105,7 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
   }
 
   @Override
-  public ChartDataList getChartData(AnalyticsFilter filter) {
+  public ChartDataList compueChartData(AnalyticsFilter filter) {
     if (filter == null) {
       throw new IllegalArgumentException("Filter is mandatory");
     }
@@ -128,7 +133,7 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
   }
 
   @Override
-  public List<StatisticData> getData(AnalyticsFilter searchFilter) {
+  public List<StatisticData> retrieveData(AnalyticsFilter searchFilter) {
     StringBuilder esQuery = buildFilterQuery(searchFilter, false);
 
     String esQueryString = esQuery.toString();
@@ -140,24 +145,6 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
                                                     AnalyticsIndexingServiceConnector.ES_TYPE);
     try {
       return buildSearchResultFromESResponse(jsonResponse);
-    } catch (JSONException e) {
-      throw new IllegalStateException("Error parsing results with filter: " + searchFilter + ", response: " + jsonResponse, e);
-    }
-  }
-
-  @Override
-  public int count(AnalyticsFilter searchFilter) {
-    StringBuilder esQuery = buildFilterQuery(searchFilter, true);
-
-    String esQueryString = esQuery.toString();
-    esQueryString = fixJSONStringFormat(esQueryString);
-
-    LOG.debug("ES query to compute search count with filter {}: \n{}", searchFilter, esQueryString);
-    String jsonResponse = this.esClient.sendRequest(esQueryString,
-                                                    AnalyticsIndexingServiceConnector.ES_ALIAS,
-                                                    AnalyticsIndexingServiceConnector.ES_TYPE);
-    try {
-      return getSearchCountFromESResponse(jsonResponse);
     } catch (JSONException e) {
       throw new IllegalStateException("Error parsing results with filter: " + searchFilter + ", response: " + jsonResponse, e);
     }
@@ -273,7 +260,7 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
       esQuery.append("        \"must\" : [\n");
       for (AnalyticsFieldFilter fieldFilter : filters) {
         String field = fieldFilter.getField();
-        FieldMapping fieldMapping = getFieldMapping(field);
+        FieldMapping fieldMapping = this.esMappings.get(field);
         switch (fieldFilter.getType()) {
         case NOT_NULL:
           esQuery.append("        {\"exists\" : {\"")
@@ -414,10 +401,11 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
       int nextLevel = level + 1;
       for (int i = 0; i < buckets.length(); i++) {
         JSONObject bucketResult = buckets.getJSONObject(i);
-        ArrayList<ChartAggregationValue> childrenAggregationValues = new ArrayList<>();
+        ArrayList<ChartAggregationValue> childAggregationValues = new ArrayList<>();
         if (aggregationValues != null) {
-          childrenAggregationValues.addAll(aggregationValues);
+          childAggregationValues.addAll(aggregationValues);
         }
+
         if (bucketResult.isNull(AGGREGATION_RESULT_PARAM)) {
           // Final result is found: last element in term of depth of
           // aggregations
@@ -429,18 +417,24 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
             JSONObject valueResult = bucketResult.getJSONObject(AGGREGATION_RESULT_VALUE_PARAM);
             result = valueResult.get("value").toString();
           }
-          addAggregationValue(key, filter, childrenAggregationValues, level);
-          ChartAggregationLabel chartLabel = new ChartAggregationLabel(childrenAggregationValues, lang);
-          ChartAggregationResult aggregationResult = new ChartAggregationResult(chartLabel, result);
-          chartsData.addResult(parentAggregation, aggregationResult);
+          addAggregationValue(key, filter, childAggregationValues, level);
+
+          List<String> labels = childAggregationValues.stream().map(value -> value.getFieldLabel()).collect(Collectors.toList());
+          String label = StringUtils.join(labels, AGGREGATION_KEYS_SEPARATOR);
+
+          ChartAggregationLabel chartLabel = new ChartAggregationLabel(childAggregationValues, label, lang);
+          ChartAggregationResult aggregationResult = new ChartAggregationResult(chartLabel, chartLabel.getLabel(), result);
+
+          chartsData.addAggregationResult(parentAggregation, aggregationResult);
         } else {
           // An aggresgation in the middle of aggregations tree
           String key = bucketResult.getString("key");
           ChartAggregationValue parentAggregationToUse = parentAggregation;
           if (multipleChartsAggregation != null && level == -1) {
-            parentAggregationToUse = new ChartAggregationValue(multipleChartsAggregation, key, lang, null);
+            String fieldLabel = multipleChartsAggregation.getLabel(key, filter.getLang());
+            parentAggregationToUse = new ChartAggregationValue(multipleChartsAggregation, key, fieldLabel);
           } else {
-            addAggregationValue(key, filter, childrenAggregationValues, level);
+            addAggregationValue(key, filter, childAggregationValues, level);
           }
 
           computeAggregatedResultEntry(filter,
@@ -448,32 +442,11 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
                                        chartsData,
                                        multipleChartsAggregation,
                                        parentAggregationToUse,
-                                       childrenAggregationValues,
+                                       childAggregationValues,
                                        nextLevel);
         }
       }
     }
-  }
-
-  private JSONObject getJSONObject(JSONObject jsonObject, int i, String... keys) {
-    if (keys == null || i >= keys.length) {
-      return null;
-    }
-    if (jsonObject.has(keys[i])) {
-      try {
-        jsonObject = jsonObject.getJSONObject(keys[i]);
-        i++;
-        if (i == keys.length) {
-          return jsonObject;
-        } else {
-          return getJSONObject(jsonObject, i, keys);
-        }
-      } catch (JSONException e) {
-        LOG.warn("Error getting key object with {}", keys[i], e);
-        return null;
-      }
-    }
-    return null;
   }
 
   private void addAggregationValue(String key,
@@ -489,7 +462,15 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
     } else {
       aggregation = filter.getXAxisAggregations().get(level);
     }
-    ChartAggregationValue aggregationValue = new ChartAggregationValue(aggregation, key, filter.getLang(), null);
+
+    String fieldLabel = null;
+    if (aggregation == null) {
+      fieldLabel = key;
+    } else {
+      fieldLabel = aggregation.getLabel(key, filter.getLang());
+    }
+
+    ChartAggregationValue aggregationValue = new ChartAggregationValue(aggregation, key, fieldLabel);
     aggregationValues.add(aggregationValue);
   }
 
@@ -520,17 +501,5 @@ public class ESAnalyticsService extends AnalyticsService implements Startable {
       results.add(statisticData);
     }
     return results;
-  }
-
-  private int getSearchCountFromESResponse(String jsonResponse) throws JSONException {
-    JSONObject json = new JSONObject(jsonResponse);
-    JSONObject jsonResult = json.getJSONObject("hits");
-    if (jsonResult == null)
-      return 0;
-    return jsonResult.getInt("total");
-  }
-
-  private FieldMapping getFieldMapping(String name) {
-    return esMappings.get(name);
   }
 }

@@ -13,6 +13,7 @@ import org.exoplatform.analytics.utils.AnalyticsUtils;
 
 import groovy.transform.ToString;
 import lombok.Data;
+import lombok.EqualsAndHashCode.Exclude;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -54,6 +55,7 @@ public class AnalyticsAggregation implements Serializable {
 
   private String                        field;
 
+  @Exclude
   private String                        sortDirection;
 
   private String                        interval;

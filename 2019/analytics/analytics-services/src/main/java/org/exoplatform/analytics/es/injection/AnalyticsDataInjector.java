@@ -1,4 +1,4 @@
-package org.exoplatform.analytics.api.service;
+package org.exoplatform.analytics.es.injection;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -47,15 +47,12 @@ public class AnalyticsDataInjector implements Startable {
 
   private SettingService      settingService;
 
-  private AnalyticsService    analyticsService;
-
   private String              startupDataInjectionFilePath;
 
   private boolean             enabled                             = false;
 
-  public AnalyticsDataInjector(AnalyticsService analyticsService, SettingService settingService, InitParams params) {
+  public AnalyticsDataInjector(SettingService settingService, InitParams params) {
     this.settingService = settingService;
-    this.analyticsService = analyticsService;
     if (params != null) {
       if (params.containsKey("enabled")) {
         this.enabled = Boolean.parseBoolean(params.getValueParam("enabled").getValue());
@@ -133,7 +130,7 @@ public class AnalyticsDataInjector implements Startable {
       return;
     }
     for (StatisticData statisticData : statisticList) {
-      analyticsService.create(statisticData);
+      AnalyticsUtils.addStatisticData(statisticData);
     }
   }
 

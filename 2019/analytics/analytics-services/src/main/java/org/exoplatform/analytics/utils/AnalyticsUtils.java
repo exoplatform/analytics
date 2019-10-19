@@ -10,11 +10,14 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
+import org.json.*;
 
-import org.exoplatform.analytics.api.service.AnalyticsQueueService;
+import org.exoplatform.analytics.api.service.StatisticDataQueueService;
 import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.analytics.model.StatisticStatus;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -27,6 +30,7 @@ import org.exoplatform.ws.frameworks.json.JsonParser;
 import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class AnalyticsUtils {
+  private static final Log              LOG                              = ExoLogger.getLogger(AnalyticsUtils.class);
 
   public static final String            VALUES_SEPARATOR                 = ",";
 
@@ -65,8 +69,6 @@ public class AnalyticsUtils {
                                                                                          FIELD_SPACE_ID,
                                                                                          FIELD_USER_ID,
                                                                                          FIELD_TIMESTAMP);
-
-  public static final String            ANALYTICS_NEW_DATA_EVENT         = "exo.addon.analytics.data.new";
 
   public static final String            ES_ANALYTICS_PROCESSOR_ID        = "exo.addon.analytics.processor.es";
 
@@ -223,8 +225,36 @@ public class AnalyticsUtils {
     return new JSONArray(valuesList).toString();
   }
 
+  public static final JSONObject getJSONObject(JSONObject jsonObject, int i, String... keys) {
+    if (keys == null || i >= keys.length) {
+      return null;
+    }
+    if (jsonObject.has(keys[i])) {
+      try {
+        jsonObject = jsonObject.getJSONObject(keys[i]);
+        i++;
+        if (i == keys.length) {
+          return jsonObject;
+        } else {
+          return getJSONObject(jsonObject, i, keys);
+        }
+      } catch (JSONException e) {
+        LOG.warn("Error getting key object with {}", keys[i], e);
+        return null;
+      }
+    }
+    return null;
+  }
+
   public static final void addStatisticData(StatisticData statisticData) {
-    AnalyticsQueueService analyticsQueueService = CommonsUtils.getService(AnalyticsQueueService.class);
+    if (statisticData.getTimestamp() <= 0) {
+      statisticData.setTimestamp(System.currentTimeMillis());
+    }
+    if (statisticData.getStatus() == null) {
+      statisticData.setStatus(StatisticStatus.OK);
+    }
+
+    StatisticDataQueueService analyticsQueueService = CommonsUtils.getService(StatisticDataQueueService.class);
     analyticsQueueService.put(statisticData);
   }
 

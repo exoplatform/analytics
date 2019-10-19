@@ -29,7 +29,7 @@ public class ChartDataList implements Serializable {
     this.lang = lang;
   }
 
-  public ChartData addResult(ChartAggregationValue chartParentAggregation, ChartAggregationResult aggregationResult) {
+  public ChartData addAggregationResult(ChartAggregationValue chartParentAggregation, ChartAggregationResult aggregationResult) {
     ChartAggregationLabel chartLabel = aggregationResult.getChartLabel();
 
     if (!aggregationLabels.contains(chartLabel)) {
@@ -63,7 +63,9 @@ public class ChartDataList implements Serializable {
 
   public void checkResults() {
     for (ChartAggregationLabel chartAggregationLabel : aggregationLabels) {
-      ChartAggregationResult emptyResult = new ChartAggregationResult(chartAggregationLabel, null);
+      ChartAggregationResult emptyResult = new ChartAggregationResult(chartAggregationLabel,
+                                                                      chartAggregationLabel.getLabel(),
+                                                                      null);
       charts.forEach(chartData -> chartData.addAggregationResult(emptyResult, false));
     }
   }

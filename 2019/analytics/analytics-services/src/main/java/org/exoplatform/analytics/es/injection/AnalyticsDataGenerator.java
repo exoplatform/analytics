@@ -1,4 +1,4 @@
-package org.exoplatform.analytics.api.service;
+package org.exoplatform.analytics.es.injection;
 
 import static org.exoplatform.analytics.utils.AnalyticsUtils.FIELD_MODIFIER_USER_SOCIAL_ID;
 

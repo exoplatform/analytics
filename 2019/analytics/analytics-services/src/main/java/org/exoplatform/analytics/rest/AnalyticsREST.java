@@ -9,9 +9,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
-import org.exoplatform.analytics.es.FieldMapping;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.chart.ChartDataList;
+import org.exoplatform.analytics.model.es.FieldMapping;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -46,10 +46,10 @@ public class AnalyticsREST implements ResourceContainer {
       return Response.status(400).build();
     }
     if (filter.getAggregations() != null && !filter.getAggregations().isEmpty()) {
-      ChartDataList chartsData = this.analyticsService.getChartData(filter);
+      ChartDataList chartsData = this.analyticsService.compueChartData(filter);
       return Response.ok(chartsData).build();
     } else {
-      List<StatisticData> searchResults = this.analyticsService.getData(filter);
+      List<StatisticData> searchResults = this.analyticsService.retrieveData(filter);
       return Response.ok(searchResults).build();
     }
   }

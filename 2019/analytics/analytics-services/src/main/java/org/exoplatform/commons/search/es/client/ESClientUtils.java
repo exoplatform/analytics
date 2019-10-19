@@ -1,6 +1,6 @@
 package org.exoplatform.commons.search.es.client;
 
-import org.exoplatform.analytics.es.AnalyticsIndexingServiceConnector;
+import org.exoplatform.analytics.es.connector.AnalyticsIndexingServiceConnector;
 
 /**
  * TODO add retrieving mapping method into {@link ElasticSearchingClient}

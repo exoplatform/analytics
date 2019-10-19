@@ -1,4 +1,4 @@
-package org.exoplatform.analytics.es;
+package org.exoplatform.analytics.es.connector;
 
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
@@ -7,9 +7,9 @@ import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.exoplatform.analytics.api.service.AnalyticsQueueService;
-import org.exoplatform.analytics.dummy.queue.DummyAnalyticsQueueService;
+import org.exoplatform.analytics.api.service.StatisticDataQueueService;
 import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.analytics.queue.service.DummyStatisticDataQueueService;
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
 import org.exoplatform.commons.utils.IOUtil;
@@ -20,24 +20,24 @@ import org.exoplatform.services.log.Log;
 
 public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  private static final long               serialVersionUID        = -8492300786563730708L;
+  private static final long                   serialVersionUID        = -8492300786563730708L;
 
-  private static final Log                LOG                     = ExoLogger.getLogger(DummyAnalyticsQueueService.class);
+  private static final Log                    LOG                     = ExoLogger.getLogger(DummyStatisticDataQueueService.class);
 
-  public static final String              ES_INDEX                = "analytics_v1";
+  public static final String                  ES_INDEX                = "analytics_v1";
 
-  public static final String              ES_TYPE                 = "analytics";
+  public static final String                  ES_TYPE                 = "analytics";
 
-  public static final String              ES_ALIAS                = "analytics_alias";
+  public static final String                  ES_ALIAS                = "analytics_alias";
 
-  private static final String             MAPPING_FILE_PATH_PARAM = "mapping.file.path";
+  private static final String                 MAPPING_FILE_PATH_PARAM = "mapping.file.path";
 
-  private transient AnalyticsQueueService analyticsQueueService;
+  private transient StatisticDataQueueService analyticsQueueService;
 
-  private String                          elastcisearchMapping;
+  private String                              elastcisearchMapping;
 
   public AnalyticsIndexingServiceConnector(ConfigurationManager configurationManager,
-                                           AnalyticsQueueService analyticsQueueService,
+                                           StatisticDataQueueService analyticsQueueService,
                                            InitParams initParams) {
     super(initParams);
 
@@ -57,12 +57,12 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
   }
 
   @Override
-  public Document create(String timestampString) {
-    if (StringUtils.isBlank(timestampString)) {
+  public Document create(String idString) {
+    if (StringUtils.isBlank(idString)) {
       throw new IllegalArgumentException("id is mandatory");
     }
-    long timestamp = Long.parseLong(timestampString);
-    StatisticData data = this.analyticsQueueService.get(timestamp);
+    long id = Long.parseLong(idString);
+    StatisticData data = this.analyticsQueueService.get(id);
     return data == null ? null : create(data);
   }
 

@@ -5,8 +5,10 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.*;
 
-import org.exoplatform.analytics.api.service.*;
-import org.exoplatform.analytics.es.AnalyticsIndexingServiceConnector;
+import org.exoplatform.analytics.api.service.AnalyticsService;
+import org.exoplatform.analytics.api.service.StatisticDataQueueService;
+import org.exoplatform.analytics.es.connector.AnalyticsIndexingServiceConnector;
+import org.exoplatform.analytics.es.injection.AnalyticsDataInjector;
 import org.exoplatform.commons.search.index.IndexingOperationProcessor;
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.container.*;
@@ -19,7 +21,7 @@ public abstract class BaseAnalyticsTest {
 
   protected static AnalyticsService      analyticsService;
 
-  protected static AnalyticsQueueService analyticsQueueService;
+  protected static StatisticDataQueueService analyticsQueueService;
 
   protected static AnalyticsDataInjector analyticsDataInjector;
 
@@ -36,7 +38,7 @@ public abstract class BaseAnalyticsTest {
     ExoContainerContext.setCurrentContainer(container);
 
     analyticsService = getService(AnalyticsService.class);
-    analyticsQueueService = getService(AnalyticsQueueService.class);
+    analyticsQueueService = getService(StatisticDataQueueService.class);
     analyticsDataInjector = getService(AnalyticsDataInjector.class);
   }
 

@@ -2,6 +2,8 @@ package org.exoplatform.analytics.model.filter.search;
 
 import java.io.Serializable;
 
+import org.exoplatform.analytics.model.filter.AnalyticsFilter.Range;
+
 import groovy.transform.ToString;
 import lombok.Data;
 import lombok.NoArgsConstructor;
