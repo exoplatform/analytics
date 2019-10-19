@@ -113,11 +113,9 @@ export default {
   },
   watch: {
     drawer() {
-      if (this.drawer && !this.chartDatas) {
-        this.loadData();
-      }
       if (this.drawer) {
         $('body').addClass('hide-scroll');
+        this.loadData();
       } else {
         $('body').removeClass('hide-scroll');
       }
