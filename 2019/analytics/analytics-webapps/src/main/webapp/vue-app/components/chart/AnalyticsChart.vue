@@ -1,5 +1,5 @@
 <template>
-  <v-flex :id="id" style="width:600px; height:400px;" />
+  <v-flex :id="id" class="analyticsChartParent" />
 </template>
 <script>
 export default {
