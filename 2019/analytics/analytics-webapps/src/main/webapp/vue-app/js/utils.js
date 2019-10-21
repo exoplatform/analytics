@@ -1,6 +1,6 @@
 export function loadUser(users, userId) {
   if (!userId) {
-    return;
+    return Promise.resolve(null);
   }
   if (users[userId]) {
     return Promise.resolve(users[userId]);
@@ -27,7 +27,7 @@ export function loadUser(users, userId) {
 
 export function loadSpace(spaces, spaceId) {
   if (!spaceId) {
-    return;
+    return Promise.resolve(null);
   }
   if (spaces[spaceId]) {
     return Promise.resolve(spaces[spaceId]);
