@@ -8,7 +8,6 @@
     item-text="label"
     :item-value="aggregation ? 'aggregationFieldName' : 'searchFieldName'"
     class="operatorInput"
-    hide-selected
     persistent-hint
     chips
     @change="updateData" />

@@ -25,7 +25,6 @@
                 item-text="text"
                 item-value="value"
                 class="operatorInput"
-                hide-selected
                 persistent-hint
                 chips
                 label="Operator" />

@@ -28,7 +28,6 @@
           item-value="value"
           label="Chart type"
           class="operatorInput"
-          hide-selected
           persistent-hint
           chips
           @change="$emit('type-changed')" />
