@@ -26,4 +26,9 @@ public interface StatisticDataQueueService {
    * @return statistic data ingestion queue size
    */
   int queueSize();
+
+  /**
+   * Retrieve queue elements and process them
+   */
+  void processQueue();
 }

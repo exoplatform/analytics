@@ -174,7 +174,12 @@ export default {
           }
         })
         .then((preferences) => {
-          this.chartSettings = preferences && preferences.settings && JSON.parse(preferences.settings);
+          try {
+            this.chartSettings = preferences && preferences.settings && JSON.parse(preferences.settings);
+          } catch(e) {
+            console.debug('Error parsing setting', preferences);
+            this.chartSettings = {};
+          }
           if (!this.chartSettings) {
             this.chartSettings = {
               filters: [],

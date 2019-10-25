@@ -1,7 +1,6 @@
 package org.exoplatform.analytics.queue.service;
 
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.*;
 
 import org.picocontainer.Startable;
@@ -19,41 +18,46 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 public class DummyStatisticDataQueueService implements StatisticDataQueueService, Startable {
-  private static final Log                LOG                     = ExoLogger.getLogger(DummyStatisticDataQueueService.class);
+  private static final Log              LOG                     = ExoLogger.getLogger(DummyStatisticDataQueueService.class);
 
-  private Vector<StatisticDataQueueEntry> statisticDatas          = new Vector<>();                                           // NOSONAR
+  private List<StatisticDataQueueEntry> statisticDatas          =
+                                                       Collections.synchronizedList(new ArrayList<StatisticDataQueueEntry>());
 
-  private StatisticDataProcessorService   statisticDataProcessorService;
+  private StatisticDataProcessorService statisticDataProcessorService;
 
-  private ScheduledExecutorService        queueProcessingExecutor = null;
+  private ScheduledExecutorService      queueProcessingExecutor = null;
 
-  private PortalContainer                 container               = null;
+  private PortalContainer               container               = null;
 
   public DummyStatisticDataQueueService(PortalContainer container, StatisticDataProcessorService statisticDataProcessorService) {
     this.statisticDataProcessorService = statisticDataProcessorService;
     this.container = container;
+    this.statisticDatas = Collections.synchronizedList(new ArrayList<StatisticDataQueueEntry>());
 
     ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Analytics-ingestor-%d").build();
-    queueProcessingExecutor = Executors.newSingleThreadScheduledExecutor(namedThreadFactory);
+    this.queueProcessingExecutor = Executors.newSingleThreadScheduledExecutor(namedThreadFactory);
   }
 
   @Override
   public void start() {
+    // Can't be job, because each cluster node must process its in-memory queue
     queueProcessingExecutor.scheduleAtFixedRate(() -> {
       ExoContainerContext.setCurrentContainer(this.container);
       RequestLifeCycle.begin(this.container);
       try {
-        for (StatisticDataQueueEntry statisticDataQueueEntry : this.statisticDatas) {
-          try {
-            statisticDataProcessorService.process(statisticDataQueueEntry);
-          } catch (Exception e) {
-            LOG.error("Error processing statistic data", e);
-          }
-        }
+        processQueue();
       } finally {
         RequestLifeCycle.end();
       }
     }, 0, 10, TimeUnit.SECONDS);
+  }
+
+  @Override
+  public void processQueue() {
+    List<StatisticDataQueueEntry> queueEntries = new ArrayList<>(this.statisticDatas);
+    LOG.debug("Processing {} data", queueEntries.size());
+    statisticDataProcessorService.process(queueEntries);
+    this.statisticDatas.removeAll(queueEntries);
   }
 
   @Override
@@ -68,18 +72,11 @@ public class DummyStatisticDataQueueService implements StatisticDataQueueService
 
   @Override
   public StatisticData get(long id) {
-    Iterator<StatisticDataQueueEntry> iterator = statisticDatas.iterator();
-    while (iterator.hasNext()) {
-      StatisticDataQueueEntry statisticDataQueueEntry = iterator.next();
-      if (statisticDataQueueEntry.getId() == id) {
-        // FIXME this shouldn't be done that way, the statistic data should be
-        // deleted and purged only once the data gets persisted and processed by
-        // all processors
-        iterator.remove();
-        return statisticDataQueueEntry.getStatisticData();
-      }
-    }
-    return null;
+    return statisticDatas.stream()
+                         .filter(statisticDataQueueEntry -> statisticDataQueueEntry.getId() == id)
+                         .map(StatisticDataQueueEntry::getStatisticData)
+                         .findFirst()
+                         .orElse(null);
   }
 
   @Override

@@ -1,11 +1,13 @@
-package org.exoplatform.analytics.es.connector;
+package org.exoplatform.analytics.es;
 
+import static org.exoplatform.analytics.es.ESAnalyticsUtils.ES_INDEX_PLACEHOLDER;
+import static org.exoplatform.analytics.es.ESAnalyticsUtils.ES_TYPE;
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
 import java.io.InputStream;
 import java.util.*;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.analytics.api.service.StatisticDataQueueService;
 import org.exoplatform.analytics.model.StatisticData;
@@ -20,21 +22,15 @@ import org.exoplatform.services.log.Log;
 
 public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  private static final long                   serialVersionUID        = -8492300786563730708L;
+  private static final long   serialVersionUID        = -3143010828698498081L;
 
-  private static final Log                    LOG                     = ExoLogger.getLogger(DummyStatisticDataQueueService.class);
+  private static final Log    LOG                     = ExoLogger.getLogger(DummyStatisticDataQueueService.class);
 
-  public static final String                  ES_INDEX                = "analytics_v1";
-
-  public static final String                  ES_TYPE                 = "analytics";
-
-  public static final String                  ES_ALIAS                = "analytics_alias";
-
-  private static final String                 MAPPING_FILE_PATH_PARAM = "mapping.file.path";
+  private static final String MAPPING_FILE_PATH_PARAM = "mapping.file.path";
 
   private transient StatisticDataQueueService analyticsQueueService;
 
-  private String                              elastcisearchMapping;
+  private String              esInitialMapping;
 
   public AnalyticsIndexingServiceConnector(ConfigurationManager configurationManager,
                                            StatisticDataQueueService analyticsQueueService,
@@ -47,13 +43,28 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
       String mappingFilePath = initParams.getValueParam(MAPPING_FILE_PATH_PARAM).getValue();
       try {
         InputStream mappingFileIS = configurationManager.getInputStream(mappingFilePath);
-        this.elastcisearchMapping = IOUtil.getStreamContentAsString(mappingFileIS);
+        this.esInitialMapping = IOUtil.getStreamContentAsString(mappingFileIS);
       } catch (Exception e) {
         LOG.error("Can't read elasticsearch index mapping from path {}", mappingFilePath, e);
       }
     } else {
       LOG.error("Empty elasticsearch index mapping file path parameter");
     }
+  }
+
+  @Override
+  public String getIndex() {
+    return ES_INDEX_PLACEHOLDER;
+  }
+
+  @Override
+  public String getType() {
+    return ES_TYPE;
+  }
+
+  @Override
+  public String getMapping() {
+    return esInitialMapping;
   }
 
   @Override
@@ -66,22 +77,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     return data == null ? null : create(data);
   }
 
-  @Override
-  public Document update(String id) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public List<String> getAllIds(int offset, int limit) {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public String getMapping() {
-    return elastcisearchMapping;
-  }
-
-  private Document create(StatisticData data) {
+  public Document create(StatisticData data) {
     String timestampString = String.valueOf(data.getTimestamp());
 
     Map<String, String> fields = new HashMap<>();
@@ -94,6 +90,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     fields.put(FIELD_STATUS, String.valueOf(data.getStatus().ordinal()));
     fields.put(FIELD_ERROR_CODE, String.valueOf(data.getErrorCode()));
     fields.put(FIELD_ERROR_MESSAGE, data.getErrorMessage());
+    fields.put(FIELD_IS_ANALYTICS, "true");
     if (data.getParameters() != null && !data.getParameters().isEmpty()) {
       fields.putAll(data.getParameters());
     }
@@ -103,6 +100,16 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
                         null,
                         (Set<String>) null,
                         fields);
+  }
+
+  @Override
+  public Document update(String id) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<String> getAllIds(int offset, int limit) {
+    throw new UnsupportedOperationException();
   }
 
 }

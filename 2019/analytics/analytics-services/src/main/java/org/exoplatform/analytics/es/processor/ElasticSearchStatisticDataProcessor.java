@@ -2,16 +2,17 @@ package org.exoplatform.analytics.es.processor;
 
 import static org.exoplatform.analytics.utils.AnalyticsUtils.ES_ANALYTICS_PROCESSOR_ID;
 
+import java.util.List;
+
 import org.exoplatform.analytics.api.processor.StatisticDataProcessorPlugin;
-import org.exoplatform.analytics.es.connector.AnalyticsIndexingServiceConnector;
-import org.exoplatform.analytics.model.StatisticData;
-import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.analytics.es.AnalyticsESClient;
+import org.exoplatform.analytics.model.StatisticDataQueueEntry;
 
 public class ElasticSearchStatisticDataProcessor extends StatisticDataProcessorPlugin {
-  private IndexingService indexingService;
+  private AnalyticsESClient analyticsIndexingClient;
 
-  public ElasticSearchStatisticDataProcessor(IndexingService indexingService) {
-    this.indexingService = indexingService;
+  public ElasticSearchStatisticDataProcessor(AnalyticsESClient analyticsIndexingClient) {
+    this.analyticsIndexingClient = analyticsIndexingClient;
   }
 
   @Override
@@ -20,8 +21,8 @@ public class ElasticSearchStatisticDataProcessor extends StatisticDataProcessorP
   }
 
   @Override
-  public void process(StatisticData data, long dataId) {
-    indexingService.index(AnalyticsIndexingServiceConnector.ES_TYPE, String.valueOf(dataId));
+  public void process(List<StatisticDataQueueEntry> processorQueueEntries) {
+    analyticsIndexingClient.sendCreateBulkDocumentsRequest(processorQueueEntries);
   }
 
 }

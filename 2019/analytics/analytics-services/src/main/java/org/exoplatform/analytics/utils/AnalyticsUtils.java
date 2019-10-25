@@ -34,6 +34,8 @@ public class AnalyticsUtils {
 
   public static final String            VALUES_SEPARATOR                 = ",";
 
+  public static final String            FIELD_IS_ANALYTICS               = "isAnalytics";
+
   public static final String            FIELD_ERROR_MESSAGE              = "errorMessage";
 
   public static final String            FIELD_ERROR_CODE                 = "errorCode";
@@ -60,7 +62,8 @@ public class AnalyticsUtils {
 
   public static final DateTimeFormatter DATE_FORMATTER                   = DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm:ss");
 
-  public static final List<String>      DEFAULT_FIELDS                   = Arrays.asList(FIELD_ERROR_MESSAGE,                                           // NOSONAR
+  public static final List<String>      DEFAULT_FIELDS                   = Arrays.asList(FIELD_IS_ANALYTICS,                                            // NOSONAR
+                                                                                         FIELD_ERROR_MESSAGE,
                                                                                          FIELD_ERROR_CODE,
                                                                                          FIELD_STATUS,
                                                                                          FIELD_OPERATION,
@@ -299,4 +302,5 @@ public class AnalyticsUtils {
                                                      TimeZone.getDefault().toZoneId());
     return dateTime.format(DATE_FORMATTER);
   }
+
 }

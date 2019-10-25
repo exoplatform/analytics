@@ -1,5 +1,7 @@
 package org.exoplatform.analytics.es.service;
 
+import static org.exoplatform.analytics.es.ESAnalyticsUtils.ES_TYPE;
+import static org.exoplatform.analytics.es.ESAnalyticsUtils.getIndex;
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
 import java.util.*;
@@ -11,7 +13,7 @@ import org.json.*;
 import org.picocontainer.Startable;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
-import org.exoplatform.analytics.es.connector.AnalyticsIndexingServiceConnector;
+import org.exoplatform.analytics.es.AnalyticsESClient;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticStatus;
 import org.exoplatform.analytics.model.chart.*;
@@ -20,35 +22,52 @@ import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter.Range;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
-import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
-import org.exoplatform.analytics.model.filter.search.AnalyticsSortField;
-import org.exoplatform.commons.search.es.client.*;
+import org.exoplatform.analytics.model.filter.search.*;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
+import org.exoplatform.commons.api.settings.data.Context;
+import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 public class ESAnalyticsService implements AnalyticsService, Startable {
 
-  private static final Log          LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
+  private static final Log                  LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
 
-  private static final String       AGGREGATION_KEYS_SEPARATOR     = "-";
+  private static final String               AGGREGATION_KEYS_SEPARATOR     = "-";
 
-  private static final String       AGGREGATION_RESULT_PARAM       = "aggregation_result";
+  private static final String               AGGREGATION_RESULT_PARAM       = "aggregation_result";
 
-  private static final String       AGGREGATION_RESULT_VALUE_PARAM = "aggregation_result_value";
+  private static final String               AGGREGATION_RESULT_VALUE_PARAM = "aggregation_result_value";
 
-  private ElasticSearchingClient    esClient;
+  private static final Context              CONTEXT                        = Context.GLOBAL.id("ANALYTICS");
 
-  private Map<String, FieldMapping> esMappings                     = new HashMap<>();
+  private static final Scope                ES_SCOPE                       = Scope.GLOBAL.id("elasticsearch");
 
-  private ScheduledExecutorService  esMappingUpdater               = Executors.newScheduledThreadPool(1);
+  private static final String               ES_AGGREGATED_MAPPING          = "ES_AGGREGATED_MAPPING";
 
-  public ESAnalyticsService(ElasticSearchingClient esClient) {
+  private static final AnalyticsFieldFilter ES_TYPE_FILTER                 =
+                                                           new AnalyticsFieldFilter("isAnalytics",
+                                                                                    AnalyticsFieldFilterType.EQUAL,
+                                                                                    "true");
+
+  private AnalyticsESClient                 esClient;
+
+  private SettingService                    settingService;
+
+  private Map<String, FieldMapping>         esMappings                     = new HashMap<>();
+
+  private ScheduledExecutorService          esMappingUpdater               = Executors.newScheduledThreadPool(1);
+
+  public ESAnalyticsService(SettingService settingService, AnalyticsESClient esClient) {
     this.esClient = esClient;
+    this.settingService = settingService;
   }
 
   @Override
   public void start() {
-    // Blockchain connection verifier
+    // Can't be job, because the mapping retrival must be executed on each
+    // cluster node
     esMappingUpdater.scheduleAtFixedRate(() -> {
       try {
         retrieveMapping(true);
@@ -69,35 +88,35 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
   @Override
   public Set<FieldMapping> retrieveMapping(boolean forceRefresh) {
-    if (!forceRefresh && !esMappings.isEmpty()) {
+    if (!forceRefresh) {
+      if (esMappings.isEmpty()) {
+        readFieldsMapping();
+      }
       return new HashSet<>(esMappings.values());
     }
     try {
-      ElasticResponse response = ESClientUtils.getMappings(this.esClient);
-      if (ElasticIndexingAuditTrail.isError(response.getStatusCode())) {
-        LOG.warn("Error getting mapping of analytics : - \n\t\tcode : {} - \n\t\tmessage: {}",
-                 response.getStatusCode(),
-                 response.getMessage());
-      } else {
-        String mappingJsonString = response.getMessage();
-        JSONObject result = new JSONObject(mappingJsonString);
-        JSONObject mappingObject = getJSONObject(result,
-                                                 0,
-                                                 AnalyticsIndexingServiceConnector.ES_INDEX,
-                                                 "mappings",
-                                                 AnalyticsIndexingServiceConnector.ES_TYPE,
-                                                 "properties");
-        if (mappingObject != null) {
-          String[] fieldNames = JSONObject.getNames(mappingObject);
-          for (String fieldName : fieldNames) {
-            JSONObject esField = mappingObject.getJSONObject(fieldName);
-            String fieldType = esField.getString("type");
-            JSONObject keywordField = getJSONObject(esField, 0, "fields", "keyword");
-            FieldMapping esFieldMapping = new FieldMapping(fieldName, fieldType, keywordField != null);
-            esMappings.put(fieldName, esFieldMapping);
-          }
+      long timestamp = System.currentTimeMillis();
+      String index = getIndex(timestamp);
+      String mappingJsonString = esClient.getMapping(timestamp);
+      JSONObject result = new JSONObject(mappingJsonString);
+      JSONObject mappingObject = getJSONObject(result,
+                                               0,
+                                               index,
+                                               "mappings",
+                                               ES_TYPE,
+                                               "properties");
+      if (mappingObject != null) {
+        String[] fieldNames = JSONObject.getNames(mappingObject);
+        for (String fieldName : fieldNames) {
+          JSONObject esField = mappingObject.getJSONObject(fieldName);
+          String fieldType = esField.getString("type");
+          JSONObject keywordField = getJSONObject(esField, 0, "fields", "keyword");
+          FieldMapping esFieldMapping = new FieldMapping(fieldName, fieldType, keywordField != null);
+          esMappings.put(fieldName, esFieldMapping);
         }
       }
+
+      storeFieldsMappings();
     } catch (Exception e) {
       LOG.error("Error getting mapping of analytics", e);
     }
@@ -121,9 +140,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     esQueryString = fixJSONStringFormat(esQueryString);
     LOG.debug("ES query to compute chart data with filter {} \n{}", filter, esQueryString);
 
-    String jsonResponse = this.esClient.sendRequest(esQueryString,
-                                                    AnalyticsIndexingServiceConnector.ES_ALIAS,
-                                                    AnalyticsIndexingServiceConnector.ES_TYPE);
+    String jsonResponse = this.esClient.sendRequest(esQueryString);
     try {
       return buildChartDataFromESResponse(filter, jsonResponse);
     } catch (JSONException e) {
@@ -140,9 +157,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     esQueryString = fixJSONStringFormat(esQueryString);
     LOG.debug("ES query to compute search count with filter {}: \n{}", searchFilter, esQueryString);
 
-    String jsonResponse = this.esClient.sendRequest(esQueryString,
-                                                    AnalyticsIndexingServiceConnector.ES_ALIAS,
-                                                    AnalyticsIndexingServiceConnector.ES_TYPE);
+    String jsonResponse = this.esClient.sendRequest(esQueryString);
     try {
       return buildSearchResultFromESResponse(jsonResponse);
     } catch (JSONException e) {
@@ -253,76 +268,81 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   private void appendSearchFilterConditions(List<AnalyticsFieldFilter> filters, StringBuilder esQuery) {
-    if (filters != null && !filters.isEmpty()) {
-      esQuery.append(",\n");
-      esQuery.append("    \"query\": {\n");
-      esQuery.append("      \"bool\" : {\n");
-      esQuery.append("        \"must\" : [\n");
-      for (AnalyticsFieldFilter fieldFilter : filters) {
-        String field = fieldFilter.getField();
-        FieldMapping fieldMapping = this.esMappings.get(field);
-        switch (fieldFilter.getType()) {
-        case NOT_NULL:
-          esQuery.append("        {\"exists\" : {\"")
-                 .append("field")
-                 .append("\" : \"")
-                 .append(field)
-                 .append("\"      }},\n");
-          break;
-        case IS_NULL:
-          esQuery.append("        {\"bool\": {\"must_not\": {\"exists\": {\"field\": \"")
-                 .append(field)
-                 .append("\"      }}}},\n");
-          break;
-        case EQUAL:
-          esQuery.append("        {\"match\" : {\"")
-                 .append(field)
-                 .append("\" : ")
-                 .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
-                 .append("        }},\n");
-          break;
-        case GREATER:
-          esQuery.append("        {\"range\" : {\"")
-                 .append(field)
-                 .append("\" : {")
-                 .append("\"gte\" : ")
-                 .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
-                 .append("        }}},\n");
-          break;
-        case LESS:
-          esQuery.append("        {\"range\" : {\"")
-                 .append(field)
-                 .append("\" : {")
-                 .append("\"lte\" : ")
-                 .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
-                 .append("        }}},\n");
-          break;
-        case RANGE:
-          Range range = fieldFilter.getRange();
-          esQuery.append("        {\"range\" : {\"")
-                 .append(field)
-                 .append("\" : {")
-                 .append("\"gte\" : ")
-                 .append(range.getMin())
-                 .append(",\"lte\" : ")
-                 .append(range.getMax())
-                 .append("        }}},\n");
-          break;
-        case IN_SET:
-          esQuery.append("        {\"terms\" : {\"")
-                 .append(field)
-                 .append("\" : ")
-                 .append(collectionToJSONString(fieldFilter.getValueString()))
-                 .append("        }},\n");
-          break;
-        default:
-          break;
-        }
-      }
-      esQuery.append("        ],\n");
-      esQuery.append("      },\n");
-      esQuery.append("     },\n");
+    if (filters == null) {
+      filters = new ArrayList<>();
+    } else {
+      filters = new ArrayList<>(filters);
     }
+    filters.add(ES_TYPE_FILTER);
+
+    esQuery.append(",\n");
+    esQuery.append("    \"query\": {\n");
+    esQuery.append("      \"bool\" : {\n");
+    esQuery.append("        \"must\" : [\n");
+    for (AnalyticsFieldFilter fieldFilter : filters) {
+      String field = fieldFilter.getField();
+      FieldMapping fieldMapping = this.esMappings.get(field);
+      switch (fieldFilter.getType()) {
+      case NOT_NULL:
+        esQuery.append("        {\"exists\" : {\"")
+               .append("field")
+               .append("\" : \"")
+               .append(field)
+               .append("\"      }},\n");
+        break;
+      case IS_NULL:
+        esQuery.append("        {\"bool\": {\"must_not\": {\"exists\": {\"field\": \"")
+               .append(field)
+               .append("\"      }}}},\n");
+        break;
+      case EQUAL:
+        esQuery.append("        {\"match\" : {\"")
+               .append(field)
+               .append("\" : ")
+               .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
+               .append("        }},\n");
+        break;
+      case GREATER:
+        esQuery.append("        {\"range\" : {\"")
+               .append(field)
+               .append("\" : {")
+               .append("\"gte\" : ")
+               .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
+               .append("        }}},\n");
+        break;
+      case LESS:
+        esQuery.append("        {\"range\" : {\"")
+               .append(field)
+               .append("\" : {")
+               .append("\"lte\" : ")
+               .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
+               .append("        }}},\n");
+        break;
+      case RANGE:
+        Range range = fieldFilter.getRange();
+        esQuery.append("        {\"range\" : {\"")
+               .append(field)
+               .append("\" : {")
+               .append("\"gte\" : ")
+               .append(range.getMin())
+               .append(",\"lte\" : ")
+               .append(range.getMax())
+               .append("        }}},\n");
+        break;
+      case IN_SET:
+        esQuery.append("        {\"terms\" : {\"")
+               .append(field)
+               .append("\" : ")
+               .append(collectionToJSONString(fieldFilter.getValueString()))
+               .append("        }},\n");
+        break;
+      default:
+        break;
+      }
+    }
+    esQuery.append("        ],\n");
+    esQuery.append("      },\n");
+    esQuery.append("     },\n");
   }
 
   private void buildAggregationQuery(StringBuilder esQuery,
@@ -502,4 +522,39 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     }
     return results;
   }
+
+  private void readFieldsMapping() {
+    SettingValue<?> existingMapping = settingService.get(CONTEXT, ES_SCOPE, ES_AGGREGATED_MAPPING);
+    if (existingMapping == null) {
+      return;
+    }
+
+    String esMappingSerialized = existingMapping.getValue().toString();
+    try {
+      JSONObject jsonObject = new JSONObject(esMappingSerialized);
+      @SuppressWarnings("rawtypes")
+      Iterator keys = jsonObject.keys();
+      while (keys.hasNext()) {
+        String key = keys.next().toString();
+        String fieldMappingString = jsonObject.getString(key);
+        FieldMapping fieldMapping = fromJsonString(fieldMappingString, FieldMapping.class);
+        esMappings.put(key, fieldMapping);
+      }
+    } catch (JSONException e) {
+      LOG.error("Error reading ES mapped fields");
+    }
+  }
+
+  private void storeFieldsMappings() throws JSONException {
+    JSONObject jsonObject = new JSONObject();
+    Set<String> keys = esMappings.keySet();
+    for (String key : keys) {
+      jsonObject.put(key, toJsonString(esMappings.get(key)));
+    }
+    settingService.set(CONTEXT,
+                       ES_SCOPE,
+                       ES_AGGREGATED_MAPPING,
+                       SettingValue.create(jsonObject.toString()));
+  }
+
 }

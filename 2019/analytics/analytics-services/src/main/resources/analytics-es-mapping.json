@@ -6,6 +6,9 @@
     "yyyy/MM/dd HH:mm:ss Z"
   ],
   "properties": {
+    "isAnalytics": {
+      "type": "boolean"
+    },
     "timestamp": {
       "type": "date",
       "format": "epoch_millis"

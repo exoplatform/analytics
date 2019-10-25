@@ -3,7 +3,6 @@ package org.exoplatform.analytics.model;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import lombok.*;
 
@@ -13,21 +12,19 @@ import lombok.*;
 @NoArgsConstructor
 public class StatisticDataQueueEntry implements Serializable {
 
-  private static final long       serialVersionUID = -4173661081127997921L;
+  private static final long    serialVersionUID = -4173661081127997921L;
 
-  private static final AtomicLong ID_GENERATOR     = new AtomicLong();
+  private StatisticData        statisticData;
 
-  private StatisticData           statisticData;
+  private boolean              processed;
 
-  private boolean                 processed;
+  private boolean              error;
 
-  private boolean                 error;
+  private short                attemptCount;
 
-  private short                   attemptCount;
+  private Map<String, Boolean> processingStatus;
 
-  private Map<String, Boolean>    processingStatus;
-
-  private long                    id;
+  private long                 id;
 
   public StatisticDataQueueEntry(StatisticData statisticData) {
     this.statisticData = statisticData;
@@ -55,7 +52,7 @@ public class StatisticDataQueueEntry implements Serializable {
 
   public long getId() {
     if (id == 0) {
-      id = ID_GENERATOR.incrementAndGet();
+      id = System.nanoTime();
     }
     return id;
   }

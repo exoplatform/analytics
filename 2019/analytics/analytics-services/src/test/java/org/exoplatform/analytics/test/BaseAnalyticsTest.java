@@ -7,7 +7,7 @@ import org.junit.*;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
 import org.exoplatform.analytics.api.service.StatisticDataQueueService;
-import org.exoplatform.analytics.es.connector.AnalyticsIndexingServiceConnector;
+import org.exoplatform.analytics.es.ESAnalyticsUtils;
 import org.exoplatform.analytics.es.injection.AnalyticsDataInjector;
 import org.exoplatform.commons.search.index.IndexingOperationProcessor;
 import org.exoplatform.commons.search.index.IndexingService;
@@ -17,13 +17,13 @@ import org.exoplatform.services.naming.InitialContextInitializer;
 
 public abstract class BaseAnalyticsTest {
 
-  protected static PortalContainer       container;
+  protected static PortalContainer           container;
 
-  protected static AnalyticsService      analyticsService;
+  protected static AnalyticsService          analyticsService;
 
   protected static StatisticDataQueueService analyticsQueueService;
 
-  protected static AnalyticsDataInjector analyticsDataInjector;
+  protected static AnalyticsDataInjector     analyticsDataInjector;
 
   @BeforeClass
   public static void beforeTest() {
@@ -47,7 +47,7 @@ public abstract class BaseAnalyticsTest {
     RequestLifeCycle.begin(container);
     // reinjectData
     IndexingService indexingService = getService(IndexingService.class);
-    indexingService.unindexAll(AnalyticsIndexingServiceConnector.ES_TYPE);
+    indexingService.unindexAll(ESAnalyticsUtils.ES_TYPE);
 
     IndexingOperationProcessor indexingOperationProcessor = getService(IndexingOperationProcessor.class);
     indexingOperationProcessor.process();

@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.codec.binary.StringUtils;
 
 import lombok.*;
+import lombok.EqualsAndHashCode.Exclude;
 
 @Data
 @AllArgsConstructor
@@ -16,8 +17,10 @@ public class FieldMapping {
 
   private String                    name;
 
+  @Exclude
   private String                    type;
 
+  @Exclude
   private boolean                   hasKeywordSubField;
 
   public boolean isNumeric() {

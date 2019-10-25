@@ -1,6 +1,8 @@
 package org.exoplatform.analytics.api.processor;
 
-import org.exoplatform.analytics.model.StatisticData;
+import java.util.List;
+
+import org.exoplatform.analytics.model.StatisticDataQueueEntry;
 import org.exoplatform.container.component.BaseComponentPlugin;
 
 public abstract class StatisticDataProcessorPlugin extends BaseComponentPlugin {
@@ -13,9 +15,9 @@ public abstract class StatisticDataProcessorPlugin extends BaseComponentPlugin {
   /**
    * Process statistic data
    * 
-   * @param data {@link StatisticData}
-   * @param dataId unique identifier data from queue
+   * @param processorQueueEntries {@link List} of
+   *          {@link StatisticDataQueueEntry}
    */
-  public abstract void process(StatisticData data, long dataId);
+  public abstract void process(List<StatisticDataQueueEntry> processorQueueEntries);
 
 }
