@@ -58,7 +58,6 @@ public class StatisticDataProcessorService {
       return;
     }
 
-    boolean hasErrors = false;
     for (StatisticDataProcessorPlugin statisticDataProcessorPlugin : dataProcessorPlugins) {
       String processorId = statisticDataProcessorPlugin.getId();
       List<StatisticDataQueueEntry> processorQueueEntries = queueEntries.stream()
@@ -80,13 +79,7 @@ public class StatisticDataProcessorService {
             queueEntry.markProcessorAsError(processorId);
           }
         });
-        hasErrors = true;
       }
-    }
-
-    for (StatisticDataQueueEntry queueEntry : queueEntries) {
-      queueEntry.setProcessed(!hasErrors);
-      queueEntry.setError(hasErrors);
     }
   }
 
