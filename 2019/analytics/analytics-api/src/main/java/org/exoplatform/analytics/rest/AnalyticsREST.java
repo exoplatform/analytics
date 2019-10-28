@@ -9,9 +9,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
+import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.chart.ChartDataList;
-import org.exoplatform.analytics.model.es.FieldMapping;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -32,7 +32,7 @@ public class AnalyticsREST implements ResourceContainer {
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
   public Response getMappings() {
-    Set<FieldMapping> fieldsMapping = analyticsService.retrieveMapping(false);
+    Set<StatisticFieldMapping> fieldsMapping = analyticsService.retrieveMapping(false);
     return Response.ok(fieldsMapping).build();
   }
 

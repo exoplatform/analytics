@@ -26,11 +26,10 @@
             "title": "Chart title",
             "xAxisAggregations": [],
             "yAxisAggregations": {},
-            "multipleChartsField": "",
             "filters": [],
             "chartType":"bar",
             "offset": 0,
-            "limit": -1,
+            "limit": 10,
             "displayComputingTime": true,
             "displaySamplesCount": true
           }

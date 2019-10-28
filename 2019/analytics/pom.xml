@@ -15,7 +15,9 @@
   <name>eXo Add-on:: eXo Analytics - Parent POM</name>
   <description>eXo Analytics Addon</description>
   <modules>
+    <module>analytics-api</module>
     <module>analytics-services</module>
+    <module>analytics-listeners</module>
     <module>analytics-webapps</module>
     <module>analytics-packaging</module>
   </modules>
@@ -53,7 +55,21 @@
       <!-- Current project artifacts -->
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>analytics-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>analytics-services</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>analytics-listeners</artifactId>
         <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>

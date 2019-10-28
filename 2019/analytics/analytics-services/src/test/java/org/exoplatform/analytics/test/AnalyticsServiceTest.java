@@ -22,10 +22,10 @@ import java.util.*;
 
 import org.junit.Test;
 
+import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.chart.ChartData;
 import org.exoplatform.analytics.model.chart.ChartDataList;
-import org.exoplatform.analytics.model.es.FieldMapping;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
@@ -62,7 +62,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
 
       processIndexingQueue();
 
-      Set<FieldMapping> fieldsMappings = analyticsService.retrieveMapping(false);
+      Set<StatisticFieldMapping> fieldsMappings = analyticsService.retrieveMapping(false);
       assertNotNull("Returned fields mapping is null", fieldsMappings);
       assertFalse("Returned fields mapping is empty", fieldsMappings.isEmpty());
       assertEquals("Returned fields mapping count is wrong", 18, fieldsMappings.size());

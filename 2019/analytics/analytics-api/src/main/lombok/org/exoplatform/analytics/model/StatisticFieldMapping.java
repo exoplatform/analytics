@@ -1,4 +1,4 @@
-package org.exoplatform.analytics.model.es;
+package org.exoplatform.analytics.model;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode.Exclude;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FieldMapping {
+public class StatisticFieldMapping {
 
   private static final List<String> NUMERIC_TYPES = Arrays.asList("long", "double", "float", "short", "int");
 

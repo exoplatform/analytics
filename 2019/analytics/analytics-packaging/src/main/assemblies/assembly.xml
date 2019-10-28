@@ -21,10 +21,10 @@
       <useProjectArtifact>false</useProjectArtifact>
       <outputDirectory>/lib</outputDirectory>
       <includes>
-        <include>${project.groupId}:analytics-services:jar</include>
+        <include>${project.groupId}:*:jar</include>
       </includes>
       <scope>provided</scope>
-      <outputFileNameMapping>analytics-services.jar</outputFileNameMapping>
+      <outputFileNameMapping>${artifact.build.finalName}.jar</outputFileNameMapping>
     </dependencySet>
   </dependencySets>
 </assembly>

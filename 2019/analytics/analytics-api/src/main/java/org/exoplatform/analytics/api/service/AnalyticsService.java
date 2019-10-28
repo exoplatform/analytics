@@ -3,9 +3,9 @@ package org.exoplatform.analytics.api.service;
 import java.util.List;
 import java.util.Set;
 
+import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.chart.ChartDataList;
-import org.exoplatform.analytics.model.es.FieldMapping;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 
 public interface AnalyticsService {
@@ -30,6 +30,6 @@ public interface AnalyticsService {
    * @param forceRefresh whether force refresh from ES or not
    * @return a {@link Set} of ES mapping fields
    */
-  Set<FieldMapping> retrieveMapping(boolean forceRefresh);
+  Set<StatisticFieldMapping> retrieveMapping(boolean forceRefresh);
 
 }

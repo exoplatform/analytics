@@ -14,7 +14,7 @@ import org.json.*;
 
 import org.exoplatform.analytics.api.service.StatisticDataQueueService;
 import org.exoplatform.analytics.model.StatisticData;
-import org.exoplatform.analytics.model.StatisticStatus;
+import org.exoplatform.analytics.model.StatisticData.StatisticStatus;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;

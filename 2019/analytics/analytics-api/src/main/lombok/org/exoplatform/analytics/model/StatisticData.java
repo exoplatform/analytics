@@ -60,4 +60,9 @@ public class StatisticData implements Serializable {
     parameters.put(key, String.valueOf(value));
   }
 
+  public static enum StatisticStatus {
+    OK,
+    KO;
+  }
+
 }

@@ -15,9 +15,9 @@ import org.picocontainer.Startable;
 import org.exoplatform.analytics.api.service.AnalyticsService;
 import org.exoplatform.analytics.es.AnalyticsESClient;
 import org.exoplatform.analytics.model.StatisticData;
-import org.exoplatform.analytics.model.StatisticStatus;
+import org.exoplatform.analytics.model.StatisticData.StatisticStatus;
+import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.chart.*;
-import org.exoplatform.analytics.model.es.FieldMapping;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter.Range;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
@@ -32,32 +32,32 @@ import org.exoplatform.services.log.Log;
 
 public class ESAnalyticsService implements AnalyticsService, Startable {
 
-  private static final Log                  LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
+  private static final Log                   LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
 
-  private static final String               AGGREGATION_KEYS_SEPARATOR     = "-";
+  private static final String                AGGREGATION_KEYS_SEPARATOR     = "-";
 
-  private static final String               AGGREGATION_RESULT_PARAM       = "aggregation_result";
+  private static final String                AGGREGATION_RESULT_PARAM       = "aggregation_result";
 
-  private static final String               AGGREGATION_RESULT_VALUE_PARAM = "aggregation_result_value";
+  private static final String                AGGREGATION_RESULT_VALUE_PARAM = "aggregation_result_value";
 
-  private static final Context              CONTEXT                        = Context.GLOBAL.id("ANALYTICS");
+  private static final Context               CONTEXT                        = Context.GLOBAL.id("ANALYTICS");
 
-  private static final Scope                ES_SCOPE                       = Scope.GLOBAL.id("elasticsearch");
+  private static final Scope                 ES_SCOPE                       = Scope.GLOBAL.id("elasticsearch");
 
-  private static final String               ES_AGGREGATED_MAPPING          = "ES_AGGREGATED_MAPPING";
+  private static final String                ES_AGGREGATED_MAPPING          = "ES_AGGREGATED_MAPPING";
 
-  private static final AnalyticsFieldFilter ES_TYPE_FILTER                 =
-                                                           new AnalyticsFieldFilter("isAnalytics",
-                                                                                    AnalyticsFieldFilterType.EQUAL,
-                                                                                    "true");
+  private static final AnalyticsFieldFilter  ES_TYPE_FILTER                 =
+                                                            new AnalyticsFieldFilter("isAnalytics",
+                                                                                     AnalyticsFieldFilterType.EQUAL,
+                                                                                     "true");
 
-  private AnalyticsESClient                 esClient;
+  private AnalyticsESClient                  esClient;
 
-  private SettingService                    settingService;
+  private SettingService                     settingService;
 
-  private Map<String, FieldMapping>         esMappings                     = new HashMap<>();
+  private Map<String, StatisticFieldMapping> esMappings                     = new HashMap<>();
 
-  private ScheduledExecutorService          esMappingUpdater               = Executors.newScheduledThreadPool(1);
+  private ScheduledExecutorService           esMappingUpdater               = Executors.newScheduledThreadPool(1);
 
   public ESAnalyticsService(SettingService settingService, AnalyticsESClient esClient) {
     this.esClient = esClient;
@@ -87,7 +87,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   @Override
-  public Set<FieldMapping> retrieveMapping(boolean forceRefresh) {
+  public Set<StatisticFieldMapping> retrieveMapping(boolean forceRefresh) {
     if (!forceRefresh) {
       if (esMappings.isEmpty()) {
         readFieldsMapping();
@@ -111,7 +111,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
           JSONObject esField = mappingObject.getJSONObject(fieldName);
           String fieldType = esField.getString("type");
           JSONObject keywordField = getJSONObject(esField, 0, "fields", "keyword");
-          FieldMapping esFieldMapping = new FieldMapping(fieldName, fieldType, keywordField != null);
+          StatisticFieldMapping esFieldMapping = new StatisticFieldMapping(fieldName, fieldType, keywordField != null);
           esMappings.put(fieldName, esFieldMapping);
         }
       }
@@ -281,7 +281,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     esQuery.append("        \"must\" : [\n");
     for (AnalyticsFieldFilter fieldFilter : filters) {
       String field = fieldFilter.getField();
-      FieldMapping fieldMapping = this.esMappings.get(field);
+      StatisticFieldMapping fieldMapping = this.esMappings.get(field);
       switch (fieldFilter.getType()) {
       case NOT_NULL:
         esQuery.append("        {\"exists\" : {\"")
@@ -537,7 +537,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       while (keys.hasNext()) {
         String key = keys.next().toString();
         String fieldMappingString = jsonObject.getString(key);
-        FieldMapping fieldMapping = fromJsonString(fieldMappingString, FieldMapping.class);
+        StatisticFieldMapping fieldMapping = fromJsonString(fieldMappingString, StatisticFieldMapping.class);
         esMappings.put(key, fieldMapping);
       }
     } catch (JSONException e) {
