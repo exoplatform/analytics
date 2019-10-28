@@ -98,6 +98,9 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       long timestamp = System.currentTimeMillis();
       String index = getIndex(timestamp);
       String mappingJsonString = esClient.getMapping(timestamp);
+      if (StringUtils.isBlank(mappingJsonString)) {
+        return new HashSet<>(esMappings.values());
+      }
       JSONObject result = new JSONObject(mappingJsonString);
       JSONObject mappingObject = getJSONObject(result,
                                                0,
