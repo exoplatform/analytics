@@ -1,20 +1,50 @@
 const path = require('path');
-const merge = require('webpack-merge');
-const webpackCommonConfig = require('./webpack.common.js');
+const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin');
 
-const config = merge(webpackCommonConfig, {
-  mode: 'production',
+const config = {
+  context: path.resolve(__dirname, '.'),
   module: {
     rules: [
       {
-        test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
-        use: {
-          loader: "file-loader",
-          options: {
-            name: "/analytics/fonts/[name].[ext]",
-            emitFile: false
-          }
-        }
+        test: /\.css$/,
+        use: ['vue-style-loader', 'css-loader']
+      },
+      {
+        test: /\.less$/,
+        use: ExtractTextWebpackPlugin.extract({
+          fallback: 'vue-style-loader',
+          use: [
+            {
+              loader: 'css-loader',
+              options: {
+                sourceMap: true,
+                minimize: true
+              }
+            },
+            {
+              loader: 'less-loader',
+              options: {
+                sourceMap: true,
+                minimize: true
+              }
+            }
+          ]
+        })
+      },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [
+          'babel-loader',
+          'eslint-loader',
+        ]
+      },
+      {
+        test: /\.vue$/,
+        use: [
+          'vue-loader',
+          'eslint-loader',
+        ]
       }
     ]
   },
@@ -28,8 +58,11 @@ const config = merge(webpackCommonConfig, {
   externals: {
     vue: 'Vue',
     vuetify: 'Vuetify',
-    jquery: '$'
-  }
-});
+    jquery: '$',
+  },
+  plugins: [
+    new ExtractTextWebpackPlugin('css/analytics.css')
+  ]
+};
 
 module.exports = config;

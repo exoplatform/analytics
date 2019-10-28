@@ -1,12 +1,15 @@
+import Vue from 'vue';
+import Vuetify from 'vuetify'
+
 import Analytics from './components/Analytics.vue';
 
 import '../css/main.less';
 
+Vue.use(Vuetify);
+
 //To load all analytics applications in the same page only once
 if (!window.loadingAnalytics) {
   window.loadingAnalytics = true;
-
-  Vue.use(Vuetify);
 
   const vuetify = new Vuetify({
     dark: true,
