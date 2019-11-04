@@ -22,8 +22,9 @@ import java.util.*;
 
 import org.junit.Test;
 
-import org.exoplatform.analytics.model.StatisticFieldMapping;
+import org.exoplatform.analytics.es.injection.AnalyticsDataInjector;
 import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.chart.ChartData;
 import org.exoplatform.analytics.model.chart.ChartDataList;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
@@ -36,6 +37,11 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
   private static final Log LOG = ExoLogger.getLogger(AnalyticsServiceTest.class);
 
   @Test
+  public void testInjection() {
+    AnalyticsDataInjector.main(null);
+  }
+
+  @Test
   public void testAnalyticsInjection() {
     try {
       assertFalse("Analytics data shouldn't be injected", analyticsDataInjector.isDataInjected());
@@ -43,8 +49,6 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
       analyticsDataInjector.setEnabled(true);
       analyticsDataInjector.start();
       assertTrue("Analytics data should be injected", analyticsDataInjector.isDataInjected());
-
-      processIndexingQueue();
 
       List<StatisticData> injectedDate = analyticsService.retrieveData(null);
       assertNotNull("Returned injected data is null", injectedDate);
@@ -60,8 +64,6 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
     try {
       analyticsDataInjector.reinjectData();
 
-      processIndexingQueue();
-
       Set<StatisticFieldMapping> fieldsMappings = analyticsService.retrieveMapping(false);
       assertNotNull("Returned fields mapping is null", fieldsMappings);
       assertFalse("Returned fields mapping is empty", fieldsMappings.isEmpty());
@@ -76,8 +78,6 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
   public void testSearchAnalyticsData() {
     try {
       analyticsDataInjector.reinjectData();
-
-      processIndexingQueue();
 
       List<StatisticData> injectedDate = analyticsService.retrieveData(null);
       assertNotNull("Returned injected data is null", injectedDate);
@@ -105,8 +105,6 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
   public void testGetAnalyticsChart() {
     try {
       analyticsDataInjector.reinjectData();
-
-      processIndexingQueue();
 
       List<StatisticData> injectedDate = analyticsService.retrieveData(null);
       assertNotNull("Returned injected data is null", injectedDate);
@@ -152,8 +150,6 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
     try {
       analyticsDataInjector.reinjectData();
 
-      processIndexingQueue();
-
       List<StatisticData> injectedDate = analyticsService.retrieveData(null);
       assertNotNull("Returned injected data is null", injectedDate);
       assertFalse("Returned injected data is empty", injectedDate.isEmpty());
@@ -194,8 +190,6 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
   public void testGetAnalyticsMultipleChartsByInterval() {
     try {
       analyticsDataInjector.reinjectData();
-
-      processIndexingQueue();
 
       List<StatisticData> injectedDate = analyticsService.retrieveData(null);
       assertNotNull("Returned injected data is null", injectedDate);

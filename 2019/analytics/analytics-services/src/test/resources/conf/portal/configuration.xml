@@ -15,6 +15,10 @@
   </component>
 
   <component>
+      <type>org.exoplatform.analytics.es.injection.AnalyticsDataInjector</type>
+  </component>
+
+  <component>
       <key>org.exoplatform.services.scheduler.JobSchedulerService</key>
       <type>org.exoplatform.services.scheduler.impl.JobSchedulerServiceImpl</type>
   </component>

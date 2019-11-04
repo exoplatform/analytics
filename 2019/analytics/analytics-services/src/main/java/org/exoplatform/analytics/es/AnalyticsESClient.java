@@ -87,6 +87,8 @@ public class AnalyticsESClient extends ElasticClient {
       return;
     }
 
+    LOG.info("Indexing in bulk {} documents", dataQueueEntries.size());
+
     checkIndexExistence(dataQueueEntries);
 
     StringBuilder request = new StringBuilder();

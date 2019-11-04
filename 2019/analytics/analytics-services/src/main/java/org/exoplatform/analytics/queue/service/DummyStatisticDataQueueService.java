@@ -18,21 +18,19 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 public class DummyStatisticDataQueueService implements StatisticDataQueueService, Startable {
-  private static final Log              LOG                     = ExoLogger.getLogger(DummyStatisticDataQueueService.class);
+  private static final Log                   LOG                     = ExoLogger.getLogger(DummyStatisticDataQueueService.class);
 
-  private List<StatisticDataQueueEntry> statisticDatas          =
-                                                       Collections.synchronizedList(new ArrayList<StatisticDataQueueEntry>());
+  private Map<Long, StatisticDataQueueEntry> statisticDatas          = Collections.synchronizedMap(new HashMap<>());
 
-  private StatisticDataProcessorService statisticDataProcessorService;
+  private StatisticDataProcessorService      statisticDataProcessorService;
 
-  private ScheduledExecutorService      queueProcessingExecutor = null;
+  private ScheduledExecutorService           queueProcessingExecutor = null;
 
-  private PortalContainer               container               = null;
+  private PortalContainer                    container               = null;
 
   public DummyStatisticDataQueueService(PortalContainer container, StatisticDataProcessorService statisticDataProcessorService) {
     this.statisticDataProcessorService = statisticDataProcessorService;
     this.container = container;
-    this.statisticDatas = Collections.synchronizedList(new ArrayList<StatisticDataQueueEntry>());
 
     ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Analytics-ingestor-%d").build();
     this.queueProcessingExecutor = Executors.newSingleThreadScheduledExecutor(namedThreadFactory);
@@ -54,10 +52,12 @@ public class DummyStatisticDataQueueService implements StatisticDataQueueService
 
   @Override
   public void processQueue() {
-    List<StatisticDataQueueEntry> queueEntries = new ArrayList<>(this.statisticDatas);
+    List<StatisticDataQueueEntry> queueEntries = new ArrayList<>(this.statisticDatas.values());
     LOG.debug("Processing {} data", queueEntries.size());
     statisticDataProcessorService.process(queueEntries);
-    this.statisticDatas.removeAll(queueEntries);
+    for (StatisticDataQueueEntry statisticDataQueueEntry : queueEntries) {
+      this.statisticDatas.remove(statisticDataQueueEntry.getId());
+    }
   }
 
   @Override
@@ -67,16 +67,14 @@ public class DummyStatisticDataQueueService implements StatisticDataQueueService
 
   @Override
   public void put(StatisticData data) {
-    this.statisticDatas.add(new StatisticDataQueueEntry(data));
+    StatisticDataQueueEntry statisticDataQueueEntry = new StatisticDataQueueEntry(data);
+    this.statisticDatas.put(statisticDataQueueEntry.getId(), statisticDataQueueEntry);
   }
 
   @Override
   public StatisticData get(long id) {
-    return statisticDatas.stream()
-                         .filter(statisticDataQueueEntry -> statisticDataQueueEntry.getId() == id)
-                         .map(StatisticDataQueueEntry::getStatisticData)
-                         .findFirst()
-                         .orElse(null);
+    StatisticDataQueueEntry statisticDataQueueEntry = statisticDatas.get(id);
+    return statisticDataQueueEntry == null ? null : statisticDataQueueEntry.getStatisticData();
   }
 
   @Override
