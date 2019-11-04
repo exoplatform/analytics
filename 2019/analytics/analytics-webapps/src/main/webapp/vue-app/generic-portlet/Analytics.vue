@@ -94,8 +94,6 @@ import AnalyticsChartSetting from './settings/AnalyticsChartSetting.vue';
 import JsonPanelDialog from './settings/JsonPanelDialog.vue';
 import ViewSamplesDrawer from './samples/ViewSamplesDrawer.vue';
 
-import {loadUser, loadSpace} from '../js/utils.js';
-
 export default {
   components: {
     AnalyticsChart,

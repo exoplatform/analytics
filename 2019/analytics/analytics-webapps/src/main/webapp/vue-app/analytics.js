@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuetify from 'vuetify'
 
-import Analytics from './components/Analytics.vue';
+import Analytics from './generic-portlet/Analytics.vue';
 
 import '../css/main.less';
 
