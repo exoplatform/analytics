@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.picocontainer.Startable;
 
+import org.exoplatform.analytics.api.service.StatisticDataQueueService;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.commons.api.settings.SettingService;
@@ -114,6 +115,14 @@ public class AnalyticsDataInjector implements Startable {
     } catch (IOException e) {
       LOG.warn("Error reading lines from file with path '{}'. Skip injection.", dataInjectionPath);
     }
+    StatisticDataQueueService statisticDataQueueService = CommonsUtils.getService(StatisticDataQueueService.class);
+    while (statisticDataQueueService.queueSize() > 0) {
+      try {
+        Thread.sleep(5000);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
   }
 
   public void injectDataFromObjectStringList(List<String> statisticStringList) {
@@ -164,27 +173,30 @@ public class AnalyticsDataInjector implements Startable {
     PortalContainer container = PortalContainer.getInstance();
     ExoContainerContext.setCurrentContainer(container);
 
-    AnalyticsDataInjector analyticsDataInjector = CommonsUtils.getService(AnalyticsDataInjector.class);
+    try {
+      AnalyticsDataInjector analyticsDataInjector = CommonsUtils.getService(AnalyticsDataInjector.class);
 
-    File parentFolder = new File(AnalyticsDataGenerator.ANALYTICS_GENERATED_DATA_PARENT_FOLDER_PATH);
-    File[] listFiles = parentFolder.listFiles();
-    for (File file : listFiles) {
-      String filePath = file.getAbsolutePath();
-      LOG.info("+++ Start Injecting file {}", filePath);
+      File parentFolder = new File(AnalyticsDataGenerator.ANALYTICS_GENERATED_DATA_PARENT_FOLDER_PATH);
+      File[] listFiles = parentFolder.listFiles();
+      for (File file : listFiles) {
+        String filePath = file.getAbsolutePath();
+        LOG.info("+++ Start Injecting file {}", filePath);
 
-      RequestLifeCycle.begin(container);
-      try {
-        // reinjectData
-        analyticsDataInjector.injectDataFromFile(filePath);
-        // Process ES indexing queue
-        IndexingOperationProcessor indexingOperationProcessor = CommonsUtils.getService(IndexingOperationProcessor.class);
-        indexingOperationProcessor.process();
-      } finally {
-        RequestLifeCycle.end();
+        RequestLifeCycle.begin(container);
+        try {
+          // reinjectData
+          analyticsDataInjector.injectDataFromFile(filePath);
+          // Process ES indexing queue
+          IndexingOperationProcessor indexingOperationProcessor = CommonsUtils.getService(IndexingOperationProcessor.class);
+          indexingOperationProcessor.process();
+        } finally {
+          RequestLifeCycle.end();
+        }
+
+        LOG.info("--- End injecting file {}", filePath);
       }
-
-      LOG.info("--- End injecting file {}", filePath);
+    } finally {
+      rootContainer.stop();
     }
-    rootContainer.stop();
   }
 }
