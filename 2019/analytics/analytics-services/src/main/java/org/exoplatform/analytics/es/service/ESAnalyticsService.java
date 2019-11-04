@@ -285,6 +285,8 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     for (AnalyticsFieldFilter fieldFilter : filters) {
       String field = fieldFilter.getField();
       StatisticFieldMapping fieldMapping = this.esMappings.get(field);
+      String esQueryValue = fieldMapping == null ? fieldFilter.getValueString()
+                                                 : fieldMapping.getESQueryValue(fieldFilter.getValueString());
       switch (fieldFilter.getType()) {
       case NOT_NULL:
         esQuery.append("        {\"exists\" : {\"")
@@ -302,7 +304,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
         esQuery.append("        {\"match\" : {\"")
                .append(field)
                .append("\" : ")
-               .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
+               .append(esQueryValue)
                .append("        }},\n");
         break;
       case GREATER:
@@ -310,7 +312,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                .append(field)
                .append("\" : {")
                .append("\"gte\" : ")
-               .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
+               .append(esQueryValue)
                .append("        }}},\n");
         break;
       case LESS:
@@ -318,7 +320,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                .append(field)
                .append("\" : {")
                .append("\"lte\" : ")
-               .append(fieldMapping.getESQueryValue(fieldFilter.getValueString()))
+               .append(esQueryValue)
                .append("        }}},\n");
         break;
       case RANGE:
