@@ -15,7 +15,7 @@ public class StatisticDataProcessorService {
 
   private static final short                      MAX_PROCESS_ATTEMPTS_COUNT = 5;
 
-  private static final short                      MAX_BULK_DOCUMENTS         = 20;
+  private static final short                      MAX_BULK_DOCUMENTS         = 1000;
 
   private ArrayList<StatisticDataProcessorPlugin> dataProcessorPlugins       = new ArrayList<>();
 
@@ -32,9 +32,11 @@ public class StatisticDataProcessorService {
       return;
     }
 
-    if (queueEntries.size() > MAX_BULK_DOCUMENTS) {
-      // Process queue entries by chunk of 20 elements
-      int entriesCount = queueEntries.size();
+    int entriesCount = queueEntries.size();
+    if (entriesCount > MAX_BULK_DOCUMENTS) {
+      LOG.debug("Processing queue having {} documents with chunk of {}", entriesCount, MAX_BULK_DOCUMENTS);
+
+      // Process queue entries by chunk of MAX_BULK_DOCUMENTS elements
       int index = 0;
       do {
         int toIndex = Math.min(entriesCount, index + MAX_BULK_DOCUMENTS);
@@ -61,11 +63,15 @@ public class StatisticDataProcessorService {
     for (StatisticDataProcessorPlugin statisticDataProcessorPlugin : dataProcessorPlugins) {
       String processorId = statisticDataProcessorPlugin.getId();
       List<StatisticDataQueueEntry> processorQueueEntries = queueEntries.stream()
-                                                                        .filter(queueEntry -> !queueEntry.isProcessorRun(processorId))
+                                                                        .filter(queueEntry -> !isProcessorRun(queueEntry,
+                                                                                                              processorId))
                                                                         .collect(Collectors.toList());
+      if (processorQueueEntries.isEmpty()) {
+        continue;
+      }
       try {
         statisticDataProcessorPlugin.process(processorQueueEntries);
-        processorQueueEntries.forEach(queueEntry -> queueEntry.markProcessorAsSuccess(processorId));
+        processorQueueEntries.forEach(queueEntry -> markProcessorAsSuccess(queueEntry, processorId, dataProcessorPlugins));
       } catch (Exception e) {
         LOG.warn("Error processing queue entries, try to process entries one by one:\n{}", processorQueueEntries, e);
 
@@ -73,14 +79,52 @@ public class StatisticDataProcessorService {
         processorQueueEntries.forEach(queueEntry -> {
           try {
             statisticDataProcessorPlugin.process(Collections.singletonList(queueEntry));
-            queueEntry.markProcessorAsSuccess(processorId);
+            markProcessorAsSuccess(queueEntry, processorId, dataProcessorPlugins);
           } catch (Exception exception) {
             LOG.warn("Error processing queue entry {}", queueEntry, exception);
-            queueEntry.markProcessorAsError(processorId);
+            markProcessorAsError(queueEntry, processorId);
           }
         });
       }
     }
+  }
+
+  private void markProcessorAsSuccess(StatisticDataQueueEntry dataQueueEntry,
+                                      String processorId,
+                                      List<StatisticDataProcessorPlugin> processors) {
+    if (dataQueueEntry.getProcessingStatus() == null) {
+      dataQueueEntry.setProcessingStatus(new HashMap<>());
+    }
+    dataQueueEntry.getProcessingStatus().put(processorId, true);
+    boolean processedForAll = isProcessedForAll(dataQueueEntry, processors);
+    dataQueueEntry.setProcessed(processedForAll);
+  }
+
+  private void markProcessorAsError(StatisticDataQueueEntry dataQueueEntry, String processorId) {
+    if (dataQueueEntry.getProcessingStatus() == null) {
+      dataQueueEntry.setProcessingStatus(new HashMap<>());
+    }
+    dataQueueEntry.getProcessingStatus().put(processorId, false);
+    dataQueueEntry.setError(true);
+  }
+
+  private boolean isProcessedForAll(StatisticDataQueueEntry dataQueueEntry, List<StatisticDataProcessorPlugin> processors) {
+    if (processors == null || processors.isEmpty()) {
+      return true;
+    }
+    for (StatisticDataProcessorPlugin statisticDataProcessorPlugin : processors) {
+      if (!isProcessorRun(dataQueueEntry, statisticDataProcessorPlugin.getId())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean isProcessorRun(StatisticDataQueueEntry dataQueueEntry, String processorId) {
+    Boolean processorStatus =
+                            dataQueueEntry.getProcessingStatus() == null ? null
+                                                                         : dataQueueEntry.getProcessingStatus().get(processorId);
+    return processorStatus != null && processorStatus;
   }
 
 }

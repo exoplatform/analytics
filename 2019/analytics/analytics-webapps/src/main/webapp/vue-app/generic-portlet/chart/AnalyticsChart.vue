@@ -45,24 +45,30 @@ export default {
       };
 
       if (chartType === 'line' || chartType === 'bar') {
-        chartOptions.tooltip = {
-          trigger: 'axis',
-          axisPointer: {
-            type: 'cross',
-            label: {backgroundColor: '#6a7985'}
-          }
-        };
-        chartOptions.xAxis = [{
-          type : 'category',
-          data : labels,
-        }];
+        Object.assign(chartOptions, {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'cross',
+              label: {backgroundColor: '#6a7985'}
+            },
+          },
+          xAxis: [{
+            type : 'category',
+            data : labels,
+          }],
+          yAxis: [{
+            type : 'value'
+          }],
+        });
         if (chartType === 'line') {
           chartOptions.xAxis[0].boundaryGap = false;
         } else {
           chartOptions.xAxis[0].axisTick = {alignWithLabel: true};
         }
-
-        chartOptions.yAxis = [{type : 'value'}];
+        if (charts.length === 1 && (!charts[0].chartLabel || charts[0].chartLabel === 'null')) {
+          chartOptions.tooltip.formatter = '{b}<br/><center>{c}</center>';
+        }
         charts.forEach(chartData => {
           const serie = {
             type: chartType,
@@ -84,10 +90,13 @@ export default {
 
         charts.forEach((chartData, index) => {
           const chartDataValues = chartData.aggregationResults.map(result => {
-            return {
-              name: result.label,
-              value: result.result
+            const chartDataValues = {
+              value: result.result,
             };
+            if (result.label) {
+              chartDataValues.name = result.label;
+            }
+            return chartDataValues;
           });
 
           const xPos = parseInt((parseInt(index / (chartsDividerLength - 1)) + 1) * chartsPercentagePart) * 1.25;

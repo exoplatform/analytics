@@ -22,15 +22,15 @@ import org.exoplatform.services.log.Log;
 
 public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  private static final long   serialVersionUID        = -3143010828698498081L;
+  private static final long                   serialVersionUID        = -3143010828698498081L;
 
-  private static final Log    LOG                     = ExoLogger.getLogger(DummyStatisticDataQueueService.class);
+  private static final Log                    LOG                     = ExoLogger.getLogger(DummyStatisticDataQueueService.class);
 
-  private static final String MAPPING_FILE_PATH_PARAM = "mapping.file.path";
+  private static final String                 MAPPING_FILE_PATH_PARAM = "mapping.file.path";
 
   private transient StatisticDataQueueService analyticsQueueService;
 
-  private String              esInitialMapping;
+  private String                              esInitialMapping;
 
   public AnalyticsIndexingServiceConnector(ConfigurationManager configurationManager,
                                            StatisticDataQueueService analyticsQueueService,
@@ -74,10 +74,10 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     }
     long id = Long.parseLong(idString);
     StatisticData data = this.analyticsQueueService.get(id);
-    return data == null ? null : create(data);
-  }
-
-  public Document create(StatisticData data) {
+    if (data == null) {
+      LOG.warn("Can't find document with id {}", id);
+      return null;
+    }
     String timestampString = String.valueOf(data.getTimestamp());
 
     Map<String, String> fields = new HashMap<>();
@@ -95,7 +95,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
       fields.putAll(data.getParameters());
     }
     return new Document(ES_TYPE,
-                        timestampString,
+                        String.valueOf(id),
                         null,
                         null,
                         (Set<String>) null,

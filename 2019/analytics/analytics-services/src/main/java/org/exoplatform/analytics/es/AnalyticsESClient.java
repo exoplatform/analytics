@@ -61,7 +61,12 @@ public class AnalyticsESClient extends ElasticClient {
       sendHttpPutRequest(indexURL, esIndexSettings);
       String esTypeURL = urlClient + "/" + index + "/_mapping/" + ES_TYPE;
       sendHttpPutRequest(esTypeURL, analyticsIndexingConnector.getMapping());
-      LOG.info("Index {} created.", index);
+
+      if (sendIsIndexExistsRequest(index)) {
+        LOG.info("Index {} created.", index);
+      } else {
+        LOG.warn("Index {} seems not created successfully on ES.", index);
+      }
       return true;
     }
   }
@@ -92,6 +97,7 @@ public class AnalyticsESClient extends ElasticClient {
     checkIndexExistence(dataQueueEntries);
 
     StringBuilder request = new StringBuilder();
+    Set<String> indexesToUpdate = new HashSet<>();
     for (StatisticDataQueueEntry statisticDataQueueEntry : dataQueueEntries) {
       String documentId = String.valueOf(statisticDataQueueEntry.getId());
       String singleDocumentQuery = elasticContentRequestBuilder.getCreateDocumentRequestContent(analyticsIndexingConnector,
@@ -99,11 +105,16 @@ public class AnalyticsESClient extends ElasticClient {
       String index = getIndex(statisticDataQueueEntry.getStatisticData().getTimestamp());
       singleDocumentQuery = singleDocumentQuery.replace(ES_INDEX_PLACEHOLDER, index);
       request.append(singleDocumentQuery);
+      indexesToUpdate.add(index);
     }
 
     LOG.debug("Create documents request to ES: \n {}", request);
     String indexDocumentURL = urlClient + "/_bulk";
     sendHttpPutRequest(indexDocumentURL, request.toString());
+
+    for (String index : indexesToUpdate) {
+      refreshIndex(index);
+    }
   }
 
   public String sendRequest(String esQuery) {
@@ -173,6 +184,11 @@ public class AnalyticsESClient extends ElasticClient {
     for (String index : indexes) {
       sendCreateIndexRequest(index);
     }
+  }
+
+  private void refreshIndex(String index) {
+    String indexRefreshURL = urlClient + "/" + index + "/_refresh";
+    sendHttpPostRequest(indexRefreshURL, null);
   }
 
 }

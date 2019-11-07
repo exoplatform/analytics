@@ -52,11 +52,19 @@ public class DummyStatisticDataQueueService implements StatisticDataQueueService
 
   @Override
   public void processQueue() {
+    if (this.statisticDatas.isEmpty()) {
+      return;
+    }
     List<StatisticDataQueueEntry> queueEntries = new ArrayList<>(this.statisticDatas.values());
-    LOG.debug("Processing {} data", queueEntries.size());
+    LOG.debug("Processing {} documents", queueEntries.size());
     statisticDataProcessorService.process(queueEntries);
     for (StatisticDataQueueEntry statisticDataQueueEntry : queueEntries) {
-      this.statisticDatas.remove(statisticDataQueueEntry.getId());
+      if (statisticDataQueueEntry.isProcessed()) {
+        this.statisticDatas.remove(statisticDataQueueEntry.getId());
+      }
+    }
+    if (this.statisticDatas.size() > 0) {
+      LOG.warn("Queue has {} remaining documents not processed successfully", this.statisticDatas.size());
     }
   }
 

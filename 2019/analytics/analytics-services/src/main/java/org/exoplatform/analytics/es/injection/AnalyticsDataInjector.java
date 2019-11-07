@@ -17,7 +17,6 @@ import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
-import org.exoplatform.commons.search.index.IndexingOperationProcessor;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.*;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -186,13 +185,9 @@ public class AnalyticsDataInjector implements Startable {
         try {
           // reinjectData
           analyticsDataInjector.injectDataFromFile(filePath);
-          // Process ES indexing queue
-          IndexingOperationProcessor indexingOperationProcessor = CommonsUtils.getService(IndexingOperationProcessor.class);
-          indexingOperationProcessor.process();
         } finally {
           RequestLifeCycle.end();
         }
-
         LOG.info("--- End injecting file {}", filePath);
       }
     } finally {

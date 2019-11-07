@@ -1,7 +1,6 @@
 package org.exoplatform.analytics.model;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 import lombok.*;
@@ -24,36 +23,12 @@ public class StatisticDataQueueEntry implements Serializable {
 
   private Map<String, Boolean> processingStatus;
 
-  private long                 id;
-
   public StatisticDataQueueEntry(StatisticData statisticData) {
     this.statisticData = statisticData;
   }
 
-  public boolean isProcessorRun(String processorId) {
-    Boolean processorStatus = processingStatus == null ? null : processingStatus.get(processorId);
-    return processorStatus != null && processorStatus;
-  }
-
-  public void markProcessorAsSuccess(String processorId) {
-    if (processingStatus == null) {
-      processingStatus = new HashMap<>();
-    }
-    processingStatus.put(processorId, true);
-  }
-
-  public void markProcessorAsError(String processorId) {
-    if (processingStatus == null) {
-      processingStatus = new HashMap<>();
-    }
-    processingStatus.put(processorId, false);
-    this.error = true;
-  }
-
   public long getId() {
-    if (id == 0) {
-      id = System.nanoTime();
-    }
-    return id;
+    return statisticData == null ? 0 : statisticData.hashCode();
   }
+
 }
