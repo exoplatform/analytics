@@ -1,8 +1,7 @@
 package org.exoplatform.analytics.es.injection;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.Charsets;
@@ -96,21 +95,24 @@ public class AnalyticsDataInjector implements Startable {
       LOG.warn("Configured analytics data file path '{}' doesn't exist. Skip injection.", dataInjectionPath);
       return;
     }
+
     try (FileInputStream input = new FileInputStream(dataInjectionFile);
         InputStreamReader reader = new InputStreamReader(input, Charsets.UTF_8);
         BufferedReader bufferedReader = IOUtils.toBufferedReader(reader);) {
-      String line = null;
-      do {
-        List<String> statisticStringList = new ArrayList<>();
-        line = bufferedReader.readLine();
-        while (line != null && statisticStringList.size() < 1000) {
-          statisticStringList.add(line);
-          line = bufferedReader.readLine();
-        }
-        if (!statisticStringList.isEmpty()) {
+      List<String> statisticStringList = new ArrayList<>();
+      String line = bufferedReader.readLine();
+      while (line != null) {
+        statisticStringList.add(line);
+        if (statisticStringList.size() >= 10) {
           injectDataFromObjectStringList(statisticStringList);
+          statisticStringList = new ArrayList<>();
         }
-      } while (line != null);
+
+        line = bufferedReader.readLine();
+      }
+      if (!statisticStringList.isEmpty()) {
+        injectDataFromObjectStringList(statisticStringList);
+      }
     } catch (IOException e) {
       LOG.warn("Error reading lines from file with path '{}'. Skip injection.", dataInjectionPath);
     }
@@ -178,6 +180,9 @@ public class AnalyticsDataInjector implements Startable {
       File parentFolder = new File(AnalyticsDataGenerator.ANALYTICS_GENERATED_DATA_PARENT_FOLDER_PATH);
       File[] listFiles = parentFolder.listFiles();
       for (File file : listFiles) {
+        if (file.isHidden() || file.isDirectory()) {
+          continue;
+        }
         String filePath = file.getAbsolutePath();
         LOG.info("+++ Start Injecting file {}", filePath);
 

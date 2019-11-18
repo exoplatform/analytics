@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.analytics.api.service.StatisticDataQueueService;
 import org.exoplatform.analytics.model.StatisticData;
-import org.exoplatform.analytics.queue.service.DummyStatisticDataQueueService;
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
 import org.exoplatform.commons.utils.IOUtil;
@@ -24,7 +23,8 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
 
   private static final long                   serialVersionUID        = -3143010828698498081L;
 
-  private static final Log                    LOG                     = ExoLogger.getLogger(DummyStatisticDataQueueService.class);
+  private static final Log                    LOG                     =
+                                                  ExoLogger.getLogger(AnalyticsIndexingServiceConnector.class);
 
   private static final String                 MAPPING_FILE_PATH_PARAM = "mapping.file.path";
 
@@ -81,6 +81,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     String timestampString = String.valueOf(data.getTimestamp());
 
     Map<String, String> fields = new HashMap<>();
+    fields.put("id", timestampString);
     fields.put(FIELD_TIMESTAMP, timestampString);
     fields.put(FIELD_USER_ID, String.valueOf(data.getUserId()));
     fields.put(FIELD_SPACE_ID, String.valueOf(data.getSpaceId()));

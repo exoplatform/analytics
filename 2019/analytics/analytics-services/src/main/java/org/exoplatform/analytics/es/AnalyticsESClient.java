@@ -161,6 +161,27 @@ public class AnalyticsESClient extends ElasticClient {
   }
 
   @Override
+  protected ElasticResponse sendHttpPutRequest(String url, String content) {
+    ElasticResponse response = super.sendHttpPutRequest(url, content);
+    handleESResponse(response);
+    return response;
+  }
+
+  @Override
+  protected ElasticResponse sendHttpDeleteRequest(String url) {
+    ElasticResponse response = super.sendHttpDeleteRequest(url);
+    handleESResponse(response);
+    return response;
+  }
+
+  @Override
+  protected ElasticResponse sendHttpPostRequest(String url, String content) {
+    ElasticResponse response = super.sendHttpPostRequest(url, content);
+    handleESResponse(response);
+    return response;
+  }
+
+  @Override
   protected String getEsUsernameProperty() {
     return getESServerUsername();
   }
@@ -173,6 +194,12 @@ public class AnalyticsESClient extends ElasticClient {
   @Override
   protected HttpClientConnectionManager getClientConnectionManager() {
     return new PoolingHttpClientConnectionManager();
+  }
+
+  private void handleESResponse(ElasticResponse response) {
+    if (response.getStatusCode() != 200 || StringUtils.contains(response.getMessage(), "\"errors\":true")) {
+      throw new ElasticClientException(response.getMessage());
+    }
   }
 
   private void checkIndexExistence(List<StatisticDataQueueEntry> dataQueueEntries) {

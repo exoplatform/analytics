@@ -28,7 +28,7 @@ public class StatisticDataQueueEntry implements Serializable {
   }
 
   public long getId() {
-    return statisticData == null ? 0 : statisticData.hashCode();
+    return statisticData == null ? 0 : Math.abs(statisticData.hashCode());
   }
 
 }
