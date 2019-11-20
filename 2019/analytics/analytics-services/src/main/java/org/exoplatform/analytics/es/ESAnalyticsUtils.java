@@ -12,13 +12,15 @@ public class ESAnalyticsUtils {
 
   private static final String  ES_INDEX_CLIENT_PROPERTY_USERNAME           = "exo.es.index.server.username";
 
-  private static final String  ES_INDEX_CLIENT_PROPERTY_PWD                = "exo.es.index.server.password";                // NOSONAR
+  private static final String  ES_INDEX_CLIENT_PROPERTY_PWD                = "exo.es.index.server.password";                  // NOSONAR
 
   private static final String  ES_ANALYTICS_INDEX_CLIENT_PROPERTY_NAME     = "exo.es.analytics.index.server.url";
 
+  private static final String  ES_ANALYTICS_INDEX_PER_DAY_PROPERTY_NAME    = "exo.es.analytics.index.per.day";
+
   private static final String  ES_ANALYTICS_INDEX_CLIENT_PROPERTY_USERNAME = "exo.es.analytics.index.server.username";
 
-  private static final String  ES_ANALYTICS_INDEX_CLIENT_PROPERTY_PWD      = "exo.es.analytics.index.server.password";      // NOSONAR
+  private static final String  ES_ANALYTICS_INDEX_CLIENT_PROPERTY_PWD      = "exo.es.analytics.index.server.password";        // NOSONAR
 
   private static final String  ES_INDEX_CLIENT_DEFAULT                     = "http://127.0.0.1:9200";
 
@@ -28,18 +30,26 @@ public class ESAnalyticsUtils {
 
   private static String        serverUsername                              = null;
 
-  private static String        serverPassword                              = null;                                          // NOSONAR
+  private static String        serverPassword                              = null;                                            // NOSONAR
 
   private static final boolean IS_EMBEDDED                                 =
                                            StringUtils.isBlank(System.getProperty(ES_ANALYTICS_INDEX_CLIENT_PROPERTY_NAME));
+
+  private static final boolean INDEX_PER_DAY                               =
+                                             Boolean.parseBoolean(System.getProperty(ES_ANALYTICS_INDEX_PER_DAY_PROPERTY_NAME,
+                                                                                     "false"));
 
   private ESAnalyticsUtils() {
     // Static class
   }
 
   public static final String getIndex(long timestamp) {
-    long indexSuffix = timestamp / DAY_IN_MS;
-    return "analytics_" + indexSuffix;
+    if (INDEX_PER_DAY) {
+      long indexSuffix = timestamp / DAY_IN_MS;
+      return "analytics_" + indexSuffix;
+    } else {
+      return "analytics";
+    }
   }
 
   protected static final String getESServerURL() {

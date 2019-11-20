@@ -32,6 +32,8 @@ import org.exoplatform.ws.frameworks.json.impl.*;
 public class AnalyticsUtils {
   private static final Log              LOG                              = ExoLogger.getLogger(AnalyticsUtils.class);
 
+  public static final short             MAX_BULK_DOCUMENTS               = 100;
+
   public static final String            VALUES_SEPARATOR                 = ",";
 
   public static final String            FIELD_IS_ANALYTICS               = "isAnalytics";
@@ -206,7 +208,7 @@ public class AnalyticsUtils {
   }
 
   public static long timeToMilliseconds(LocalDateTime time) {
-    return time.atZone(ZoneOffset.systemDefault()).toEpochSecond() * 1000;
+    return time.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000;
   }
 
   public static final String fixJSONStringFormat(String jsonString) {
@@ -222,9 +224,7 @@ public class AnalyticsUtils {
   public static final String collectionToJSONString(String value) {
     String[] valuesString = value.split(VALUES_SEPARATOR);
     List<String> valuesList = new ArrayList<>();
-    for (String valueString : valuesString) {
-      valuesList.add(valueString);
-    }
+    Collections.addAll(valuesList, valuesString);
     return new JSONArray(valuesList).toString();
   }
 

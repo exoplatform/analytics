@@ -197,6 +197,13 @@ public class AnalyticsESClient extends ElasticClient {
   }
 
   private void handleESResponse(ElasticResponse response) {
+    if (response.getStatusCode() != 200) {
+      throw new ElasticClientException(response.getMessage());
+    }
+    if (StringUtils.contains(response.getMessage(), "\"type\":\"version_conflict_engine_exception\"")) {
+      LOG.warn("ID conflict in some content", response.getMessage());
+      return;
+    }
     if (response.getStatusCode() != 200 || StringUtils.contains(response.getMessage(), "\"errors\":true")) {
       throw new ElasticClientException(response.getMessage());
     }

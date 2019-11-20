@@ -1,7 +1,10 @@
 package org.exoplatform.analytics.es.injection;
 
+import static org.exoplatform.analytics.utils.AnalyticsUtils.MAX_BULK_DOCUMENTS;
+
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.Charsets;
@@ -90,6 +93,8 @@ public class AnalyticsDataInjector implements Startable {
   }
 
   public void injectDataFromFile(String dataInjectionPath) {
+    long startTimeMs = System.currentTimeMillis();
+
     File dataInjectionFile = new File(dataInjectionPath);
     if (!dataInjectionFile.exists()) {
       LOG.warn("Configured analytics data file path '{}' doesn't exist. Skip injection.", dataInjectionPath);
@@ -103,7 +108,7 @@ public class AnalyticsDataInjector implements Startable {
       String line = bufferedReader.readLine();
       while (line != null) {
         statisticStringList.add(line);
-        if (statisticStringList.size() >= 10) {
+        if (statisticStringList.size() >= MAX_BULK_DOCUMENTS) {
           injectDataFromObjectStringList(statisticStringList);
           statisticStringList = new ArrayList<>();
         }
@@ -119,11 +124,13 @@ public class AnalyticsDataInjector implements Startable {
     StatisticDataQueueService statisticDataQueueService = CommonsUtils.getService(StatisticDataQueueService.class);
     while (statisticDataQueueService.queueSize() > 0) {
       try {
-        Thread.sleep(5000);
+        Thread.sleep(500);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
     }
+    long endTimeMs = System.currentTimeMillis();
+    LOG.info("Injection time: " + (endTimeMs - startTimeMs));
   }
 
   public void injectDataFromObjectStringList(List<String> statisticStringList) {

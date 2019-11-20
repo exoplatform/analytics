@@ -1,5 +1,7 @@
 package org.exoplatform.analytics.api.service;
 
+import static org.exoplatform.analytics.utils.AnalyticsUtils.MAX_BULK_DOCUMENTS;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -14,8 +16,6 @@ public class StatisticDataProcessorService {
                                                       ExoLogger.getLogger(StatisticDataProcessorService.class);
 
   private static final short                      MAX_PROCESS_ATTEMPTS_COUNT = 5;
-
-  private static final short                      MAX_BULK_DOCUMENTS         = 1000;
 
   private ArrayList<StatisticDataProcessorPlugin> dataProcessorPlugins       = new ArrayList<>();
 
@@ -73,7 +73,11 @@ public class StatisticDataProcessorService {
         statisticDataProcessorPlugin.process(processorQueueEntries);
         processorQueueEntries.forEach(queueEntry -> markProcessorAsSuccess(queueEntry, processorId, dataProcessorPlugins));
       } catch (Exception e) {
-        LOG.warn("Error processing queue entries, try to process entries one by one:\n{}", processorQueueEntries, e);
+        if (LOG.isDebugEnabled()) {
+          LOG.warn("Error processing queue entries: \n {}\n, try to process entries one by one.", processorQueueEntries, e);
+        } else {
+          LOG.warn("Error processing queue entries, try to process entries one by one.", e);
+        }
 
         // Try to process queue one by one to not block all queue entries
         processorQueueEntries.forEach(queueEntry -> {
