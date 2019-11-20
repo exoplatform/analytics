@@ -32,7 +32,7 @@ public class UserAnalyticsEventListener extends NewUserEventListener {
 
   @Override
   public void postSave(User user, boolean isNew) throws Exception {
-    StatisticData statisticData = buildStatisticData("saveUser", user);
+    StatisticData statisticData = buildStatisticData(isNew ? "createUser" : "saveUser", user);
     addStatisticData(statisticData);
   }
 
