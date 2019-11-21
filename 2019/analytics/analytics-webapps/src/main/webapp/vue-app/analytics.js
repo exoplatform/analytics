@@ -26,12 +26,18 @@ if (!window.loadingAnalytics) {
       $('.analytics-app-parent').each((index, elem) => {
         const dataId = $(elem).attr('data-id');
         const retrieveSettingsURL = $(elem).attr('data-settings-url');
+        const retrieveFiltersURL = $(elem).attr('data-filters-url');
+        const retrieveChartDataURL = $(elem).attr('data-chart-data-url');
+        const retrieveChartSamplesURL = $(elem).attr('data-settings-url');
         const saveSettingsURL = $(elem).attr('data-save-settings-url');
         // init Vue app when locale ressources are ready
         new Vue({
           render: h => h(Analytics, {
             props:{
               retrieveSettingsURL : retrieveSettingsURL,
+              retrieveFiltersURL : retrieveFiltersURL,
+              retrieveChartDataURL : retrieveChartDataURL,
+              retrieveChartSamplesURL : retrieveChartSamplesURL,
               saveSettingsURL : saveSettingsURL,
             }
           }),

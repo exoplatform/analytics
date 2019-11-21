@@ -91,6 +91,12 @@ export default {
         return null;
       },
     },
+    retrieveSamplesUrl: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
   },
   data: () => ({
     drawer: false,
@@ -142,25 +148,25 @@ export default {
       }
 
       let loadedChartData;
-      return fetch('/portal/rest/analytics', {
-        method: 'POST',
+      this.loading = true;
+      const params = {
+        lang: eXo.env.portal.language,
+        limit: this.limit,
+      };
+      if (this.selectedPeriod) {
+        params.min = this.selectedPeriod.min;
+        params.max = this.selectedPeriod.max;
+      }
+      return fetch(this.retrieveSamplesUrl, {
+        method: 'GET',
         credentials: 'include',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          filters: filters,
-          offset: 0,
-          limit: this.limit,
-          lang: eXo.env.portal.language,
-        }),
+        body: $.params(params),
       })
         .then((resp) => {
           if (resp && resp.ok) {
             return resp.json();
           } else {
-            throw new Error('Error getting analytics with filters:', filters);
+            throw new Error('Error getting analytics samples with filters:', filters);
           }
         })
         .then((chartDatas) => loadedChartData = chartDatas)

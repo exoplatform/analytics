@@ -27,26 +27,30 @@ import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 public class ESAnalyticsService implements AnalyticsService, Startable {
 
-  private static final Log                   LOG                            = ExoLogger.getLogger(ESAnalyticsService.class);
+  private static final Log                   LOG                                   =
+                                                 ExoLogger.getLogger(ESAnalyticsService.class);
 
-  private static final String                AGGREGATION_KEYS_SEPARATOR     = "-";
+  private static final String                ANALYTICS_ADMIN_PERMISSION_PARAM_NAME = "exo.analytics.admin.permission";
 
-  private static final String                AGGREGATION_RESULT_PARAM       = "aggregation_result";
+  private static final String                AGGREGATION_KEYS_SEPARATOR            = "-";
 
-  private static final String                AGGREGATION_RESULT_VALUE_PARAM = "aggregation_result_value";
+  private static final String                AGGREGATION_RESULT_PARAM              = "aggregation_result";
 
-  private static final Context               CONTEXT                        = Context.GLOBAL.id("ANALYTICS");
+  private static final String                AGGREGATION_RESULT_VALUE_PARAM        = "aggregation_result_value";
 
-  private static final Scope                 ES_SCOPE                       = Scope.GLOBAL.id("elasticsearch");
+  private static final Context               CONTEXT                               = Context.GLOBAL.id("ANALYTICS");
 
-  private static final String                ES_AGGREGATED_MAPPING          = "ES_AGGREGATED_MAPPING";
+  private static final Scope                 ES_SCOPE                              = Scope.GLOBAL.id("elasticsearch");
 
-  private static final AnalyticsFieldFilter  ES_TYPE_FILTER                 =
+  private static final String                ES_AGGREGATED_MAPPING                 = "ES_AGGREGATED_MAPPING";
+
+  private static final AnalyticsFieldFilter  ES_TYPE_FILTER                        =
                                                             new AnalyticsFieldFilter("isAnalytics",
                                                                                      AnalyticsFieldFilterType.EQUAL,
                                                                                      "true");
@@ -55,13 +59,19 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
   private SettingService                     settingService;
 
-  private Map<String, StatisticFieldMapping> esMappings                     = new HashMap<>();
+  private Map<String, StatisticFieldMapping> esMappings                            = new HashMap<>();
 
-  private ScheduledExecutorService           esMappingUpdater               = Executors.newScheduledThreadPool(1);
+  private ScheduledExecutorService           esMappingUpdater                      = Executors.newScheduledThreadPool(1);
 
-  public ESAnalyticsService(SettingService settingService, AnalyticsESClient esClient) {
+  private String                             administratorsPermission;
+
+  public ESAnalyticsService(SettingService settingService, AnalyticsESClient esClient, InitParams params) {
     this.esClient = esClient;
     this.settingService = settingService;
+
+    if (params != null && params.containsKey(ANALYTICS_ADMIN_PERMISSION_PARAM_NAME)) {
+      this.administratorsPermission = params.getValueParam(ANALYTICS_ADMIN_PERMISSION_PARAM_NAME).getValue();
+    }
   }
 
   @Override
@@ -166,6 +176,11 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     } catch (JSONException e) {
       throw new IllegalStateException("Error parsing results with filter: " + searchFilter + ", response: " + jsonResponse, e);
     }
+  }
+
+  @Override
+  public String getAdministratorsPermission() {
+    return administratorsPermission;
   }
 
   private void buildAnalyticsQuery(AnalyticsFilter analyticsFilter, boolean retrieveUsedTuples, StringBuilder esQuery) {

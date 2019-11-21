@@ -27,6 +27,7 @@
         :selected-period="selectedPeriod"
         :users="userObjects"
         :spaces="spaceObjects"
+        :retrieve-samples-url="retrieveChartSamplesURL"
         class="mt-0" />
       <v-card class="px-3 pt-4 ma-auto transparent" flat>
         <v-toolbar
@@ -109,6 +110,24 @@ export default {
         return null;
       },
     },
+    retrieveFiltersURL: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
+    retrieveChartDataURL: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
+    retrieveChartSamplesURL: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
     saveSettingsURL: {
       type: String,
       default: function() {
@@ -117,6 +136,7 @@ export default {
     },
   },
   data: () => ({
+    canEdit: false,
     selectedPeriod: null,
     userObjects: {},
     spaceObjects: {},
@@ -161,6 +181,25 @@ export default {
     },
     getSettings() {
       return fetch(this.retrieveSettingsURL, {
+        method: 'GET',
+        credentials: 'include',
+      })
+        .then((resp) => {
+          if (resp && resp.ok) {
+            return resp.json();
+          } else {
+            throw new Error(`Error getting analytics of ${JSON.stringify(this.settings)}`);
+          }
+        })
+        .then((settings) => {
+          this.canEdit = settings && settings.canEdit;
+        });
+    },
+    getFilters() {
+      if (!this.canEdit) {
+        return;
+      }
+      return fetch(this.retrieveFiltersURL, {
         method: 'GET',
         credentials: 'include',
       })
@@ -223,40 +262,22 @@ export default {
         .finally(() => this.loading = false);
     },
     updateChart() {
-      if (!this.chartSettings) {
-        return;
-      }
       if (!this.selectedPeriod) {
         return;
       }
 
       this.loading = true;
-
-      const filters = this.chartSettings.filters.slice();
+      const params = {
+        lang: eXo.env.portal.language,
+      };
       if (this.selectedPeriod) {
-        filters.push({
-          field: "timestamp",
-          type: "RANGE",
-          range: this.selectedPeriod,
-        });
+        params.min = this.selectedPeriod.min;
+        params.max = this.selectedPeriod.max;
       }
-
-      return fetch('/portal/rest/analytics', {
-        method: 'POST',
+      return fetch(this.retrieveChartDataURL, {
+        method: 'GET',
         credentials: 'include',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          filters: filters,
-          xAxisAggregations: this.chartSettings.xAxisAggregations,
-          yAxisAggregation: this.chartSettings.yAxisAggregation,
-          multipleChartsField: this.chartSettings.multipleChartsField,
-          offset: this.chartSettings.offset,
-          limit: this.chartSettings.limit,
-          lang: eXo.env.portal.language,
-        }),
+        body: $.params(params),
       })
         .then((resp) => {
           if (resp && resp.ok) {

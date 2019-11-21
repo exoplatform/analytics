@@ -32,4 +32,8 @@ public interface AnalyticsService {
    */
   Set<StatisticFieldMapping> retrieveMapping(boolean forceRefresh);
 
+  /**
+   * @return the analytics permission expression
+   */
+  String getAdministratorsPermission();
 }

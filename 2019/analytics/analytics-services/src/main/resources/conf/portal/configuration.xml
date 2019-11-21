@@ -8,6 +8,12 @@
   <component>
     <key>org.exoplatform.analytics.api.service.AnalyticsService</key>
     <type>org.exoplatform.analytics.es.service.ESAnalyticsService</type>
+    <init-params>
+      <value-param>
+        <name>exo.analytics.admin.permission</name>
+        <value>${exo.analytics.admin.permission:*:/platform/analytics}</value>
+      </value-param>
+    </init-params>
   </component>
 
   <component>
@@ -31,10 +37,6 @@
 
   <component>
     <type>org.exoplatform.analytics.api.service.StatisticDataProcessorService</type>
-  </component>
-
-  <component>
-    <type>org.exoplatform.analytics.rest.AnalyticsREST</type>
   </component>
 
   <external-component-plugins>
