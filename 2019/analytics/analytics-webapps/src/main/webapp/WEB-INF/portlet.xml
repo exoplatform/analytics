@@ -36,6 +36,10 @@
         </value>
       </preference>
      </portlet-preferences>
+     <security-role-ref>
+       <role-name>admin</role-name>
+       <role-link>admin</role-link>
+     </security-role-ref>
    </portlet>
 
 </portlet-app>
