@@ -10,6 +10,11 @@
   <name>eXo Add-on:: eXo Analytics - Application</name>
   <dependencies>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>analytics-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>javax.portlet</groupId>
       <artifactId>portlet-api</artifactId>
       <scope>provided</scope>
