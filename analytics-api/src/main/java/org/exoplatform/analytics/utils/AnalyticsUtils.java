@@ -267,7 +267,7 @@ public class AnalyticsUtils {
 
   public static long getIdentityId(String providerId, String remoteId) {
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getOrCreateIdentity(providerId, remoteId, true);
+    Identity identity = identityManager.getOrCreateIdentity(providerId, remoteId);
     return identity == null ? 0 : Long.parseLong(identity.getId());
   }
 
@@ -278,7 +278,7 @@ public class AnalyticsUtils {
       return 0;
     }
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username, true);
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
     return identity == null ? 0 : Long.parseLong(identity.getId());
   }
 
