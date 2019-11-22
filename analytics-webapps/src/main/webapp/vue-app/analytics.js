@@ -29,7 +29,7 @@ if (!window.loadingAnalytics) {
         const retrieveMappingsURL = $(elem).attr('data-mappings-url');
         const retrieveFiltersURL = $(elem).attr('data-filters-url');
         const retrieveChartDataURL = $(elem).attr('data-chart-data-url');
-        const retrieveChartSamplesURL = $(elem).attr('data-settings-url');
+        const retrieveChartSamplesURL = $(elem).attr('data-chart-samples-url');
         const saveSettingsURL = $(elem).attr('data-save-settings-url');
         // init Vue app when locale ressources are ready
         new Vue({

@@ -11,7 +11,7 @@
     <v-toolbar color="blue lighten-5">
       <v-toolbar-title>
         Data of chart
-        <span class="primary--text">{{ chartSettings && chartSettings.title }}</span>
+        <span class="primary--text">{{ title }}</span>
       </v-toolbar-title>
       <v-spacer />
       <v-btn
@@ -67,14 +67,14 @@ export default {
         return null;
       },
     },
-    settings: {
+    selectedPeriod: {
       type: Object,
       default: function() {
         return null;
       },
     },
-    selectedPeriod: {
-      type: Object,
+    title: {
+      type: String,
       default: function() {
         return null;
       },
@@ -111,11 +111,8 @@ export default {
         return false;
       }
       const loadedDataLength = Object.keys(this.chartDatas).length;
-      return loadedDataLength % this.pageSize === 0 || loadedDataLength < this.limit;
+      return loadedDataLength % this.pageSize === 0;
     },
-    chartSettings() {
-      return Object.assign({}, this.settings);
-    }
   },
   watch: {
     drawer() {

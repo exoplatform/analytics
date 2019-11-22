@@ -21,10 +21,9 @@
         :settings="chartSettings"
         class="mt-0" />
       <view-samples-drawer
-        v-if="chartSettings"
         ref="viewSamplesDrawer"
+        :title="title"
         :parent-id="modalParentId"
-        :settings="chartSettings"
         :selected-period="selectedPeriod"
         :users="userObjects"
         :spaces="spaceObjects"
@@ -41,7 +40,7 @@
           </v-toolbar-title>
           <v-spacer />
           <select-period v-model="selectedPeriod" />
-          <v-menu v-if="chartSettings" open-on-hover>
+          <v-menu open-on-hover>
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on">
                 <v-icon>mdi-dots-vertical</v-icon>
@@ -54,7 +53,7 @@
               <v-list-item v-if="chartSettings" @click="$refs.jsonPanelDialog.open()">
                 <v-list-item-title>View JSON panel</v-list-item-title>
               </v-list-item>
-              <v-list-item v-if="chartSettings" @click="$refs.viewSamplesDrawer.open()">
+              <v-list-item @click="$refs.viewSamplesDrawer.open()">
                 <v-list-item-title>View samples</v-list-item-title>
               </v-list-item>
             </v-list>

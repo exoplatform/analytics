@@ -1,8 +1,7 @@
 package org.exoplatform.addon.analytics.portlet;
 
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.portlet.*;
@@ -12,8 +11,10 @@ import org.eclipse.jetty.util.StringUtil;
 import org.json.*;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
+import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
+import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.security.*;
@@ -87,7 +88,7 @@ public class AnalyticsPortlet extends GenericPortlet {
       response.getWriter().write(AnalyticsUtils.toJsonString(filter));
     } else if (StringUtils.equals(operation, READ_MAPPINGS_OPERATOPN)) {
       Set<StatisticFieldMapping> mappings = getAnalyticsService().retrieveMapping(false);
-      Set<JSONObject> objectMappings = mappings.stream().map(mapping -> new JSONObject(mapping)).collect(Collectors.toSet());
+      List<JSONObject> objectMappings = mappings.stream().map(mapping -> new JSONObject(mapping)).collect(Collectors.toList());
       JSONArray jsonArrayResponse = new JSONArray(objectMappings);
       response.setContentType("application/json");
       response.getWriter().write(jsonArrayResponse.toString());
@@ -97,10 +98,15 @@ public class AnalyticsPortlet extends GenericPortlet {
       addScopeFilter(portletSession, filter);
       addLanguageFilter(request, filter);
       addLimitFilter(request, filter);
+      addSortFilter(filter);
 
-      Object result = getAnalyticsService().retrieveData(filter);
+      List<StatisticData> statisticDatas = getAnalyticsService().retrieveData(filter);
+      List<JSONObject> objectMappings = statisticDatas.stream()
+                                                      .map(statisticData -> new JSONObject(statisticData))
+                                                      .collect(Collectors.toList());
+      JSONArray jsonArrayResponse = new JSONArray(objectMappings);
       response.setContentType("application/json");
-      response.getWriter().write(AnalyticsUtils.toJsonString(result));
+      response.getWriter().write(jsonArrayResponse.toString());
     } else if (StringUtils.equals(operation, READ_CHART_DATA_OPERATOPN)) {
       AnalyticsFilter filter = getFilterFromPreferences(preferences, true);
       addPeriodFilter(request, filter);
@@ -117,6 +123,15 @@ public class AnalyticsPortlet extends GenericPortlet {
   private void addLanguageFilter(ResourceRequest request, AnalyticsFilter filter) {
     String lang = request.getParameter("lang");
     filter.setLang(lang);
+  }
+
+  private void addSortFilter(AnalyticsFilter filter) {
+    List<AnalyticsAggregation> xAxisAggregations = filter.getXAxisAggregations();
+    for (AnalyticsAggregation analyticsAggregation : xAxisAggregations) {
+      if (StringUtils.equals(AnalyticsUtils.FIELD_TIMESTAMP, analyticsAggregation.getField())) {
+        analyticsAggregation.setSortDirection("desc");
+      }
+    }
   }
 
   private void addLimitFilter(ResourceRequest request, AnalyticsFilter filter) {
