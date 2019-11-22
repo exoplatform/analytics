@@ -90,7 +90,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
       filter.addEqualFilter("module", "social");
       filter.addLessFilter("spaceId", 5);
       filter.addGreaterFilter("month", 6);
-      filter.addRangeFilter("year", 2018, 2019);
+      filter.addRangeFilter("year", "2018", "2019");
       filter.addInSetFilter("dayOfMonth", "2", "3", "4");
 
       List<StatisticData> statisticsData = analyticsService.retrieveData(filter);

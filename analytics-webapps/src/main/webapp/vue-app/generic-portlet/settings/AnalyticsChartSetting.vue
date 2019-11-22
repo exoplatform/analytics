@@ -99,6 +99,12 @@ export default {
         return null;
       },
     },
+    retrieveMappingsUrl: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
     settings: {
       type: Object,
       default: function() {
@@ -143,8 +149,8 @@ export default {
   methods: {
     init() {
       this.loading = true;
-  
-      return fetch('/portal/rest/analytics', {
+
+      return fetch(this.retrieveMappingsUrl, {
         method: 'GET',
         credentials: 'include',
         headers: {

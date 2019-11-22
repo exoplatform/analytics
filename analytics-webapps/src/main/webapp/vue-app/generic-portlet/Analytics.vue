@@ -8,6 +8,7 @@
         v-if="chartSettings"
         ref="chartSettingDialog"
         :parent-id="modalParentId"
+        :retrieve-mappings-url="retrieveMappingsURL"
         :settings="chartSettings"
         :users="userObjects"
         :spaces="spaceObjects"
@@ -33,23 +34,27 @@
         <v-toolbar
           color="white"
           class="elevation-1">
-          <v-toolbar-title :title="chartTitle">{{ chartTitle }} - Scope: {{ scope }}</v-toolbar-title>
+          <v-toolbar-title :title="title">{{ title }}</v-toolbar-title>
+          <v-spacer />
+          <v-toolbar-title :title="scopeTooltip">
+            <v-chip :color="scopeColor" :text-color="scopeTextColor">{{ scopeTitle }}</v-chip>
+          </v-toolbar-title>
           <v-spacer />
           <select-period v-model="selectedPeriod" />
-          <v-menu open-on-hover>
+          <v-menu v-if="chartSettings" open-on-hover>
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on">
                 <v-icon>mdi-dots-vertical</v-icon>
               </v-btn>
             </template>
             <v-list>
-              <v-list-item v-if="$refs.chartSettingDialog" @click="$refs.chartSettingDialog.open()">
+              <v-list-item v-if="chartSettings" @click="$refs.chartSettingDialog.open()">
                 <v-list-item-title>Settings</v-list-item-title>
               </v-list-item>
-              <v-list-item v-if="$refs.jsonPanelDialog" @click="$refs.jsonPanelDialog.open()">
+              <v-list-item v-if="chartSettings" @click="$refs.jsonPanelDialog.open()">
                 <v-list-item-title>View JSON panel</v-list-item-title>
               </v-list-item>
-              <v-list-item v-if="$refs.viewSamplesDrawer" @click="$refs.viewSamplesDrawer.open()">
+              <v-list-item v-if="chartSettings" @click="$refs.viewSamplesDrawer.open()">
                 <v-list-item-title>View samples</v-list-item-title>
               </v-list-item>
             </v-list>
@@ -71,7 +76,8 @@
         <v-card-text class="px-0 mx-0">
           <analytics-chart
             ref="analyticsChart"
-            :settings="chartSettings" />
+            :title="title"
+            :chart-type="chartType" />
         </v-card-text>
 
         <div v-if="displayComputingTime || displaySamplesCount" class="pl-4">
@@ -110,6 +116,12 @@ export default {
         return null;
       },
     },
+    retrieveMappingsURL: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
     retrieveFiltersURL: {
       type: String,
       default: function() {
@@ -138,6 +150,10 @@ export default {
   data: () => ({
     canEdit: false,
     scope: 'NONE',
+    title: null,
+    chartType: 'line',
+    displayComputingTime: false,
+    displaySamplesCount: false,
     selectedPeriod: null,
     userObjects: {},
     spaceObjects: {},
@@ -152,14 +168,35 @@ export default {
     chartSettings: null,
   }),
   computed: {
-    chartTitle() {
-      return this.chartSettings && this.chartSettings.title;
+    scopeColor() {
+      switch (this.scope) {
+      case 'NONE': return 'grey';
+      case 'GLOBAL': return 'purple';
+      case 'USER': return 'green';
+      case 'SPACE': return 'blue';
+      }
+      return null;
     },
-    displayComputingTime() {
-      return this.chartSettings && this.chartsData && this.chartSettings.displayComputingTime;
+    scopeTextColor() {
+      return `${this.scopeColor} lighten-5`;
     },
-    displaySamplesCount() {
-      return this.chartSettings && this.chartsData && this.chartSettings.displaySamplesCount;
+    scopeTitle() {
+      switch (this.scope) {
+      case 'NONE': return 'Permission denied';
+      case 'GLOBAL': return 'ALL Data';
+      case 'USER': return 'User data';
+      case 'SPACE': return 'Space data';
+      }
+      return null;
+    },
+    scopeTooltip() {
+      switch (this.scope) {
+      case 'NONE': return 'Permission denied';
+      case 'GLOBAL': return 'No data restriction';
+      case 'USER': return 'Data restriction: current user data only';
+      case 'SPACE': return 'Data restriction: current space data only';
+      }
+      return null;
     },
   },
   watch: {
@@ -176,6 +213,7 @@ export default {
       this.loading = true;
       return this.getSettings()
               .then(this.updateChart)
+              .then(this.getFilters)
               .finally(() => {
                 this.loading = false;
               });
@@ -189,12 +227,16 @@ export default {
           if (resp && resp.ok) {
             return resp.json();
           } else {
-            throw new Error(`Error getting analytics of ${JSON.stringify(this.settings)}`);
+            throw new Error(`Error getting analytics of chart '${this.title}'`);
           }
         })
         .then((settings) => {
-          this.canEdit = settings && settings.canEdit;
           this.scope = settings && settings.scope;
+          this.canEdit = settings && settings.canEdit;
+          this.chartType = settings && settings.chartType;
+          this.title = settings && settings.title;
+          this.displayComputingTime = settings && settings.displayComputingTime;
+          this.displaySamplesCount = settings && settings.displaySamplesCount;
         });
     },
     getFilters() {
@@ -212,13 +254,8 @@ export default {
             throw new Error(`Error getting analytics of ${JSON.stringify(this.settings)}`);
           }
         })
-        .then((preferences) => {
-          try {
-            this.chartSettings = preferences && preferences.settings && JSON.parse(preferences.settings);
-          } catch(e) {
-            console.debug('Error parsing setting', preferences);
-            this.chartSettings = {};
-          }
+        .then((settings) => {
+          this.chartSettings = settings;
           if (!this.chartSettings) {
             this.chartSettings = {
               filters: [],
@@ -271,15 +308,16 @@ export default {
       this.loading = true;
       const params = {
         lang: eXo.env.portal.language,
+        min: this.selectedPeriod.min,
+        max: this.selectedPeriod.max,
       };
-      if (this.selectedPeriod) {
-        params.min = this.selectedPeriod.min;
-        params.max = this.selectedPeriod.max;
-      }
       return fetch(this.retrieveChartDataURL, {
-        method: 'GET',
+        method: 'POST',
         credentials: 'include',
-        body: $.params(params),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: $.param(params),
       })
         .then((resp) => {
           if (resp && resp.ok) {

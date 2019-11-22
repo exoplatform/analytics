@@ -3,16 +3,19 @@
 <portlet:defineObjects />
 
 <portlet:resourceURL var="retrieveSettingsURL">
-  <jsp:param name="operation" value="GET_SETTINGS"/>
+  <portlet:param name="operation" value="GET_SETTINGS"/>
+</portlet:resourceURL>
+<portlet:resourceURL var="retrieveMappingsURL">
+  <portlet:param name="operation" value="GET_MAPPINGS"/>
 </portlet:resourceURL>
 <portlet:resourceURL var="retrieveFiltersURL">
-  <jsp:param name="operation" value="GET_FILTERS"/>
+  <portlet:param name="operation" value="GET_FILTERS"/>
 </portlet:resourceURL>
 <portlet:resourceURL var="retrieveChartDataURL">
-  <jsp:param name="operation" value="GET_CHART_DATA"/>
+  <portlet:param name="operation" value="GET_CHART_DATA"/>
 </portlet:resourceURL>
 <portlet:resourceURL var="retrieveChartSamplesURL">
-  <jsp:param name="operation" value="GET_CHART_SAMPLES_DATA"/>
+  <portlet:param name="operation" value="GET_CHART_SAMPLES_DATA"/>
 </portlet:resourceURL>
 <portlet:actionURL var="saveSettingsURL" />
 
@@ -21,6 +24,7 @@
   <div class="analytics-app-parent"
     data-id="<%= generatedId %>"
     data-settings-url="<%=retrieveSettingsURL%>"
+    data-mappings-url="<%=retrieveMappingsURL%>"
     data-filters-url="<%=retrieveFiltersURL%>"
     data-chart-data-url="<%=retrieveChartDataURL%>"
     data-chart-samples-url="<%=retrieveChartSamplesURL%>"

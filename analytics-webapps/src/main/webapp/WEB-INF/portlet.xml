@@ -23,15 +23,27 @@
         <name>settings</name>
         <value>
           {
-            "title": "Chart title",
-            "xAxisAggregations": [],
-            "yAxisAggregations": {},
-            "filters": [],
-            "chartType":"bar",
-            "offset": 0,
-            "limit": 10,
-            "displayComputingTime": true,
-            "displaySamplesCount": true
+            "title":"Chart title",
+            "chartType":"line",
+            "filters":[],
+            "xAxisAggregations":[
+              {
+                "interval":"day",
+                "sortDirection":"asc",
+                "field":"timestamp",
+                "type":"DATE"
+              }
+            ],
+            "yAxisAggregation":{
+              "interval":null,
+              "sortDirection":null,
+              "field":null,
+              "type":"COUNT"
+            },
+            "displayComputingTime":true,
+            "displaySamplesCount":true,
+            "multipleCharts":false,
+            "multipleChartsField":null
           }
         </value>
       </preference>

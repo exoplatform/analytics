@@ -26,6 +26,7 @@ if (!window.loadingAnalytics) {
       $('.analytics-app-parent').each((index, elem) => {
         const dataId = $(elem).attr('data-id');
         const retrieveSettingsURL = $(elem).attr('data-settings-url');
+        const retrieveMappingsURL = $(elem).attr('data-mappings-url');
         const retrieveFiltersURL = $(elem).attr('data-filters-url');
         const retrieveChartDataURL = $(elem).attr('data-chart-data-url');
         const retrieveChartSamplesURL = $(elem).attr('data-settings-url');
@@ -35,6 +36,7 @@ if (!window.loadingAnalytics) {
           render: h => h(Analytics, {
             props:{
               retrieveSettingsURL : retrieveSettingsURL,
+              retrieveMappingsURL : retrieveMappingsURL,
               retrieveFiltersURL : retrieveFiltersURL,
               retrieveChartDataURL : retrieveChartDataURL,
               retrieveChartSamplesURL : retrieveChartSamplesURL,

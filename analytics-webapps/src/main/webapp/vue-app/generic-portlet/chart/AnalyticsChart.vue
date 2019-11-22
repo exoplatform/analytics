@@ -4,8 +4,14 @@
 <script>
 export default {
   props: {
-    settings: {
-      type: Object,
+    chartType: {
+      type: String,
+      default: function() {
+        return 'line';
+      },
+    },
+    title: {
+      type: String,
       default: function() {
         return null;
       },
@@ -27,7 +33,6 @@ export default {
     init(chartsData) {
       const charts = (chartsData && chartsData.charts) || [];
       const labels = (chartsData && chartsData.labels) || [];
-      const chartType = this.settings && this.settings.chartType || 'line';
 
       const $container = $(`#${this.id}`);
       if (!$container.length) {
@@ -38,13 +43,12 @@ export default {
       const series = [];
       const chartOptions = {
           title : {
-            text: this.settings.chartTitle,
             x: 'center'
           },
           series : series,
       };
 
-      if (chartType === 'line' || chartType === 'bar') {
+      if (this.chartType === 'line' || this.chartType === 'bar') {
         Object.assign(chartOptions, {
           tooltip: {
             trigger: 'axis',
@@ -61,7 +65,7 @@ export default {
             type : 'value'
           }],
         });
-        if (chartType === 'line') {
+        if (this.chartType === 'line') {
           chartOptions.xAxis[0].boundaryGap = false;
         } else {
           chartOptions.xAxis[0].axisTick = {alignWithLabel: true};
@@ -71,14 +75,14 @@ export default {
         }
         charts.forEach(chartData => {
           const serie = {
-            type: chartType,
+            type: this.chartType,
             data: chartData.values,
           };
 
           serie.name = chartData.chartLabel;
           series.push(serie);
         });
-      } else if (chartType === 'pie') {
+      } else if (this.chartType === 'pie') {
         chartOptions.tooltip = {
           trigger: 'item',
           formatter: "{b} : {c} ({d}%)"
@@ -102,7 +106,7 @@ export default {
           const xPos = parseInt((parseInt(index / (chartsDividerLength - 1)) + 1) * chartsPercentagePart) * 1.25;
           const yPos = parseInt((parseInt(index % (chartsDividerLength - 1)) + 1) * chartsPercentagePart);
           const serie = {
-            type: chartType,
+            type: this.chartType,
             radius : `${chartsPercentagePart + 5}%`,
             center: [`${xPos}%`, `${yPos}%`],
             data: chartDataValues,

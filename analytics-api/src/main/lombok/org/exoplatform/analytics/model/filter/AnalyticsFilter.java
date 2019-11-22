@@ -20,6 +20,14 @@ public class AnalyticsFilter implements Serializable {
 
   private static final long          serialVersionUID    = 5699550622069979910L;
 
+  private String                     title;
+
+  private String                     chartType;
+
+  private boolean                    displayComputingTime;
+
+  private boolean                    displaySamplesCount;
+
   private List<AnalyticsFieldFilter> filters             = new ArrayList<>();
 
   private String                     multipleChartsField = null;
@@ -80,10 +88,10 @@ public class AnalyticsFilter implements Serializable {
     }
   }
 
-  public void addRangeFilter(String field, double start, double end) {
+  public void addRangeFilter(String field, String start, String end) {
     AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field,
                                                                 RANGE,
-                                                                new Range(String.valueOf(start), String.valueOf(end)));
+                                                                new Range(start, end));
     this.filters.add(fieldFilter);
   }
 

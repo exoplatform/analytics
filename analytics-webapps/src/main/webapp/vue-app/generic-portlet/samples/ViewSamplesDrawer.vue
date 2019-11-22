@@ -136,37 +136,32 @@ export default {
       this.loadData();
     },
     loadData() {
-      this.loading = true;
-
-      const filters = this.chartSettings.filters.slice();
-      if (this.selectedPeriod) {
-        filters.push({
-          field: "timestamp",
-          type: "RANGE",
-          range: this.selectedPeriod,
-        });
+      if (!this.selectedPeriod) {
+        return;
       }
+      this.loading = true;
 
       let loadedChartData;
       this.loading = true;
       const params = {
         lang: eXo.env.portal.language,
+        min: this.selectedPeriod.min,
+        max: this.selectedPeriod.max,
         limit: this.limit,
       };
-      if (this.selectedPeriod) {
-        params.min = this.selectedPeriod.min;
-        params.max = this.selectedPeriod.max;
-      }
       return fetch(this.retrieveSamplesUrl, {
-        method: 'GET',
+        method: 'POST',
         credentials: 'include',
-        body: $.params(params),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: $.param(params),
       })
         .then((resp) => {
           if (resp && resp.ok) {
             return resp.json();
           } else {
-            throw new Error('Error getting analytics samples with filters:', filters);
+            throw new Error('Error getting analytics samples with filters:', params);
           }
         })
         .then((chartDatas) => loadedChartData = chartDatas)
