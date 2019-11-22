@@ -75,6 +75,7 @@ public class AnalyticsPortlet extends GenericPortlet {
     if (StringUtils.equals(operation, READ_SETTINGS_OPERATOPN)) {
       JSONObject jsonResponse = new JSONObject();
       addJSONParam(jsonResponse, "canEdit", canModifyChartSettings());
+      addJSONParam(jsonResponse, "scope", getSearchScope().name());
       response.setContentType("application/json");
       response.getWriter().write(jsonResponse.toString());
     } else if (StringUtils.equals(operation, READ_FILTERS_OPERATOPN)) {

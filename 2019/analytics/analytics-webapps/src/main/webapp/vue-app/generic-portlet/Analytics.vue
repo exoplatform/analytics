@@ -33,7 +33,7 @@
         <v-toolbar
           color="white"
           class="elevation-1">
-          <v-toolbar-title :title="chartTitle">{{ chartTitle }}</v-toolbar-title>
+          <v-toolbar-title :title="chartTitle">{{ chartTitle }} - Scope: {{ scope }}</v-toolbar-title>
           <v-spacer />
           <select-period v-model="selectedPeriod" />
           <v-menu open-on-hover>
@@ -137,6 +137,7 @@ export default {
   },
   data: () => ({
     canEdit: false,
+    scope: 'NONE',
     selectedPeriod: null,
     userObjects: {},
     spaceObjects: {},
@@ -193,6 +194,7 @@ export default {
         })
         .then((settings) => {
           this.canEdit = settings && settings.canEdit;
+          this.scope = settings && settings.scope;
         });
     },
     getFilters() {
