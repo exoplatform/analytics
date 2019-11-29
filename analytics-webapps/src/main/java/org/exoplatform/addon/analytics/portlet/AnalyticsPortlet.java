@@ -102,7 +102,11 @@ public class AnalyticsPortlet extends GenericPortlet {
 
       List<StatisticData> statisticDatas = getAnalyticsService().retrieveData(filter);
       List<JSONObject> objectMappings = statisticDatas.stream()
-                                                      .map(statisticData -> new JSONObject(statisticData))
+                                                      .map(statisticData -> {
+                                                        JSONObject object = new JSONObject(statisticData);
+                                                        object.remove("class");
+                                                        return object;
+                                                      })
                                                       .collect(Collectors.toList());
       JSONArray jsonArrayResponse = new JSONArray(objectMappings);
       response.setContentType("application/json");
