@@ -265,9 +265,23 @@ public class AnalyticsUtils {
     return getIdentityId(OrganizationIdentityProvider.NAME, username);
   }
 
-  public static long getIdentityId(String providerId, String remoteId) {
+  public static Identity getIdentity(String identityId) {
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getOrCreateIdentity(providerId, remoteId);
+    return identityManager.getIdentity(identityId, true);
+  }
+
+  public static long getIdentityId(String identityId) {
+    Identity identity = getIdentity(identityId);
+    return identity == null ? 0 : Long.parseLong(identity.getId());
+  }
+
+  public static Identity getIdentity(String providerId, String remoteId) {
+    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+    return identityManager.getOrCreateIdentity(providerId, remoteId);
+  }
+
+  public static long getIdentityId(String providerId, String remoteId) {
+    Identity identity = getIdentity(providerId, remoteId);
     return identity == null ? 0 : Long.parseLong(identity.getId());
   }
 

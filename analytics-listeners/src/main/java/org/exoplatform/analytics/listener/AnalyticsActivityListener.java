@@ -11,8 +11,10 @@ import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.activity.model.ActivityStream.Type;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
@@ -74,19 +76,41 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
     long modifierUserId = getUserIdentityId(activity.getPosterId());
 
     ActivityStream activityStream = activity.getActivityStream();
-    Type type = activityStream.getType();
-    boolean isSpace = type == Type.SPACE;
-    String streamProviderId = isSpace ? SpaceIdentityProvider.NAME : OrganizationIdentityProvider.NAME;
-    String streamRemoteId = activityStream.getPrettyId();
-    long streamIdentityId = getIdentityId(streamProviderId, streamRemoteId);
+    if ((activityStream == null || activityStream.getType() == null || activityStream.getPrettyId() == null)
+        && StringUtils.isNotBlank(activity.getParentId())) {
+      ActivityManager activityManager = CommonsUtils.getService(ActivityManager.class);
+      ExoSocialActivity parentActivity = activityManager.getActivity(activity.getParentId());
+      activityStream = parentActivity.getActivityStream();
+    }
+
+    Identity streamIdentity = null;
+    if (activityStream == null) {
+      if (StringUtils.isNotBlank(activity.getPosterId())) {
+        streamIdentity = getIdentity(activity.getPosterId());
+      }
+    } else {
+      Type type = activityStream.getType();
+      boolean isSpace = type == Type.SPACE;
+      String streamProviderId = isSpace ? SpaceIdentityProvider.NAME : OrganizationIdentityProvider.NAME;
+      String streamRemoteId = activityStream.getPrettyId();
+      try {
+        streamIdentity = getIdentity(streamProviderId, streamRemoteId);
+      } catch (Exception e) {
+        streamIdentity = getIdentity(activityStream.getId());
+      }
+    }
     long spaceId = 0;
     long userId = 0;
-    if (isSpace) {
-      SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-      Space space = spaceService.getSpaceByPrettyName(streamRemoteId);
-      spaceId = space == null ? 0 : Long.parseLong(space.getId());
-    } else {
-      userId = streamIdentityId;
+    long streamIdentityId = 0;
+    if (streamIdentity != null) {
+      streamIdentityId = Long.parseLong(streamIdentity.getId());
+      if (StringUtils.equals(streamIdentity.getProviderId(), SpaceIdentityProvider.NAME)) {
+        SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+        Space space = spaceService.getSpaceByPrettyName(streamIdentity.getRemoteId());
+        spaceId = space == null ? 0 : Long.parseLong(space.getId());
+      } else {
+        userId = streamIdentityId;
+      }
     }
 
     StatisticData statisticData = new StatisticData();
@@ -102,9 +126,11 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
       statisticData.addParameter("activityId", activityId);
     }
     if (StringUtils.isNotBlank(commentId)) {
-      statisticData.addParameter("commentId", commentId);
+      commentId = commentId.replace("comment", "");
+      statisticData.addParameter("comment", commentId);
     }
     if (StringUtils.isNotBlank(subCommentId)) {
+      subCommentId = subCommentId.replace("comment", "");
       statisticData.addParameter("subCommentId", subCommentId);
     }
     return statisticData;

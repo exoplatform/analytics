@@ -89,6 +89,8 @@ public class StatisticDataProcessorService {
             markProcessorAsError(queueEntry, processorId);
           }
         });
+      } finally {
+        processorQueueEntries.forEach(queueEntry -> queueEntry.setAttemptCount((short) (queueEntry.getAttemptCount() + 1)));
       }
     }
   }
