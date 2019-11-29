@@ -73,7 +73,22 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
     String commentId = activity.getParentCommentId() == null ? activity.getId() : activity.getParentCommentId();
     String subCommentId = activity.getParentCommentId() == null ? null : activity.getId();
 
-    long modifierUserId = getUserIdentityId(activity.getPosterId());
+    long modifierUserId = 0;
+    if (StringUtils.isNotBlank(activity.getPosterId())) {
+      try {
+        long identityId = Long.parseLong(activity.getPosterId());
+        Identity identity = getIdentity(activity.getPosterId());
+        if (identity != null && StringUtils.equals(identity.getProviderId(), OrganizationIdentityProvider.NAME)) {
+          modifierUserId = identityId;
+        }
+      } catch (NumberFormatException e1) {
+        modifierUserId = getUserIdentityId(activity.getPosterId());
+      }
+    }
+
+    if (modifierUserId == 0) {
+      modifierUserId = getCurrentUserIdentityId();
+    }
 
     ActivityStream activityStream = activity.getActivityStream();
     if ((activityStream == null || activityStream.getType() == null || activityStream.getPrettyId() == null)
@@ -83,12 +98,11 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
       activityStream = parentActivity.getActivityStream();
     }
 
+    long spaceId = 0;
+    long userId = modifierUserId;
+    long streamIdentityId = 0;
     Identity streamIdentity = null;
-    if (activityStream == null) {
-      if (StringUtils.isNotBlank(activity.getPosterId())) {
-        streamIdentity = getIdentity(activity.getPosterId());
-      }
-    } else {
+    if (activityStream != null) {
       Type type = activityStream.getType();
       boolean isSpace = type == Type.SPACE;
       String streamProviderId = isSpace ? SpaceIdentityProvider.NAME : OrganizationIdentityProvider.NAME;
@@ -99,9 +113,7 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
         streamIdentity = getIdentity(activityStream.getId());
       }
     }
-    long spaceId = 0;
-    long userId = 0;
-    long streamIdentityId = 0;
+
     if (streamIdentity != null) {
       streamIdentityId = Long.parseLong(streamIdentity.getId());
       if (StringUtils.equals(streamIdentity.getProviderId(), SpaceIdentityProvider.NAME)) {
@@ -119,7 +131,9 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
     statisticData.setOperation(operation);
     statisticData.setSpaceId(spaceId);
     statisticData.setUserId(userId);
-    statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, modifierUserId);
+    if (modifierUserId > 0) {
+      statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, modifierUserId);
+    }
     statisticData.addParameter("streamIdentityId", streamIdentityId);
     statisticData.addParameter("activityType", activity.getType());
     if (StringUtils.isNotBlank(activityId)) {

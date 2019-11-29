@@ -56,7 +56,10 @@ public class UserAnalyticsEventListener extends NewUserEventListener {
     statisticData.setUserId(getUserIdentityId(user.getUserName()));
     statisticData.setDuration(getDuration());
     statisticData.addParameter("isEnabled", user.isEnabled());
-    statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, getCurrentUserIdentityId());
+    long currentUserIdentityId = getCurrentUserIdentityId();
+    if (currentUserIdentityId > 0) {
+      statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, currentUserIdentityId);
+    }
     return statisticData;
   }
 

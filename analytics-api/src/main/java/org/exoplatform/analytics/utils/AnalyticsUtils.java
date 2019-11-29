@@ -266,6 +266,9 @@ public class AnalyticsUtils {
   }
 
   public static Identity getIdentity(String identityId) {
+    if (StringUtils.isBlank(identityId)) {
+      return null;
+    }
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
     return identityManager.getIdentity(identityId, true);
   }
@@ -276,6 +279,9 @@ public class AnalyticsUtils {
   }
 
   public static Identity getIdentity(String providerId, String remoteId) {
+    if (StringUtils.isBlank(remoteId)) {
+      return null;
+    }
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
     return identityManager.getOrCreateIdentity(providerId, remoteId);
   }

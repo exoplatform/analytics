@@ -149,7 +149,9 @@ public class SpaceAnalyticsListener extends SpaceListenerPlugin {
     statisticData.setOperation(operation);
     statisticData.setSpaceId(spaceId);
     statisticData.setUserId(userId);
-    statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, modifierUserId);
+    if (modifierUserId > 0) {
+      statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, modifierUserId);
+    }
     statisticData.addParameter("spaceTemplate", space.getTemplate());
     return statisticData;
   }
