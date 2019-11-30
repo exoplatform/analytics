@@ -7,7 +7,7 @@
   </parent>
   <artifactId>analytics-webapps</artifactId>
   <packaging>war</packaging>
-  <name>eXo Add-on:: eXo Analytics - Application</name>
+  <name>eXo Analytics - Application</name>
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>

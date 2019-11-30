@@ -127,7 +127,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
       dayOfMonthAggregation.setType(AnalyticsAggregationType.COUNT);
       analyticsFilter.addXAxisAggregation(dayOfMonthAggregation);
 
-      ChartDataList chartDataList = analyticsService.compueChartData(analyticsFilter);
+      ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
       assertNotNull("Unexpected empty charts data", chartDataList);
       assertNotNull("Unexpected empty charts data size", chartDataList.getCharts());
       assertEquals("Unexpected empty charts data size", 1, chartDataList.getCharts().size());
@@ -165,7 +165,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
       dayOfMonthAggregation.setType(AnalyticsAggregationType.COUNT);
       analyticsFilter.addXAxisAggregation(dayOfMonthAggregation);
 
-      ChartDataList chartDataList = analyticsService.compueChartData(analyticsFilter);
+      ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
 
       assertNotNull("Unexpected empty charts data", chartDataList);
       Set<ChartData> charts = chartDataList.getCharts();
@@ -205,7 +205,7 @@ public class AnalyticsServiceTest extends BaseAnalyticsTest {
       monthIntervalAggregation.setInterval("month");
       analyticsFilter.addXAxisAggregation(monthIntervalAggregation);
 
-      ChartDataList chartDataList = analyticsService.compueChartData(analyticsFilter);
+      ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
 
       assertNotNull("Unexpected empty charts data", chartDataList);
       assertNotNull("Unexpected empty charts data list", chartDataList.getCharts());

@@ -6,7 +6,7 @@
     <version>1.0.x-SNAPSHOT</version>
   </parent>
   <artifactId>analytics-services</artifactId>
-  <name>eXo Add-on:: eXo Analytics - Services</name>
+  <name>eXo Analytics - Services</name>
   <properties>
     <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
   </properties>

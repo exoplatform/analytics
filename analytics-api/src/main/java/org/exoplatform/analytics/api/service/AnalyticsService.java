@@ -16,7 +16,7 @@ public interface AnalyticsService {
    * @param filter used search filters and aggregations to compute data
    * @return computed analytics chart data
    */
-  ChartDataList compueChartData(AnalyticsFilter filter);
+  ChartDataList computeChartData(AnalyticsFilter filter);
 
   /**
    * Retrieve data using search filters

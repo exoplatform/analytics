@@ -6,7 +6,7 @@
     <version>1.0.x-SNAPSHOT</version>
   </parent>
   <artifactId>analytics-listeners</artifactId>
-  <name>eXo Add-on:: eXo Analytics - Listeners</name>
+  <name>eXo Analytics - Listeners</name>
   <properties>
     <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
   </properties>

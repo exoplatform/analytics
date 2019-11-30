@@ -5,14 +5,14 @@
   <parent>
     <artifactId>addons-parent-pom</artifactId>
     <groupId>org.exoplatform.addons</groupId>
-    <version>9</version>
+    <version>10</version>
     <relativePath/>
   </parent>
   <groupId>org.exoplatform.addons.analytics</groupId>
   <artifactId>analytics-parent</artifactId>
   <version>1.0.x-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>eXo Add-on:: eXo Analytics - Parent POM</name>
+  <name>eXo Analytics - Parent POM</name>
   <description>eXo Analytics Addon</description>
   <modules>
     <module>analytics-api</module>
@@ -22,9 +22,9 @@
     <module>analytics-packaging</module>
   </modules>
   <scm>
-    <connection>scm:git:git://github.com/exoplatform/poc-sandbox.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/exoplatform/poc-sandbox.git</developerConnection>
-    <url>https://github.com/exoplatform/poc-sandbox</url>
+    <connection>scm:git:git://github.com/exoplatform/analytics.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/exoplatform/analytics.git</developerConnection>
+    <url>https://github.com/exoplatform/analytics</url>
     <tag>HEAD</tag>
   </scm>
   <properties>

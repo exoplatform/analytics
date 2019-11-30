@@ -1,6 +1,7 @@
 package org.exoplatform.analytics.queue.service;
 
-import java.util.*;
+import java.math.BigInteger;
+import java.util.List;
 import java.util.concurrent.*;
 
 import org.picocontainer.Startable;
@@ -14,23 +15,38 @@ import org.exoplatform.analytics.model.StatisticDataQueueEntry;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
+import org.exoplatform.services.cache.CacheService;
+import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 public class DummyStatisticDataQueueService implements StatisticDataQueueService, Startable {
-  private static final Log                   LOG                     = ExoLogger.getLogger(DummyStatisticDataQueueService.class);
 
-  private Map<Long, StatisticDataQueueEntry> statisticDatas          = Collections.synchronizedMap(new HashMap<>());
+  private static final Log                        LOG                        =
+                                                      ExoLogger.getLogger(DummyStatisticDataQueueService.class);
 
-  private StatisticDataProcessorService      statisticDataProcessorService;
+  private static final String                     ANALYTICS_QUEUE_CACHE_NAME = "analytics.queue";
 
-  private ScheduledExecutorService           queueProcessingExecutor = null;
+  private ExoCache<Long, StatisticDataQueueEntry> statisticQueueCache        = null;
 
-  private PortalContainer                    container               = null;
+  private StatisticDataProcessorService           statisticDataProcessorService;
 
-  public DummyStatisticDataQueueService(PortalContainer container, StatisticDataProcessorService statisticDataProcessorService) {
+  private ScheduledExecutorService                queueProcessingExecutor    = null;
+
+  private PortalContainer                         container                  = null;
+
+  private BigInteger                              totalExecutionTime         = BigInteger.ZERO;
+
+  private long                                    lastExecutionTime          = 0;
+
+  private long                                    executionCount             = 0;
+
+  public DummyStatisticDataQueueService(PortalContainer container,
+                                        StatisticDataProcessorService statisticDataProcessorService,
+                                        CacheService cacheService) {
     this.statisticDataProcessorService = statisticDataProcessorService;
     this.container = container;
+    this.statisticQueueCache = cacheService.getCacheInstance(ANALYTICS_QUEUE_CACHE_NAME);
 
     ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("Analytics-ingestor-%d").build();
     this.queueProcessingExecutor = Executors.newSingleThreadScheduledExecutor(namedThreadFactory);
@@ -52,19 +68,22 @@ public class DummyStatisticDataQueueService implements StatisticDataQueueService
 
   @Override
   public void processQueue() {
-    if (this.statisticDatas.isEmpty()) {
-      return;
-    }
-    List<StatisticDataQueueEntry> queueEntries = new ArrayList<>(this.statisticDatas.values());
-    LOG.debug("Processing {} documents", queueEntries.size());
-    statisticDataProcessorService.process(queueEntries);
-    for (StatisticDataQueueEntry statisticDataQueueEntry : queueEntries) {
-      if (statisticDataQueueEntry.isProcessed()) {
-        this.statisticDatas.remove(statisticDataQueueEntry.getId());
+    this.executionCount++;
+    long startTime = System.currentTimeMillis();
+    try {
+      List<? extends StatisticDataQueueEntry> queueEntries = this.statisticQueueCache.getCachedObjects();
+      LOG.debug("Processing {} documents", queueEntries.size());
+      statisticDataProcessorService.process(queueEntries);
+      for (StatisticDataQueueEntry statisticDataQueueEntry : queueEntries) {
+        if (statisticDataQueueEntry.isProcessed()) {
+          this.statisticQueueCache.remove(statisticDataQueueEntry.getId());
+        }
       }
-    }
-    if (this.statisticDatas.size() > 0) {
-      LOG.warn("Queue has {} remaining documents not processed successfully", this.statisticDatas.size());
+    } catch (Exception e) {
+      LOG.error("Error while processing statistic documents from queue", e);
+    } finally {
+      this.lastExecutionTime = System.currentTimeMillis() - startTime;
+      this.totalExecutionTime = this.totalExecutionTime.add(BigInteger.valueOf(this.lastExecutionTime));
     }
   }
 
@@ -76,18 +95,36 @@ public class DummyStatisticDataQueueService implements StatisticDataQueueService
   @Override
   public void put(StatisticData data) {
     StatisticDataQueueEntry statisticDataQueueEntry = new StatisticDataQueueEntry(data);
-    this.statisticDatas.put(statisticDataQueueEntry.getId(), statisticDataQueueEntry);
+    this.statisticQueueCache.put(statisticDataQueueEntry.getId(), statisticDataQueueEntry);
   }
 
   @Override
   public StatisticData get(long id) {
-    StatisticDataQueueEntry statisticDataQueueEntry = statisticDatas.get(id);
+    StatisticDataQueueEntry statisticDataQueueEntry = statisticQueueCache.get(id);
     return statisticDataQueueEntry == null ? null : statisticDataQueueEntry.getStatisticData();
   }
 
   @Override
   public int queueSize() {
-    return this.statisticDatas.size();
+    return this.statisticQueueCache.getCacheSize();
   }
 
+  @Override
+  public long getAverageExecutionTime() {
+    // Avoid dividing by 0
+    if (this.executionCount < 2) {
+      return this.totalExecutionTime.longValue();
+    }
+    return this.totalExecutionTime.divide(BigInteger.valueOf(this.executionCount)).longValue();
+  }
+
+  @Override
+  public long getExecutionCount() {
+    return executionCount;
+  }
+
+  @Override
+  public long getLastExecutionTime() {
+    return lastExecutionTime;
+  }
 }

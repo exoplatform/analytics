@@ -31,4 +31,19 @@ public interface StatisticDataQueueService {
    * Retrieve queue elements and process them
    */
   void processQueue();
+
+  /**
+   * @return average queue processing execution time
+   */
+  long getAverageExecutionTime();
+
+  /**
+   * @return queue processing operation exectuion count
+   */
+  long getExecutionCount();
+
+  /**
+   * @return latest operation queue processing execution time
+   */
+  long getLastExecutionTime();
 }

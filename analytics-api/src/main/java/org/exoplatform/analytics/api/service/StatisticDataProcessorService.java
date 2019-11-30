@@ -27,7 +27,7 @@ public class StatisticDataProcessorService {
     return this.dataProcessorPlugins;
   }
 
-  public void process(List<StatisticDataQueueEntry> queueEntries) {
+  public void process(List<? extends StatisticDataQueueEntry> queueEntries) {
     if (queueEntries == null || queueEntries.isEmpty()) {
       return;
     }
@@ -40,14 +40,14 @@ public class StatisticDataProcessorService {
       int index = 0;
       do {
         int toIndex = Math.min(entriesCount, index + MAX_BULK_DOCUMENTS);
-        List<StatisticDataQueueEntry> subList = queueEntries.subList(index, toIndex);
+        List<? extends StatisticDataQueueEntry> subList = queueEntries.subList(index, toIndex);
         process(subList);
         index = toIndex;
       } while (index < entriesCount);
       return;
     }
 
-    Iterator<StatisticDataQueueEntry> queueEntriesIterator = queueEntries.iterator();
+    Iterator<? extends StatisticDataQueueEntry> queueEntriesIterator = queueEntries.iterator();
     while (queueEntriesIterator.hasNext()) {
       StatisticDataQueueEntry statisticDataQueueEntry = queueEntriesIterator.next();
       if (statisticDataQueueEntry.isProcessed()

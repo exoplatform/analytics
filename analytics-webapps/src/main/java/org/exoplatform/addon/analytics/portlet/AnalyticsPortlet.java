@@ -117,7 +117,7 @@ public class AnalyticsPortlet extends GenericPortlet {
       addScopeFilter(portletSession, filter);
       addLanguageFilter(request, filter);
 
-      Object result = getAnalyticsService().compueChartData(filter);
+      Object result = getAnalyticsService().computeChartData(filter);
       response.setContentType("application/json");
       response.getWriter().write(AnalyticsUtils.toJsonString(result));
     }

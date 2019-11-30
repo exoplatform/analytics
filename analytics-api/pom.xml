@@ -6,7 +6,7 @@
     <version>1.0.x-SNAPSHOT</version>
   </parent>
   <artifactId>analytics-api</artifactId>
-  <name>eXo Add-on:: eXo Analytics - API</name>
+  <name>eXo Analytics - API</name>
   <properties>
     <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
   </properties>

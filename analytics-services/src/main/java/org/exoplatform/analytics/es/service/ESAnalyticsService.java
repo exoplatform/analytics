@@ -82,13 +82,9 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       try {
         retrieveMapping(true);
       } catch (Throwable e) {
-        if (LOG.isDebugEnabled()) {
-          LOG.warn("Error while checking connection status to Etherreum Websocket endpoint", e);
-        } else {
-          LOG.warn("Error while checking connection status to Etherreum Websocket endpoint: {}", e.getMessage());
-        }
+        LOG.warn("Error while getting mapping from elasticsearch", e);
       }
-    }, 0, 2, TimeUnit.MINUTES);
+    }, 1, 2, TimeUnit.MINUTES);
   }
 
   @Override
@@ -137,7 +133,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   @Override
-  public ChartDataList compueChartData(AnalyticsFilter filter) {
+  public ChartDataList computeChartData(AnalyticsFilter filter) {
     if (filter == null) {
       throw new IllegalArgumentException("Filter is mandatory");
     }
@@ -151,14 +147,14 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
     String esQueryString = esQuery.toString();
     esQueryString = fixJSONStringFormat(esQueryString);
-    LOG.debug("ES query to compute chart data with filter {} \n{}", filter, esQueryString);
+    LOG.debug("ES query to compute chart data with filter :{} . Query: {}", filter, esQueryString);
 
     String jsonResponse = this.esClient.sendRequest(esQueryString);
     try {
       return buildChartDataFromESResponse(filter, jsonResponse);
     } catch (JSONException e) {
-      throw new IllegalStateException("Error parsing results with \n - filter: " + filter + "\n - query: " + esQueryString
-          + "\n - response: " + jsonResponse, e);
+      throw new IllegalStateException("Error parsing results with - filter: " + filter + " - query: " + esQueryString
+          + " - response: " + jsonResponse, e);
     }
   }
 
@@ -168,7 +164,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
     String esQueryString = esQuery.toString();
     esQueryString = fixJSONStringFormat(esQueryString);
-    LOG.debug("ES query to compute search count with filter {}: \n{}", searchFilter, esQueryString);
+    LOG.debug("ES query to compute search count with filter {}: {}", searchFilter, esQueryString);
 
     String jsonResponse = this.esClient.sendRequest(esQueryString);
     try {
@@ -184,7 +180,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   private void buildAnalyticsQuery(AnalyticsFilter analyticsFilter, boolean retrieveUsedTuples, StringBuilder esQuery) {
-    esQuery.append("{\n");
+    esQuery.append("{");
     buildSearchFilterQuery(esQuery,
                            analyticsFilter.getFilters(),
                            null,
@@ -217,7 +213,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       sortFields.add(new AnalyticsSortField("timestamp", "desc"));
     }
     StringBuilder esQuery = new StringBuilder();
-    esQuery.append("{\n");
+    esQuery.append("{");
     buildSearchFilterQuery(esQuery,
                            filters,
                            sortFields,
@@ -244,12 +240,12 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       }
     } else {
       if (offset > 0) {
-        esQuery.append("     \"from\" : ").append(offset).append(",\n");
+        esQuery.append("     \"from\" : ").append(offset).append(",");
       }
       if (limit <= 0 || limit > Integer.MAX_VALUE) {
         limit = 10000;
       }
-      esQuery.append("     \"size\" : ").append(limit).append(",\n");
+      esQuery.append("     \"size\" : ").append(limit).append(",");
     }
 
     if (useSort) {
@@ -293,10 +289,10 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     }
     filters.add(ES_TYPE_FILTER);
 
-    esQuery.append(",\n");
-    esQuery.append("    \"query\": {\n");
-    esQuery.append("      \"bool\" : {\n");
-    esQuery.append("        \"must\" : [\n");
+    esQuery.append(",");
+    esQuery.append("    \"query\": {");
+    esQuery.append("      \"bool\" : {");
+    esQuery.append("        \"must\" : [");
     for (AnalyticsFieldFilter fieldFilter : filters) {
       String field = fieldFilter.getField();
       StatisticFieldMapping fieldMapping = this.esMappings.get(field);
@@ -308,19 +304,19 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                .append("field")
                .append("\" : \"")
                .append(field)
-               .append("\"      }},\n");
+               .append("\"      }},");
         break;
       case IS_NULL:
         esQuery.append("        {\"bool\": {\"must_not\": {\"exists\": {\"field\": \"")
                .append(field)
-               .append("\"      }}}},\n");
+               .append("\"      }}}},");
         break;
       case EQUAL:
         esQuery.append("        {\"match\" : {\"")
                .append(field)
                .append("\" : ")
                .append(esQueryValue)
-               .append("        }},\n");
+               .append("        }},");
         break;
       case GREATER:
         esQuery.append("        {\"range\" : {\"")
@@ -328,7 +324,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                .append("\" : {")
                .append("\"gte\" : ")
                .append(esQueryValue)
-               .append("        }}},\n");
+               .append("        }}},");
         break;
       case LESS:
         esQuery.append("        {\"range\" : {\"")
@@ -336,7 +332,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                .append("\" : {")
                .append("\"lte\" : ")
                .append(esQueryValue)
-               .append("        }}},\n");
+               .append("        }}},");
         break;
       case RANGE:
         Range range = fieldFilter.getRange();
@@ -347,22 +343,22 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                .append(range.getMin())
                .append(",\"lte\" : ")
                .append(range.getMax())
-               .append("        }}},\n");
+               .append("        }}},");
         break;
       case IN_SET:
         esQuery.append("        {\"terms\" : {\"")
                .append(field)
                .append("\" : ")
                .append(collectionToJSONString(fieldFilter.getValueString()))
-               .append("        }},\n");
+               .append("        }},");
         break;
       default:
         break;
       }
     }
-    esQuery.append("        ],\n");
-    esQuery.append("      },\n");
-    esQuery.append("     },\n");
+    esQuery.append("        ],");
+    esQuery.append("      },");
+    esQuery.append("     },");
   }
 
   private void buildAggregationQuery(StringBuilder esQuery,
@@ -561,7 +557,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
         esMappings.put(key, fieldMapping);
       }
     } catch (JSONException e) {
-      LOG.error("Error reading ES mapped fields");
+      LOG.error("Error reading ES mapped fields", e);
     }
   }
 

@@ -39,6 +39,10 @@
     <type>org.exoplatform.analytics.api.service.StatisticDataProcessorService</type>
   </component>
 
+  <component>
+    <type>org.exoplatform.analytics.api.service.ManagedStatisticDataQueueService</type>
+  </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.analytics.api.service.StatisticDataProcessorService</target-component>
     <component-plugin>
