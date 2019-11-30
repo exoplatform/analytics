@@ -419,7 +419,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     int level = filter.isMultipleCharts() ? -1 : 0;
     AnalyticsAggregation multipleChartsAggregation = filter.getMultipleChartsAggregation();
     computeAggregatedResultEntry(filter, aggregations, chartsData, multipleChartsAggregation, null, null, level);
-    chartsData.checkResults();
+    addEmptyResultsToNotExistingEntries(chartsData);
     return chartsData;
   }
 
@@ -571,6 +571,26 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                        ES_SCOPE,
                        ES_AGGREGATED_MAPPING,
                        SettingValue.create(jsonObject.toString()));
+  }
+
+  private void addEmptyResultsToNotExistingEntries(ChartDataList chartsData) {
+    LinkedHashSet<ChartAggregationLabel> aggregationLabels = chartsData.getAggregationLabels();
+    int index = 0;
+    Iterator<ChartAggregationLabel> iterator = aggregationLabels.iterator();
+    while (iterator.hasNext()) {
+      ChartAggregationLabel chartAggregationLabel = iterator.next();
+      // Placeholder result to add to charts not having results retrieved from
+      // ES
+      ChartAggregationResult emptyResult = new ChartAggregationResult(chartAggregationLabel,
+                                                                      chartAggregationLabel.getLabel(),
+                                                                      null);
+      LinkedHashSet<ChartData> charts = chartsData.getCharts();
+      for (ChartData chartData : charts) {
+        // Add empty result if not exists on chart at exact same index
+        chartData.addAggregationResult(emptyResult, index, false);
+      }
+      index++;
+    }
   }
 
 }

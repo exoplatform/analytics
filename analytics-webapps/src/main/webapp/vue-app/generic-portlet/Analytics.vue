@@ -148,7 +148,8 @@ export default {
   },
   data: () => ({
     canEdit: false,
-    scope: 'NONE',
+    error: null,
+    scope: null,
     title: null,
     chartType: 'line',
     displayComputingTime: false,
@@ -174,7 +175,7 @@ export default {
       case 'USER': return 'green';
       case 'SPACE': return 'blue';
       }
-      return null;
+      return this.error && 'red';
     },
     scopeTextColor() {
       return `${this.scopeColor} lighten-5`;
@@ -186,7 +187,7 @@ export default {
       case 'USER': return 'User data';
       case 'SPACE': return 'Space data';
       }
-      return null;
+      return this.error;
     },
     scopeTooltip() {
       switch (this.scope) {
@@ -236,6 +237,10 @@ export default {
           this.title = settings && settings.title;
           this.displayComputingTime = settings && settings.displayComputingTime;
           this.displaySamplesCount = settings && settings.displaySamplesCount;
+        })
+        .catch((e) => {
+          console.warn('Error retrieving chart filters', e);
+          this.error = 'Error retrieving chart filters';
         });
     },
     getFilters() {
@@ -270,6 +275,10 @@ export default {
           if (!this.chartSettings.yAxisAggregation) {
             this.chartSettings.yAxisAggregation = {};
           }
+        })
+        .catch((e) => {
+          console.warn('Error retrieving chart filters', e);
+          this.error = 'Error retrieving chart filters';
         });
     },
     saveSettings(chartSettings) {
@@ -291,13 +300,15 @@ export default {
           if (!resp || !resp.ok) {
             throw new Error('Error saving chart settings', this.chartSettings);
           }
-          return this.updateChart();
+          // Wait until portlet preferences store transaction gets really saved
+          // and gets available. (To DELETE once Portal RDBMS is merged) 
+          window.setTimeout(this.init, 100);
         })
         .catch((e) => {
           console.warn('Error saving chart settings', e);
           this.error = 'Error saving chart settings';
-        })
-        .finally(() => this.loading = false);
+          this.loading = false;
+        });
     },
     updateChart() {
       if (!this.selectedPeriod) {

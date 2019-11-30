@@ -13,17 +13,17 @@ import lombok.ToString;
 @ToString
 public class ChartDataList implements Serializable {
 
-  private static final long          serialVersionUID  = 5490607865795348987L;
+  private static final long                    serialVersionUID  = 5490607865795348987L;
 
-  private String                     lang;
+  private String                               lang;
 
-  private Set<ChartAggregationLabel> aggregationLabels = new LinkedHashSet<>();
+  private LinkedHashSet<ChartAggregationLabel> aggregationLabels = new LinkedHashSet<>();
 
-  private Set<ChartData>             charts            = new LinkedHashSet<>();
+  private LinkedHashSet<ChartData>             charts            = new LinkedHashSet<>();
 
-  private long                       computingTime;
+  private long                                 computingTime;
 
-  private long                       dataCount;
+  private long                                 dataCount;
 
   public ChartDataList(String lang) {
     this.lang = lang;
@@ -53,7 +53,7 @@ public class ChartDataList implements Serializable {
       chartData.setChartLabel(label);
       charts.add(chartData);
     }
-    chartData.addAggregationResult(aggregationResult, true);
+    chartData.addAggregationResult(aggregationResult, -1, true);
     return chartData;
   }
 
@@ -61,12 +61,4 @@ public class ChartDataList implements Serializable {
     return aggregationLabels.stream().map(result -> result.getLabel()).collect(Collectors.toList());
   }
 
-  public void checkResults() {
-    for (ChartAggregationLabel chartAggregationLabel : aggregationLabels) {
-      ChartAggregationResult emptyResult = new ChartAggregationResult(chartAggregationLabel,
-                                                                      chartAggregationLabel.getLabel(),
-                                                                      null);
-      charts.forEach(chartData -> chartData.addAggregationResult(emptyResult, false));
-    }
-  }
 }

@@ -22,6 +22,6 @@ public enum AnalyticsAggregationType {
   }
 
   public boolean allowSort() {
-    return this == COUNT;
+    return false;
   }
 }

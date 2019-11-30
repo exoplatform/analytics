@@ -98,7 +98,7 @@ public class AnalyticsPortlet extends GenericPortlet {
       addScopeFilter(portletSession, filter);
       addLanguageFilter(request, filter);
       addLimitFilter(request, filter);
-      addSortFilter(filter);
+      addSortFilter(filter, "desc");
 
       List<StatisticData> statisticDatas = getAnalyticsService().retrieveData(filter);
       List<JSONObject> objectMappings = statisticDatas.stream()
@@ -129,11 +129,11 @@ public class AnalyticsPortlet extends GenericPortlet {
     filter.setLang(lang);
   }
 
-  private void addSortFilter(AnalyticsFilter filter) {
+  private void addSortFilter(AnalyticsFilter filter, String direction) {
     List<AnalyticsAggregation> xAxisAggregations = filter.getXAxisAggregations();
     for (AnalyticsAggregation analyticsAggregation : xAxisAggregations) {
       if (StringUtils.equals(AnalyticsUtils.FIELD_TIMESTAMP, analyticsAggregation.getField())) {
-        analyticsAggregation.setSortDirection("desc");
+        analyticsAggregation.setSortDirection(direction);
       }
     }
   }

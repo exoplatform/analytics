@@ -27,13 +27,21 @@ public class ChartData implements Serializable {
                                                        : key.getAggregation().getField();
   }
 
-  public void addAggregationResult(ChartAggregationResult aggregationResult, boolean replaceIfExists) {
-    int index = aggregationResults.indexOf(aggregationResult);
-    if (index < 0) {
-      aggregationResults.add(aggregationResult);
+  public void addAggregationResult(ChartAggregationResult aggregationResult, int index, boolean replaceIfExists) {
+    int existingIndex = aggregationResults.indexOf(aggregationResult);
+    if (existingIndex < 0) {
+      if (index < 0) {
+        aggregationResults.add(aggregationResult);
+      } else {
+        aggregationResults.add(index, aggregationResult);
+      }
     } else if (replaceIfExists) {
       aggregationResults.remove(index);
-      aggregationResults.add(aggregationResult);
+      if (index < 0) {
+        aggregationResults.add(aggregationResult);
+      } else {
+        aggregationResults.add(index, aggregationResult);
+      }
     }
   }
 

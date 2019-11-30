@@ -28,12 +28,17 @@
     </dependency>
     <dependency>
       <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-search</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.commons</groupId>
       <artifactId>commons-comet-service</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.social</groupId>
-      <artifactId>social-component-core-jpa</artifactId>
+      <artifactId>social-component-core</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
