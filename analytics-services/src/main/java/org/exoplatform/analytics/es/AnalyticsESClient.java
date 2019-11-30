@@ -108,7 +108,7 @@ public class AnalyticsESClient extends ElasticClient {
       indexesToUpdate.add(index);
     }
 
-    LOG.debug("Create documents request to ES: \n {}", request);
+    LOG.debug("Create documents request to ES: {}", request);
     String indexDocumentURL = urlClient + "/_bulk";
     sendHttpPutRequest(indexDocumentURL, request.toString());
 
@@ -151,7 +151,7 @@ public class AnalyticsESClient extends ElasticClient {
     String url = urlClient + "/" + esIndex + "/_mapping";
     ElasticResponse response = sendHttpGetRequest(url);
     if (ElasticIndexingAuditTrail.isError(response.getStatusCode())) {
-      LOG.warn("Error getting mapping of analytics : - \n\t\tcode : {} - \n\t\tmessage: {}",
+      LOG.warn("Error getting mapping of analytics : - \t\tcode : {} - \t\tmessage: {}",
                response.getStatusCode(),
                response.getMessage());
       return null;

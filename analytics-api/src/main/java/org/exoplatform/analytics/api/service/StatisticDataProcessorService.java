@@ -74,7 +74,7 @@ public class StatisticDataProcessorService {
         processorQueueEntries.forEach(queueEntry -> markProcessorAsSuccess(queueEntry, processorId, dataProcessorPlugins));
       } catch (Exception e) {
         if (LOG.isDebugEnabled()) {
-          LOG.warn("Error processing queue entries: \n {}\n, try to process entries one by one.", processorQueueEntries, e);
+          LOG.warn("Error processing queue entries: {}, try to process entries one by one.", processorQueueEntries, e);
         } else {
           LOG.warn("Error processing queue entries, try to process entries one by one.", e);
         }
