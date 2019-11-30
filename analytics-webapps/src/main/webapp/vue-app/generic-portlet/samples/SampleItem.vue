@@ -24,6 +24,12 @@
                 class="text-truncate">
                 Space:  <profile-chip :identity="spaceIdentity" />
               </v-col>
+              <v-col
+                v-else-if="chartData.operation"
+                cols="6"
+                class="text-truncate">
+                Operation:  <strong>{{ chartData.operation }}</strong>
+              </v-col>
             </v-row>
           </v-fade-transition>
         </v-col>
