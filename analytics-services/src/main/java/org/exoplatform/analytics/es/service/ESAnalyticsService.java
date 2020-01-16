@@ -27,6 +27,9 @@ import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -79,10 +82,15 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     // Can't be job, because the mapping retrival must be executed on each
     // cluster node
     esMappingUpdater.scheduleAtFixedRate(() -> {
+      PortalContainer container = PortalContainer.getInstance();
+      ExoContainerContext.setCurrentContainer(container);
+      RequestLifeCycle.begin(container);
       try {
         retrieveMapping(true);
       } catch (Throwable e) {
         LOG.warn("Error while getting mapping from elasticsearch", e);
+      } finally {
+        RequestLifeCycle.end();
       }
     }, 1, 2, TimeUnit.MINUTES);
   }
