@@ -185,11 +185,15 @@ public class AnalyticsUtils {
       }
     } else {
       IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-      Identity identity = identityManager.getIdentity(chartValue, true);
-      if (identity == null) {
+      if (identityManager == null) {
         return defaultLabel;
       } else {
-        return identity.getProfile().getFullName();
+        Identity identity = identityManager.getIdentity(chartValue, true);
+        if (identity == null) {
+          return defaultLabel;
+        } else {
+          return identity.getProfile().getFullName();
+        }
       }
     }
   }

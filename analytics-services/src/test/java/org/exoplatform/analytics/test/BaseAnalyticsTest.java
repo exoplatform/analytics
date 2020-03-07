@@ -48,7 +48,13 @@ public abstract class BaseAnalyticsTest {
 
   @Before
   public void beforeTestMethod() {
-    RequestLifeCycle.begin(container);
+    try {
+      ExoContainerContext.setCurrentContainer(container);
+      RequestLifeCycle.begin(container);
+      analyticsService.retrieveMapping(true);
+    } catch (Exception e) {
+      LOG.error("Error starting container", e);
+    }
   }
 
   @After
