@@ -8,6 +8,8 @@
   <artifactId>analytics-services</artifactId>
   <name>eXo Analytics - Services</name>
   <properties>
+    <!-- Only integration tests with ES exists, No unit tests -->
+    <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
     <org.elasticsearch.version>5.6.11</org.elasticsearch.version>
   </properties>
   <dependencies>
@@ -108,21 +110,11 @@
     </plugins>
   </build>
   <profiles>
-
-    <profile>
-      <id>defaut-profile</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <!-- No unit tests only integration tests with ES -->
-        <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
-      </properties>
-    </profile>
     <profile>
       <id>run-its</id>
       <properties>
-        <exo.test.coverage.ratio>0.75</exo.test.coverage.ratio>
+        <!-- No unit tests only integration tests with ES, but integration coverage is not correctly integrated with jacoco -->
+        <!--exo.test.coverage.ratio>0.75</exo.test.coverage.ratio-->
       </properties>
       <build>
         <pluginManagement>
