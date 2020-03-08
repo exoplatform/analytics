@@ -16,6 +16,16 @@
 
   <component>
       <type>org.exoplatform.analytics.es.injection.AnalyticsDataInjector</type>
+      <init-params>
+        <value-param>
+          <name>enabled</name>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>file.path</name>
+          <value>jar:/analytics-data.json</value>
+        </value-param>
+      </init-params>
   </component>
 
   <component>

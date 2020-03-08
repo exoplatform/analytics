@@ -33,20 +33,12 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
-  private static final String ANALYTICS_DATA_PATH = "jar:/analytics-data.json";                       // NOSONAR
 
-  private static final Log    LOG                 = ExoLogger.getLogger(AnalyticsServiceTestIT.class);
+  private static final Log LOG = ExoLogger.getLogger(AnalyticsServiceTestIT.class);
 
   @Test
   public void testAnalyticsInjection() {
     try {
-      assertFalse("Analytics data shouldn't be injected", analyticsDataInjector.isDataInjected());
-
-      analyticsDataInjector.setEnabled(true);
-      analyticsDataInjector.setStartupDataInjectionFilePath(ANALYTICS_DATA_PATH);
-      analyticsDataInjector.start();
-      assertTrue("Analytics data should be injected", analyticsDataInjector.isDataInjected());
-
       List<StatisticData> injectedDate = analyticsService.retrieveData(null);
       assertNotNull("Returned injected data is null", injectedDate);
       assertFalse("Returned injected data is empty", injectedDate.isEmpty());
@@ -59,8 +51,6 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
   @Test
   public void testRetrieveFieldsMapping() {
     try {
-      analyticsDataInjector.injectDataFromFile(ANALYTICS_DATA_PATH);
-
       Set<StatisticFieldMapping> fieldsMappings = analyticsService.retrieveMapping(true);
       assertNotNull("Returned fields mapping is null", fieldsMappings);
       assertFalse("Returned fields mapping is empty", fieldsMappings.isEmpty());
@@ -74,8 +64,6 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
   @Test
   public void testSearchAnalyticsData() {
     try {
-      analyticsDataInjector.injectDataFromFile(ANALYTICS_DATA_PATH);
-
       List<StatisticData> injectedDate = analyticsService.retrieveData(null);
       assertNotNull("Returned injected data is null", injectedDate);
       assertFalse("Returned injected data is empty", injectedDate.isEmpty());
@@ -99,8 +87,6 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
   @Test
   public void testGetAnalyticsChart() {
     try {
-      analyticsDataInjector.injectDataFromFile(ANALYTICS_DATA_PATH);
-
       List<StatisticData> injectedDate = analyticsService.retrieveData(null);
       assertNotNull("Returned injected data is null", injectedDate);
       assertFalse("Returned injected data is empty", injectedDate.isEmpty());
@@ -143,8 +129,6 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
   @Test
   public void testGetAnalyticsMultipleCharts() {
     try {
-      analyticsDataInjector.injectDataFromFile(ANALYTICS_DATA_PATH);
-
       List<StatisticData> injectedDate = analyticsService.retrieveData(null);
       assertNotNull("Returned injected data is null", injectedDate);
       assertFalse("Returned injected data is empty", injectedDate.isEmpty());
@@ -183,8 +167,6 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
   @Test
   public void testGetAnalyticsMultipleChartsByInterval() {
     try {
-      analyticsDataInjector.injectDataFromFile(ANALYTICS_DATA_PATH);
-
       List<StatisticData> injectedDate = analyticsService.retrieveData(null);
       assertNotNull("Returned injected data is null", injectedDate);
       assertFalse("Returned injected data is empty", injectedDate.isEmpty());

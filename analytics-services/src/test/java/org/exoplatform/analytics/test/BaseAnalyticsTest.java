@@ -23,8 +23,6 @@ public abstract class BaseAnalyticsTest {
 
   protected static StatisticDataQueueService analyticsQueueService;
 
-  protected static AnalyticsDataInjector     analyticsDataInjector;
-
   @BeforeClass
   public static void beforeTest() {
     try {
@@ -40,7 +38,9 @@ public abstract class BaseAnalyticsTest {
 
       analyticsService = getService(AnalyticsService.class);
       analyticsQueueService = getService(StatisticDataQueueService.class);
-      analyticsDataInjector = getService(AnalyticsDataInjector.class);
+
+      AnalyticsDataInjector analyticsDataInjector = getService(AnalyticsDataInjector.class);
+      analyticsDataInjector.waitInjection();
     } catch (Exception e) {
       LOG.error("Error starting container", e);
     }
