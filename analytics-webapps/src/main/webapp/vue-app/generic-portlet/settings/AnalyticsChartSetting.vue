@@ -2,12 +2,10 @@
   <v-dialog
     id="analyticsChartSettingsModal"
     v-model="dialog"
-    :attach="`#${parentId}`"
     content-class="uiPopup with-overflow"
     class="editChatSettings"
     width="750px"
     max-width="100vw"
-    persistent
     @keydown.esc="dialog = false">
     <v-card class="elevation-12">
       <div class="ignore-vuetify-classes popupHeader ClearFix">
@@ -93,12 +91,6 @@ export default {
     MultipleCharts,
   },
   props: {
-    parentId: {
-      type: String,
-      default: function() {
-        return null;
-      },
-    },
     retrieveMappingsUrl: {
       type: String,
       default: function() {

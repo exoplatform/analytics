@@ -7,7 +7,6 @@
       <analytics-chart-setting
         v-if="chartSettings"
         ref="chartSettingDialog"
-        :parent-id="modalParentId"
         :retrieve-mappings-url="retrieveMappingsURL"
         :settings="chartSettings"
         :users="userObjects"
@@ -17,13 +16,11 @@
       <json-panel-dialog
         v-if="chartSettings"
         ref="jsonPanelDialog"
-        :parent-id="modalParentId"
         :settings="chartSettings"
         class="mt-0" />
       <view-samples-drawer
         ref="viewSamplesDrawer"
         :title="title"
-        :parent-id="modalParentId"
         :selected-period="selectedPeriod"
         :users="userObjects"
         :spaces="spaceObjects"
@@ -88,7 +85,6 @@
           </div>
         </div>
       </v-card>
-      <div :id="modalParentId"></div>
     </main>
   </v-app>
 </template>
@@ -159,9 +155,6 @@ export default {
     spaceObjects: {},
     loading: true,
     appId: `AnalyticsApplication${parseInt(Math.random() * 10000)
-      .toString()
-      .toString()}`,
-    modalParentId: `analyticsModals${parseInt(Math.random() * 10000)
       .toString()
       .toString()}`,
     chartsData: {},

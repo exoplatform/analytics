@@ -2,11 +2,11 @@
   <v-dialog
     id="jsonChartSettingsModal"
     v-model="dialog"
-    :attach="`#${parentId}`"
     content-class="uiPopup with-overflow"
     class="editChatSettings"
     width="750px"
     max-width="100vw"
+    min-height="450px"
     persistent
     @keydown.esc="dialog = false">
     <v-card class="elevation-12">
@@ -23,6 +23,7 @@
       <v-card-text>
         <v-textarea
           v-model="settingJsonContent"
+          :row-height="15"
           class="jsonSetting"
           readonly />
       </v-card-text>
@@ -40,12 +41,6 @@
 <script>
 export default {
   props: {
-    parentId: {
-      type: String,
-      default: function() {
-        return null;
-      },
-    },
     settings: {
       type: Object,
       default: function() {

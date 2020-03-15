@@ -1,9 +1,9 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
-    :attach="`#${parentId}`"
-    fixed
+    absolute
     right
+    stateless
     temporary
     width="700"
     max-width="100vw"
@@ -61,12 +61,6 @@ export default {
     SampleItem,
   },
   props: {
-    parentId: {
-      type: String,
-      default: function() {
-        return null;
-      },
-    },
     selectedPeriod: {
       type: Object,
       default: function() {
@@ -119,10 +113,23 @@ export default {
       if (this.drawer) {
         $('body').addClass('hide-scroll');
         this.loadData();
+
+        this.$nextTick().then(() => {
+          $('.analytics-application .v-overlay').click(() => {
+            this.drawer = false;
+          });
+        });
       } else {
         $('body').removeClass('hide-scroll');
       }
     },
+  },
+  created() {
+    $(document).on('keydown', (event) => {
+      if (event.key === 'Escape') {
+        this.drawer = false;
+      }
+    });
   },
   methods: {
     open() {
