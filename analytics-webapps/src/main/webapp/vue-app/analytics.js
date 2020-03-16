@@ -3,8 +3,6 @@ import Vuetify from 'vuetify'
 
 import Analytics from './generic-portlet/Analytics.vue';
 
-import '../css/main.less';
-
 Vue.use(Vuetify);
 
 //To load all analytics applications in the same page only once

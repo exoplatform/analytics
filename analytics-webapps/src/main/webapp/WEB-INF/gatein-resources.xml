@@ -2,9 +2,9 @@
 
   <portal-skin>
     <skin-name>Enterprise</skin-name>
-    <skin-module>customModuleAnalytics</skin-module>
-    <css-path>/css/analytics.css</css-path>
-    <css-priority>100</css-priority>
+    <skin-module>analytics</skin-module>
+    <css-path>/skin/css/analytics.css</css-path>
+    <css-priority>200</css-priority>
   </portal-skin>
 
   <portlet>
