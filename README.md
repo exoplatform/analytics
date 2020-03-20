@@ -34,6 +34,7 @@ You can can change some options of the addon using properties that you can add i
 | VARIABLE               | MANDATORY | DEFAULT VALUE | DESCRIPTION                                                                               |
 |------------------------|-----------|---------------|-------------------------------------------------------------------------------------------|
 | exo.analytics.admin.permission        | NO        | *:/platform/analytics | Group of users that can modify Charts application settings. All other users, *even members of /platform/administrators* will not be able to modify charts settings |
+| exo.analytics.aggregation.terms.doc_size        | NO        | 200 | Limit of number of resturned documents in aggregations result of type 'terms' (not used for aggregations of type : sum, avg, date_histogram, histogram and cardinality) |
 | exo.addon.analytics.es.mapping.path | NO        | jar:/analytics-es-mapping.json             | Initial [ES mapping](https://github.com/exo-addons/analytics/blob/master/analytics-services/src/main/resources/analytics-es-mapping.json) that will be used to generate daily [ES index](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/mapping.html)   |
 | exo.cache.analytics.queue.MaxNodes | NO        | 2000             | Number of maximum entries in in-memory cached Analytics Queue that is processed each 10 seconds |
 | exo.cache.analytics.queue.TimeToLive | NO        | -1             | lifetime of entries in Analytics Queue. Default: infinite. |
