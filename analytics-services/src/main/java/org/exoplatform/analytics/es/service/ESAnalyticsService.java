@@ -36,24 +36,27 @@ import org.exoplatform.services.log.Log;
 
 public class ESAnalyticsService implements AnalyticsService, Startable {
 
-  private static final Log                   LOG                                   =
+  private static final Log                   LOG                                        =
                                                  ExoLogger.getLogger(ESAnalyticsService.class);
 
-  private static final String                ANALYTICS_ADMIN_PERMISSION_PARAM_NAME = "exo.analytics.admin.permission";
+  private static final String                ANALYTICS_ADMIN_PERMISSION_PARAM_NAME      = "exo.analytics.admin.permission";
 
-  private static final String                AGGREGATION_KEYS_SEPARATOR            = "-";
+  private static final String                RETURNED_AGGREGATION_DOCS_COUNT_PARAM_NAME =
+                                                                                        "exo.analytics.aggregation.terms.doc_size";
 
-  private static final String                AGGREGATION_RESULT_PARAM              = "aggregation_result";
+  private static final String                AGGREGATION_KEYS_SEPARATOR                 = "-";
 
-  private static final String                AGGREGATION_RESULT_VALUE_PARAM        = "aggregation_result_value";
+  private static final String                AGGREGATION_RESULT_PARAM                   = "aggregation_result";
 
-  private static final Context               CONTEXT                               = Context.GLOBAL.id("ANALYTICS");
+  private static final String                AGGREGATION_RESULT_VALUE_PARAM             = "aggregation_result_value";
 
-  private static final Scope                 ES_SCOPE                              = Scope.GLOBAL.id("elasticsearch");
+  private static final Context               CONTEXT                                    = Context.GLOBAL.id("ANALYTICS");
 
-  private static final String                ES_AGGREGATED_MAPPING                 = "ES_AGGREGATED_MAPPING";
+  private static final Scope                 ES_SCOPE                                   = Scope.GLOBAL.id("elasticsearch");
 
-  private static final AnalyticsFieldFilter  ES_TYPE_FILTER                        =
+  private static final String                ES_AGGREGATED_MAPPING                      = "ES_AGGREGATED_MAPPING";
+
+  private static final AnalyticsFieldFilter  ES_TYPE_FILTER                             =
                                                             new AnalyticsFieldFilter("isAnalytics",
                                                                                      AnalyticsFieldFilterType.EQUAL,
                                                                                      "true");
@@ -62,11 +65,13 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
   private SettingService                     settingService;
 
-  private Map<String, StatisticFieldMapping> esMappings                            = new HashMap<>();
+  private Map<String, StatisticFieldMapping> esMappings                                 = new HashMap<>();
 
-  private ScheduledExecutorService           esMappingUpdater                      = Executors.newScheduledThreadPool(1);
+  private ScheduledExecutorService           esMappingUpdater                           = Executors.newScheduledThreadPool(1);
 
   private String                             administratorsPermission;
+
+  private int                                aggregationReturnedDocumentsSize           = 200;
 
   public ESAnalyticsService(SettingService settingService, AnalyticsESClient esClient, InitParams params) {
     this.esClient = esClient;
@@ -74,6 +79,10 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
     if (params != null && params.containsKey(ANALYTICS_ADMIN_PERMISSION_PARAM_NAME)) {
       this.administratorsPermission = params.getValueParam(ANALYTICS_ADMIN_PERMISSION_PARAM_NAME).getValue();
+    }
+    if (params != null && params.containsKey(RETURNED_AGGREGATION_DOCS_COUNT_PARAM_NAME)) {
+      this.aggregationReturnedDocumentsSize = Integer.parseInt(params.getValueParam(RETURNED_AGGREGATION_DOCS_COUNT_PARAM_NAME)
+                                                                     .getValue());
     }
   }
 
@@ -390,6 +399,9 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
         esQuery.append("       \"").append(fieldName).append("\": {");
         esQuery.append("         \"").append(aggregationType.getName()).append("\": {");
         esQuery.append("           \"field\": \"").append(analyticsAggregation.getField()).append("\"");
+        if (AnalyticsAggregationType.COUNT == aggregationType) {
+          esQuery.append("           ,\"size\": ").append(aggregationReturnedDocumentsSize);
+        }
         if (aggregationType.isUseInterval()) {
           if (StringUtils.isBlank(analyticsAggregation.getInterval())) {
             throw new IllegalStateException("");

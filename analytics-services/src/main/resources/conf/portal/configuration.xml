@@ -13,6 +13,10 @@
         <name>exo.analytics.admin.permission</name>
         <value>${exo.analytics.admin.permission:*:/platform/analytics}</value>
       </value-param>
+      <value-param>
+        <name>exo.analytics.aggregation.terms.doc_size</name>
+        <value>${exo.analytics.aggregation.terms.doc_size:200}</value>
+      </value-param>
     </init-params>
   </component>
 
