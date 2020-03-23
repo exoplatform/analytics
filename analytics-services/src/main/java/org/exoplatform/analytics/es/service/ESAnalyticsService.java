@@ -101,7 +101,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       RequestLifeCycle.begin(container);
       try {
         retrieveMapping(true);
-      } catch (Throwable e) {
+      } catch (Exception e) {
         LOG.warn("Error while getting mapping from elasticsearch", e);
       } finally {
         RequestLifeCycle.end();
