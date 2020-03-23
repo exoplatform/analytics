@@ -15,6 +15,7 @@ import org.json.*;
 import org.exoplatform.analytics.api.service.StatisticDataQueueService;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticData.StatisticStatus;
+import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -76,10 +77,6 @@ public class AnalyticsUtils {
                                                                                          FIELD_TIMESTAMP);
 
   public static final String            ES_ANALYTICS_PROCESSOR_ID        = "exo.addon.analytics.processor.es";
-
-  public static final JsonParser        JSON_PARSER                      = new JsonParserImpl();
-
-  public static final JsonGenerator     JSON_GENERATOR                   = new JsonGeneratorImpl();
 
   private static final Pattern          JSON_CLEANER_REPLACEMENT_PATTERN = Pattern.compile("([\\]}]+),([\\]}]+)");
 
@@ -163,7 +160,7 @@ public class AnalyticsUtils {
 
   public static final String toJsonString(Object object) {
     try {
-      return JSON_GENERATOR.createJsonObject(object).toString();
+      return new JsonGeneratorImpl().createJsonObject(object).toString();
     } catch (JsonException e) {
       throw new IllegalStateException("Error parsing object to string " + object, e);
     }
@@ -204,7 +201,7 @@ public class AnalyticsUtils {
         return null;
       }
       JsonDefaultHandler jsonDefaultHandler = new JsonDefaultHandler();
-      JSON_PARSER.parse(new ByteArrayInputStream(value.getBytes()), jsonDefaultHandler);
+      new JsonParserImpl().parse(new ByteArrayInputStream(value.getBytes()), jsonDefaultHandler);
       return ObjectBuilder.createObject(resultClass, jsonDefaultHandler.getJsonObject());
     } catch (JsonException e) {
       throw new IllegalStateException("Error creating object from string : " + value, e);
@@ -326,5 +323,4 @@ public class AnalyticsUtils {
                                                      TimeZone.getDefault().toZoneId());
     return dateTime.format(DATE_FORMATTER);
   }
-
 }
