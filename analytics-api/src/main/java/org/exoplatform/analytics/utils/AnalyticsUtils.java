@@ -15,7 +15,6 @@ import org.json.*;
 import org.exoplatform.analytics.api.service.StatisticDataQueueService;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticData.StatisticStatus;
-import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -26,8 +25,6 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.ws.frameworks.json.JsonGenerator;
-import org.exoplatform.ws.frameworks.json.JsonParser;
 import org.exoplatform.ws.frameworks.json.impl.*;
 
 public class AnalyticsUtils {

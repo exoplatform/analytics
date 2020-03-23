@@ -7,6 +7,8 @@ import org.junit.*;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
 import org.exoplatform.analytics.api.service.StatisticDataQueueService;
+import org.exoplatform.analytics.es.AnalyticsESClient;
+import org.exoplatform.analytics.es.AnalyticsIndexingServiceConnector;
 import org.exoplatform.analytics.es.injection.AnalyticsDataInjector;
 import org.exoplatform.container.*;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -51,6 +53,13 @@ public abstract class BaseAnalyticsTest {
     try {
       ExoContainerContext.setCurrentContainer(container);
       RequestLifeCycle.begin(container);
+
+      // Create index of today
+      AnalyticsIndexingServiceConnector indexingConnector = ExoContainerContext.getService(AnalyticsIndexingServiceConnector.class);
+      AnalyticsESClient esClient = ExoContainerContext.getService(AnalyticsESClient.class);
+      String esIndex = indexingConnector.getIndex(System.currentTimeMillis());
+      esClient.sendCreateIndexRequest(esIndex);
+
       analyticsService.retrieveMapping(true);
     } catch (Exception e) {
       LOG.error("Error starting container", e);

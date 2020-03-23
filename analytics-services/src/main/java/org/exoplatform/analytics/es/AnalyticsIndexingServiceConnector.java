@@ -1,7 +1,5 @@
 package org.exoplatform.analytics.es;
 
-import static org.exoplatform.analytics.es.ESAnalyticsUtils.ES_INDEX_PLACEHOLDER;
-import static org.exoplatform.analytics.es.ESAnalyticsUtils.ES_TYPE;
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
 import java.io.InputStream;
@@ -21,16 +19,32 @@ import org.exoplatform.services.log.Log;
 
 public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  private static final long                   serialVersionUID        = -3143010828698498081L;
+  private static final long                   serialVersionUID                = -3143010828698498081L;
 
-  private static final Log                    LOG                     =
+  private static final Log                    LOG                             =
                                                   ExoLogger.getLogger(AnalyticsIndexingServiceConnector.class);
 
-  private static final String                 MAPPING_FILE_PATH_PARAM = "mapping.file.path";
+  private static final String                 MAPPING_FILE_PATH_PARAM         = "mapping.file.path";
+
+  private static final String                 ES_INDEX_PLACEHOLDER            = "@ES_INDEX_PLACEHOLDER@";
+
+  private static final String                 DEFAULT_ES_ANALYTICS_INDEX_NAME = "analytics";
+
+  private static final String                 ES_ANALYTICS_TYPE               = "analytics";
+
+  private static final String                 ES_ANALYTICS_INDEX_PER_DAY      = "exo.es.analytics.index.per.day";
+
+  private static final String                 ES_ANALYTICS_INDEX_PREFIX       = "exo.es.analytics.index.prefix";
+
+  private static final long                   DAY_IN_MS                       = 86400000L;
 
   private transient StatisticDataQueueService analyticsQueueService;
 
   private String                              esInitialMapping;
+
+  private String                              indexPrefix;
+
+  private boolean                             useOneIndexPerDay;
 
   public AnalyticsIndexingServiceConnector(ConfigurationManager configurationManager,
                                            StatisticDataQueueService analyticsQueueService,
@@ -39,15 +53,27 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
 
     this.analyticsQueueService = analyticsQueueService;
 
-    if (initParams != null && initParams.containsKey(MAPPING_FILE_PATH_PARAM)) {
-      String mappingFilePath = initParams.getValueParam(MAPPING_FILE_PATH_PARAM).getValue();
-      try {
-        InputStream mappingFileIS = configurationManager.getInputStream(mappingFilePath);
-        this.esInitialMapping = IOUtil.getStreamContentAsString(mappingFileIS);
-      } catch (Exception e) {
-        LOG.error("Can't read elasticsearch index mapping from path {}", mappingFilePath, e);
+    if (initParams != null) {
+      if (initParams.containsKey(MAPPING_FILE_PATH_PARAM)) {
+        String mappingFilePath = initParams.getValueParam(MAPPING_FILE_PATH_PARAM).getValue();
+        try {
+          InputStream mappingFileIS = configurationManager.getInputStream(mappingFilePath);
+          this.esInitialMapping = IOUtil.getStreamContentAsString(mappingFileIS);
+        } catch (Exception e) {
+          LOG.error("Can't read elasticsearch index mapping from path {}", mappingFilePath, e);
+        }
       }
-    } else {
+      if (initParams.containsKey(ES_ANALYTICS_INDEX_PER_DAY)) {
+        this.useOneIndexPerDay = Boolean.parseBoolean(initParams.getValueParam(ES_ANALYTICS_INDEX_PER_DAY).getValue());
+      }
+      if (initParams.containsKey(ES_ANALYTICS_INDEX_PREFIX)) {
+        this.indexPrefix = initParams.getValueParam(ES_ANALYTICS_INDEX_PREFIX).getValue();
+      }
+    }
+    if (StringUtils.isBlank(this.indexPrefix)) {
+      this.indexPrefix = DEFAULT_ES_ANALYTICS_INDEX_NAME;
+    }
+    if (StringUtils.isBlank(this.esInitialMapping)) {
       LOG.error("Empty elasticsearch index mapping file path parameter");
     }
   }
@@ -59,7 +85,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
 
   @Override
   public String getType() {
-    return ES_TYPE;
+    return ES_ANALYTICS_TYPE;
   }
 
   @Override
@@ -95,7 +121,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     if (data.getParameters() != null && !data.getParameters().isEmpty()) {
       fields.putAll(data.getParameters());
     }
-    return new Document(ES_TYPE,
+    return new Document(DEFAULT_ES_ANALYTICS_INDEX_NAME,
                         String.valueOf(id),
                         null,
                         null,
@@ -111,6 +137,19 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
   @Override
   public List<String> getAllIds(int offset, int limit) {
     throw new UnsupportedOperationException();
+  }
+
+  public final String getIndex(long timestamp) {
+    if (useOneIndexPerDay) {
+      long indexSuffix = timestamp / DAY_IN_MS;
+      return this.indexPrefix + "_" + indexSuffix;
+    } else {
+      return this.indexPrefix;
+    }
+  }
+
+  public String replaceByIndexName(String esQuery, String index) {
+    return esQuery.replace(ES_INDEX_PLACEHOLDER, index);
   }
 
 }

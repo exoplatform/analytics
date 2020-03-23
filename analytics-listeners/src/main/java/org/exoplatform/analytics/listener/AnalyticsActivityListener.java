@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.activity.ActivityLifeCycleEvent;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.model.ActivityStream;
@@ -19,6 +21,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 public class AnalyticsActivityListener extends ActivityListenerPlugin {
+  private static final Log LOG = ExoLogger.getLogger(AnalyticsActivityListener.class);
 
   @Override
   public void saveActivity(ActivityLifeCycleEvent event) {
@@ -110,6 +113,10 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
       try {
         streamIdentity = getIdentity(streamProviderId, streamRemoteId);
       } catch (Exception e) {
+        LOG.debug("Can't retrieve identity with providerId {} and remoteId {}. Attempt to retrieve it as Identity technical ID",
+                  streamProviderId,
+                  streamRemoteId,
+                  e);
         streamIdentity = getIdentity(activityStream.getId());
       }
     }

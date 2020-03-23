@@ -1,7 +1,5 @@
 package org.exoplatform.analytics.es.service;
 
-import static org.exoplatform.analytics.es.ESAnalyticsUtils.ES_TYPE;
-import static org.exoplatform.analytics.es.ESAnalyticsUtils.getIndex;
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
 import java.util.*;
@@ -14,6 +12,7 @@ import org.picocontainer.Startable;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
 import org.exoplatform.analytics.es.AnalyticsESClient;
+import org.exoplatform.analytics.es.AnalyticsIndexingServiceConnector;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticData.StatisticStatus;
 import org.exoplatform.analytics.model.StatisticFieldMapping;
@@ -63,6 +62,8 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
   private AnalyticsESClient                  esClient;
 
+  private AnalyticsIndexingServiceConnector  analyticsIndexingServiceConnector;
+
   private SettingService                     settingService;
 
   private Map<String, StatisticFieldMapping> esMappings                                 = new HashMap<>();
@@ -73,8 +74,12 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
   private int                                aggregationReturnedDocumentsSize           = 200;
 
-  public ESAnalyticsService(SettingService settingService, AnalyticsESClient esClient, InitParams params) {
+  public ESAnalyticsService(AnalyticsESClient esClient,
+                            AnalyticsIndexingServiceConnector analyticsIndexingServiceConnector,
+                            SettingService settingService,
+                            InitParams params) {
     this.esClient = esClient;
+    this.analyticsIndexingServiceConnector = analyticsIndexingServiceConnector;
     this.settingService = settingService;
 
     if (params != null && params.containsKey(ANALYTICS_ADMIN_PERMISSION_PARAM_NAME)) {
@@ -118,9 +123,9 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       return new HashSet<>(esMappings.values());
     }
     try {
-      long timestamp = System.currentTimeMillis();
-      String index = getIndex(timestamp);
-      String mappingJsonString = esClient.getMapping(timestamp);
+      long today = System.currentTimeMillis();
+      String index = analyticsIndexingServiceConnector.getIndex(today);
+      String mappingJsonString = esClient.getMapping(today);
       if (StringUtils.isBlank(mappingJsonString)) {
         return new HashSet<>(esMappings.values());
       }
@@ -129,7 +134,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                                                0,
                                                index,
                                                "mappings",
-                                               ES_TYPE,
+                                               analyticsIndexingServiceConnector.getType(),
                                                "properties");
       if (mappingObject != null) {
         String[] fieldNames = JSONObject.getNames(mappingObject);
@@ -313,7 +318,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     for (AnalyticsFieldFilter fieldFilter : filters) {
       String field = fieldFilter.getField();
       StatisticFieldMapping fieldMapping = this.esMappings.get(field);
-      String esQueryValue = fieldMapping == null ? fieldFilter.getValueString()
+      String esQueryValue = fieldMapping == null ? StatisticFieldMapping.computeESQueryValue(fieldFilter.getValueString())
                                                  : fieldMapping.getESQueryValue(fieldFilter.getValueString());
       switch (fieldFilter.getType()) {
       case NOT_NULL:

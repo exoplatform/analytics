@@ -16,8 +16,6 @@
  */
 package org.exoplatform.analytics.es;
 
-import static org.exoplatform.analytics.es.ESAnalyticsUtils.*;
-
 import java.util.*;
 
 import org.apache.commons.httpclient.HttpStatus;
@@ -28,27 +26,68 @@ import org.json.JSONException;
 
 import org.exoplatform.analytics.model.StatisticDataQueueEntry;
 import org.exoplatform.commons.search.es.client.*;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 public class AnalyticsESClient extends ElasticClient {
 
-  private static final Log                  LOG             = ExoLogger.getExoLogger(AnalyticsESClient.class);
+  private static final Log                  LOG                            =
+                                                ExoLogger.getExoLogger(AnalyticsESClient.class);
+
+  private static final String               DEFAULT_ES_CLIENT_SERVER_URL   = "http://127.0.0.1:9200";
+
+  private static final String               ES_CLIENT_SERVER_URL           = "exo.es.index.server.url";
+
+  private static final String               ES_CLIENT_USERNAME             = "exo.es.index.server.username";
+
+  private static final String               ES_CLIENT_PWD                  = "exo.es.index.server.password";           // NOSONAR
+
+  private static final String               ES_ANALYTICS_CLIENT_SERVER_URL = "exo.es.analytics.index.server.url";
+
+  private static final String               ES_ANALYTICS_CLIENT_USERNAME   = "exo.es.analytics.index.server.username";
+
+  private static final String               ES_ANALYTICS_CLIENT_PWD        = "exo.es.analytics.index.server.password"; // NOSONAR
 
   private AnalyticsIndexingServiceConnector analyticsIndexingConnector;
 
   private ElasticContentRequestBuilder      elasticContentRequestBuilder;
 
-  private Set<String>                       existingIndexes = new HashSet<>();
+  private Set<String>                       existingIndexes                = new HashSet<>();
+
+  protected String                          username;
+
+  private String                            password;
 
   public AnalyticsESClient(ElasticIndexingAuditTrail auditTrail,
                            ElasticContentRequestBuilder elasticContentRequestBuilder,
-                           AnalyticsIndexingServiceConnector analyticsIndexingConnector) {
+                           AnalyticsIndexingServiceConnector analyticsIndexingConnector,
+                           InitParams initParams) {
     super(auditTrail);
     this.analyticsIndexingConnector = analyticsIndexingConnector;
     this.elasticContentRequestBuilder = elasticContentRequestBuilder;
-    LOG.info("Using {} as Indexing URL for analytics", this.urlClient);
-    this.urlClient = getESServerURL();
+
+    if (initParams != null) {
+      if (initParams.containsKey(ES_ANALYTICS_CLIENT_SERVER_URL)) {
+        this.urlClient = initParams.getValueParam(ES_ANALYTICS_CLIENT_SERVER_URL).getValue();
+      }
+      if (initParams.containsKey(ES_ANALYTICS_CLIENT_USERNAME)) {
+        this.username = initParams.getValueParam(ES_ANALYTICS_CLIENT_USERNAME).getValue();
+      }
+      if (initParams.containsKey(ES_ANALYTICS_CLIENT_PWD)) {
+        this.password = initParams.getValueParam(ES_ANALYTICS_CLIENT_PWD).getValue();
+      }
+    }
+
+    if (StringUtils.isBlank(this.urlClient)) {
+      this.urlClient = System.getProperty(ES_CLIENT_SERVER_URL);
+      this.username = System.getProperty(ES_CLIENT_USERNAME);
+      this.password = System.getProperty(ES_CLIENT_PWD);
+    }
+
+    if (StringUtils.isBlank(this.urlClient)) {
+      this.urlClient = DEFAULT_ES_CLIENT_SERVER_URL;
+    }
   }
 
   public boolean sendCreateIndexRequest(String index) {
@@ -59,7 +98,7 @@ public class AnalyticsESClient extends ElasticClient {
       String indexURL = urlClient + "/" + index;
       String esIndexSettings = elasticContentRequestBuilder.getCreateIndexRequestContent(analyticsIndexingConnector);
       sendHttpPutRequest(indexURL, esIndexSettings);
-      String esTypeURL = urlClient + "/" + index + "/_mapping/" + ES_TYPE;
+      String esTypeURL = urlClient + "/" + index + "/_mapping/" + analyticsIndexingConnector.getType();
       sendHttpPutRequest(esTypeURL, analyticsIndexingConnector.getMapping());
 
       if (sendIsIndexExistsRequest(index)) {
@@ -102,8 +141,8 @@ public class AnalyticsESClient extends ElasticClient {
       String documentId = String.valueOf(statisticDataQueueEntry.getId());
       String singleDocumentQuery = elasticContentRequestBuilder.getCreateDocumentRequestContent(analyticsIndexingConnector,
                                                                                                 documentId);
-      String index = getIndex(statisticDataQueueEntry.getStatisticData().getTimestamp());
-      singleDocumentQuery = singleDocumentQuery.replace(ES_INDEX_PLACEHOLDER, index);
+      String index = analyticsIndexingConnector.getIndex(statisticDataQueueEntry.getStatisticData().getTimestamp());
+      singleDocumentQuery = analyticsIndexingConnector.replaceByIndexName(singleDocumentQuery, index);
       request.append(singleDocumentQuery);
       indexesToUpdate.add(index);
     }
@@ -144,7 +183,7 @@ public class AnalyticsESClient extends ElasticClient {
   }
 
   public String getMapping(long timestamp) {
-    String esIndex = getIndex(timestamp);
+    String esIndex = analyticsIndexingConnector.getIndex(timestamp);
     if (!sendIsIndexExistsRequest(esIndex)) {
       return null;
     }
@@ -163,32 +202,44 @@ public class AnalyticsESClient extends ElasticClient {
   @Override
   protected ElasticResponse sendHttpPutRequest(String url, String content) {
     ElasticResponse response = super.sendHttpPutRequest(url, content);
-    handleESResponse(response);
+    try {
+      handleESResponse(response);
+    } catch (Exception e) {
+      throw new ElasticClientException("Error sending PUT request '" + url + "' with content = '" + content + "'", e);
+    }
     return response;
   }
 
   @Override
   protected ElasticResponse sendHttpDeleteRequest(String url) {
     ElasticResponse response = super.sendHttpDeleteRequest(url);
-    handleESResponse(response);
+    try {
+      handleESResponse(response);
+    } catch (Exception e) {
+      throw new ElasticClientException("Error sending 'DELETE' request '" + url + "'", e);
+    }
     return response;
   }
 
   @Override
   protected ElasticResponse sendHttpPostRequest(String url, String content) {
     ElasticResponse response = super.sendHttpPostRequest(url, content);
-    handleESResponse(response);
+    try {
+      handleESResponse(response);
+    } catch (Exception e) {
+      throw new ElasticClientException("Error sending POST request '" + url + "' with content = '" + content + "'", e);
+    }
     return response;
   }
 
   @Override
   protected String getEsUsernameProperty() {
-    return getESServerUsername();
+    return username;
   }
 
   @Override
   protected String getEsPasswordProperty() {
-    return getESServerPassword();
+    return password;
   }
 
   @Override
@@ -213,7 +264,7 @@ public class AnalyticsESClient extends ElasticClient {
     Set<String> indexes = new HashSet<>();
     for (StatisticDataQueueEntry statisticDataQueueEntry : dataQueueEntries) {
       long timestamp = statisticDataQueueEntry.getStatisticData().getTimestamp();
-      indexes.add(getIndex(timestamp));
+      indexes.add(analyticsIndexingConnector.getIndex(timestamp));
     }
     for (String index : indexes) {
       sendCreateIndexRequest(index);

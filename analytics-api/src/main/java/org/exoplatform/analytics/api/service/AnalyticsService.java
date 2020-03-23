@@ -3,8 +3,8 @@ package org.exoplatform.analytics.api.service;
 import java.util.List;
 import java.util.Set;
 
-import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.chart.ChartDataList;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 

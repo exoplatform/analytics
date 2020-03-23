@@ -3,6 +3,20 @@
 
   <component>
     <type>org.exoplatform.analytics.es.AnalyticsESClient</type>
+    <init-params>
+      <value-param>
+        <name>exo.es.analytics.index.server.url</name>
+        <value>${exo.es.analytics.index.server.url:}</value>
+      </value-param>
+      <value-param>
+        <name>exo.es.analytics.index.server.username</name>
+        <value>${exo.es.analytics.index.server.username:}</value>
+      </value-param>
+      <value-param>
+        <name>exo.es.analytics.index.server.password</name>
+        <value>${exo.es.analytics.index.server.password:}</value>
+      </value-param>
+    </init-params>
   </component>
 
   <component>
@@ -27,9 +41,17 @@
         <name>mapping.file.path</name>
         <value>${exo.addon.analytics.es.mapping.path:jar:/analytics-es-mapping.json}</value>
       </value-param>
+      <value-param>
+        <name>exo.es.analytics.index.per.day</name>
+        <value>${exo.es.analytics.index.per.day:true}</value>
+      </value-param>
+      <value-param>
+        <name>exo.es.analytics.index.prefix</name>
+        <value>${exo.es.analytics.index.prefix:analytics}</value>
+      </value-param>
       <properties-param>
         <name>constructor.params</name>
-        <property name="type" value="analytics"/>
+        <property name="type" value="analytics" />
       </properties-param>
     </init-params>
   </component>

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import lombok.*;
 import lombok.EqualsAndHashCode.Exclude;
@@ -22,6 +23,14 @@ public class StatisticFieldMapping {
 
   @Exclude
   private boolean                   hasKeywordSubField;
+
+  public static final String computeESQueryValue(String value) {
+    if (NumberUtils.isDigits(value)) {
+      return value;
+    } else {
+      return "\"" + value + "\"";
+    }
+  }
 
   public boolean isNumeric() {
     return NUMERIC_TYPES.contains(type);
