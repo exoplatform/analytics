@@ -38,6 +38,11 @@ You can can change some options of the addon using properties that you can add i
 | exo.addon.analytics.es.mapping.path | NO        | jar:/analytics-es-mapping.json             | Initial [ES mapping](https://github.com/exo-addons/analytics/blob/master/analytics-services/src/main/resources/analytics-es-mapping.json) that will be used to generate daily [ES index](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/mapping.html)   |
 | exo.cache.analytics.queue.MaxNodes | NO        | 2000             | Number of maximum entries in in-memory cached Analytics Queue that is processed each 10 seconds |
 | exo.cache.analytics.queue.TimeToLive | NO        | -1             | lifetime of entries in Analytics Queue. Default: infinite. |
+| exo.es.analytics.index.server.url | NO        | Same as used [ES for eXo](https://docs.exoplatform.org/en/latest/Configuration.html#properties-of-the-elasticsearch-client) | Elasticsearch server URL used for indexing and searching analytics content |
+| exo.es.analytics.index.server.username | NO        | Same as used [ES for eXo](https://docs.exoplatform.org/en/latest/Configuration.html#properties-of-the-elasticsearch-client) | Elasticsearch server username used for indexing and searching analytics content |
+| exo.es.analytics.index.server.password | NO        | Same as used [ES for eXo](https://docs.exoplatform.org/en/latest/Configuration.html#properties-of-the-elasticsearch-client) | Elasticsearch server password used for indexing and searching analytics content |
+| exo.es.analytics.index.per.day | YES | true | Whether create one index per day or not. You can switch this flag to true or false whener you want, it will not affect retrieved data result. In fact, the Analytics engine searches in all present indexes in server by including systematically a documents field filter that is added automatically to all statistics data : `isAnalytics = true` |
+| exo.es.analytics.index.prefix | YES | analytics | Elasticsearch index names prefix. IT will be exactly equals to this value when `exo.es.analytics.index.per.day=false`, else the index names will be of pattern `${exo.es.analytics.index.prefix}_NUMBER_OF_DAYS` |
 
 ## How to build addon
 
