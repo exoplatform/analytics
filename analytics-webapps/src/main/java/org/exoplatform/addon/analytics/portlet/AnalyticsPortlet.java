@@ -76,7 +76,7 @@ public class AnalyticsPortlet extends GenericPortlet {
 
     String windowId = request.getWindowID();
     if (StringUtils.equals(operation, READ_SETTINGS_OPERATOPN)) {
-      AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, true);
+      AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, false);
       JSONObject jsonResponse = new JSONObject();
       addJSONParam(jsonResponse, "title", filter.getTitle());
       addJSONParam(jsonResponse, "chartType", filter.getChartType());
@@ -87,7 +87,7 @@ public class AnalyticsPortlet extends GenericPortlet {
       response.setContentType("application/json");
       response.getWriter().write(jsonResponse.toString());
     } else if (StringUtils.equals(operation, READ_FILTERS_OPERATOPN)) {
-      AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, true);
+      AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, false);
       response.setContentType("application/json");
       response.getWriter().write(AnalyticsUtils.toJsonString(filter));
     } else if (StringUtils.equals(operation, READ_MAPPINGS_OPERATOPN)) {
@@ -174,7 +174,7 @@ public class AnalyticsPortlet extends GenericPortlet {
     }
   }
 
-  private AnalyticsFilter getFilterFromPreferences(String windowId, PortletPreferences preferences, boolean createNewIfNull) {
+  private AnalyticsFilter getFilterFromPreferences(String windowId, PortletPreferences preferences, boolean clone) {
     AnalyticsFilter filter = getAnlyticsFilterCache(windowId);
 
     if (filter == null) {
@@ -185,11 +185,11 @@ public class AnalyticsPortlet extends GenericPortlet {
         }
       }
       if (filter == null) {
-        filter = createNewIfNull ? new AnalyticsFilter() : null;
+        filter = new AnalyticsFilter();
       }
       setAnlyticsFilterCache(windowId, filter);
     }
-    return filter;
+    return clone ? filter.clone() : filter;
   }
 
   private SearchScope getSearchScope(PortletSession portletSession) {
@@ -306,7 +306,8 @@ public class AnalyticsPortlet extends GenericPortlet {
   }
 
   private AnalyticsFilter getAnlyticsFilterCache(String windowId) {
-    return FILTERS.get(windowId);
+    AnalyticsFilter analyticsFilter = FILTERS.get(windowId);
+    return analyticsFilter == null ? null : analyticsFilter.clone();
   }
 
   private void clearAnlyticsFilterCache(String windowId) {

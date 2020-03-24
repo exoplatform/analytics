@@ -4,6 +4,7 @@ import static org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -16,7 +17,9 @@ import lombok.*;
 
 @Data
 @ToString
-public class AnalyticsFilter implements Serializable {
+@NoArgsConstructor
+@AllArgsConstructor
+public class AnalyticsFilter implements Serializable, Cloneable {
 
   private static final long          serialVersionUID    = 5699550622069979910L;
 
@@ -109,7 +112,7 @@ public class AnalyticsFilter implements Serializable {
   @ToString
   @NoArgsConstructor
   @AllArgsConstructor
-  public static class Range implements Serializable {
+  public static class Range implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 570632355720481459L;
 
@@ -117,5 +120,31 @@ public class AnalyticsFilter implements Serializable {
 
     private String            max;
 
+    @Override
+    public Range clone() { // NOSONAR
+      return new Range(min, max);
+    }
+  }
+
+  @Override
+  public AnalyticsFilter clone() { // NOSONAR
+    List<AnalyticsFieldFilter> cloneFilters = new ArrayList<>(filters).stream()
+                                                                      .map(filter -> filter.clone())
+                                                                      .collect(Collectors.toList());
+    List<AnalyticsAggregation> cloneXAggs = new ArrayList<>(xAxisAggregations).stream()
+                                                                              .map(aggr -> aggr.clone())
+                                                                              .collect(Collectors.toList());
+    AnalyticsAggregation cloneyAggregation = yAxisAggregation.clone();
+    return new AnalyticsFilter(title,
+                               chartType,
+                               displayComputingTime,
+                               displaySamplesCount,
+                               cloneFilters,
+                               multipleChartsField,
+                               cloneXAggs,
+                               cloneyAggregation,
+                               lang,
+                               offset,
+                               limit);
   }
 }

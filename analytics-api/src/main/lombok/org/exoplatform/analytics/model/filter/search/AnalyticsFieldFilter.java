@@ -5,13 +5,13 @@ import java.io.Serializable;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter.Range;
 
 import groovy.transform.ToString;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @ToString
+@AllArgsConstructor
 @NoArgsConstructor
-public class AnalyticsFieldFilter implements Serializable {
+public class AnalyticsFieldFilter implements Serializable, Cloneable {
 
   private static final long        serialVersionUID = 5480543226777844698L;
 
@@ -38,5 +38,10 @@ public class AnalyticsFieldFilter implements Serializable {
   public AnalyticsFieldFilter(String field, AnalyticsFieldFilterType type) {
     this.field = field;
     this.type = type;
+  }
+
+  @Override
+  public AnalyticsFieldFilter clone() { // NOSONAR
+    return new AnalyticsFieldFilter(field, type, valueString, range);
   }
 }

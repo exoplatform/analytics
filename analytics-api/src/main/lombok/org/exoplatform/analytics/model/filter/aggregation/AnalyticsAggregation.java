@@ -12,14 +12,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 
 import groovy.transform.ToString;
-import lombok.Data;
+import lombok.*;
 import lombok.EqualsAndHashCode.Exclude;
-import lombok.NoArgsConstructor;
 
 @Data
 @ToString
+@AllArgsConstructor
 @NoArgsConstructor
-public class AnalyticsAggregation implements Serializable {
+public class AnalyticsAggregation implements Serializable, Cloneable {
 
   private static final long             serialVersionUID       = 2130321038232532587L;
 
@@ -100,5 +100,10 @@ public class AnalyticsAggregation implements Serializable {
       dateFormatter = DAY_DATE_FORMATTER;
     }
     return dateTime.format(dateFormatter.withLocale(userLocale));
+  }
+
+  @Override
+  public AnalyticsAggregation clone() { // NOSONAR
+    return new AnalyticsAggregation(type, field, sortDirection, interval);
   }
 }

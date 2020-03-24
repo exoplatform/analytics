@@ -409,7 +409,8 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
         }
         if (aggregationType.isUseInterval()) {
           if (StringUtils.isBlank(analyticsAggregation.getInterval())) {
-            throw new IllegalStateException("");
+            throw new IllegalStateException("Analytics aggregation type '" + aggregationType
+                + "' is using intervals while it has empty interval");
           }
           esQuery.append(",").append("           \"interval\": \"").append(analyticsAggregation.getInterval()).append("\"");
         } else if (aggregationType.allowSort()) {
