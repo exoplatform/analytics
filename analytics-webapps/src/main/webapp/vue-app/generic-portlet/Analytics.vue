@@ -37,9 +37,9 @@
           </v-toolbar-title>
           <v-spacer />
           <select-period v-model="selectedPeriod" />
-          <v-menu open-on-hover>
+          <v-menu offset-y>
             <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on">
+              <v-btn icon v-on="on" class="ml-2">
                 <v-icon>mdi-dots-vertical</v-icon>
               </v-btn>
             </template>

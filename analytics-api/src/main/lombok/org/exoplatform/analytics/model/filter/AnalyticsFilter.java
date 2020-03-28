@@ -77,6 +77,11 @@ public class AnalyticsFilter implements Serializable, Cloneable {
     return StringUtils.isNotBlank(multipleChartsField);
   }
 
+  public void addNotEqualFilter(String field, String value) {
+    AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, NOT_EQUAL, String.valueOf(value));
+    this.filters.add(fieldFilter);
+  }
+
   public void addEqualFilter(String field, String value) {
     AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field, EQUAL, String.valueOf(value));
     this.filters.add(fieldFilter);
@@ -86,6 +91,15 @@ public class AnalyticsFilter implements Serializable, Cloneable {
     if (values != null && values.length > 0) {
       AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field,
                                                                   IN_SET,
+                                                                  StringUtils.join(values, AnalyticsUtils.VALUES_SEPARATOR));
+      this.filters.add(fieldFilter);
+    }
+  }
+
+  public void addNotInSetFilter(String field, String... values) {
+    if (values != null && values.length > 0) {
+      AnalyticsFieldFilter fieldFilter = new AnalyticsFieldFilter(field,
+                                                                  NOT_IN_SET,
                                                                   StringUtils.join(values, AnalyticsUtils.VALUES_SEPARATOR));
       this.filters.add(fieldFilter);
     }

@@ -340,6 +340,13 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                .append(esQueryValue)
                .append("        }},");
         break;
+      case NOT_EQUAL:
+        esQuery.append("        {\"bool\": {\"must_not\": {\"match\" : {\"")
+               .append(field)
+               .append("\" : ")
+               .append(esQueryValue)
+               .append("        }}}},");
+        break;
       case GREATER:
         esQuery.append("        {\"range\" : {\"")
                .append(field)
@@ -373,6 +380,13 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                .append("\" : ")
                .append(collectionToJSONString(fieldFilter.getValueString()))
                .append("        }},");
+        break;
+      case NOT_IN_SET:
+        esQuery.append("        {\"bool\": {\"must_not\": {\"terms\" : {\"")
+               .append(field)
+               .append("\" : ")
+               .append(collectionToJSONString(fieldFilter.getValueString()))
+               .append("        }}}},");
         break;
       default:
         break;

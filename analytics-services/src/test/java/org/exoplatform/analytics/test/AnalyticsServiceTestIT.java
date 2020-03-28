@@ -93,6 +93,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
 
       AnalyticsFilter analyticsFilter = new AnalyticsFilter();
       analyticsFilter.addEqualFilter("module", "portal");
+      analyticsFilter.addNotEqualFilter("module", "social");
       analyticsFilter.addInSetFilter("subModule", "no_module", "login");
 
       AnalyticsAggregation operationAggregation = new AnalyticsAggregation();
@@ -142,6 +143,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
       userIdAggregation.setField("userId");
       userIdAggregation.setType(AnalyticsAggregationType.COUNT);
       analyticsFilter.addXAxisAggregation(userIdAggregation);
+      analyticsFilter.addNotInSetFilter("userId", "5366, 9999");
 
       ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
 

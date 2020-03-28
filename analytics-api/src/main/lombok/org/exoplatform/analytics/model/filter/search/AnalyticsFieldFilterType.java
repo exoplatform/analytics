@@ -7,5 +7,7 @@ public enum AnalyticsFieldFilterType {
   GREATER,
   LESS,
   EQUAL,
+  NOT_EQUAL,
+  NOT_IN_SET,
   IN_SET;
 }

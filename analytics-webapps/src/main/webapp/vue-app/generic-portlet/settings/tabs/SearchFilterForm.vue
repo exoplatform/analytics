@@ -31,12 +31,12 @@
             </v-flex>
             <v-flex xs3 class="my-auto">
               <v-text-field
-                v-if="item.type === 'EQUAL' || item.type === 'LESS' || item.type === 'GREATER'"
+                v-if="item.type === 'EQUAL' || item.type === 'NOT_EQUAL' || item.type === 'LESS' || item.type === 'GREATER'"
                 v-model="item.valueString"
                 label="Value"
                 required />
               <v-text-field
-                v-else-if="item.type === 'IN_SET'"
+                v-else-if="item.type === 'IN_SET' || item.type === 'NOT_IN_SET'"
                 v-model="item.valueString"
                 label="Values"
                 placeholder="Values (Separator ',')"
@@ -105,12 +105,22 @@ export default {
       {
         text: 'equals',
         value: 'EQUAL',
-        placeholder: 'Exact equals to value',
+        placeholder: 'field value',
+      },
+      {
+        text: 'not equals',
+        value: 'NOT_EQUAL',
+        placeholder: 'field value',
       },
       {
         text: 'in values',
         value: 'IN_SET',
-        placeholder: 'in a set of values (separator \',\')',
+        placeholder: 'values (separator \',\')',
+      },
+      {
+        text: 'not in values',
+        value: 'NOT_IN_SET',
+        placeholder: 'values (separator \',\')',
       },
       {
         text: 'in range',
