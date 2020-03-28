@@ -35,6 +35,10 @@
   </component>
 
   <component>
+    <type>org.exoplatform.analytics.api.websocket.AnalyticsWebSocketService</type>
+  </component>
+
+  <component>
     <type>org.exoplatform.analytics.es.AnalyticsIndexingServiceConnector</type>
     <init-params>
       <value-param>

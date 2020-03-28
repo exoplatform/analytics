@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.*;
 import org.picocontainer.Startable;
 
-import org.exoplatform.analytics.api.service.AnalyticsService;
+import org.exoplatform.analytics.api.service.*;
 import org.exoplatform.analytics.es.AnalyticsESClient;
 import org.exoplatform.analytics.es.AnalyticsIndexingServiceConnector;
 import org.exoplatform.analytics.model.StatisticData;
@@ -59,6 +59,10 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                                                             new AnalyticsFieldFilter("isAnalytics",
                                                                                      AnalyticsFieldFilterType.EQUAL,
                                                                                      "true");
+
+  private List<StatisticUIWatcherPlugin>     uiWatcherPlugins                           = new ArrayList<>();
+
+  private List<StatisticWatcher>             uiWatchers                                 = new ArrayList<>();
 
   private AnalyticsESClient                  esClient;
 
@@ -199,6 +203,17 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   @Override
   public String getAdministratorsPermission() {
     return administratorsPermission;
+  }
+
+  @Override
+  public List<StatisticWatcher> getUIWatchers() {
+    return uiWatchers;
+  }
+
+  @Override
+  public void addUIWatcherPlugin(StatisticUIWatcherPlugin uiWatcherPlugin) {
+    uiWatcherPlugins.add(uiWatcherPlugin);
+    uiWatchers.add(uiWatcherPlugin.getStatisticWatcher());
   }
 
   private void buildAnalyticsQuery(AnalyticsFilter analyticsFilter, boolean retrieveUsedTuples, StringBuilder esQuery) {

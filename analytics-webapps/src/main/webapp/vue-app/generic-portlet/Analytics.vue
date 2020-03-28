@@ -39,7 +39,10 @@
           <select-period v-model="selectedPeriod" />
           <v-menu offset-y>
             <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" class="ml-2">
+              <v-btn
+                icon
+                class="ml-2"
+                v-on="on">
                 <v-icon>mdi-dots-vertical</v-icon>
               </v-btn>
             </template>

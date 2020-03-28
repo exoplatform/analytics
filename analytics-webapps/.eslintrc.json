@@ -19,7 +19,8 @@
         "$": true,
         "global": true,
         "exoi18n": true,
-        "echarts": true
+        "echarts": true,
+        "cCometd": true
     },
     "parserOptions": {
         "sourceType": "module",

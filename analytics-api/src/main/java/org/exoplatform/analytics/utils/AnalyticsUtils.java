@@ -159,7 +159,11 @@ public class AnalyticsUtils {
 
   public static final String toJsonString(Object object) {
     try {
-      return new JsonGeneratorImpl().createJsonObject(object).toString();
+      if (object instanceof Collection) {
+        return new JsonGeneratorImpl().createJsonArray((Collection<?>) object).toString();
+      } else {
+        return new JsonGeneratorImpl().createJsonObject(object).toString();
+      }
     } catch (JsonException e) {
       throw new IllegalStateException("Error parsing object to string " + object, e);
     }

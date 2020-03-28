@@ -36,4 +36,15 @@ public interface AnalyticsService {
    * @return the analytics permission expression
    */
   String getAdministratorsPermission();
+
+  /**
+   * @return {@link List} of {@link StatisticWatcher} containing DOM selectors
+   *         of elements to watch
+   */
+  List<StatisticWatcher> getUIWatchers();
+
+  /**
+   * Add watcher plugin
+   */
+  void addUIWatcherPlugin(StatisticUIWatcherPlugin uiWatcherPlugin);
 }

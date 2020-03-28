@@ -3,4 +3,32 @@
   for more details. You should have received a copy of the GNU Lesser General Public License along with this software; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site: http://www.fsf.org. -->
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd" xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
+  <external-component-plugins>
+    <target-component>org.exoplatform.analytics.api.service.AnalyticsService</target-component>
+    <component-plugin>
+      <name>Home page link</name>
+      <set-method>addUIWatcherPlugin</set-method>
+      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
+      <init-params>
+        <object-param>
+          <name>watcher</name>
+          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
+            <field name="name">
+              <string>Home page link</string>
+            </field>
+            <field name="selector">
+              <string>#brandingTopBar a</string>
+            </field>
+            <field name="event">
+              <string>mousedown</string>
+            </field>
+            <field name="maxItems">
+              <int>2</int>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
 </configuration>
