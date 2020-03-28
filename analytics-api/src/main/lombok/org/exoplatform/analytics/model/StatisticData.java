@@ -63,6 +63,9 @@ public class StatisticData implements Serializable {
     if (parameters == null) {
       parameters = new HashMap<>();
     }
+    if (value == null) {
+      return;
+    }
     parameters.put(key, String.valueOf(value));
   }
 

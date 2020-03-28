@@ -117,6 +117,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     fields.put(FIELD_STATUS, String.valueOf(data.getStatus().ordinal()));
     fields.put(FIELD_ERROR_CODE, String.valueOf(data.getErrorCode()));
     fields.put(FIELD_ERROR_MESSAGE, data.getErrorMessage());
+    fields.put(FIELD_DURATION, String.valueOf(data.getDuration()));
     fields.put(FIELD_IS_ANALYTICS, "true");
     if (data.getParameters() != null && !data.getParameters().isEmpty()) {
       fields.putAll(data.getParameters());

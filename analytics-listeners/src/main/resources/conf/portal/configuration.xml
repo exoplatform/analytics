@@ -54,4 +54,13 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins>
+    <target-component>org.exoplatform.web.application.ApplicationLifecycleExtension</target-component>
+    <component-plugin>
+      <name>PageAccessListener</name>
+      <set-method>addPortalApplicationLifecycle</set-method>
+      <type>org.exoplatform.analytics.listener.PageAccessListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
 </configuration>

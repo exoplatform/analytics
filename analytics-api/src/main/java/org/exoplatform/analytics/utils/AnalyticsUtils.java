@@ -50,6 +50,8 @@ public class AnalyticsUtils {
 
   public static final String            FIELD_SPACE_ID                   = "spaceId";
 
+  public static final String            FIELD_DURATION                   = "duration";
+
   public static final String            FIELD_USER_ID                    = "userId";
 
   public static final String            FIELD_TIMESTAMP                  = "timestamp";
