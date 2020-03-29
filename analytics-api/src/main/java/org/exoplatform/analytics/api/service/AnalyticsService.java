@@ -44,8 +44,7 @@ public interface AnalyticsService {
   List<StatisticWatcher> getUIWatchers();
 
   /**
-   * @param name corresponding UI watcher name, see
-   *          {@link StatisticWatcher#getName()}
+   * @param name corresponding UI watcher name, see StatisticWatcher#getName()
    * @return {@link StatisticWatcher} having switch corresponding name
    */
   StatisticWatcher getUIWatcher(String name);

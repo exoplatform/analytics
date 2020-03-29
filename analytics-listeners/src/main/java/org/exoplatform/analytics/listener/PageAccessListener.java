@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticData.StatisticStatus;
 import org.exoplatform.container.component.BaseComponentPlugin;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.portal.webui.portal.UIPortal;
@@ -26,6 +27,14 @@ public class PageAccessListener extends BaseComponentPlugin implements Applicati
 
   private ThreadLocal<Long> operationStartTime = new ThreadLocal<>();
 
+  private boolean           collectAjaxQueries = false;
+
+  public PageAccessListener(InitParams params) {
+    if (params != null && params.containsKey("collectAjaxQueries")) {
+      this.collectAjaxQueries = Boolean.parseBoolean(params.getValueParam("collectAjaxQueries").getValue());
+    }
+  }
+
   @Override
   public void onInit(Application app) throws Exception {
     // Not used
@@ -39,7 +48,9 @@ public class PageAccessListener extends BaseComponentPlugin implements Applicati
   @Override
   public void onEndRequest(Application app, WebuiRequestContext context) throws Exception {
     StatisticData statisticData = buildStatisticData(context);
-    if (statisticData != null) {
+    if (statisticData == null) {
+      operationStartTime.remove();
+    } else {
       addStatisticData(statisticData);
     }
   }
@@ -61,9 +72,15 @@ public class PageAccessListener extends BaseComponentPlugin implements Applicati
         return null;
       }
 
+      HttpServletRequest httpRequest = portalRequestContext.getRequest();
+      boolean ajaxQuery = portalRequestContext.useAjax() || (httpRequest.getParameter("portal:componentId") != null);
+      if (ajaxQuery && !collectAjaxQueries) {
+        return null;
+      }
+
       StatisticData statisticData = new StatisticData();
       statisticData.setModule("portal");
-      if (portalRequestContext.useAjax()) {
+      if (ajaxQuery) {
         statisticData.setSubModule("webui");
         statisticData.setOperation("ajaxRequest");
       } else {
@@ -79,14 +96,11 @@ public class PageAccessListener extends BaseComponentPlugin implements Applicati
         statisticData.addParameter("spaceTemplate", space.getTemplate());
       }
 
-      HttpServletRequest httpRequest = portalRequestContext.getRequest();
-      if (httpRequest != null) {
-        statisticData.addParameter("httpRequestMethod", httpRequest.getMethod());
-        statisticData.addParameter("httpRequestUri", httpRequest.getRequestURI());
-        statisticData.addParameter("httpRequestProtocol", httpRequest.getProtocol());
-        statisticData.addParameter("httpRequestContentType", httpRequest.getContentType());
-        statisticData.addParameter("httpRequestContentLength", httpRequest.getContentLength());
-      }
+      statisticData.addParameter("httpRequestMethod", httpRequest.getMethod());
+      statisticData.addParameter("httpRequestUri", httpRequest.getRequestURI());
+      statisticData.addParameter("httpRequestProtocol", httpRequest.getProtocol());
+      statisticData.addParameter("httpRequestContentType", httpRequest.getContentType());
+      statisticData.addParameter("httpRequestContentLength", httpRequest.getContentLength());
 
       statisticData.addParameter("userLocale", portalRequestContext.getLocale());
       statisticData.addParameter("portalOwner", portalRequestContext.getPortalOwner());

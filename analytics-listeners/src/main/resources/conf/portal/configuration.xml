@@ -60,6 +60,13 @@
       <name>PageAccessListener</name>
       <set-method>addPortalApplicationLifecycle</set-method>
       <type>org.exoplatform.analytics.listener.PageAccessListener</type>
+      <init-params>
+        <value-param>
+          <name>collectAjaxQueries</name>
+          <description>Whether collect ajax queries or not</description>
+          <value>${exo.analytics.collectAjaxQueries:false}</value>
+        </value-param>
+      </init-params>
     </component-plugin>
   </external-component-plugins>
 
