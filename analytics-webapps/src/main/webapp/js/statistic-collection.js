@@ -10,16 +10,6 @@ function() {
       }
     },
     initCometd : function() {
-      const self_ = this;
-      cCometd.addListener('/meta/connect', function (message) {
-        self_.connected = !cCometd.isDisconnected();
-      });
-      cCometd.addListener('/meta/disconnect', function(message) {
-        self_.connected = cCometd.isDisconnected();
-      });
-      cCometd.addListener('/meta/handshake', function (handshake) {
-        self_.connected = handshake && handshake.successful;
-      });
       const loc = window.location;
       cCometd.init({
         url: `${loc.protocol}//${loc.hostname}${(loc.port && ':') || ''}${loc.port || ''}/${this.settings.cometdContext}/cometd`,
@@ -33,13 +23,13 @@ function() {
       const self_ = this;
       $(document).ready(() => {
         this.watchers.forEach(watcher => {
-          if (!watcher || !watcher.selector) {
+          if (!watcher || !watcher.domSelector) {
             return;
           }
-          const $watcher = $(watcher.selector);
+          const $watcher = $(watcher.domSelector);
           // settings.maxItems is used to avoid attaching a lot of events
           if ($watcher.length) {
-            $watcher.on(watcher.event, (event) =>
+            $watcher.on(watcher.domEvent, (event) =>
               self_.sendMessage.call(self_, watcher, event)
             );
           }
@@ -47,23 +37,37 @@ function() {
       });
     },
     sendMessage : function(watcher, event) {
-      const content = JSON.stringify({
-        'event': 'addStatistic',
-        'clientId': String(Date.now() + Number.parseInt(Math.random() * 10000)),
-        'sender': eXo.env.portal.userName,
-        'token': this.settings.cometdToken,
-        'data' : {
-          'name': watcher.name,
-          'event': watcher.event,
-          'sender': eXo.env.portal.userName,
-          'currentPortalUrl': eXo.env.server.portalBaseURL,
-          'currentSpaceId': eXo.env.portal.spaceId,
+      try {
+        const parameters = {};
+        if (watcher.domProperties) {
+          watcher.domProperties.forEach(property => {
+            if ($(event.currentTarget).attr(property)) {
+              parameters[`dom-${property}`] = $(event.currentTarget).attr(property);
+            } else if ($(event.currentTarget).data(property)) {
+              parameters[`dom-data-${property}`] = $(event.currentTarget).data(property);
+            }
+          });
         }
-      });
-
-      cCometd.publish(this.settings.cometdChannel, content, (publishAck) => {
-        console.debug('analytics sending : ', publishAck && publishAck.successful);
-      });
+  
+        if (watcher.domEventProperties) {
+          watcher.domEventProperties.forEach(property => {
+            if (event[property]) {
+              parameters[`event-${property}`] = event[property];
+            }
+          });
+        }
+  
+        cCometd.publish(this.settings.cometdChannel, JSON.stringify({
+          'name': watcher.name,
+          'userName': eXo.env.portal.userName,
+          'spaceId': eXo.env.portal.spaceId,
+          'portalUri': eXo.env.server.portalBaseURL,
+          'token': this.settings.cometdToken,
+          'parameters' : parameters,
+        }));
+      } catch (e) {
+        console.debug('Error sending data', e);
+      }
     },
   };
 }();

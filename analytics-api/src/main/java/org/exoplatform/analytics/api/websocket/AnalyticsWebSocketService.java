@@ -1,20 +1,27 @@
 package org.exoplatform.analytics.api.websocket;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cometd.bayeux.server.ServerChannel;
 import org.cometd.bayeux.server.ServerMessage.Mutable;
 import org.cometd.bayeux.server.ServerSession;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 
+import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.ws.frameworks.cometd.ContinuationService;
 
 public class AnalyticsWebSocketService {
 
-  private static final Log      LOG            = ExoLogger.getLogger(AnalyticsWebSocketService.class);
+  private static final String   EXO_ANALYTICS_MESSAGE_EVENT = "exo.analytics.websocket.messageReceived";
 
-  public static final String    COMETD_CHANNEL = "/service/analytics";
+  private static final Log      LOG                         = ExoLogger.getLogger(AnalyticsWebSocketService.class);
+
+  public static final String    COMETD_CHANNEL              = "/service/analytics";
+
+  private ListenerService       listenerService;
 
   private ContinuationService   continuationService;
 
@@ -30,9 +37,54 @@ public class AnalyticsWebSocketService {
       channel.addListener(new ServerChannel.MessageListener() {
         @Override
         public boolean onMessage(ServerSession from, ServerChannel channel, Mutable message) {
-          Object data = message.getData();
-          System.out.println("received data" + data);
-          return true;
+          try {
+            if (message == null || message.getData() == null) {
+              LOG.warn("Empty analytics WebSocket message is received");
+              return false;
+            }
+            if (from == null) {
+              LOG.warn("Empty analytics WebSocket session is received");
+              return false;
+            }
+            if (!from.isConnected() || !from.isHandshook()) {
+              LOG.warn("Wrong WebSocket session status, connected = {}, handshook = {}", from.isConnected(), from.isHandshook());
+              return false;
+            }
+            if (channel == null || !StringUtils.equals(channel.getId(), COMETD_CHANNEL)) {
+              LOG.warn("Empty WebSocket channel received");
+              return false;
+            }
+            if (!StringUtils.equals(channel.getId(), COMETD_CHANNEL)) {
+              LOG.debug("Not Analytics WebSocket channel");
+              return false;
+            }
+
+            Object data = message.getData();
+            AnalyticsWebSocketMessage wsMessage = AnalyticsUtils.fromJsonString(data.toString(), AnalyticsWebSocketMessage.class);
+            if (StringUtils.isBlank(wsMessage.getUserName())) {
+              LOG.warn("Empty WebSocket username received");
+              return false;
+            }
+            if (StringUtils.isBlank(wsMessage.getToken())) {
+              LOG.warn("Empty WebSocket user token received");
+              return false;
+            }
+            String userToken = getUserToken(wsMessage.getUserName());
+            if (!StringUtils.equals(userToken, wsMessage.getToken())) {
+              LOG.warn("Wrong WebSocket token received");
+              return false;
+            }
+
+            getListenerService().broadcast(EXO_ANALYTICS_MESSAGE_EVENT, this, wsMessage);
+            return true;
+          } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+              LOG.warn("Error when parsing analytics ws message: {}", e.getMessage());
+            } else {
+              LOG.warn("Error when parsing analytics ws message", e);
+            }
+            return false;
+          }
         }
       });
     }
@@ -45,7 +97,7 @@ public class AnalyticsWebSocketService {
     return userSettings;
   }
 
-  protected String getUserToken(String username) {
+  private String getUserToken(String username) {
     try {
       return getContinuationService().getUserToken(username);
     } catch (Exception e) {
@@ -54,10 +106,16 @@ public class AnalyticsWebSocketService {
     }
   }
 
-  protected String getCometdContextName() {
+  private ListenerService getListenerService() {
+    if (listenerService == null) {
+      listenerService = CommonsUtils.getService(ListenerService.class);
+    }
+    return listenerService;
+  }
+
+  private String getCometdContextName() {
     if (cometdContextName == null) {
-      getContinuationBayeux();
-      cometdContextName = (continuationBayeux == null ? "cometd" : continuationBayeux.getCometdContextName());
+      cometdContextName = (getContinuationBayeux() == null ? "cometd" : getContinuationBayeux().getCometdContextName());
     }
     return cometdContextName;
   }

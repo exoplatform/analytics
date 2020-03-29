@@ -211,6 +211,11 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   @Override
+  public StatisticWatcher getUIWatcher(String name) {
+    return getUIWatchers().stream().filter(watcher -> StringUtils.equals(name, watcher.getName())).findFirst().orElse(null);
+  }
+
+  @Override
   public void addUIWatcherPlugin(StatisticUIWatcherPlugin uiWatcherPlugin) {
     uiWatcherPlugins.add(uiWatcherPlugin);
     uiWatchers.add(uiWatcherPlugin.getStatisticWatcher());

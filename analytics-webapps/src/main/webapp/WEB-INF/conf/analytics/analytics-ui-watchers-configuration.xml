@@ -13,17 +13,281 @@
         <object-param>
           <name>watcher</name>
           <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
+            <!-- Statistic data: name field -->
             <field name="name">
               <string>Home page link</string>
             </field>
-            <field name="selector">
+            <!-- Statistic data: operation field -->
+            <field name="operation">
+              <string>click</string>
+            </field>
+            <!-- Statistic data: additional embedded parameters -->
+            <field name="parameters">
+              <map type="java.util.HashMap">
+                <entry>
+                  <key>
+                    <string>ui</string>
+                  </key>
+                  <value>
+                    <string>toolbar</string>
+                  </value>
+                </entry>
+                <entry>
+                  <key>
+                    <string>portlet</string>
+                  </key>
+                  <value>
+                    <string>NavigationToolbarPortlet</string>
+                  </value>
+                </entry>
+              </map>
+            </field>
+            <!-- DOM jquery selector, used to search elements -->
+            <field name="domSelector">
               <string>#brandingTopBar a</string>
             </field>
-            <field name="event">
+            <!-- DOM jquery event, used to trigger storing new statistic data -->
+            <field name="domEvent">
               <string>mousedown</string>
             </field>
-            <field name="maxItems">
-              <int>2</int>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domEventProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>type</string>
+                </value>
+                <value>
+                  <string>pageX</string>
+                </value>
+                <value>
+                  <string>pageY</string>
+                </value>
+              </collection>
+            </field>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>href</string>
+                </value>
+                <value>
+                  <string>class</string>
+                </value>
+                <value>
+                  <string>id</string>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Hamburger menu site navigation link</name>
+      <set-method>addUIWatcherPlugin</set-method>
+      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
+      <init-params>
+        <object-param>
+          <name>watcher</name>
+          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
+            <!-- Statistic data: name field -->
+            <field name="name">
+              <string>Hamburger menu site navigation link</string>
+            </field>
+            <!-- Statistic data: operation field -->
+            <field name="operation">
+              <string>click</string>
+            </field>
+            <!-- Statistic data: additional embedded parameters -->
+            <field name="parameters">
+              <map type="java.util.HashMap">
+                <entry>
+                  <key>
+                    <string>ui</string>
+                  </key>
+                  <value>
+                    <string>HamburgerMenu</string>
+                  </value>
+                </entry>
+                <entry>
+                  <key>
+                    <string>portlet</string>
+                  </key>
+                  <value>
+                    <string>SiteHamburgerNavigation</string>
+                  </value>
+                </entry>
+              </map>
+            </field>
+            <!-- DOM jquery selector, used to search elements -->
+            <field name="domSelector">
+              <string>#HamburgerMenuNavigation #SiteHamburgerNavigation a[role="listitem"]</string>
+            </field>
+            <!-- DOM jquery event, used to trigger storing new statistic data -->
+            <field name="domEvent">
+              <string>mousedown</string>
+            </field>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domEventProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>type</string>
+                </value>
+                <value>
+                  <string>pageX</string>
+                </value>
+                <value>
+                  <string>pageY</string>
+                </value>
+              </collection>
+            </field>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>href</string>
+                </value>
+                <value>
+                  <string>aria-selected</string>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Hamburger menu spaces navigation link</name>
+      <set-method>addUIWatcherPlugin</set-method>
+      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
+      <init-params>
+        <object-param>
+          <name>watcher</name>
+          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
+            <!-- Statistic data: name field -->
+            <field name="name">
+              <string>Hamburger menu spaces navigation link</string>
+            </field>
+            <!-- Statistic data: operation field -->
+            <field name="operation">
+              <string>click</string>
+            </field>
+            <!-- Statistic data: additional embedded parameters -->
+            <field name="parameters">
+              <map type="java.util.HashMap">
+                <entry>
+                  <key>
+                    <string>ui</string>
+                  </key>
+                  <value>
+                    <string>HamburgerMenu</string>
+                  </value>
+                </entry>
+                <entry>
+                  <key>
+                    <string>portlet</string>
+                  </key>
+                  <value>
+                    <string>SpacesHamburgerNavigation</string>
+                  </value>
+                </entry>
+              </map>
+            </field>
+            <!-- DOM jquery selector, used to search elements -->
+            <field name="domSelector">
+              <string>#HamburgerMenuNavigation .spacesNavigationContent a[role="listitem"]</string>
+            </field>
+            <!-- DOM jquery event, used to trigger storing new statistic data -->
+            <field name="domEvent">
+              <string>mousedown</string>
+            </field>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domEventProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>type</string>
+                </value>
+                <value>
+                  <string>pageX</string>
+                </value>
+                <value>
+                  <string>pageY</string>
+                </value>
+              </collection>
+            </field>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>href</string>
+                </value>
+                <value>
+                  <string>aria-selected</string>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Hamburger menu icon</name>
+      <set-method>addUIWatcherPlugin</set-method>
+      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
+      <init-params>
+        <object-param>
+          <name>watcher</name>
+          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
+            <!-- Statistic data: name field -->
+            <field name="name">
+              <string>Hamburger menu icon</string>
+            </field>
+            <!-- Statistic data: operation field -->
+            <field name="operation">
+              <string>click</string>
+            </field>
+            <!-- Statistic data: additional embedded parameters -->
+            <field name="parameters">
+              <map type="java.util.HashMap">
+                <entry>
+                  <key>
+                    <string>ui</string>
+                  </key>
+                  <value>
+                    <string>toolbar</string>
+                  </value>
+                </entry>
+                <entry>
+                  <key>
+                    <string>portlet</string>
+                  </key>
+                  <value>
+                    <string>HamburgerNavigationMenuLink</string>
+                  </value>
+                </entry>
+              </map>
+            </field>
+            <!-- DOM jquery selector, used to search elements -->
+            <field name="domSelector">
+              <string>.HamburgerNavigationMenuLink</string>
+            </field>
+            <!-- DOM jquery event, used to trigger storing new statistic data -->
+            <field name="domEvent">
+              <string>mousedown</string>
+            </field>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domEventProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>type</string>
+                </value>
+                <value>
+                  <string>pageX</string>
+                </value>
+                <value>
+                  <string>pageY</string>
+                </value>
+              </collection>
             </field>
           </object>
         </object-param>
