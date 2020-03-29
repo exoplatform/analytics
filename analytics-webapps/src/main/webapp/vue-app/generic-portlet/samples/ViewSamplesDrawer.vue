@@ -188,6 +188,8 @@ export default {
         })
         .then((chartDatas) => loadedChartData = chartDatas)
         .then((chartDatas) => this.loadUsersAndSpacesObjects(chartDatas))
+        .then(() => this.chartDatas = [])
+        .then(() => this.$nextTick())
         .then(() => this.chartDatas = loadedChartData)
         .catch((e) => {
           console.debug('fetch analytics - error', e);
