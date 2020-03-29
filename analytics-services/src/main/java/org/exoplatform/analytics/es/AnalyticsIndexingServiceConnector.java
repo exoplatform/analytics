@@ -107,7 +107,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     String timestampString = String.valueOf(data.getTimestamp());
 
     Map<String, String> fields = new HashMap<>();
-    fields.put("id", timestampString);
+    fields.put("id", idString);
     fields.put(FIELD_TIMESTAMP, timestampString);
     fields.put(FIELD_USER_ID, String.valueOf(data.getUserId()));
     fields.put(FIELD_SPACE_ID, String.valueOf(data.getSpaceId()));

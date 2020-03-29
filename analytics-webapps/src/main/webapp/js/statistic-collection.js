@@ -10,6 +10,16 @@ function() {
       }
     },
     initCometd : function() {
+      const self_ = this;
+      cCometd.addListener('/meta/connect', function (message) {
+        self_.connected = !cCometd.isDisconnected();
+      });
+      cCometd.addListener('/meta/disconnect', function(message) {
+        self_.connected = cCometd.isDisconnected();
+      });
+      cCometd.addListener('/meta/handshake', function (handshake) {
+        self_.connected = handshake && handshake.successful;
+      });
       const loc = window.location;
       cCometd.init({
         url: `${loc.protocol}//${loc.hostname}${(loc.port && ':') || ''}${loc.port || ''}/${this.settings.cometdContext}/cometd`,
@@ -17,23 +27,28 @@ function() {
         exoToken: this.settings.cometdToken,
         useWorkerScheduler: true,
       });
-      this.cometdSubscription = cCometd.subscribe(this.settings.cometdChannel);
+
+      this.cometdSubscription = cCometd.subscribe(this.settings.cometdChannel, null, event => {}, null, (subscribeReply) => {
+        self_.connected = subscribeReply && subscribeReply.successful;
+      });
     },
     installWatchers : function() {
       const self_ = this;
       $(document).ready(() => {
-        this.watchers.forEach(watcher => {
-          if (!watcher || !watcher.domSelector) {
-            return;
-          }
-          const $watcher = $(watcher.domSelector);
-          // settings.maxItems is used to avoid attaching a lot of events
-          if ($watcher.length) {
-            $watcher.on(watcher.domEvent, (event) =>
-              self_.sendMessage.call(self_, watcher, event)
-            );
-          }
-        });
+        window.setTimeout(() => {
+          this.watchers.forEach(watcher => {
+            if (!watcher || !watcher.domSelector) {
+              return;
+            }
+            const $watcher = $(watcher.domSelector);
+            // settings.maxItems is used to avoid attaching a lot of events
+            if ($watcher.length) {
+              $watcher.on(watcher.domEvent, (event) => {
+                self_.sendMessage.call(self_, watcher, event, self_.connected);
+              });
+            }
+          });
+        }, 100);
       });
     },
     sendMessage : function(watcher, event) {

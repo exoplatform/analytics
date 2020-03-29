@@ -4,7 +4,7 @@
       <v-row no-gutters>
         <v-col cols="8">
           <v-fade-transition leave-absolute>
-            <v-row no-gutters style="width: 100%">
+            <v-row no-gutters class="sampleItemHeader">
               <v-col
                 v-if="userIdentity"
                 cols="6"
@@ -17,15 +17,8 @@
                 class="text-truncate">
                 Modifier user: <profile-chip :identity="userModifierIdentity" />
               </v-col>
-
               <v-col
-                v-if="spaceIdentity"
-                cols="6"
-                class="text-truncate">
-                Space:  <profile-chip :identity="spaceIdentity" />
-              </v-col>
-              <v-col
-                v-else-if="chartData.operation"
+                v-if="chartData.operation"
                 cols="6"
                 class="text-truncate">
                 Operation:  <strong>{{ chartData.operation }}</strong>
@@ -39,22 +32,38 @@
     <v-expansion-panel-content>
       <template v-if="chartDataProps">
         <v-row
-          v-for="(chartDataProp, index) in chartDataProps"
-          :key="index"
+          v-for="chartDataProp in chartDataProps"
+          :key="chartDataProp"
           class="ma-2"
           no-gutters>
           <v-col>{{ chartDataProp }}</v-col>
-          <v-col class="text--secondary">{{ chartData[chartDataProp] }}</v-col>
+          <v-col v-if="chartDataProp === 'userId' && userIdentity" class="text--secondary">
+            {{ chartData[chartDataProp] }}
+            (<profile-chip :identity="userIdentity" />)
+          </v-col>
+          <v-col v-else-if="chartDataProp === 'spaceId' && spaceIdentity" class="text--secondary">
+            {{ chartData[chartDataProp] }}
+            (<profile-chip :identity="spaceIdentity" />)
+          </v-col>
+          <v-col v-else class="text--secondary">
+            {{ chartData[chartDataProp] }}
+          </v-col>
         </v-row>
       </template>
       <template v-if="chartDataParameters">
         <v-row
-          v-for="(chartDataParameter, index) in chartDataParameters"
-          :key="index"
+          v-for="chartDataParameter in chartDataParameters"
+          :key="chartDataParameter"
           class="ma-2"
           no-gutters>
           <v-col>{{ chartDataParameter }}</v-col>
-          <v-col class="text--secondary">{{ chartData.parameters[chartDataParameter] }}</v-col>
+          <v-col v-if="chartDataParameter === 'modifierSocialId' && userModifierIdentity" class="text--secondary">
+            {{ chartData.parameters[chartDataParameter] }}
+            (<profile-chip :identity="userModifierIdentity" />)
+          </v-col>
+          <v-col v-else class="text--secondary">
+            {{ chartData.parameters[chartDataParameter] }}
+          </v-col>
         </v-row>
       </template>
     </v-expansion-panel-content>
@@ -135,11 +144,11 @@ export default {
       return (this.chartData && this.chartData.timestamp && this.formatDate(this.chartData.timestamp)) || '';
     },
     chartDataProps() {
-      const chartDataProps = this.chartData && Object.keys(this.chartData);
+      const chartDataProps = this.chartData && Object.keys(this.chartData).sort();
       return chartDataProps.filter(item => item !== 'parameters' && this.chartData[item]);
     },
     chartDataParameters() {
-      return this.chartData && this.chartData.parameters && Object.keys(this.chartData.parameters);
+      return this.chartData && this.chartData.parameters && Object.keys(this.chartData.parameters).sort();
     },
   },
   methods: {

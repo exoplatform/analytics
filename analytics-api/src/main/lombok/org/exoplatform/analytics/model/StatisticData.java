@@ -74,6 +74,16 @@ public class StatisticData implements Serializable {
     KO;
   }
 
+  public long computeId() {
+    long result = timestamp;
+    result = result * PRIME + (int) (userId >>> 32 ^ userId);
+    result = result * PRIME + (int) (spaceId >>> 32 ^ spaceId);
+    result = result * PRIME + (module == null ? 43 : module.hashCode());
+    result = result * PRIME + (subModule == null ? 43 : subModule.hashCode());
+    result = result * PRIME + (operation == null ? 43 : operation.hashCode());
+    return result;
+  }
+
   public boolean equals(final java.lang.Object o) {
     if (o == this)
       return true;
@@ -84,13 +94,7 @@ public class StatisticData implements Serializable {
   }
 
   public int hashCode() {
-    int result = 1;
-    result = result * PRIME + (int) (timestamp >>> 32 ^ timestamp);
-    result = result * PRIME + (int) (userId >>> 32 ^ userId);
-    result = result * PRIME + (int) (spaceId >>> 32 ^ spaceId);
-    result = result * PRIME + (module == null ? 43 : module.hashCode());
-    result = result * PRIME + (subModule == null ? 43 : subModule.hashCode());
-    result = result * PRIME + (operation == null ? 43 : operation.hashCode());
-    return result;
+    return (int) computeId();
   }
+
 }

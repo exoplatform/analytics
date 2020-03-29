@@ -15,6 +15,17 @@
       </v-toolbar-title>
       <v-spacer />
       <v-btn
+        :loading="loading"
+        :disabled="loading"
+        icon
+        color="primary"
+        class="mx-2"
+        @click="refresh">
+        <v-icon>
+          refresh
+        </v-icon>
+      </v-btn>
+      <v-btn
         icon
         color="secondary"
         @click="drawer = false">
@@ -23,11 +34,11 @@
         </v-icon>
       </v-btn>
     </v-toolbar>
-    <v-row justify="center">
+    <v-row justify="center" class="ma-0 analyticsDrawerContent">
       <v-expansion-panels v-if="chartDatas" accordion>
         <sample-item
-          v-for="(chartData, i) in chartDatas"
-          :key="i"
+          v-for="chartData in chartDatas"
+          :key="chartData.id"
           :chart-data="chartData"
           :users="users"
           :spaces="spaces" />
@@ -126,7 +137,7 @@ export default {
   },
   created() {
     $(document).on('keydown', (event) => {
-      if (event.key === 'Escape') {
+      if (event && event.key === 'Escape') {
         this.drawer = false;
       }
     });
@@ -137,27 +148,34 @@ export default {
     },
     loadMore() {
       this.limit += this.pageSize;
+      this.selectedPeriod.max = Date.now();
+      this.loadData();
+    },
+    refresh() {
+      this.selectedPeriod.max = Date.now();
       this.loadData();
     },
     loadData() {
       if (!this.selectedPeriod) {
         return;
       }
-      this.loading = true;
 
       let loadedChartData;
-      this.loading = true;
       const params = {
         lang: eXo.env.portal.language,
         min: this.selectedPeriod.min,
         max: this.selectedPeriod.max,
         limit: this.limit,
       };
+
+      this.loading = true;
       return fetch(this.retrieveSamplesUrl, {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
+          'pragma': 'no-cache',
+          'cache-control': 'no-cache',
         },
         body: $.param(params),
       })
