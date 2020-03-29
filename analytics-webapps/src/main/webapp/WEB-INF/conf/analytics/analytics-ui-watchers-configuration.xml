@@ -34,7 +34,7 @@
                 </entry>
                 <entry>
                   <key>
-                    <string>portlet</string>
+                    <string>application</string>
                   </key>
                   <value>
                     <string>NavigationToolbarPortlet</string>
@@ -111,7 +111,7 @@
                 </entry>
                 <entry>
                   <key>
-                    <string>portlet</string>
+                    <string>application</string>
                   </key>
                   <value>
                     <string>SiteHamburgerNavigation</string>
@@ -185,7 +185,7 @@
                 </entry>
                 <entry>
                   <key>
-                    <string>portlet</string>
+                    <string>application</string>
                   </key>
                   <value>
                     <string>SpacesHamburgerNavigation</string>
@@ -231,6 +231,209 @@
       </init-params>
     </component-plugin>
     <component-plugin>
+      <name>Activities refresh button</name>
+      <set-method>addUIWatcherPlugin</set-method>
+      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
+      <init-params>
+        <object-param>
+          <name>watcher</name>
+          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
+            <!-- Statistic data: name field -->
+            <field name="name">
+              <string>Activities refresh button</string>
+            </field>
+            <!-- Statistic data: operation field -->
+            <field name="operation">
+              <string>click</string>
+            </field>
+            <!-- Statistic data: additional embedded parameters -->
+            <field name="parameters">
+              <map type="java.util.HashMap">
+                <entry>
+                  <key>
+                    <string>ui</string>
+                  </key>
+                  <value>
+                    <string>ActivityStream</string>
+                  </value>
+                </entry>
+                <entry>
+                  <key>
+                    <string>application</string>
+                  </key>
+                  <value>
+                    <string>uiActivitiesDisplay</string>
+                  </value>
+                </entry>
+              </map>
+            </field>
+            <!-- DOM jquery selector, used to search elements -->
+            <field name="domSelector">
+              <string>.activityTop .uiIconRefresh</string>
+            </field>
+            <!-- DOM jquery event, used to trigger storing new statistic data -->
+            <field name="domEvent">
+              <string>mousedown</string>
+            </field>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domEventProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>type</string>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Post activity using Composer Drawer</name>
+      <set-method>addUIWatcherPlugin</set-method>
+      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
+      <init-params>
+        <object-param>
+          <name>watcher</name>
+          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
+            <!-- Statistic data: name field -->
+            <field name="name">
+              <string>Post activity using Composer Drawer</string>
+            </field>
+            <!-- Statistic data: operation field -->
+            <field name="operation">
+              <string>click</string>
+            </field>
+            <!-- Statistic data: additional embedded parameters -->
+            <field name="parameters">
+              <map type="java.util.HashMap">
+                <entry>
+                  <key>
+                    <string>ui</string>
+                  </key>
+                  <value>
+                    <string>ActivityStream</string>
+                  </value>
+                </entry>
+                <entry>
+                  <key>
+                    <string>application</string>
+                  </key>
+                  <value>
+                    <string>ActivityComposerDrawer</string>
+                  </value>
+                </entry>
+                <entry>
+                  <key>
+                    <string>component</string>
+                  </key>
+                  <value>
+                    <string>composer</string>
+                  </value>
+                </entry>
+              </map>
+            </field>
+            <!-- DOM jquery selector, used to search elements -->
+            <field name="domSelector">
+              <string>#activityComposerApp .composerButtons button.btn-primary</string>
+            </field>
+            <!-- DOM jquery event, used to trigger storing new statistic data -->
+            <field name="domEvent">
+              <string>mousedown</string>
+            </field>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domEventProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>type</string>
+                </value>
+              </collection>
+            </field>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>disabled</string>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>Post activity using legacy Composer</name>
+      <set-method>addUIWatcherPlugin</set-method>
+      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
+      <init-params>
+        <object-param>
+          <name>watcher</name>
+          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
+            <!-- Statistic data: name field -->
+            <field name="name">
+              <string>Post activity using legacy Composer</string>
+            </field>
+            <!-- Statistic data: operation field -->
+            <field name="operation">
+              <string>click</string>
+            </field>
+            <!-- Statistic data: additional embedded parameters -->
+            <field name="parameters">
+              <map type="java.util.HashMap">
+                <entry>
+                  <key>
+                    <string>ui</string>
+                  </key>
+                  <value>
+                    <string>ActivityStream</string>
+                  </value>
+                </entry>
+                <entry>
+                  <key>
+                    <string>application</string>
+                  </key>
+                  <value>
+                    <string>EmbeddedActivityComposer</string>
+                  </value>
+                </entry>
+                <entry>
+                  <key>
+                    <string>component</string>
+                  </key>
+                  <value>
+                    <string>composer</string>
+                  </value>
+                </entry>
+              </map>
+            </field>
+            <!-- DOM jquery selector, used to search elements -->
+            <field name="domSelector">
+              <string>.uiComposer #ShareButton</string>
+            </field>
+            <!-- DOM jquery event, used to trigger storing new statistic data -->
+            <field name="domEvent">
+              <string>mousedown</string>
+            </field>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domEventProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>type</string>
+                </value>
+              </collection>
+            </field>
+            <!-- DOM jquery properties, used to store additional information in statistic data -->
+            <field name="domProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>disabled</string>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
       <name>Hamburger menu icon</name>
       <set-method>addUIWatcherPlugin</set-method>
       <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
@@ -259,7 +462,7 @@
                 </entry>
                 <entry>
                   <key>
-                    <string>portlet</string>
+                    <string>application</string>
                   </key>
                   <value>
                     <string>HamburgerNavigationMenuLink</string>

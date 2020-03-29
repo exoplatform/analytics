@@ -36,20 +36,29 @@ function() {
       const self_ = this;
       $(document).ready(() => {
         window.setTimeout(() => {
-          this.watchers.forEach(watcher => {
-            if (!watcher || !watcher.domSelector) {
-              return;
-            }
-            const $watcher = $(watcher.domSelector);
-            // settings.maxItems is used to avoid attaching a lot of events
-            if ($watcher.length) {
-              $watcher.on(watcher.domEvent, (event) => {
-                self_.sendMessage.call(self_, watcher, event, self_.connected);
-              });
-            }
+          self_.watchers.forEach(watcher => {
+            self_.installWatcher.call(self_, watcher, 3);
           });
         }, 100);
       });
+    },
+    installWatcher : function(watcher, retries) {
+      if (retries-- <= 0 || !watcher || !watcher.domSelector) {
+        return;
+      }
+      const $watcher = $(watcher.domSelector);
+      $watcher.data('watched', 'true');
+      // settings.maxItems is used to avoid attaching a lot of events
+      const self_ = this;
+      if ($watcher.length) {
+        $watcher.off(watcher.domEvent).on(watcher.domEvent, (event) => {
+          self_.sendMessage.call(self_, watcher, event, self_.connected);
+        });
+      } else {
+        window.setTimeout(() => {
+          self_.installWatcher(watcher, retries);
+        }, 1000);
+      }
     },
     sendMessage : function(watcher, event) {
       try {
