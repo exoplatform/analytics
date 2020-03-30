@@ -118,6 +118,7 @@ The default collected statistics data are:
   * deny connection with other user
   * ignore connection request of other user
   * remove connection with other user
+* [Displayed page statistics data](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-listeners/src/main/java/org/exoplatform/analytics/listener/PageAccessListener.java)
 * [Extensible UI and DOM Events statistics data](https://github.com/exo-addons/analytics/blob/master/analytics-listeners/src/main/java/org/exoplatform/analytics/listener/WebSocketUIStatisticListener.java):
   * [Home link click](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L8-L84)
   * [Hamburger menu topbar click](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L436-L498)
@@ -217,6 +218,29 @@ Specifically for each listener, it has default produced data are: (data can be e
     * `createProfile`
   * `from`: Technical identity ID of user (Perspective: could be retrieved using suggester for data filtering and charts setttings)
   * `to` : Technical identity ID of user (Perspective: could be retrieved using suggester for data filtering and charts setttings)
+* Displayed page statistics data
+  * `module` = `portal`
+  * `subModule` = 
+    * `webui` (in case of WebUI ajax query)
+    * `page` (in case of page display)
+  * `operation` = 
+    * `ajaxRequest` (in case of WebUI ajax query)
+    * `pageDisplay` (in case of page display)
+  * `spaceTemplate` = Current space template
+  * `userLocale` = Current user locale
+  * `portalOwner` = Current PORTAL site (dw, intranet, ...)
+  * `portalUri` = Current URI
+  * `pageUri` = Current page URI (without portal URI, like 'documents', 'activities', 'wiki/user/root' )
+  * `pageName` = current page name/uri last part
+  * `httpRequestMethod`
+  * `httpRequestUri`
+  * `httpRequestProtocol`
+  * `httpRequestMethod` 
+  * `httpRequestContentType`
+  * `httpRequestContentLength`
+  * `httpResponseContentType`
+  * `httpResponseContentLength`
+  * `httpResponseStatus`
 * Extensible **UI and DOM Events** statistics data:
   * `module` = `portal`
   * `subModule` = `ui`
