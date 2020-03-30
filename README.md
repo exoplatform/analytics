@@ -217,11 +217,11 @@ Specifically for each listener, it has default produced data are: (data can be e
     * `createProfile`
   * `from`: Technical identity ID of user (Perspective: could be retrieved using suggester for data filtering and charts setttings)
   * `to` : Technical identity ID of user (Perspective: could be retrieved using suggester for data filtering and charts setttings)
-* Extensible UI and DOM Events statistics data:
+* Extensible **UI and DOM Events** statistics data:
   * `module` = `portal`
   * `subModule` = `ui`
   * `portalUri` = current portal URI when user triggered the event
-  * For DOM event *Home page link* :
+  * For **DOM event** *Home page link* :
     * `watcher` = `Home page link` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L18))
     * `ui` = `toolbar` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L32))
     * `application` = `NavigationToolbarPortlet` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L40))
@@ -232,7 +232,7 @@ Specifically for each listener, it has default produced data are: (data can be e
     * `event-type` = event type having triggered the event (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L57))
     * `event-pageX`: horizontal coordinate of Element having triggered the event (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L69))
     * `event-pageY`: vertical coordinate of Element having triggered the event  (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L63))
-  * For DOM event *Hamburger menu icon* :
+  * For **DOM event** *Hamburger menu icon* :
     * `watcher` = `Hamburger menu icon` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L437))
     * `ui` = `toolbar` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L460))
     * `application` = `HamburgerNavigationMenuLink` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L468))
@@ -240,33 +240,33 @@ Specifically for each listener, it has default produced data are: (data can be e
     * `event-type` = event type having triggered the event (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L485))
     * `event-pageX`: horizontal coordinate of Element having triggered the event (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L488))
     * `event-pageY`: vertical coordinate of Element having triggered the event  (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L491))
-  * For DOM event *Hamburger menu site navigation link* :
+  * For **DOM event** *Hamburger menu site navigation link* :
     * `watcher` = `Hamburger menu site navigation link` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L95))
     * `ui` = `HamburgerMenu` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L109))
     * `application` = `SiteHamburgerNavigation` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L117))
     * `operation` = `click` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L99))
     * `dom-href` = link of target page (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L148))
-    * `dom-aria-selected` = DOM aria-selected value, used to determine whether the element is current page or not. (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L151))
+    * `dom-data-aria-selected` = DOM aria-selected data value, used to determine whether the element is current page or not. (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L151))
     * `event-type` = event type having triggered the event (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L134))
     * `event-pageX`: horizontal coordinate of Element having triggered the event (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L137))
     * `event-pageY`: vertical coordinate of Element having triggered the event  (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L140))
-  * For DOM event *Hamburger menu spaces navigation link* :
+  * For **DOM event** *Hamburger menu spaces navigation link* :
     * `watcher` = `Hamburger menu spaces navigation link` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L169))
     * `ui` = `HamburgerMenu` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L183))
     * `application` = `SpacesHamburgerNavigation` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L191))
     * `operation` = `click` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L173))
     * `dom-href` = link of target page (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L222))
-    * `dom-aria-selected` = DOM aria-selected value, used to determine whether the element is current page or not. (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L225))
+    * `dom-data-aria-selected` = DOM aria-selected data value, used to determine whether the element is current page or not. (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L225))
     * `event-type` = event type having triggered the event (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L208))
     * `event-pageX`: horizontal coordinate of Element having triggered the event (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L211))
     * `event-pageY`: vertical coordinate of Element having triggered the event  (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L214))
-  * For DOM event *Activities refresh button* :
+  * For **DOM event** *Activities refresh button* :
     * `watcher` = `Activities refresh button` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L243))
     * `ui` = `ActivityStream` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L257))
     * `application` = `uiActivitiesDisplay` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L265))
     * `operation` = `click` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L247))
     * `event-type` = event type having triggered the event (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L282))
-  * For DOM event *Post activity using Composer Drawer* :
+  * For **DOM event** *Post activity using Composer Drawer* :
     * `watcher` = `Post activity using Composer Drawer` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L300))
     * `ui` = `ActivityStream` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L314))
     * `component` = `composer` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L330))
@@ -274,7 +274,7 @@ Specifically for each listener, it has default produced data are: (data can be e
     * `operation` = `click` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L304))
     * `event-type` = event type having triggered the event (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L347))
     * `dom-disabled`: DOM value of attribute `disabled` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L355))
-  * For DOM event *Post activity using legacy Composer* :
+  * For **DOM event** *Post activity using legacy Composer* :
     * `watcher` = `Post activity using legacy Composer` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L373))
     * `ui` = `ActivityStream` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L384))
     * `component` = `composer` (defined by [configuration](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml#L330))
@@ -317,6 +317,91 @@ ou can choose the following parameters:
    ** `operation` (`equals`) `createActivity`
    ** `spaceId` (`greater`) `1` (or if you have a lot of spaces, you will have to choose a set of `spaceId`, like :
    `spaceId` (`in set`) `1,2,3,895`)
+
+# DOM Events configuration plugin
+
+In order to add new DOM Event watcher, you can add a [component-plugin](https://docs.exoplatform.org/en/5.3/eXo_Kernel.html#external-plugin) to inject into Service `org.exoplatform.analytics.api.service.AnalyticsService`. (You can follow some example from [here](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml))
+
+To understand more about properties of plugin, please read the commented description in the following example: 
+```xml
+    <component-plugin>
+      <name>Home page link</name>
+      <set-method>addUIWatcherPlugin</set-method>
+      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
+      <init-params>
+        <object-param>
+          <name>watcher</name>
+          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
+            <!-- CLIENT SIDE: DOM jquery selector, used to install watcher in UI to trigger new statistic data item to server -->
+            <field name="domSelector">
+              <string>#brandingTopBar a</string>
+            </field>
+            <!-- CLIENT SIDE: DOM jquery event that will be used to listen on selected element -->
+            <field name="domEvent">
+              <string>mousedown</string>
+            </field>
+            <!-- GENERATED STATISTIC DATA PROPERTY: `name` field -->
+            <field name="name">
+              <string>Home page link</string>
+            </field>
+            <!-- GENERATED STATISTIC DATA PROPERTY: `operation` field -->
+            <field name="operation">
+              <string>click</string>
+            </field>
+            <!-- GENERATED STATISTIC DATA PROPERTY: additional embedded parameters to include in generated statistic data. This can be useful to classify triggired event by category, sub-category... This will help to make easier aggregations on data -->
+            <field name="parameters">
+              <map type="java.util.HashMap">
+                <entry>
+                  <key>
+                    <string>ui</string>
+                  </key>
+                  <value>
+                    <string>toolbar</string>
+                  </value>
+                </entry>
+                <entry>
+                  <key>
+                    <string>application</string>
+                  </key>
+                  <value>
+                    <string>NavigationToolbarPortlet</string>
+                  </value>
+                </entry>
+              </map>
+            </field>
+            <!-- GENERATED STATISTIC DATA PROPERTY: used to store additional information in generated statistic data. This will get the following properties of `DOM event` object -->
+            <field name="domEventProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>type</string>
+                </value>
+                <value>
+                  <string>pageX</string>
+                </value>
+                <value>
+                  <string>pageY</string>
+                </value>
+              </collection>
+            </field>
+            <!-- GENERATED STATISTIC DATA PROPERTY: used to store additional information in generated statistic data. This list of DOM properties will be retrieved using jQuery(...).attr(), else if not exists, jQuery(...).data() will be used -->
+            <field name="domProperties">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>href</string>
+                </value>
+                <value>
+                  <string>class</string>
+                </value>
+                <value>
+                  <string>id</string>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+```
 
 ## Issues
 
