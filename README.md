@@ -346,6 +346,8 @@ ou can choose the following parameters:
 
 In order to add new DOM Event watcher, you can add a [component-plugin](https://docs.exoplatform.org/en/5.3/eXo_Kernel.html#external-plugin) to inject into Service `org.exoplatform.analytics.api.service.AnalyticsService`. (You can follow some example from [here](https://github.com/exo-addons/analytics/blob/1.0.0-M04/analytics-webapps/src/main/webapp/WEB-INF/conf/analytics/analytics-ui-watchers-configuration.xml))
 
+The DOM statistic data are collected in a sync way, but sent to server in async way in a dedicated Process using [Cometd Worker](https://docs.cometd.org/current3/reference/#_javascript_configure) (used parameter: **`useWorkerScheduler`**)
+
 To understand more about properties of plugin, please read the commented description in the following example: 
 ```xml
     <component-plugin>
