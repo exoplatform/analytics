@@ -46,8 +46,8 @@
         <value>${exo.addon.analytics.es.mapping.path:jar:/analytics-es-mapping.json}</value>
       </value-param>
       <value-param>
-        <name>exo.es.analytics.index.per.day</name>
-        <value>${exo.es.analytics.index.per.day:true}</value>
+        <name>exo.es.analytics.index.per.days</name>
+        <value>${exo.es.analytics.index.per.days:7}</value>
       </value-param>
       <value-param>
         <name>exo.es.analytics.index.prefix</name>

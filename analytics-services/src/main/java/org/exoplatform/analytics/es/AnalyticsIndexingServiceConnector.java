@@ -32,7 +32,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
 
   private static final String                 ES_ANALYTICS_TYPE               = "analytics";
 
-  private static final String                 ES_ANALYTICS_INDEX_PER_DAY      = "exo.es.analytics.index.per.day";
+  private static final String                 ES_ANALYTICS_INDEX_PER_DAYS     = "exo.es.analytics.index.per.days";
 
   private static final String                 ES_ANALYTICS_INDEX_PREFIX       = "exo.es.analytics.index.prefix";
 
@@ -44,7 +44,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
 
   private String                              indexPrefix;
 
-  private boolean                             useOneIndexPerDay;
+  private int                                 indexPerDays;
 
   public AnalyticsIndexingServiceConnector(ConfigurationManager configurationManager,
                                            StatisticDataQueueService analyticsQueueService,
@@ -63,8 +63,8 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
           LOG.error("Can't read elasticsearch index mapping from path {}", mappingFilePath, e);
         }
       }
-      if (initParams.containsKey(ES_ANALYTICS_INDEX_PER_DAY)) {
-        this.useOneIndexPerDay = Boolean.parseBoolean(initParams.getValueParam(ES_ANALYTICS_INDEX_PER_DAY).getValue());
+      if (initParams.containsKey(ES_ANALYTICS_INDEX_PER_DAYS)) {
+        this.indexPerDays = Integer.parseInt(initParams.getValueParam(ES_ANALYTICS_INDEX_PER_DAYS).getValue());
       }
       if (initParams.containsKey(ES_ANALYTICS_INDEX_PREFIX)) {
         this.indexPrefix = initParams.getValueParam(ES_ANALYTICS_INDEX_PREFIX).getValue();
@@ -141,8 +141,8 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
   }
 
   public final String getIndex(long timestamp) {
-    if (useOneIndexPerDay) {
-      long indexSuffix = timestamp / DAY_IN_MS;
+    if (indexPerDays > 0) {
+      long indexSuffix = timestamp / (DAY_IN_MS * indexPerDays);
       return this.indexPrefix + "_" + indexSuffix;
     } else {
       return this.indexPrefix;
