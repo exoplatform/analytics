@@ -3,28 +3,28 @@
     :id="appId"
     class="analytics-application"
     flat>
-    <analytics-chart-setting
-      v-if="chartSettings"
-      ref="chartSettingDialog"
-      :retrieve-mappings-url="retrieveMappingsURL"
-      :settings="chartSettings"
-      :users="userObjects"
-      :spaces="spaceObjects"
-      class="mt-0"
-      @save="saveSettings" />
-    <json-panel-dialog
-      v-if="chartSettings"
-      ref="jsonPanelDialog"
-      :settings="chartSettings"
-      class="mt-0" />
-    <view-samples-drawer
-      ref="viewSamplesDrawer"
-      :title="title"
-      :selected-period="selectedPeriod"
-      :users="userObjects"
-      :spaces="spaceObjects"
-      :retrieve-samples-url="retrieveChartSamplesURL"
-      class="mt-0" />
+    <template v-if="canEdit">
+      <analytics-chart-setting
+        ref="chartSettingDialog"
+        :retrieve-mappings-url="retrieveMappingsURL"
+        :settings="chartSettings"
+        :users="userObjects"
+        :spaces="spaceObjects"
+        class="mt-0"
+        @save="saveSettings" />
+      <json-panel-dialog
+        ref="jsonPanelDialog"
+        :settings="chartSettings"
+        class="mt-0" />
+      <view-samples-drawer
+        ref="viewSamplesDrawer"
+        :title="title"
+        :selected-period="selectedPeriod"
+        :users="userObjects"
+        :spaces="spaceObjects"
+        :retrieve-samples-url="retrieveChartSamplesURL"
+        class="mt-0" />
+    </template>
     <v-card class="mx-3 mt-4 ma-auto analytics-chart-parent white" flat>
       <div class="d-flex pa-3 analytics-chart-header" flat>
         <v-toolbar-title class="d-flex">
@@ -53,7 +53,7 @@
         </v-toolbar-title>
         <v-spacer />
         <select-period v-model="selectedPeriod" />
-        <v-menu offset-y>
+        <v-menu v-if="canEdit" offset-y>
           <template v-slot:activator="{ on }">
             <v-btn
               icon
@@ -66,10 +66,10 @@
             <v-list-item @click="$refs.viewSamplesDrawer.open()">
               <v-list-item-title>{{ $t('analytics.samples') }}</v-list-item-title>
             </v-list-item>
-            <v-list-item v-if="chartSettings" @click="$refs.chartSettingDialog.open()">
+            <v-list-item @click="$refs.chartSettingDialog.open()">
               <v-list-item-title>{{ $t('analytics.settings') }}</v-list-item-title>
             </v-list-item>
-            <v-list-item v-if="chartSettings" @click="$refs.jsonPanelDialog.open()">
+            <v-list-item @click="$refs.jsonPanelDialog.open()">
               <v-list-item-title>{{ $t('analytics.jsonSettings') }}</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -317,11 +317,13 @@ export default {
           }
 
           this.chartSettings = JSON.parse(JSON.stringify(chartSettings));
-          this.init();
+          return this.init();
         })
         .catch((e) => {
           console.warn('Error saving chart settings', e);
           this.error = 'Error saving chart settings';
+        })
+        .finally(() => {
           this.loading = false;
         });
     },

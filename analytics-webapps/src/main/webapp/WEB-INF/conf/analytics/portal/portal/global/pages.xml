@@ -23,7 +23,7 @@
   <page>
     <name>analytics</name>
     <title>Analytics</title>
-    <access-permissions>*:/platform/analytics,*:/platform/administrators</access-permissions>
+    <access-permissions>*:/platform/analytics;*:/platform/administrators</access-permissions>
     <edit-permission>manager:/platform/analytics</edit-permission>
     <container
       id="topAnalyticsPage"

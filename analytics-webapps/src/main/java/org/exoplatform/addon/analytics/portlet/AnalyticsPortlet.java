@@ -17,6 +17,7 @@ import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.services.security.*;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -24,6 +25,10 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.webui.Utils;
 
 public class AnalyticsPortlet extends GenericPortlet {
+
+  private static final String                       CAN_MODIFY_CHART_SETTINGS    = "canModifyChartSettings";
+
+  private static final String                       ANALYTICS_SEARCH_SCOPE       = "analyticsSearchScope";
 
   private static final String                       READ_SETTINGS_OPERATOPN      = "GET_SETTINGS";
 
@@ -97,6 +102,9 @@ public class AnalyticsPortlet extends GenericPortlet {
       response.setContentType("application/json");
       response.getWriter().write(jsonArrayResponse.toString());
     } else if (StringUtils.equals(operation, READ_CHART_SAMPLES_OPERATOPN)) {
+      if (!canModifyChartSettings(portletSession)) {
+        throw new PortletException("Not allowed to access samples");
+      }
       AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, true);
       addPeriodFilter(request, filter);
       addScopeFilter(portletSession, filter);
@@ -209,9 +217,31 @@ public class AnalyticsPortlet extends GenericPortlet {
       return cacheSearchScope(portletSession, SearchScope.NONE);
     }
 
-    String groupId = getAnalyticsService().getAdministratorsPermission();
-    if (StringUtils.isNotBlank(groupId) && identity.isMemberOf(MembershipEntry.parse(groupId))) {
-      return cacheSearchScope(portletSession, SearchScope.GLOBAL);
+    List<String> groupIds = getAnalyticsService().getAdministratorsPermissions();
+    for (String groupId : groupIds) {
+      if (StringUtils.isNotBlank(groupId) && identity.isMemberOf(MembershipEntry.parse(groupId))) {
+        return cacheSearchScope(portletSession, SearchScope.GLOBAL);
+      }
+    }
+
+    groupIds = getAnalyticsService().getViewAllPermissions();
+    for (String groupId : groupIds) {
+      if (StringUtils.isNotBlank(groupId) && identity.isMemberOf(MembershipEntry.parse(groupId))) {
+        return cacheSearchScope(portletSession, SearchScope.GLOBAL);
+      }
+    }
+
+    groupIds = getAnalyticsService().getViewPermissions();
+    boolean canView = false;
+    for (String groupId : groupIds) {
+      if (StringUtils.isNotBlank(groupId) && identity.isMemberOf(MembershipEntry.parse(groupId))) {
+        canView = true;
+        break;
+      }
+    }
+
+    if (!canView) {
+      return cacheSearchScope(portletSession, SearchScope.NONE);
     }
 
     Space space = SpaceUtils.getSpaceByContext();
@@ -245,9 +275,11 @@ public class AnalyticsPortlet extends GenericPortlet {
         || StringUtils.equals(userId, IdentityConstants.SYSTEM)) {
       return cacheChartModificationAccessPermission(portletSession, false);
     }
-    String groupId = getAnalyticsService().getAdministratorsPermission();
-    if (StringUtils.isNotBlank(groupId) && identity.isMemberOf(MembershipEntry.parse(groupId))) {
-      return cacheChartModificationAccessPermission(portletSession, true);
+    List<String> groupIds = getAnalyticsService().getAdministratorsPermissions();
+    for (String groupId : groupIds) {
+      if (StringUtils.isNotBlank(groupId) && identity.isMemberOf(MembershipEntry.parse(groupId))) {
+        return cacheChartModificationAccessPermission(portletSession, true);
+      }
     }
     Space space = SpaceUtils.getSpaceByContext();
     if (space != null) {
@@ -258,20 +290,24 @@ public class AnalyticsPortlet extends GenericPortlet {
   }
 
   private Boolean getCanModifySettingsFromCache(PortletSession portletSession) {
-    return (Boolean) portletSession.getAttribute("canModifyChartSettings");
+    return (Boolean) portletSession.getAttribute(CAN_MODIFY_CHART_SETTINGS);
   }
 
   private boolean cacheChartModificationAccessPermission(PortletSession portletSession, boolean canModify) {
-    portletSession.setAttribute("canModifyChartSettings", canModify);
+    if (!PropertyManager.isDevelopping()) {
+      portletSession.setAttribute(CAN_MODIFY_CHART_SETTINGS, canModify);
+    }
     return canModify;
   }
 
   private SearchScope getSearchScopeFromCache(PortletSession portletSession) {
-    return (SearchScope) portletSession.getAttribute("analyticsSearchScope");
+    return (SearchScope) portletSession.getAttribute(ANALYTICS_SEARCH_SCOPE);
   }
 
   private SearchScope cacheSearchScope(PortletSession portletSession, SearchScope searchScope) {
-    portletSession.setAttribute("analyticsSearchScope", searchScope);
+    if (!PropertyManager.isDevelopping()) {
+      portletSession.setAttribute(ANALYTICS_SEARCH_SCOPE, searchScope);
+    }
     return searchScope;
   }
 

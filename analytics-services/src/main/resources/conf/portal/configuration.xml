@@ -24,13 +24,21 @@
     <type>org.exoplatform.analytics.es.service.ESAnalyticsService</type>
     <init-params>
       <value-param>
-        <name>exo.analytics.admin.permission</name>
-        <value>${exo.analytics.admin.permission:*:/platform/analytics}</value>
-      </value-param>
-      <value-param>
         <name>exo.analytics.aggregation.terms.doc_size</name>
         <value>${exo.analytics.aggregation.terms.doc_size:200}</value>
       </value-param>
+      <values-param>
+        <name>exo.analytics.admin.permissions</name>
+        <value>${exo.analytics.admin.permission:*:/platform/analytics}</value>
+      </values-param>
+      <values-param>
+        <name>exo.analytics.viewall.permissions</name>
+        <value>${exo.analytics.viewall.permission:*:/platform/administrators}</value>
+      </values-param>
+      <values-param>
+        <name>exo.analytics.view.permissions</name>
+        <value>${exo.analytics.view.permission:*:/platform/users}</value>
+      </values-param>
     </init-params>
   </component>
 

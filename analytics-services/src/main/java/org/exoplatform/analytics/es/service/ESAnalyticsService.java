@@ -38,7 +38,11 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   private static final Log                   LOG                                        =
                                                  ExoLogger.getLogger(ESAnalyticsService.class);
 
-  private static final String                ANALYTICS_ADMIN_PERMISSION_PARAM_NAME      = "exo.analytics.admin.permission";
+  private static final String                ANALYTICS_ADMIN_PERMISSION_PARAM_NAME      = "exo.analytics.admin.permissions";
+
+  private static final String                ANALYTICS_VIEW_ALL_PERMISSION_PARAM_NAME   = "exo.analytics.viewall.permissions";
+
+  private static final String                ANALYTICS_VIEW_PERMISSION_PARAM_NAME       = "exo.analytics.view.permissions";
 
   private static final String                RETURNED_AGGREGATION_DOCS_COUNT_PARAM_NAME =
                                                                                         "exo.analytics.aggregation.terms.doc_size";
@@ -74,7 +78,11 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
   private ScheduledExecutorService           esMappingUpdater                           = Executors.newScheduledThreadPool(1);
 
-  private String                             administratorsPermission;
+  private List<String>                       administratorsPermissions;
+
+  private List<String>                       viewAllPermissions;
+
+  private List<String>                       viewPermissions;
 
   private int                                aggregationReturnedDocumentsSize           = 200;
 
@@ -87,7 +95,19 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     this.settingService = settingService;
 
     if (params != null && params.containsKey(ANALYTICS_ADMIN_PERMISSION_PARAM_NAME)) {
-      this.administratorsPermission = params.getValueParam(ANALYTICS_ADMIN_PERMISSION_PARAM_NAME).getValue();
+      this.administratorsPermissions = params.getValuesParam(ANALYTICS_ADMIN_PERMISSION_PARAM_NAME).getValues();
+    } else {
+      this.administratorsPermissions = Collections.emptyList();
+    }
+    if (params != null && params.containsKey(ANALYTICS_VIEW_ALL_PERMISSION_PARAM_NAME)) {
+      this.viewAllPermissions = params.getValuesParam(ANALYTICS_VIEW_ALL_PERMISSION_PARAM_NAME).getValues();
+    } else {
+      this.viewAllPermissions = Collections.emptyList();
+    }
+    if (params != null && params.containsKey(ANALYTICS_VIEW_PERMISSION_PARAM_NAME)) {
+      this.viewPermissions = params.getValuesParam(ANALYTICS_VIEW_PERMISSION_PARAM_NAME).getValues();
+    } else {
+      this.viewPermissions = Collections.emptyList();
     }
     if (params != null && params.containsKey(RETURNED_AGGREGATION_DOCS_COUNT_PARAM_NAME)) {
       this.aggregationReturnedDocumentsSize = Integer.parseInt(params.getValueParam(RETURNED_AGGREGATION_DOCS_COUNT_PARAM_NAME)
@@ -201,8 +221,18 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   @Override
-  public String getAdministratorsPermission() {
-    return administratorsPermission;
+  public List<String> getAdministratorsPermissions() {
+    return administratorsPermissions;
+  }
+
+  @Override
+  public List<String> getViewAllPermissions() {
+    return viewAllPermissions;
+  }
+
+  @Override
+  public List<String> getViewPermissions() {
+    return viewPermissions;
   }
 
   @Override
@@ -341,75 +371,75 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       String esQueryValue = fieldMapping == null ? StatisticFieldMapping.computeESQueryValue(fieldFilter.getValueString())
                                                  : fieldMapping.getESQueryValue(fieldFilter.getValueString());
       switch (fieldFilter.getType()) {
-      case NOT_NULL:
-        esQuery.append("        {\"exists\" : {\"")
-               .append("field")
-               .append("\" : \"")
-               .append(field)
-               .append("\"      }},");
-        break;
-      case IS_NULL:
-        esQuery.append("        {\"bool\": {\"must_not\": {\"exists\": {\"field\": \"")
-               .append(field)
-               .append("\"      }}}},");
-        break;
-      case EQUAL:
-        esQuery.append("        {\"match\" : {\"")
-               .append(field)
-               .append("\" : ")
-               .append(esQueryValue)
-               .append("        }},");
-        break;
-      case NOT_EQUAL:
-        esQuery.append("        {\"bool\": {\"must_not\": {\"match\" : {\"")
-               .append(field)
-               .append("\" : ")
-               .append(esQueryValue)
-               .append("        }}}},");
-        break;
-      case GREATER:
-        esQuery.append("        {\"range\" : {\"")
-               .append(field)
-               .append("\" : {")
-               .append("\"gte\" : ")
-               .append(esQueryValue)
-               .append("        }}},");
-        break;
-      case LESS:
-        esQuery.append("        {\"range\" : {\"")
-               .append(field)
-               .append("\" : {")
-               .append("\"lte\" : ")
-               .append(esQueryValue)
-               .append("        }}},");
-        break;
-      case RANGE:
-        Range range = fieldFilter.getRange();
-        esQuery.append("        {\"range\" : {\"")
-               .append(field)
-               .append("\" : {")
-               .append("\"gte\" : ")
-               .append(range.getMin())
-               .append(",\"lte\" : ")
-               .append(range.getMax())
-               .append("        }}},");
-        break;
-      case IN_SET:
-        esQuery.append("        {\"terms\" : {\"")
-               .append(field)
-               .append("\" : ")
-               .append(collectionToJSONString(fieldFilter.getValueString()))
-               .append("        }},");
-        break;
-      case NOT_IN_SET:
-        esQuery.append("        {\"bool\": {\"must_not\": {\"terms\" : {\"")
-               .append(field)
-               .append("\" : ")
-               .append(collectionToJSONString(fieldFilter.getValueString()))
-               .append("        }}}},");
-        break;
-      default:
-        break;
+        case NOT_NULL:
+          esQuery.append("        {\"exists\" : {\"")
+                 .append("field")
+                 .append("\" : \"")
+                 .append(field)
+                 .append("\"      }},");
+          break;
+        case IS_NULL:
+          esQuery.append("        {\"bool\": {\"must_not\": {\"exists\": {\"field\": \"")
+                 .append(field)
+                 .append("\"      }}}},");
+          break;
+        case EQUAL:
+          esQuery.append("        {\"match\" : {\"")
+                 .append(field)
+                 .append("\" : ")
+                 .append(esQueryValue)
+                 .append("        }},");
+          break;
+        case NOT_EQUAL:
+          esQuery.append("        {\"bool\": {\"must_not\": {\"match\" : {\"")
+                 .append(field)
+                 .append("\" : ")
+                 .append(esQueryValue)
+                 .append("        }}}},");
+          break;
+        case GREATER:
+          esQuery.append("        {\"range\" : {\"")
+                 .append(field)
+                 .append("\" : {")
+                 .append("\"gte\" : ")
+                 .append(esQueryValue)
+                 .append("        }}},");
+          break;
+        case LESS:
+          esQuery.append("        {\"range\" : {\"")
+                 .append(field)
+                 .append("\" : {")
+                 .append("\"lte\" : ")
+                 .append(esQueryValue)
+                 .append("        }}},");
+          break;
+        case RANGE:
+          Range range = fieldFilter.getRange();
+          esQuery.append("        {\"range\" : {\"")
+                 .append(field)
+                 .append("\" : {")
+                 .append("\"gte\" : ")
+                 .append(range.getMin())
+                 .append(",\"lte\" : ")
+                 .append(range.getMax())
+                 .append("        }}},");
+          break;
+        case IN_SET:
+          esQuery.append("        {\"terms\" : {\"")
+                 .append(field)
+                 .append("\" : ")
+                 .append(collectionToJSONString(fieldFilter.getValueString()))
+                 .append("        }},");
+          break;
+        case NOT_IN_SET:
+          esQuery.append("        {\"bool\": {\"must_not\": {\"terms\" : {\"")
+                 .append(field)
+                 .append("\" : ")
+                 .append(collectionToJSONString(fieldFilter.getValueString()))
+                 .append("        }}}},");
+          break;
+        default:
+          break;
       }
     }
     esQuery.append("        ],");

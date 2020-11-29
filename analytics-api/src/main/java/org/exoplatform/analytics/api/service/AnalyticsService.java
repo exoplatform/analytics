@@ -35,7 +35,19 @@ public interface AnalyticsService {
   /**
    * @return the analytics permission expression
    */
-  String getAdministratorsPermission();
+  List<String> getAdministratorsPermissions();
+
+  /**
+   * @return the {@link List} of permission expression of users that can access
+   *         all analytics datas
+   */
+  List<String> getViewAllPermissions();
+
+  /**
+   * @return the {@link List} of permission expression of users that can access
+   *         their (and their spaces they are member of) analytics datas
+   */
+  List<String> getViewPermissions();
 
   /**
    * @return {@link List} of {@link StatisticWatcher} containing DOM selectors
@@ -53,4 +65,5 @@ public interface AnalyticsService {
    * Add watcher plugin
    */
   void addUIWatcherPlugin(StatisticUIWatcherPlugin uiWatcherPlugin);
+
 }
