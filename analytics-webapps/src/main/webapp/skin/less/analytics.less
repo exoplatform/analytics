@@ -1,7 +1,12 @@
 @import "./variables.less";
 
-.hide-scroll {
-  overflow: hidden;
+#topAnalyticsPage {
+  #parentSocialPage .UIMobileSwipeParentContainer {
+    > .leftSocialPage, > .rightSocialPage {
+      flex: 0 1 50%;
+      max-width: 50%;
+    }
+  }
 }
 
 .analytics-application {

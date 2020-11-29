@@ -94,6 +94,10 @@
           <name>classpath.resources</name>
           <value>locale.addon.Analytics</value>
         </values-param>
+        <values-param>
+          <name>portal.resource.names</name>
+          <value>locale.addon.Analytics</value>
+        </values-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>

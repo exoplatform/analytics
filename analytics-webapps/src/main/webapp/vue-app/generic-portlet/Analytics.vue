@@ -1,7 +1,7 @@
 <template>
   <v-app 
     :id="appId"
-    class="analytics-application transparent"
+    class="analytics-application"
     flat>
     <main>
       <analytics-chart-setting
@@ -26,10 +26,8 @@
         :spaces="spaceObjects"
         :retrieve-samples-url="retrieveChartSamplesURL"
         class="mt-0" />
-      <v-card class="px-3 pt-4 ma-auto transparent" flat>
-        <v-toolbar
-          color="white"
-          class="elevation-1">
+      <v-card class="mx-3 mt-4 ma-auto white" flat>
+        <v-toolbar flat>
           <v-toolbar-title :title="title">{{ title }}</v-toolbar-title>
           <v-spacer />
           <v-toolbar-title :title="scopeTooltip">
