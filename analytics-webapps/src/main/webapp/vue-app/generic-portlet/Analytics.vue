@@ -28,10 +28,27 @@
         class="mt-0" />
       <v-card class="mx-3 mt-4 ma-auto white" flat>
         <v-toolbar flat>
-          <v-toolbar-title :title="title">{{ title }}</v-toolbar-title>
-          <v-spacer />
-          <v-toolbar-title :title="scopeTooltip">
-            <v-chip :color="scopeColor" :text-color="scopeTextColor">{{ scopeTitle }}</v-chip>
+          <v-toolbar-title class="d-flex">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  :class="scopeColor"
+                  class="my-auto mr-2"
+                  height="20"
+                  width="20"
+                  icon
+                  v-bind="attrs"
+                  v-on="on" />
+              </template>
+              <span>
+                <ul>
+                  <li>{{ $t('analytics.dataRestriction') }}: {{ scopeTooltip }}</li>
+                  <li>{{ $t('analytics.totalSamplesCount') }}: {{ chartsData.dataCount }}</li>
+                  <li>{{ $t('analytics.computingTime') }}: {{ chartsData.computingTime }} ms</li>
+                </ul>
+              </span>
+            </v-tooltip>
+            <span :title="title">{{ title }}</span>
           </v-toolbar-title>
           <v-spacer />
           <select-period v-model="selectedPeriod" />
@@ -45,14 +62,14 @@
               </v-btn>
             </template>
             <v-list>
+              <v-list-item @click="$refs.viewSamplesDrawer.open()">
+                <v-list-item-title>{{ $t('analytics.samples') }}</v-list-item-title>
+              </v-list-item>
               <v-list-item v-if="chartSettings" @click="$refs.chartSettingDialog.open()">
-                <v-list-item-title>Settings</v-list-item-title>
+                <v-list-item-title>{{ $t('analytics.settings') }}</v-list-item-title>
               </v-list-item>
               <v-list-item v-if="chartSettings" @click="$refs.jsonPanelDialog.open()">
-                <v-list-item-title>View JSON panel</v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="$refs.viewSamplesDrawer.open()">
-                <v-list-item-title>View samples</v-list-item-title>
+                <v-list-item-title>{{ $t('analytics.jsonSettings') }}</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -76,15 +93,6 @@
             :title="title"
             :chart-type="chartType" />
         </v-card-text>
-
-        <div v-if="displayComputingTime || displaySamplesCount" class="pl-4">
-          <div v-if="displayComputingTime" class="subtitle-1">
-            Total samples count {{ chartsData.dataCount }}
-          </div>
-          <div v-if="displaySamplesCount" class="subtitle-1">
-            Computing time: {{ chartsData.computingTime }} ms
-          </div>
-        </div>
       </v-card>
     </main>
   </v-app>
@@ -149,7 +157,6 @@ export default {
     scope: null,
     title: null,
     chartType: 'line',
-    displayComputingTime: false,
     displaySamplesCount: false,
     selectedPeriod: null,
     userObjects: {},
@@ -174,23 +181,14 @@ export default {
     scopeTextColor() {
       return `${this.scopeColor} lighten-5`;
     },
-    scopeTitle() {
-      switch (this.scope) {
-      case 'NONE': return 'Permission denied';
-      case 'GLOBAL': return 'ALL Data';
-      case 'USER': return 'User data';
-      case 'SPACE': return 'Space data';
-      }
-      return this.error;
-    },
     scopeTooltip() {
       switch (this.scope) {
-      case 'NONE': return 'Permission denied';
-      case 'GLOBAL': return 'No data restriction';
-      case 'USER': return 'Data restriction: current user data only';
-      case 'SPACE': return 'Data restriction: current space data only';
+      case 'NONE': return this.$t('analytics.permissionDenied');
+      case 'GLOBAL': return this.$t('analytics.noDataRestriction');
+      case 'USER': return this.$t('analytics.dataRestrictedToCurrentUser');
+      case 'SPACE': return this.$t('analytics.dataRestrictedToCurrentSpace');
       }
-      return null;
+      return this.error;
     },
   },
   watch: {
@@ -228,9 +226,7 @@ export default {
           this.scope = settings && settings.scope;
           this.canEdit = settings && settings.canEdit;
           this.chartType = settings && settings.chartType;
-          this.title = settings && settings.title;
-          this.displayComputingTime = settings && settings.displayComputingTime;
-          this.displaySamplesCount = settings && settings.displaySamplesCount;
+          this.title = settings && settings.title || this.$t('analytics.chartDataPlaceholder');
         })
         .catch((e) => {
           console.warn('Error retrieving chart filters', e);

@@ -80,8 +80,6 @@ public class AnalyticsPortlet extends GenericPortlet {
       JSONObject jsonResponse = new JSONObject();
       addJSONParam(jsonResponse, "title", filter.getTitle());
       addJSONParam(jsonResponse, "chartType", filter.getChartType());
-      addJSONParam(jsonResponse, "displayComputingTime", filter.isDisplayComputingTime());
-      addJSONParam(jsonResponse, "displaySamplesCount", filter.isDisplaySamplesCount());
       addJSONParam(jsonResponse, "canEdit", canModifyChartSettings(portletSession));
       addJSONParam(jsonResponse, "scope", getSearchScope(portletSession).name());
       response.setContentType("application/json");
