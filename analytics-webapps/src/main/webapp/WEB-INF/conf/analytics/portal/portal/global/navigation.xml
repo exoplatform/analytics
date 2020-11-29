@@ -28,9 +28,10 @@
 
   <page-nodes>
     <node>
-      <name>metrics</name>
-      <label>#{analytics.navigation.metrics}</label>
-      <page-reference>group::/platform/analytics::metrics</page-reference>
+      <name>analytics</name>
+      <label>#{analytics.navigation.Analytics}</label>
+      <visibility>SYSTEM</visibility>
+      <page-reference>portal::global::analytics</page-reference>
     </node>
   </page-nodes>
 </node-navigation>

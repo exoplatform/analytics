@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
 
-    Copyright (C) 2018 eXo Platform SAS.
+    Copyright (C) 2020 eXo Platform SAS.
 
     This is free software; you can redistribute it and/or modify it
     under the terms of the GNU Lesser General Public License as
@@ -21,25 +21,25 @@
 -->
 <page-set xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/gatein_objects_1_8 http://www.exoplatform.org/xml/ns/gatein_objects_1_8" xmlns="http://www.exoplatform.org/xml/ns/gatein_objects_1_8">
   <page>
-    <name>metrics</name>
-    <title>Metrics</title>
-    <access-permissions>*:/platform/analytics</access-permissions>
+    <name>analytics</name>
+    <title>Analytics</title>
+    <access-permissions>*:/platform/analytics,*:/platform/administrators</access-permissions>
     <edit-permission>manager:/platform/analytics</edit-permission>
     <container
       id="topAnalyticsPage"
       template="system:/groovy/portal/webui/container/UIContainer.gtmpl"
       cssClass="singlePageApplication border-box-sizing">
       <container id="parentSocialPage" template="system:/groovy/portal/webui/container/UIMobileSwipeContainer.gtmpl">
-        <access-permissions>*:/platform/analytics</access-permissions>
+        <access-permissions>Everyone</access-permissions>
         <container id="leftSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
-          <access-permissions>*:/platform/analytics</access-permissions>
+          <access-permissions>Everyone</access-permissions>
           <portlet-application>
             <portlet>
               <application-ref>analytics</application-ref>
               <portlet-ref>AnalyticsPortlet</portlet-ref>
             </portlet>
             <title>Analytics Portlet</title>
-            <access-permissions>*:/platform/analytics</access-permissions>
+            <access-permissions>Everyone</access-permissions>
             <show-info-bar>false</show-info-bar>
           </portlet-application>
           <portlet-application>
@@ -48,24 +48,24 @@
               <portlet-ref>AnalyticsPortlet</portlet-ref>
             </portlet>
             <title>Analytics Portlet</title>
-            <access-permissions>*:/platform/analytics</access-permissions>
+            <access-permissions>Everyone</access-permissions>
             <show-info-bar>false</show-info-bar>
           </portlet-application>
           <container id="leftbottom-analytics-container" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
             <name>leftbottom-analytics-container</name>
-            <access-permissions>*:/platform/analytics</access-permissions>
+            <access-permissions>Everyone</access-permissions>
             <factory-id>addonContainer</factory-id>
           </container>
         </container>
         <container id="rightSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
-          <access-permissions>*:/platform/analytics</access-permissions>
+          <access-permissions>Everyone</access-permissions>
           <portlet-application>
             <portlet>
               <application-ref>analytics</application-ref>
               <portlet-ref>AnalyticsPortlet</portlet-ref>
             </portlet>
             <title>Analytics Portlet</title>
-            <access-permissions>*:/platform/analytics</access-permissions>
+            <access-permissions>Everyone</access-permissions>
             <show-info-bar>false</show-info-bar>
           </portlet-application>
           <portlet-application>
@@ -74,12 +74,12 @@
               <portlet-ref>AnalyticsPortlet</portlet-ref>
             </portlet>
             <title>Analytics Portlet</title>
-            <access-permissions>*:/platform/analytics</access-permissions>
+            <access-permissions>Everyone</access-permissions>
             <show-info-bar>false</show-info-bar>
           </portlet-application>
           <container id="rightbottom-analytics-container" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
             <name>rightbottom-analytics-container</name>
-            <access-permissions>*:/platform/analytics</access-permissions>
+            <access-permissions>Everyone</access-permissions>
             <factory-id>addonContainer</factory-id>
           </container>
         </container>
