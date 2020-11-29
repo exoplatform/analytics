@@ -27,9 +27,7 @@ public class AnalyticsFilter implements Serializable, Cloneable {
 
   private String                     chartType;
 
-  private boolean                    displayComputingTime;
-
-  private boolean                    displaySamplesCount;
+  private List<String>               colors;
 
   private List<AnalyticsFieldFilter> filters             = new ArrayList<>();
 
@@ -151,8 +149,7 @@ public class AnalyticsFilter implements Serializable, Cloneable {
     AnalyticsAggregation cloneyAggregation = yAxisAggregation.clone();
     return new AnalyticsFilter(title,
                                chartType,
-                               displayComputingTime,
-                               displaySamplesCount,
+                               colors,
                                cloneFilters,
                                multipleChartsField,
                                cloneXAggs,

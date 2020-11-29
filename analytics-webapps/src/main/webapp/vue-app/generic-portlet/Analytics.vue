@@ -3,98 +3,97 @@
     :id="appId"
     class="analytics-application"
     flat>
-    <main>
-      <analytics-chart-setting
-        v-if="chartSettings"
-        ref="chartSettingDialog"
-        :retrieve-mappings-url="retrieveMappingsURL"
-        :settings="chartSettings"
-        :users="userObjects"
-        :spaces="spaceObjects"
-        class="mt-0"
-        @save="saveSettings" />
-      <json-panel-dialog
-        v-if="chartSettings"
-        ref="jsonPanelDialog"
-        :settings="chartSettings"
-        class="mt-0" />
-      <view-samples-drawer
-        ref="viewSamplesDrawer"
-        :title="title"
-        :selected-period="selectedPeriod"
-        :users="userObjects"
-        :spaces="spaceObjects"
-        :retrieve-samples-url="retrieveChartSamplesURL"
-        class="mt-0" />
-      <v-card class="mx-3 mt-4 ma-auto white" flat>
-        <v-toolbar flat>
-          <v-toolbar-title class="d-flex">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  :class="scopeColor"
-                  class="my-auto mr-2"
-                  height="20"
-                  width="20"
-                  icon
-                  v-bind="attrs"
-                  v-on="on" />
-              </template>
-              <span>
-                <ul>
-                  <li>{{ $t('analytics.dataRestriction') }}: {{ scopeTooltip }}</li>
-                  <li>{{ $t('analytics.totalSamplesCount') }}: {{ chartsData.dataCount }}</li>
-                  <li>{{ $t('analytics.computingTime') }}: {{ chartsData.computingTime }} ms</li>
-                </ul>
-              </span>
-            </v-tooltip>
-            <span :title="title">{{ title }}</span>
-          </v-toolbar-title>
-          <v-spacer />
-          <select-period v-model="selectedPeriod" />
-          <v-menu offset-y>
-            <template v-slot:activator="{ on }">
+    <analytics-chart-setting
+      v-if="chartSettings"
+      ref="chartSettingDialog"
+      :retrieve-mappings-url="retrieveMappingsURL"
+      :settings="chartSettings"
+      :users="userObjects"
+      :spaces="spaceObjects"
+      class="mt-0"
+      @save="saveSettings" />
+    <json-panel-dialog
+      v-if="chartSettings"
+      ref="jsonPanelDialog"
+      :settings="chartSettings"
+      class="mt-0" />
+    <view-samples-drawer
+      ref="viewSamplesDrawer"
+      :title="title"
+      :selected-period="selectedPeriod"
+      :users="userObjects"
+      :spaces="spaceObjects"
+      :retrieve-samples-url="retrieveChartSamplesURL"
+      class="mt-0" />
+    <v-card class="mx-3 mt-4 ma-auto analytics-chart-parent white" flat>
+      <div class="d-flex pa-3 analytics-chart-header" flat>
+        <v-toolbar-title class="d-flex">
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
               <v-btn
+                :class="scopeColor"
+                class="my-auto mr-2"
+                height="20"
+                width="20"
                 icon
-                class="ml-2"
-                v-on="on">
-                <v-icon>mdi-dots-vertical</v-icon>
-              </v-btn>
+                v-bind="attrs"
+                v-on="on" />
             </template>
-            <v-list>
-              <v-list-item @click="$refs.viewSamplesDrawer.open()">
-                <v-list-item-title>{{ $t('analytics.samples') }}</v-list-item-title>
-              </v-list-item>
-              <v-list-item v-if="chartSettings" @click="$refs.chartSettingDialog.open()">
-                <v-list-item-title>{{ $t('analytics.settings') }}</v-list-item-title>
-              </v-list-item>
-              <v-list-item v-if="chartSettings" @click="$refs.jsonPanelDialog.open()">
-                <v-list-item-title>{{ $t('analytics.jsonSettings') }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-toolbar>
-
-        <v-card-title
-          v-if="loading"
-          primary-title
-          class="ma-auto">
-          <v-spacer />
-          <v-progress-circular
-            color="primary"
-            indeterminate
-            size="20" />
-          <v-spacer />
-        </v-card-title>
-
-        <v-card-text class="px-0 mx-0">
-          <analytics-chart
-            ref="analyticsChart"
+            <span>
+              <div>- {{ $t('analytics.dataRestriction') }}: {{ scopeTooltip }}</div>
+              <div>- {{ $t('analytics.totalSamplesCount') }}: {{ chartsData.dataCount }}</div>
+              <div>- {{ $t('analytics.computingTime') }}: {{ chartsData.computingTime }} ms</div>
+            </span>
+          </v-tooltip>
+          <div
             :title="title"
-            :chart-type="chartType" />
-        </v-card-text>
-      </v-card>
-    </main>
+            class="my-auto">
+            {{ title }}
+          </div>
+        </v-toolbar-title>
+        <v-spacer />
+        <select-period v-model="selectedPeriod" />
+        <v-menu offset-y>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              icon
+              class="ml-2"
+              v-on="on">
+              <v-icon>mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item @click="$refs.viewSamplesDrawer.open()">
+              <v-list-item-title>{{ $t('analytics.samples') }}</v-list-item-title>
+            </v-list-item>
+            <v-list-item v-if="chartSettings" @click="$refs.chartSettingDialog.open()">
+              <v-list-item-title>{{ $t('analytics.settings') }}</v-list-item-title>
+            </v-list-item>
+            <v-list-item v-if="chartSettings" @click="$refs.jsonPanelDialog.open()">
+              <v-list-item-title>{{ $t('analytics.jsonSettings') }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
+
+      <v-card-title
+        v-if="loading"
+        primary-title
+        class="ma-auto">
+        <v-spacer />
+        <v-progress-circular
+          color="primary"
+          indeterminate
+          size="20" />
+        <v-spacer />
+      </v-card-title>
+
+      <analytics-chart
+        ref="analyticsChartBody"
+        :title="title"
+        :chart-type="chartType"
+        :colors="colors" />
+    </v-card>
   </v-app>
 </template>
 
@@ -157,6 +156,7 @@ export default {
     scope: null,
     title: null,
     chartType: 'line',
+    initialized: false,
     displaySamplesCount: false,
     selectedPeriod: null,
     userObjects: {},
@@ -167,6 +167,20 @@ export default {
       .toString()}`,
     chartsData: {},
     chartSettings: null,
+    DEFAULT_COLORS: [
+      '#319ab3',
+      '#f97575',
+      '#98cc81',
+      '#4273c8',
+      '#cea6ac',
+      '#bc99e7',
+      '#9ee4f5',
+      '#774ea9',
+      '#ffa500',
+      '#bed67e',
+      '#bc99e7',
+      '#ffaacc',
+    ],
   }),
   computed: {
     scopeColor() {
@@ -190,10 +204,18 @@ export default {
       }
       return this.error;
     },
+    colors() {
+      return this.chartSettings
+        && this.chartSettings.colors
+        && this.chartSettings.colors.length
+        && this.chartSettings.colors.slice()
+        || this.DEFAULT_COLORS;
+    },
   },
   watch: {
     selectedPeriod(newValue, oldValue) {
-      if (!oldValue && newValue) {
+      if (!oldValue && newValue && !this.initialized) {
+        this.initialized = true;
         this.init();
       } else if (newValue) {
         this.updateChart();
@@ -204,7 +226,9 @@ export default {
     init() {
       this.loading = true;
       return this.getSettings()
+              .then(this.$nextTick)
               .then(this.updateChart)
+              .then(this.$nextTick)
               .then(this.getFilters)
               .finally(() => {
                 this.loading = false;
@@ -223,6 +247,9 @@ export default {
           }
         })
         .then((settings) => {
+          if (!this.chartSettings) {
+            this.chartSettings = settings;
+          }
           this.scope = settings && settings.scope;
           this.canEdit = settings && settings.canEdit;
           this.chartType = settings && settings.chartType;
@@ -250,7 +277,7 @@ export default {
         })
         .then((settings) => {
           this.chartSettings = settings;
-          if (!this.chartSettings) {
+          if (!settings) {
             this.chartSettings = {
               filters: [],
               aggregations: [],
@@ -274,8 +301,6 @@ export default {
     saveSettings(chartSettings) {
       this.loading = true;
 
-      this.chartSettings = chartSettings;
-
       return fetch(this.saveSettingsURL, {
         method: 'POST',
         credentials: 'include',
@@ -283,16 +308,16 @@ export default {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: $.param({
-          settings : JSON.stringify(this.chartSettings)
+          settings : JSON.stringify(chartSettings)
         }),
       })
         .then((resp) => {
           if (!resp || !resp.ok) {
-            throw new Error('Error saving chart settings', this.chartSettings);
+            throw new Error('Error saving chart settings', chartSettings);
           }
-          // Wait until portlet preferences store transaction gets really saved
-          // and gets available. (To DELETE once Portal RDBMS is merged) 
-          window.setTimeout(this.init, 100);
+
+          this.chartSettings = JSON.parse(JSON.stringify(chartSettings));
+          this.init();
         })
         .catch((e) => {
           console.warn('Error saving chart settings', e);
@@ -328,7 +353,7 @@ export default {
         })
         .then((chartsData) => {
           this.chartsData = chartsData;
-          this.$refs.analyticsChart.init(this.chartsData);
+          this.$refs.analyticsChartBody.init(this.chartsData);
         })
         .catch((e) => {
           console.debug('fetch analytics - error', e);

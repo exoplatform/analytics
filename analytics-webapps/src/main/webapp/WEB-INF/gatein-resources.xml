@@ -37,7 +37,7 @@
         <module>iePolyfills</module>
       </depends>
       <depends>
-        <module>analyticsChart</module>
+        <module>eCharts</module>
       </depends>
     </module>
   </portlet>
@@ -59,13 +59,5 @@
       </depends>
     </module>
   </portlet>
-
-  <module>
-    <name>analyticsChart</name>
-    <script>
-      <minify>false</minify>
-      <path>/js/lib/echarts.min.js</path>
-    </script>
-  </module>
 
 </gatein-resources>

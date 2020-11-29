@@ -7,6 +7,7 @@
     width="750px"
     max-width="100vw"
     min-height="450px"
+    max-height="100%"
     persistent
     @keydown.esc="dialog = false">
     <v-card class="elevation-12">

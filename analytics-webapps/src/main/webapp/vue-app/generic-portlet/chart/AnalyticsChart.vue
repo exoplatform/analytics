@@ -1,5 +1,5 @@
 <template>
-  <v-flex :id="id" class="analyticsChartParent" />
+  <v-flex :id="id" class="analytics-chart-body" />
 </template>
 <script>
 export default {
@@ -14,6 +14,25 @@ export default {
       type: String,
       default: function() {
         return null;
+      },
+    },
+    colors: {
+      type: Array,
+      default: function() {
+        return [
+          '#319ab3',
+          '#f97575',
+          '#98cc81',
+          '#4273c8',
+          '#cea6ac',
+          '#bc99e7',
+          '#9ee4f5',
+          '#774ea9',
+          '#ffa500',
+          '#bed67e',
+          '#bc99e7',
+          '#ffaacc',
+        ];
       },
     },
   },
@@ -42,10 +61,15 @@ export default {
 
       const series = [];
       const chartOptions = {
-          title : {
-            x: 'center'
-          },
-          series : series,
+        title : {
+          x: 'center'
+        },
+        grid: {
+          top: 10,
+          bottom: 30,
+        },
+        color: this.colors,
+        series : series,
       };
 
       if (this.chartType === 'line' || this.chartType === 'bar') {

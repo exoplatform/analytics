@@ -1,10 +1,15 @@
 @import "./variables.less";
 
 #topAnalyticsPage {
-  #parentSocialPage .UIMobileSwipeParentContainer {
-    > .leftSocialPage, > .rightSocialPage {
-      flex: 0 1 50%;
-      max-width: 50%;
+  #parentSocialPage {
+    > div {
+      padding: 0 25px;
+    }
+    .UIMobileSwipeParentContainer {
+      > .leftSocialPage, > .rightSocialPage {
+        flex: 0 1 50%;
+        max-width: 50%;
+      }
     }
   }
   .singlePageApplication {
@@ -82,11 +87,14 @@
     z-index: 2000
   }
 
-  .analyticsChartParent {
-    height: 400px;
-    width: 600px;
-    margin: -45px 0 !important;
+  .analytics-chart-parent {
+    
+    .analytics-chart-body {
+      height: 350px;
+      width: 450px;
+    }
   }
+
 }
 .analyticsDrawerContent {
   box-sizing: border-box;

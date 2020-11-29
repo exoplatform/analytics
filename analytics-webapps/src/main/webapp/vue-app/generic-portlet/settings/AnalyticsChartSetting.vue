@@ -24,6 +24,7 @@
           background-color="transparent"
           color="primary">
           <v-tab>General</v-tab>
+          <v-tab>Colors</v-tab>
           <v-tab>X axis</v-tab>
           <v-tab>Y axis</v-tab>
           <v-tab>Multiple charts</v-tab>
@@ -33,6 +34,11 @@
           <v-tab-item eager>
             <general-setting-form
               ref="settingForm"
+              :settings="chartSettings" />
+          </v-tab-item>
+          <v-tab-item eager>
+            <colors-setting-form
+              ref="colorsForm"
               :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
@@ -77,6 +83,7 @@
 
 <script>
 import GeneralSettingForm from './tabs/GeneralSettingForm.vue';
+import ColorsSettingForm from './tabs/ColorsSettingForm.vue';
 import SearchFilterForm from './tabs/SearchFilterForm.vue';
 import XAxisForm from './tabs/XAxisAggregationForm.vue';
 import YAxisForm from './tabs/YAxisAggregationForm.vue';
@@ -85,6 +92,7 @@ import MultipleCharts from './tabs/MultipleChartsAggregationForm.vue';
 export default {
   components: {
     GeneralSettingForm,
+    ColorsSettingForm,
     SearchFilterForm,
     XAxisForm,
     YAxisForm,
@@ -125,7 +133,7 @@ export default {
   },
   computed: {
     chartSettings() {
-      return Object.assign({}, this.settings);
+      return JSON.parse(JSON.stringify(this.settings));
     },
     settingJsonContent() {
       return this.settings && JSON.stringify(this.settings, null, 2);
@@ -158,6 +166,17 @@ export default {
         })
         .then((fieldsMappings) => {
           this.fieldsMappings = fieldsMappings;
+          return this.$nextTick();
+        })
+        .then(() => {
+          if (this.$refs) {
+            Object.keys(this.$refs).forEach(refKey => {
+              const component = this.$refs[refKey];
+              if (component && component.init) {
+                component.init();
+              }
+            });
+          }
         })
         .catch((e) => {
           console.debug('fetch analytics - error', e);

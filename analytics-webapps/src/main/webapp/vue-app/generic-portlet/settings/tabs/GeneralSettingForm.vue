@@ -32,24 +32,6 @@
           chips
           @change="$emit('type-changed')" />
       </v-flex>
-      <v-flex
-        class="my-auto px-2"
-        md6
-        xs12>
-        <v-switch
-          v-model="settings.displayComputingTime"
-          label="Display computing time"
-          required />
-      </v-flex>
-      <v-flex
-        class="my-auto px-2"
-        md6
-        xs12>
-        <v-switch
-          v-model="settings.displaySamplesCount"
-          label="Display samples count"
-          required />
-      </v-flex>
     </v-layout>
   </v-form>
 </template>

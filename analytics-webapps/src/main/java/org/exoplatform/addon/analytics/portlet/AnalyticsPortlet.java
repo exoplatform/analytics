@@ -80,6 +80,8 @@ public class AnalyticsPortlet extends GenericPortlet {
       JSONObject jsonResponse = new JSONObject();
       addJSONParam(jsonResponse, "title", filter.getTitle());
       addJSONParam(jsonResponse, "chartType", filter.getChartType());
+      List<String> colors = filter.getColors() == null ? Collections.emptyList() : filter.getColors();
+      addJSONParam(jsonResponse, "colors", new JSONArray(colors));
       addJSONParam(jsonResponse, "canEdit", canModifyChartSettings(portletSession));
       addJSONParam(jsonResponse, "scope", getSearchScope(portletSession).name());
       response.setContentType("application/json");
@@ -157,18 +159,18 @@ public class AnalyticsPortlet extends GenericPortlet {
   private void addScopeFilter(PortletSession portletSession, AnalyticsFilter filter) throws PortletException {
     SearchScope scope = getSearchScope(portletSession);
     switch (scope) {
-    case GLOBAL:
-      break;
-    case NONE:
-      throw new PortletException("Not allowed to access information");
-    case SPACE:
-      Space space = SpaceUtils.getSpaceByContext();
-      filter.addEqualFilter("spaceId", space.getId());
-      break;
-    case USER:
-      String viewerIdentityId = Utils.getViewerIdentity().getId();
-      filter.addEqualFilter("userId", viewerIdentityId);
-      break;
+      case GLOBAL:
+        break;
+      case NONE:
+        throw new PortletException("Not allowed to access information");
+      case SPACE:
+        Space space = SpaceUtils.getSpaceByContext();
+        filter.addEqualFilter("spaceId", space.getId());
+        break;
+      case USER:
+        String viewerIdentityId = Utils.getViewerIdentity().getId();
+        filter.addEqualFilter("userId", viewerIdentityId);
+        break;
     }
   }
 
