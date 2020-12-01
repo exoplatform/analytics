@@ -1,16 +1,29 @@
 <template>
-  <v-select
+  <v-autocomplete
     v-model="value"
     :items="fields"
     :label="label"
     :value-comparator="selectedValueComparator"
     :return-object="false"
-    item-text="label"
     :item-value="aggregation ? 'aggregationFieldName' : 'searchFieldName'"
+    item-text="label"
     class="operatorInput"
     persistent-hint
     chips
-    @change="updateData" />
+    dense
+    @change="updateData">
+    <template v-slot:selection="data">
+      <v-chip
+        v-bind="data.attrs"
+        :input-value="data.selected"
+        @click="data.select">
+        {{ data.item.label }}
+      </v-chip>
+    </template>
+    <template v-slot:item="data">
+      <v-list-item-content v-text="data.item.label" />
+    </template>
+  </v-autocomplete>
 </template>
 
 <script>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd" xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd http://www.exoplatform.org/xml/ns/kernel_1_3.xsd" xmlns="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd">
 
   <!-- Statistic listeners -->
   <external-component-plugins>
@@ -79,7 +79,7 @@
     </component-plugin>
   </external-component-plugins>
 
-  <external-component-plugins>
+  <external-component-plugins profiles="agenda">
     <target-component>org.exoplatform.services.listener.ListenerService</target-component>
     <component-plugin>
       <name>exo.agenda.event.created</name>
@@ -89,7 +89,16 @@
     <component-plugin>
       <name>exo.agenda.event.updated</name>
       <set-method>addListener</set-method>
-      <type>org.exoplatform.analytics.listener.agenda.AgendaEventReminderCleanerListener</type>
+      <type>org.exoplatform.analytics.listener.agenda.AgendaSavedEventListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins profiles="kudos">
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>exo.kudos.sent</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.kudos.KudosSentListener</type>
     </component-plugin>
   </external-component-plugins>
 

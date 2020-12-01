@@ -37,8 +37,51 @@
             <portlet>
               <application-ref>analytics</application-ref>
               <portlet-ref>AnalyticsPortlet</portlet-ref>
+              <preferences>
+                <preference>
+                  <name>settings</name>
+                  <value>{
+                    "offset": 0,
+                    "filters": [
+                      {
+                        "field": "operation",
+                        "type": "EQUAL",
+                        "valueString": "login"
+                      }
+                    ],
+                    "title": "Distinct logins",
+                    "aggregations": [
+                      {
+                        "field": "timestamp",
+                        "type": "DATE",
+                        "interval": "day",
+                        "sortDirection": "asc"
+                      },
+                      {
+                        "field": "userId",
+                        "type": "CARDINALITY"
+                      }
+                    ],
+                    "xAxisAggregations": [
+                      {
+                        "field": "timestamp",
+                        "type": "DATE",
+                        "interval": "day",
+                        "sortDirection": "asc"
+                      }
+                    ],
+                    "multipleCharts": false,
+                    "yAxisAggregation": {
+                      "field": "userId",
+                      "type": "CARDINALITY"
+                    },
+                    "chartType": "line",
+                    "limit": 0
+                  }</value>
+                </preference>
+              </preferences>
             </portlet>
-            <title>Analytics Portlet</title>
+            <title>Distinct logins</title>
             <access-permissions>Everyone</access-permissions>
             <show-info-bar>false</show-info-bar>
           </portlet-application>
@@ -46,8 +89,56 @@
             <portlet>
               <application-ref>analytics</application-ref>
               <portlet-ref>AnalyticsPortlet</portlet-ref>
+              <preferences>
+                <preference>
+                  <name>settings</name>
+                  <value>{
+                    "offset": 0,
+                    "title": "Spaces count",
+                    "aggregations": [
+                      {
+                        "field": "timestamp",
+                        "type": "DATE",
+                        "interval": "day",
+                        "sortDirection": "asc"
+                      },
+                      {
+                        "field": "count",
+                        "type": "MAX"
+                      }
+                    ],
+                    "filters": [
+                      {
+                        "field": "operation",
+                        "type": "EQUAL",
+                        "valueString": "spacesCount"
+                      },
+                      {
+                        "field": "countType",
+                        "type": "EQUAL",
+                        "valueString": "allSpaces"
+                      }
+                    ],
+                    "xAxisAggregations": [
+                      {
+                        "field": "timestamp",
+                        "type": "DATE",
+                        "interval": "day",
+                        "sortDirection": "asc"
+                      }
+                    ],
+                    "multipleCharts": false,
+                    "yAxisAggregation": {
+                      "field": "count",
+                      "type": "MAX"
+                    },
+                    "chartType": "line",
+                    "limit": 0
+                  }</value>
+                </preference>
+              </preferences>
             </portlet>
-            <title>Analytics Portlet</title>
+            <title>Users count Portlet</title>
             <access-permissions>Everyone</access-permissions>
             <show-info-bar>false</show-info-bar>
           </portlet-application>
@@ -63,8 +154,60 @@
             <portlet>
               <application-ref>analytics</application-ref>
               <portlet-ref>AnalyticsPortlet</portlet-ref>
+              <preferences>
+                <preference>
+                  <name>settings</name>
+                  <value>{
+                    "offset": 0,
+                    "filters": [
+                      {
+                        "field": "operation",
+                        "type": "EQUAL",
+                        "valueString": "usersCount"
+                      }
+                    ],
+                    "title": "Users count",
+                    "aggregations": [
+                      {
+                        "field": "countType.keyword",
+                        "type": "COUNT"
+                      },
+                      {
+                        "field": "timestamp",
+                        "type": "DATE",
+                        "interval": "day",
+                        "sortDirection": "asc"
+                      },
+                      {
+                        "field": "count",
+                        "type": "MAX"
+                      }
+                    ],
+                    "xAxisAggregations": [
+                      {
+                        "field": "timestamp",
+                        "type": "DATE",
+                        "interval": "day",
+                        "sortDirection": "asc"
+                      }
+                    ],
+                    "multipleCharts": true,
+                    "multipleChartsAggregation": {
+                      "field": "countType.keyword",
+                      "type": "COUNT"
+                    },
+                    "yAxisAggregation": {
+                      "field": "count",
+                      "type": "MAX"
+                    },
+                    "chartType": "line",
+                    "multipleChartsField": "countType.keyword",
+                    "limit": 0
+                  }</value>
+                </preference>
+              </preferences>
             </portlet>
-            <title>Analytics Portlet</title>
+            <title>Spaces count Analytics</title>
             <access-permissions>Everyone</access-permissions>
             <show-info-bar>false</show-info-bar>
           </portlet-application>

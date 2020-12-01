@@ -188,7 +188,7 @@ public class AnalyticsUtils {
       if (identityManager == null) {
         return defaultLabel;
       } else {
-        Identity identity = identityManager.getIdentity(chartValue, true);
+        Identity identity = identityManager.getIdentity(chartValue);
         if (identity == null) {
           return defaultLabel;
         } else {
@@ -274,7 +274,7 @@ public class AnalyticsUtils {
       return null;
     }
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    return identityManager.getIdentity(identityId, true);
+    return identityManager.getIdentity(identityId);
   }
 
   public static long getIdentityId(String identityId) {

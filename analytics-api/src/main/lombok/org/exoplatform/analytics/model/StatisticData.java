@@ -81,6 +81,7 @@ public class StatisticData implements Serializable {
     result = result * PRIME + (module == null ? 43 : module.hashCode());
     result = result * PRIME + (subModule == null ? 43 : subModule.hashCode());
     result = result * PRIME + (operation == null ? 43 : operation.hashCode());
+    result = result * PRIME + (parameters == null ? 43 : parameters.hashCode());
     return result;
   }
 

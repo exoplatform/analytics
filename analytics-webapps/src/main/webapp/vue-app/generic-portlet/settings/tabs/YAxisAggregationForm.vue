@@ -9,7 +9,7 @@
     <v-card-text>
       <v-layout wrap>
         <v-flex class="my-auto px-2" xs6>
-          <v-radio-group v-model="yAxisAggregation.type">
+          <v-radio-group v-model="aggregationType">
             <v-radio
               v-for="aggregationType in aggregationTypes"
               :key="aggregationType.value"
@@ -18,7 +18,7 @@
           </v-radio-group>
         </v-flex>
         <v-flex
-          v-if="!yAxisAggregationCount"
+          v-show="!yAxisAggregationCount"
           class="my-auto px-2"
           xs6>
           <field-selection
@@ -55,6 +55,7 @@ export default {
     },
   },
   data: () => ({
+    aggregationType: 'COUNT',
     aggregationTypes: [
       {
         text: 'Count samples',
@@ -72,6 +73,14 @@ export default {
         text: 'Average of',
         value: 'AVG',
       },
+      {
+        text: 'Max of',
+        value: 'MAX',
+      },
+      {
+        text: 'MIN of',
+        value: 'MIN',
+      },
     ],
   }),
   computed: {
@@ -79,21 +88,25 @@ export default {
       return this.settings && this.settings.yAxisAggregation;
     },
     yAxisAggregationCount() {
-      return this.yAxisAggregation && this.yAxisAggregation.type === 'COUNT';
+      return this.aggregationType === 'COUNT';
     },
     yAxisAggregationCardinality() {
-      return this.yAxisAggregation && this.yAxisAggregation.type === 'CARDINALITY';
+      return this.aggregationType === 'CARDINALITY';
     },
   },
   watch: {
     yAxisAggregationCount() {
       this.yAxisAggregation.field = null;
-    }
+    },
+    aggregationType() {
+      this.yAxisAggregation.type = this.aggregationType;
+    },
   },
   mounted() {
     if (!this.yAxisAggregation.type) {
       this.yAxisAggregation.type = 'COUNT';
     }
+    this.aggregationType = this.yAxisAggregation.type;
   },
   methods: {
     selectedValueComparator(item1, item2){

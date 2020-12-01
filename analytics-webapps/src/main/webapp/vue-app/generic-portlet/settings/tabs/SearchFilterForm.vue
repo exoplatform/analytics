@@ -16,39 +16,44 @@
                 :fields-mappings="fieldsMappings"
                 label="Field name" />
             </v-flex>
-            <v-flex xs3 class="my-auto px-2">
-              <v-select
+            <v-flex xs3 class="mt-auto mb-2 px-2">
+              <select
                 v-model="item.type"
-                :items="searchFilterTypes"
-                :value-comparator="selectedValueComparator"
-                :return-object="false"
-                item-text="text"
-                item-value="value"
-                class="operatorInput"
-                persistent-hint
-                chips
-                label="Operator" />
+                label="Operator"
+                class="operatorInput border-color width-auto ignore-vuetify-classes"
+                @change="$forceUpdate()">
+                <option
+                  v-for="searchFilterType in searchFilterTypes"
+                  :key="searchFilterType.value"
+                  :value="searchFilterType.value">
+                  {{ searchFilterType.text }}
+                </option>
+              </select>
             </v-flex>
             <v-flex xs3 class="my-auto">
               <v-text-field
                 v-if="item.type === 'EQUAL' || item.type === 'NOT_EQUAL' || item.type === 'LESS' || item.type === 'GREATER'"
                 v-model="item.valueString"
                 label="Value"
+                class="pa-0 my-auto"
                 required />
               <v-text-field
                 v-else-if="item.type === 'IN_SET' || item.type === 'NOT_IN_SET'"
                 v-model="item.valueString"
                 label="Values"
+                class="pa-0 my-auto"
                 placeholder="Values (Separator ',')"
                 required />
               <template v-else-if="item.type === 'RANGE' && (item.range || (item.range = {}))">
                 <v-text-field
                   v-model="item.range.min"
                   label="Min"
+                  class="pa-0 my-auto"
                   required />
                 <v-text-field
                   v-model="item.range.max"
                   label="Max"
+                  class="pa-0 my-auto"
                   required />
               </template>
             </v-flex>
@@ -150,16 +155,12 @@ export default {
     ],
   }),
   methods: {
-    selectedValueComparator(item1, item2){
-      const item1Value = item1 && item1.value || item1;
-      const item2Value = item2 && item2.value || item2;
-      return item1Value === item2Value;
-    },
     deleteFilter(searchFilterIndex){
       this.filters.splice(searchFilterIndex, 1);
     },
     addFilter(){
-      this.filters.push({type: 'equals'});
+      this.filters.push({type: 'EQUAL'});
+      this.$forceUpdate();
     },
   },
 };

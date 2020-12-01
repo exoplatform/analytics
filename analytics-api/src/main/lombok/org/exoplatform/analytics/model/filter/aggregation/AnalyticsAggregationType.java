@@ -5,6 +5,8 @@ import lombok.Getter;
 public enum AnalyticsAggregationType {
   SUM("sum", false),
   AVG("avg", false),
+  MAX("max", false),
+  MIN("min", false),
   COUNT("terms", false),
   DATE("date_histogram", true),
   HISTOGRAM("histogram", true),

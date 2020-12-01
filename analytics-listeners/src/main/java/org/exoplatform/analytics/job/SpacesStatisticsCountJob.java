@@ -41,7 +41,8 @@ public class SpacesStatisticsCountJob implements Job {
       statisticData.setModule("social");
       statisticData.setSubModule("space");
       statisticData.setOperation("spacesCount");
-      statisticData.addParameter("allSpaces", allSpacesCount);
+      statisticData.addParameter("countType", "allSpaces");
+      statisticData.addParameter("count", allSpacesCount);
       AnalyticsUtils.addStatisticData(statisticData);
     } catch (Exception e) {
       LOG.error("Error while computing users statistics", e);

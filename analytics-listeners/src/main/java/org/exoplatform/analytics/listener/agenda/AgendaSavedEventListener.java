@@ -6,6 +6,7 @@ import org.exoplatform.agenda.model.Calendar;
 import org.exoplatform.agenda.service.AgendaCalendarService;
 import org.exoplatform.agenda.service.AgendaEventService;
 import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.listener.*;
@@ -43,7 +44,7 @@ public class AgendaSavedEventListener extends Listener<Long, Object> {
     addEventStatistic(agendaEvent, operation, userId);
   }
 
-  private StatisticData addEventStatistic(org.exoplatform.agenda.model.Event event, String operation, long userId) {
+  private void addEventStatistic(org.exoplatform.agenda.model.Event event, String operation, long userId) {
     Calendar calendar = getAgendaCalendarService().getCalendarById(event.getCalendarId());
     long calendarOwnerId = calendar.getOwnerId();
 
@@ -60,12 +61,13 @@ public class AgendaSavedEventListener extends Listener<Long, Object> {
     }
 
     StatisticData statisticData = new StatisticData();
-    statisticData.setModule("social");
-    statisticData.setSubModule("activity");
+    statisticData.setModule("agenda");
+    statisticData.setSubModule("event");
     statisticData.setOperation(operation);
     statisticData.setSpaceId(spaceId);
     statisticData.setUserId(userId);
     statisticData.addParameter("eventId", event.getId());
+    statisticData.addParameter("parentId", event.getParentId());
     statisticData.addParameter("calendarOwnerIdentityId", calendarOwnerId);
     if (spaceTemplate != null) {
       statisticData.addParameter("spaceTemplate", spaceTemplate);
@@ -76,7 +78,7 @@ public class AgendaSavedEventListener extends Listener<Long, Object> {
     statisticData.addParameter("isRecurrent", event.getRecurrence() != null);
     statisticData.addParameter("isExceptionalOccurrence", event.getOccurrence() != null);
     statisticData.addParameter("remoteProviderId", event.getRemoteProviderId());
-    return statisticData;
+    AnalyticsUtils.addStatisticData(statisticData);
   }
 
   public AgendaEventService getAgendaEventService() {

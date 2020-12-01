@@ -48,13 +48,9 @@ public class UsersStatisticsCountJob implements Job {
       int enabledUsersCount = enabledIdentities.getSize();
       int disabledUsersCount = allUsersCount - enabledUsersCount;
 
-      StatisticData statisticData = new StatisticData();
-      statisticData.setModule("portal");
-      statisticData.setSubModule("account");
-      statisticData.setOperation("usersCount");
-      statisticData.addParameter("allUsers", allUsersCount);
-      statisticData.addParameter("enabledUsers", enabledUsersCount);
-      statisticData.addParameter("disabledUsers", disabledUsersCount);
+      addUsersCountStatistic("allUsers", allUsersCount);
+      addUsersCountStatistic("enabledUsers", enabledUsersCount);
+      addUsersCountStatistic("disabledUsers", disabledUsersCount);
       Group externalsGroup = getOrganizationService().getGroupHandler().findGroupById("/platform/externals");
       int enabledExternalUsersCount = 0;
       if (externalsGroup != null) {
@@ -62,15 +58,24 @@ public class UsersStatisticsCountJob implements Job {
                                                                              .findAllMembershipsByGroup(externalsGroup);
         enabledExternalUsersCount = externalMemberships.getSize();
       }
-      statisticData.addParameter("enabledExternalUsers", enabledExternalUsersCount);
-      statisticData.addParameter("enabledInternalUsers", (enabledUsersCount - enabledExternalUsersCount));
-      AnalyticsUtils.addStatisticData(statisticData);
+      addUsersCountStatistic("enabledExternalUsers", enabledExternalUsersCount);
+      addUsersCountStatistic("enabledInternalUsers", (enabledUsersCount - enabledExternalUsersCount));
     } catch (Exception e) {
       LOG.error("Error while computing users statistics", e);
     } finally {
       RequestLifeCycle.end();
       ExoContainerContext.setCurrentContainer(currentContainer);
     }
+  }
+
+  private void addUsersCountStatistic(String countType, int count) {
+    StatisticData statisticData = new StatisticData();
+    statisticData.setModule("portal");
+    statisticData.setSubModule("account");
+    statisticData.setOperation("usersCount");
+    statisticData.addParameter("countType", countType);
+    statisticData.addParameter("count", count);
+    AnalyticsUtils.addStatisticData(statisticData);
   }
 
   private OrganizationService getOrganizationService() {
