@@ -1,4 +1,4 @@
-package org.exoplatform.analytics.listener;
+package org.exoplatform.analytics.listener.portal;
 
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 

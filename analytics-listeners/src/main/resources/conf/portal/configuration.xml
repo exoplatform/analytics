@@ -7,7 +7,7 @@
     <component-plugin>
       <name>SpaceAnalyticsListener</name>
       <set-method>addSpaceListener</set-method>
-      <type>org.exoplatform.analytics.listener.SpaceAnalyticsListener</type>
+      <type>org.exoplatform.analytics.listener.social.SpaceAnalyticsListener</type>
     </component-plugin>
   </external-component-plugins>
 
@@ -16,13 +16,13 @@
     <component-plugin>
       <name>exo.core.security.ConversationRegistry.register</name>
       <set-method>addListener</set-method>
-      <type>org.exoplatform.analytics.listener.LoginAnalyticsListener</type>
+      <type>org.exoplatform.analytics.listener.portal.LoginAnalyticsListener</type>
       <description>Listener for user login event statistics</description>
     </component-plugin>
     <component-plugin>
       <name>exo.core.security.ConversationRegistry.unregister</name>
       <set-method>addListener</set-method>
-      <type>org.exoplatform.analytics.listener.LoginAnalyticsListener</type>
+      <type>org.exoplatform.analytics.listener.portal.LoginAnalyticsListener</type>
       <description>Listener for user logout event statistics</description>
     </component-plugin>
   </external-component-plugins>
@@ -32,7 +32,7 @@
     <component-plugin>
       <name>AnalyticsActivityListener</name>
       <set-method>addActivityEventListener</set-method>
-      <type>org.exoplatform.analytics.listener.AnalyticsActivityListener</type>
+      <type>org.exoplatform.analytics.listener.social.AnalyticsActivityListener</type>
     </component-plugin>
   </external-component-plugins>
 
@@ -41,7 +41,7 @@
     <component-plugin>
       <name>AnalyticsProfileListener</name>
       <set-method>registerProfileListener</set-method>
-      <type>org.exoplatform.analytics.listener.AnalyticsProfileListener</type>
+      <type>org.exoplatform.analytics.listener.social.AnalyticsProfileListener</type>
     </component-plugin>
   </external-component-plugins>
 
@@ -50,7 +50,7 @@
     <component-plugin>
       <name>AnalyticsRelationshipListener</name>
       <set-method>addListenerPlugin</set-method>
-      <type>org.exoplatform.analytics.listener.AnalyticsRelationshipListener</type>
+      <type>org.exoplatform.analytics.listener.social.AnalyticsRelationshipListener</type>
     </component-plugin>
   </external-component-plugins>
 
@@ -59,7 +59,7 @@
     <component-plugin>
       <name>PageAccessListener</name>
       <set-method>addPortalApplicationLifecycle</set-method>
-      <type>org.exoplatform.analytics.listener.PageAccessListener</type>
+      <type>org.exoplatform.analytics.listener.portal.PageAccessListener</type>
       <init-params>
         <value-param>
           <name>collectAjaxQueries</name>
@@ -75,7 +75,21 @@
     <component-plugin>
       <name>exo.analytics.websocket.messageReceived</name>
       <set-method>addListener</set-method>
-      <type>org.exoplatform.analytics.listener.WebSocketUIStatisticListener</type>
+      <type>org.exoplatform.analytics.listener.websocket.WebSocketUIStatisticListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>exo.agenda.event.created</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.agenda.AgendaSavedEventListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.agenda.event.updated</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.agenda.AgendaEventReminderCleanerListener</type>
     </component-plugin>
   </external-component-plugins>
 

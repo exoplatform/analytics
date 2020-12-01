@@ -29,6 +29,8 @@
   </scm>
   <properties>
     <!-- 3rd party libraries versions -->
+    <org.exoplatform.social.version>6.1.x-SNAPSHOT</org.exoplatform.social.version>
+    <org.exoplatform.platform-ui.version>6.1.x-SNAPSHOT</org.exoplatform.platform-ui.version>
     <addon.exo.jcr.version>6.1.x-SNAPSHOT</addon.exo.jcr.version>
     <addon.exo.ecms.version>6.1.x-SNAPSHOT</addon.exo.ecms.version>
     <addon.exo.tasks.version>3.1.x-SNAPSHOT</addon.exo.tasks.version>
@@ -38,8 +40,13 @@
     <addon.exo.news.version>2.1.x-SNAPSHOT</addon.exo.news.version>
     <addon.exo.onlyoffice.version>2.1.x-SNAPSHOT</addon.exo.onlyoffice.version>
     <addon.exo.chat.version>3.1.x-SNAPSHOT</addon.exo.chat.version>
-    <org.exoplatform.social.version>6.1.x-SNAPSHOT</org.exoplatform.social.version>
-    <org.exoplatform.platform-ui.version>6.1.x-SNAPSHOT</org.exoplatform.platform-ui.version>
+    <addon.exo.agenda.version>1.0.x-SNAPSHOT</addon.exo.agenda.version>
+    <addon.exo.kudos.version>2.1.x-SNAPSHOT</addon.exo.kudos.version>
+    <addon.exo.perk-store.version>2.1.x-SNAPSHOT</addon.exo.perk-store.version>
+    <addon.exo.wallet.version>2.1.x-SNAPSHOT</addon.exo.wallet.version>
+    <addon.exo.gamification.version>2.1.x-SNAPSHOT</addon.exo.gamification.version>
+    <addon.exo.push-notifications.version>2.1.x-SNAPSHOT</addon.exo.push-notifications.version>
+    <addon.exo.app-center.version>2.1.x-SNAPSHOT</addon.exo.app-center.version>
 
     <!-- Used to generate default methods for POJO -->
     <org.lombok.version>1.18.2</org.lombok.version>
@@ -63,6 +70,76 @@
         <groupId>org.exoplatform.platform-ui</groupId>
         <artifactId>platform-ui</artifactId>
         <version>${org.exoplatform.platform-ui.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.agenda</groupId>
+        <artifactId>agenda-parent</artifactId>
+        <version>${addon.exo.agenda.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.addons.kudos</groupId>
+        <artifactId>kudos</artifactId>
+        <version>${addon.exo.kudos.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.addons.wallet</groupId>
+        <artifactId>wallet</artifactId>
+        <version>${addon.exo.wallet.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.addons.perk-store</groupId>
+        <artifactId>perk-store</artifactId>
+        <version>${addon.exo.perk-store.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.addons.gamification</groupId>
+        <artifactId>gamification</artifactId>
+        <version>${addon.exo.gamification.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.addons.chat</groupId>
+        <artifactId>chat-application</artifactId>
+        <version>${addon.exo.chat.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.ecms</groupId>
+        <artifactId>ecms</artifactId>
+        <version>${addon.exo.ecms.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.jcr</groupId>
+        <artifactId>jcr-parent</artifactId>
+        <version>${addon.exo.jcr.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.addons.task</groupId>
+        <artifactId>task-management-parent</artifactId>
+        <version>${addon.exo.tasks.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.addons.news</groupId>
+        <artifactId>news</artifactId>
+        <version>${addon.exo.news.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

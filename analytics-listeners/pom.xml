@@ -31,6 +31,16 @@
       <artifactId>social-component-notification</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.exoplatform.agenda</groupId>
+      <artifactId>agenda-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.agenda</groupId>
+      <artifactId>agenda-services</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <finalName>analytics-listeners</finalName>
