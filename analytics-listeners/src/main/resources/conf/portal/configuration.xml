@@ -79,4 +79,56 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.scheduler.JobSchedulerService</target-component>
+    <component-plugin>
+      <name>UsersStatisticsCountJob</name>
+      <set-method>addPeriodJob</set-method>
+      <type>org.exoplatform.services.scheduler.PeriodJob</type>
+      <description>A cron job to daily collect users count statistics</description>
+      <init-params>
+        <properties-param>
+          <name>job.info</name>
+          <property name="jobName" value="UsersStatisticsCountJob" />
+          <property name="groupName" value="Analytics" />
+          <property name="job" value="org.exoplatform.analytics.job.UsersStatisticsCountJob" />
+          <!-- REPEAT_INDEFINITELY -->
+          <property name="repeatCount" value="0" />
+          <!--
+            Period: each day (24 hours).
+          -->
+          <property name="period" value="86400000" />
+          <!-- Start exceution: a minute after server startup -->
+          <property name="startTime" value="+60000" />
+          <!-- REPEAT_INDEFINITELY -->
+          <property name="endTime" value="" />
+        </properties-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>SpacesStatisticsCountJob</name>
+      <set-method>addPeriodJob</set-method>
+      <type>org.exoplatform.services.scheduler.PeriodJob</type>
+      <description>A cron job to daily collect spaces count statistics</description>
+      <init-params>
+        <properties-param>
+          <name>job.info</name>
+          <property name="jobName" value="SpacesStatisticsCountJob" />
+          <property name="groupName" value="Analytics" />
+          <property name="job" value="org.exoplatform.analytics.job.SpacesStatisticsCountJob" />
+          <!-- REPEAT_INDEFINITELY -->
+          <property name="repeatCount" value="0" />
+          <!--
+            Period: each day (24 hours).
+          -->
+          <property name="period" value="86400000" />
+          <!-- Start exceution: a minute after server startup -->
+          <property name="startTime" value="+60000" />
+          <!-- REPEAT_INDEFINITELY -->
+          <property name="endTime" value="" />
+        </properties-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
 </configuration>
