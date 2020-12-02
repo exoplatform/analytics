@@ -102,6 +102,37 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins profiles="task">
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>exo.task.taskCreation</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.tasks.TaskSavedListener</type>
+      <init-params>
+        <value-param>
+          <name>operation</name>
+          <value>taskCreated</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.task.taskUpdate</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.tasks.TaskSavedListener</type>
+      <init-params>
+        <value-param>
+          <name>operation</name>
+          <value>taskUpdated</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.task.taskCommentCreation</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.tasks.TaskCommentListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
   <external-component-plugins>
     <target-component>org.exoplatform.services.scheduler.JobSchedulerService</target-component>
     <component-plugin>

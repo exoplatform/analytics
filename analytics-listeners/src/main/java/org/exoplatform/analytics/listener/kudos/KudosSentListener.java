@@ -6,7 +6,6 @@ import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.kudos.model.Kudos;
 import org.exoplatform.kudos.service.KudosService;

@@ -1,8 +1,11 @@
 package org.exoplatform.analytics.model;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.*;
 
@@ -14,6 +17,9 @@ public class StatisticData implements Serializable {
   private static final long   serialVersionUID = -2660993500359866340L;
 
   private static final int    PRIME            = 59;
+
+  @ToString.Exclude
+  private DateFormat          dateFormat;
 
   @Getter
   @Setter
@@ -66,7 +72,20 @@ public class StatisticData implements Serializable {
     if (value == null) {
       return;
     }
-    parameters.put(key, String.valueOf(value));
+    if (value instanceof Date) {
+      parameters.put(key, buildDateFormat().format(value));
+    } else if (value instanceof Collection) {
+      parameters.put(key, StringUtils.join(((Collection<?>) value), ","));
+    } else {
+      parameters.put(key, String.valueOf(value));
+    }
+  }
+
+  public DateFormat buildDateFormat() {
+    if (dateFormat == null) {
+      dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
+    }
+    return dateFormat;
   }
 
   public enum StatisticStatus {
