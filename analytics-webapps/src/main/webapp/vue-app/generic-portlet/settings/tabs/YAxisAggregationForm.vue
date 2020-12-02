@@ -24,7 +24,7 @@
           <field-selection
             v-model="yAxisAggregation.field"
             :fields-mappings="fieldsMappings"
-            :label="yAxisAggregationCardinality ? 'Distinct field (optinal)' : 'Numeric field'"
+            :placeholder="yAxisAggregationCardinality ? 'Distinct aggregation field' : 'Numeric aggregation field'"
             :numeric="!yAxisAggregationCardinality"
             aggregation />
         </v-flex>
@@ -55,7 +55,7 @@ export default {
     },
   },
   data: () => ({
-    aggregationType: 'COUNT',
+    aggregationType: 'MAX',
     aggregationTypes: [
       {
         text: 'Count samples',
@@ -102,11 +102,12 @@ export default {
       this.yAxisAggregation.type = this.aggregationType;
     },
   },
-  mounted() {
-    if (!this.yAxisAggregation.type) {
-      this.yAxisAggregation.type = 'COUNT';
+  created() {
+    if (this.yAxisAggregation.type) {
+      this.aggregationType = this.yAxisAggregation.type;
+    } else {
+      this.aggregationType = 'COUNT';
     }
-    this.aggregationType = this.yAxisAggregation.type;
   },
   methods: {
     selectedValueComparator(item1, item2){

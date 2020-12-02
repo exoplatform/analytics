@@ -126,15 +126,13 @@ export default {
   },
   data() {
     return {
+      chartSettings: {},
       fieldsMappings: [],
       dialog: false,
       tab: 0,
     };
   },
   computed: {
-    chartSettings() {
-      return JSON.parse(JSON.stringify(this.settings));
-    },
     settingJsonContent() {
       return this.settings && JSON.stringify(this.settings, null, 2);
     },
@@ -185,6 +183,7 @@ export default {
         .finally(() => this.loading = false);
     },
     open() {
+      this.chartSettings = JSON.parse(JSON.stringify(this.settings));
       this.dialog = true;
     },
     save() {

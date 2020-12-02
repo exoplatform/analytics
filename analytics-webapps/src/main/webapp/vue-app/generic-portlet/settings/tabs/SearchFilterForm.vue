@@ -9,18 +9,18 @@
           $event.stopPropagation();
         ">
         <template v-if="filters && filters.length">
-          <v-layout v-for="(item, index) in filters" :key="index">
+          <v-layout v-for="(item, index) in filters" :key="item">
             <v-flex xs4 class="my-auto">
               <field-selection
                 v-model="item.field"
                 :fields-mappings="fieldsMappings"
-                label="Field name" />
+                placeholder="Field name" />
             </v-flex>
-            <v-flex xs3 class="mt-auto mb-2 px-2">
+            <v-flex xs3 class="d-flex my-auto px-2">
               <select
                 v-model="item.type"
-                label="Operator"
-                class="operatorInput border-color width-auto ignore-vuetify-classes"
+                placeholder="Operator"
+                class="operatorInput border-color ma-auto width-auto ignore-vuetify-classes"
                 @change="$forceUpdate()">
                 <option
                   v-for="searchFilterType in searchFilterTypes"
@@ -31,30 +31,40 @@
               </select>
             </v-flex>
             <v-flex xs3 class="my-auto">
-              <v-text-field
-                v-if="item.type === 'EQUAL' || item.type === 'NOT_EQUAL' || item.type === 'LESS' || item.type === 'GREATER'"
+              <input
+                v-if="item.type === 'EQUAL' || item.type === 'NOT_EQUAL'"
                 v-model="item.valueString"
-                label="Value"
-                class="pa-0 my-auto"
-                required />
-              <v-text-field
+                type="text"
+                placeholder="Number value"
+                class="ignore-vuetify-classes width-auto pa-0 my-auto"
+                required>
+              <input
+                v-else-if="item.type === 'LESS' || item.type === 'GREATER'"
+                v-model.number="item.valueString"
+                type="number"
+                placeholder="Value"
+                class="ignore-vuetify-classes width-auto pa-0 my-auto"
+                required>
+              <input
                 v-else-if="item.type === 'IN_SET' || item.type === 'NOT_IN_SET'"
                 v-model="item.valueString"
-                label="Values"
-                class="pa-0 my-auto"
+                type="text"
+                class="ignore-vuetify-classes width-auto pa-0 my-auto"
                 placeholder="Values (Separator ',')"
-                required />
+                required>
               <template v-else-if="item.type === 'RANGE' && (item.range || (item.range = {}))">
-                <v-text-field
-                  v-model="item.range.min"
-                  label="Min"
-                  class="pa-0 my-auto"
-                  required />
-                <v-text-field
-                  v-model="item.range.max"
-                  label="Max"
-                  class="pa-0 my-auto"
-                  required />
+                <input
+                  v-model.number="item.range.min"
+                  type="number"
+                  placeholder="Min"
+                  class="ignore-vuetify-classes width-auto pa-0 my-auto"
+                  required>
+                <input
+                  v-model.number="item.range.max"
+                  type="number"
+                  placeholder="Max"
+                  class="ignore-vuetify-classes pa-0 width-auto my-auto"
+                  required>
               </template>
             </v-flex>
             <v-flex xs1 class="my-auto">
@@ -157,6 +167,7 @@ export default {
   methods: {
     deleteFilter(searchFilterIndex){
       this.filters.splice(searchFilterIndex, 1);
+      this.$forceUpdate();
     },
     addFilter(){
       this.filters.push({type: 'EQUAL'});

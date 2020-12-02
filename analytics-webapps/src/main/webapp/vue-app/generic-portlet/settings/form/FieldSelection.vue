@@ -3,11 +3,13 @@
     v-model="value"
     :items="fields"
     :label="label"
+    :placeholder="placeholder"
     :value-comparator="selectedValueComparator"
     :return-object="false"
     :item-value="aggregation ? 'aggregationFieldName' : 'searchFieldName'"
     item-text="label"
-    class="operatorInput"
+    class="operatorInput pa-0"
+    filled
     persistent-hint
     chips
     dense
@@ -17,7 +19,7 @@
         v-bind="data.attrs"
         :input-value="data.selected"
         @click="data.select">
-        {{ data.item.label }}
+        {{ data.item && data.item.label || data.item }}
       </v-chip>
     </template>
     <template v-slot:item="data">
@@ -54,6 +56,12 @@ export default {
       },
     },
     label: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
+    placeholder: {
       type: String,
       default: function() {
         return null;
@@ -98,6 +106,7 @@ export default {
   },
   methods: {
     updateData(){
+      console.warn('updateData', this.label, this.value);
       this.$emit('input', this.value);
       this.$forceUpdate();
     },
