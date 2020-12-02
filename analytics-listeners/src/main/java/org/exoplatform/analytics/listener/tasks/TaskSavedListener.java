@@ -131,9 +131,9 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
           && isDiff(oldTask.getStatus().getName(), newTask.getStatus().getName())) {
         taskOperation = "taskStatusChanged";
       } else if (isDiff(oldTask.getStartDate(), newTask.getStartDate())) {
-        taskOperation = "taskStarted";
+        taskOperation = "taskDatesChanged";
       } else if (isDiff(oldTask.getEndDate(), newTask.getEndDate())) {
-        taskOperation = "taskEnded";
+        taskOperation = "taskDatesChanged";
       }
     }
     return taskOperation;

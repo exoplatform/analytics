@@ -99,7 +99,7 @@ public class KudosSentListener extends Listener<KudosService, Kudos> {
 
     StatisticData statisticData =
                                 new StatisticData();
-    statisticData.setModule("social");
+    statisticData.setModule("kudos");
     statisticData.setSubModule("kudos");
     statisticData.setOperation("sendKudos");
     statisticData.setSpaceId(spaceId);
