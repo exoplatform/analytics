@@ -31,7 +31,7 @@ import org.exoplatform.task.legacy.service.TaskService;
 // NOSONAR : FIXME @Asynchronous : Not used, see description
 public class TaskCommentListener extends Listener<TaskService, Comment> {
 
-  private static final Log LOG = ExoLogger.getLogger(TaskSavedListener.class);
+  private static final Log LOG = ExoLogger.getLogger(TaskCommentListener.class);
 
   private PortalContainer  container;
 

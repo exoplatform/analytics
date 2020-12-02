@@ -133,6 +133,15 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins profiles="wiki">
+    <target-component>org.exoplatform.wiki.service.WikiService</target-component>
+    <component-plugin>
+      <name>WikiPageListener</name>
+      <set-method>addComponentPlugin</set-method>
+      <type>org.exoplatform.analytics.listener.wiki.WikiPageListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
   <external-component-plugins>
     <target-component>org.exoplatform.services.scheduler.JobSchedulerService</target-component>
     <component-plugin>
