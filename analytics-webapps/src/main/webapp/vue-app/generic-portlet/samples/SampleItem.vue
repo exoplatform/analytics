@@ -7,19 +7,16 @@
             <v-row no-gutters class="sampleItemHeader">
               <v-col
                 v-if="userIdentity"
-                cols="6"
                 class="text-truncate">
                 User: <profile-chip :identity="userIdentity" /> 
               </v-col>
               <v-col
                 v-else-if="userModifierIdentity"
-                cols="6"
                 class="text-truncate">
                 Modifier user: <profile-chip :identity="userModifierIdentity" />
               </v-col>
               <v-col
                 v-if="chartData.operation"
-                cols="6"
                 class="text-truncate">
                 Operation:  <strong>{{ chartData.operation }}</strong>
               </v-col>

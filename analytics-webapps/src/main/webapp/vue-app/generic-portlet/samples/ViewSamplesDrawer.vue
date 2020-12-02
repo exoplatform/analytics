@@ -1,21 +1,15 @@
 <template>
-  <v-navigation-drawer
-    v-model="drawer"
-    absolute
+  <exo-drawer
+    ref="samplesDrawer"
     right
-    stateless
-    temporary
-    width="700"
-    max-width="100vw"
-    class="samplesDrawer">
-    <v-toolbar color="blue lighten-5">
-      <v-toolbar-title>
-        Data of chart
-        <span class="primary--text">{{ title }}</span>
-      </v-toolbar-title>
-      <v-spacer />
+    body-classes="hide-scroll"
+    class="samplesDrawer"
+    @closed="$emit('cancel')">
+    <template slot="title">
+      {{ title }}
+    </template>
+    <template slot="titleIcons">
       <v-btn
-        :loading="loading"
         :disabled="loading"
         icon
         color="primary"
@@ -25,41 +19,32 @@
           refresh
         </v-icon>
       </v-btn>
-      <v-btn
-        icon
-        color="secondary"
-        @click="drawer = false">
-        <v-icon>
-          close
-        </v-icon>
-      </v-btn>
-    </v-toolbar>
-    <v-row justify="center" class="ma-0 analyticsDrawerContent">
-      <v-expansion-panels v-if="chartDatas" accordion>
-        <sample-item
-          v-for="chartData in chartDatas"
-          :key="chartData.id"
-          :chart-data="chartData"
-          :users="users"
-          :spaces="spaces" />
-      </v-expansion-panels>
-      <v-progress-circular
-        v-else
-        color="primary"
-        indeterminate
-        size="20" />
-    </v-row>
-    <v-row v-if="canLoadMore" justify="center">
-      <v-btn
-        :loading="loading"
-        :disabled="loading"
-        color="primary"
-        text
-        @click="loadMore">
-        Load More
-      </v-btn>
-    </v-row>
-  </v-navigation-drawer>
+    </template>
+    <template slot="content">
+      <v-row justify="center" class="ma-0 analyticsDrawerContent">
+        <v-expansion-panels v-if="chartDatas" accordion>
+          <sample-item
+            v-for="chartData in chartDatas"
+            :key="chartData.id"
+            :chart-data="chartData"
+            :users="users"
+            :spaces="spaces" />
+        </v-expansion-panels>
+      </v-row>
+    </template>
+    <template v-if="canLoadMore" slot="footer">
+      <div class="d-flex">
+        <v-btn
+          :disabled="loading"
+          color="primary"
+          class="ma-auto"
+          text
+          @click="loadMore">
+          Load More
+        </v-btn>
+      </div>
+    </template>
+  </exo-drawer>
 </template>
 
 <script>
@@ -104,47 +89,26 @@ export default {
     },
   },
   data: () => ({
-    drawer: false,
     loading: false,
     chartDatas: null,
     pageSize: 10,
     limit: 10,
+    canLoadMore: false,
   }),
-  computed: {
-    canLoadMore() {
-      if (!this.chartDatas) {
-        return false;
-      }
-      const loadedDataLength = Object.keys(this.chartDatas).length;
-      return loadedDataLength % this.pageSize === 0;
-    },
-  },
   watch: {
-    drawer() {
-      if (this.drawer) {
-        $('body').addClass('hide-scroll');
-        this.loadData();
-
-        this.$nextTick().then(() => {
-          $('.analytics-application .v-overlay').click(() => {
-            this.drawer = false;
-          });
-        });
+    loading() {
+      if (this.loading) {
+        this.$refs.samplesDrawer.startLoading();
       } else {
-        $('body').removeClass('hide-scroll');
+        this.$refs.samplesDrawer.endLoading();
+        this.computeCanLoadMore();
       }
     },
-  },
-  created() {
-    $(document).on('keydown', (event) => {
-      if (event && event.key === 'Escape') {
-        this.drawer = false;
-      }
-    });
   },
   methods: {
     open() {
-      this.drawer = true;
+      this.$refs.samplesDrawer.open();
+      this.$nextTick().then(this.refresh);
     },
     loadMore() {
       this.limit += this.pageSize;
@@ -208,6 +172,14 @@ export default {
           .then(() => loadUser(this.users, chartData.parameters && chartData.parameters.modifierSocialId))
           .then(() => loadSpace(this.spaces, chartData.spaceId))
           .then(() => this.loadUsersAndSpacesObjects(chartDatas, ++index));
+      }
+    },
+    computeCanLoadMore() {
+      if (this.chartDatas) {
+        const loadedDataLength = Object.keys(this.chartDatas).length;
+        this.canLoadMore = loadedDataLength >= this.limit;
+      } else {
+        this.canLoadMore = false;
       }
     },
   }
