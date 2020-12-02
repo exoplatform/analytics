@@ -31,13 +31,16 @@
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
-                :class="scopeColor"
-                class="my-auto mr-2"
                 height="20"
                 width="20"
                 icon
+                small
+                class="my-auto mr-2 primary"
+                outlined
                 v-bind="attrs"
-                v-on="on" />
+                v-on="on">
+                <v-icon size="12">fa-info</v-icon>
+              </v-btn>
             </template>
             <span>
               <div>- {{ $t('analytics.dataRestriction') }}: {{ scopeTooltip }}</div>
@@ -183,18 +186,6 @@ export default {
     ],
   }),
   computed: {
-    scopeColor() {
-      switch (this.scope) {
-      case 'NONE': return 'grey';
-      case 'GLOBAL': return 'purple';
-      case 'USER': return 'green';
-      case 'SPACE': return 'blue';
-      }
-      return this.error && 'red';
-    },
-    scopeTextColor() {
-      return `${this.scopeColor} lighten-5`;
-    },
     scopeTooltip() {
       switch (this.scope) {
       case 'NONE': return this.$t('analytics.permissionDenied');
