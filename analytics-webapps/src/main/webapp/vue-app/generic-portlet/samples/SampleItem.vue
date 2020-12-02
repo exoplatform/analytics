@@ -22,7 +22,7 @@
                 <template v-if="userIdentity || userModifierIdentity">
                   - 
                 </template>
-                <strong >{{ chartData.operation }}</strong>
+                <strong>{{ chartData.operation }}</strong>
               </v-col>
             </v-row>
           </v-fade-transition>

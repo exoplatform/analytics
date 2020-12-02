@@ -215,8 +215,54 @@
             <portlet>
               <application-ref>analytics</application-ref>
               <portlet-ref>AnalyticsPortlet</portlet-ref>
+              <preferences>
+                <preference>
+                  <name>settings</name>
+                  <value>{
+                    "offset": 0,
+                    "title": "Activities",
+                    "lang": null,
+                    "aggregations": [
+                      {
+                        "field": "module",
+                        "type": "COUNT",
+                        "interval": null,
+                        "sortDirection": "asc"
+                      }
+                    ],
+                    "filters": [
+                      {
+                        "field": "operation",
+                        "type": "IN_SET",
+                        "valueString": "wikiPageCreated,wikiPageUpdated,taskCreated,taskUpdated,taskCommented,createActivity,updateActivity,createComment,updateComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated",
+                        "range": null
+                      }
+                    ],
+                    "xAxisAggregations": [
+                      {
+                        "field": "module",
+                        "type": "COUNT",
+                        "interval": null,
+                        "sortDirection": "asc"
+                      }
+                    ],
+                    "multipleCharts": false,
+                    "multipleChartsAggregation": null,
+                    "yAxisAggregation": {
+                      "field": null,
+                      "type": "COUNT",
+                      "interval": null,
+                      "sortDirection": null
+                    },
+                    "multipleChartsField": null,
+                    "chartType": "pie",
+                    "colors": null,
+                    "limit": 0
+                  }</value>
+                </preference>
+              </preferences>
             </portlet>
-            <title>Analytics Portlet</title>
+            <title>Platform Activities</title>
             <access-permissions>Everyone</access-permissions>
             <show-info-bar>false</show-info-bar>
           </portlet-application>
