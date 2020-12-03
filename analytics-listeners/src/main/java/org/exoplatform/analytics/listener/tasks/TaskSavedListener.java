@@ -105,7 +105,7 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
     String taskOperation = operation;
     if (oldTask != null) {
       if (isDiff(oldTask.isCompleted(), newTask.isCompleted())) {
-        taskOperation = "taskMarkedAsCompleted";
+        taskOperation = "taskCompleted";
       } else if (isDiff(oldTask.getDescription(), newTask.getDescription())) {
         taskOperation = "taskDescriptionChanged";
       } else if (isDiff(oldTask.getTitle(), newTask.getTitle())) {
@@ -130,9 +130,7 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
           && newTask.getStatus() != null
           && isDiff(oldTask.getStatus().getName(), newTask.getStatus().getName())) {
         taskOperation = "taskStatusChanged";
-      } else if (isDiff(oldTask.getStartDate(), newTask.getStartDate())) {
-        taskOperation = "taskDatesChanged";
-      } else if (isDiff(oldTask.getEndDate(), newTask.getEndDate())) {
+      } else if (isDiff(oldTask.getStartDate(), newTask.getStartDate()) || isDiff(oldTask.getEndDate(), newTask.getEndDate())) {
         taskOperation = "taskDatesChanged";
       }
     }
