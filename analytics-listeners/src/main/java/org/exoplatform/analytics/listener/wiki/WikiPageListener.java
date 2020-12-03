@@ -26,11 +26,11 @@ public class WikiPageListener extends PageWikiListener {
 
   private static final Log    LOG                        = ExoLogger.getLogger(WikiPageListener.class);
 
-  private static final String WIKI_ADD_PAGE_OPERATION    = "wikiPageCreated";
+  private static final String WIKI_ADD_PAGE_OPERATION    = "noteCreated";
 
-  private static final String WIKI_UPDATE_PAGE_OPERATION = "wikiPageUpdated";
+  private static final String WIKI_UPDATE_PAGE_OPERATION = "noteUpdated";
 
-  private static final String WIKI_DELETE_PAGE_OPERATION = "wikiPageDeleted";
+  private static final String WIKI_DELETE_PAGE_OPERATION = "noteDeleted";
 
   protected PortalContainer   container;
 
@@ -103,8 +103,8 @@ public class WikiPageListener extends PageWikiListener {
                                        String operation,
                                        PageUpdateType wikiUpdateType) {
     StatisticData statisticData = new StatisticData();
-    statisticData.setModule("wiki");
-    statisticData.setSubModule("page");
+    statisticData.setModule("Note");
+    statisticData.setSubModule("Note");
     statisticData.setOperation(operation);
     statisticData.setUserId(userIdentityId);
 

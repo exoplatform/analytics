@@ -234,7 +234,7 @@
                       {
                         "field": "operation",
                         "type": "IN_SET",
-                        "valueString": "wikiPageCreated,wikiPageUpdated,taskCreated,taskUpdated,taskCommented,createActivity,updateActivity,createComment,updateComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated",
+                        "valueString": "fileCreated,fileUpdated,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,createActivity,updateActivity,createComment,updateComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated",
                         "range": null
                       }
                     ],

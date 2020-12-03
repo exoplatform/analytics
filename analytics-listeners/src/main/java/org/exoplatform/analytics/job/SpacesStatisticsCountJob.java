@@ -45,7 +45,7 @@ public class SpacesStatisticsCountJob implements Job {
       statisticData.addParameter("count", allSpacesCount);
       AnalyticsUtils.addStatisticData(statisticData);
     } catch (Exception e) {
-      LOG.error("Error while computing users statistics", e);
+      LOG.error("Error while computing spaces statistics", e);
     } finally {
       RequestLifeCycle.end();
       ExoContainerContext.setCurrentContainer(currentContainer);
