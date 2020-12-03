@@ -47,12 +47,6 @@
                         "field": "operation",
                         "type": "EQUAL",
                         "valueString": "login"
-                      },
-                      {
-                        "valueString": "enabledInternalUsers,enabledExternalUsers",
-                        "range": null,
-                        "field": "countType",
-                        "type": "EQUAL"
                       }
                     ],
                     "title": "Distinct logins",
@@ -170,6 +164,12 @@
                         "field": "operation",
                         "type": "EQUAL",
                         "valueString": "usersCount"
+                      },
+                      {
+                        "valueString": "enabledInternalUsers,enabledExternalUsers",
+                        "range": null,
+                        "field": "countType",
+                        "type": "EQUAL"
                       }
                     ],
                     "title": "Users count",
