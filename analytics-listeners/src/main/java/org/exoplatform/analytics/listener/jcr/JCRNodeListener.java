@@ -84,7 +84,7 @@ public class JCRNodeListener implements Action {
         SessionProvider systemProvider = SessionProviderService.getSystemSessionProvider();
         Session session = systemProvider.getSession(workspace, repository);
         if (!session.itemExists(nodePath)) {
-          Thread.sleep(1000);
+          return;
         }
         Node changedNode = (Node) session.getItem(nodePath);
         Node managedNode = getManagedNode(changedNode);
@@ -125,7 +125,7 @@ public class JCRNodeListener implements Action {
 
         AnalyticsUtils.addStatisticData(statisticData);
       } catch (Exception e) {
-        LOG.warn("Error computing wiki statistics", e);
+        LOG.warn("Error computing jcr statistics", e);
       } finally {
         RequestLifeCycle.end();
         ExoContainerContext.setCurrentContainer(null);
