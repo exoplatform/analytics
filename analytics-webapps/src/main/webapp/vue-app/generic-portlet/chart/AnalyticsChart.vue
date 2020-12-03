@@ -74,6 +74,7 @@ export default {
 
       if (this.chartType === 'line' || this.chartType === 'bar') {
         Object.assign(chartOptions, {
+          grid: {show: false},
           tooltip: {
             trigger: 'axis',
             axisPointer: {
@@ -83,10 +84,17 @@ export default {
           },
           xAxis: [{
             type : 'category',
+            showGrid: false,
             data : labels,
+            splitLine: {
+              show: false
+            },
           }],
           yAxis: [{
-            type : 'value'
+            type : 'value',
+            splitLine: {
+              show: false
+            },
           }],
         });
         if (this.chartType === 'line') {
