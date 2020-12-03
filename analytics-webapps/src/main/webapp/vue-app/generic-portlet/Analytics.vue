@@ -50,7 +50,7 @@
           </v-tooltip>
           <div
             :title="title"
-            class="my-auto">
+            class="my-auto text-truncate">
             {{ title }}
           </div>
         </v-toolbar-title>
