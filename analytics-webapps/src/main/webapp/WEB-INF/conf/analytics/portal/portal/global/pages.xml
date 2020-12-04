@@ -240,7 +240,7 @@
                       {
                         "field": "operation",
                         "type": "IN_SET",
-                        "valueString": "fileCreated,fileUpdated,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskDescriptionChanged,taskTitleChanged,taskDueDateChanged,taskPriorityChanged,taskRankChanged,taskAssigneeChanged,taskCoworderChanged,taskProjectChanged,taskStatusChanged,taskDatesChanged,createActivity,updateActivity,createComment,updateComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated",
+                        "valueString": "fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskDescriptionChanged,taskTitleChanged,taskDueDateChanged,taskPriorityChanged,taskRankChanged,taskAssigneeChanged,taskCoworderChanged,taskProjectChanged,taskStatusChanged,taskDatesChanged,createActivity,updateActivity,createComment,updateComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated",
                         "range": null
                       }
                     ],

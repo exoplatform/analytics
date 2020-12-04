@@ -3,8 +3,8 @@ package org.exoplatform.analytics.listener.jcr;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.*;
 
 import javax.jcr.*;
@@ -17,28 +17,65 @@ import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
+import org.exoplatform.services.cms.documents.TrashService;
 import org.exoplatform.services.cms.templates.TemplateService;
 import org.exoplatform.services.command.action.Action;
+import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.wcm.core.NodetypeConstant;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 public class JCRNodeListener implements Action {
 
-  private static final Log                      LOG                            = ExoLogger.getLogger(JCRNodeListener.class);
+  private static final String                   SPACE_TEMPLATE_PARAM                 = "spaceTemplate";
 
-  private static final String                   DEFAULT_CHARSET                = Charset.defaultCharset().name();
+  private static final String                   GROUPS_SPACES_PARENT_FOLDER          = "/Groups/spaces/";
 
-  private static final ScheduledExecutorService SCHEDULER                      = new ScheduledThreadPoolExecutor(0);        // NOSONAR
+  private static final String                   DOCUMENT_NAME_PARAM                  = "documentName";
 
-  private static final Executor                 DEFAULT_DELAYED_EXECUTOR       = delayedExecutor(10, TimeUnit.SECONDS);
+  private static final Log                      LOG                                  = ExoLogger.getLogger(JCRNodeListener.class);
 
-  private static final Map<String, String>      CURRENTLY_PROCESSING_NODE_PATH = new HashMap<>();
+  private static final String                   DEFAULT_CHARSET                      = Charset.defaultCharset().name();
+
+  private static final ScheduledExecutorService SCHEDULER                            = new ScheduledThreadPoolExecutor(0);        // NOSONAR
+
+  private static final Executor                 DEFAULT_DELAYED_EXECUTOR             = delayedExecutor(3, TimeUnit.SECONDS);
+
+  private static final String                   FILE_EXTENSION_PARAM                 = "fileExtension";
+
+  private static final String                   DOCUMENT_TYPE_PARAM                  = "documentType";
+
+  private static final String                   UUID_PARAM                           = "uuid";
+
+  private static final String                   FILE_SIZE_PARAM                      = "fileSize";
+
+  private static final String                   FILE_MIME_TYPE_PARAM                 = "fileMimeType";
+
+  private static final String                   DOCUMENT_UPDATED_OPERATION           = "documentUpdated";
+
+  private static final String                   FILE_UPDATED_OPERATION               = "fileUpdated";
+
+  private static final String                   DOCUMENT_CREATED_OPERATION           = "documentCreated";
+
+  private static final String                   FILE_CREATED_OPERATION               = "fileCreated";
+
+  private static final String                   DOCUMENT_MOVED_TO_TRASH_OPERATION    = "documentMovedToTrash";
+
+  private static final String                   FILE_MOVED_TO_TRASH_OPERATION        = "fileMovedToTrash";
+
+  private static final String                   MODULE_DOCUMENT                      = "Document";
+
+  private static final String                   MODULE_CONTENT                       = "Content";
+
+  private static final String                   SEPARATOR                            = "@@";
+
+  private static final Set<String>              CURRENTLY_PROCESSING_NODE_PATH_QUEUE = new HashSet<>();
 
   private PortalContainer                       container;
 
@@ -46,107 +83,170 @@ public class JCRNodeListener implements Action {
 
   private SpaceService                          spaceService;
 
+  private TrashService                          trashService;
+
   public JCRNodeListener() {
     this.container = PortalContainer.getInstance();
   }
 
   public boolean execute(Context context) throws Exception {
-    String username = AnalyticsUtils.getUsername(ConversationState.getCurrent());
-    boolean unkownUser = AnalyticsUtils.isUnkownUser(username);
-    if (unkownUser) {
-      return true;
-    }
-
-    Object item = context.get("currentItem");
-    Node node = (item instanceof Property) ? ((Property) item).getParent() : (Node) item;
-    String nodePath = node.getPath();
-
-    String currentlyProcessingPath = CURRENTLY_PROCESSING_NODE_PATH.get(username);
-    if (currentlyProcessingPath != null && (StringUtils.startsWith(currentlyProcessingPath, nodePath)
-        || StringUtils.startsWith(nodePath, currentlyProcessingPath))) {
-      // Ignore multiple action invocations when adding new node or updating a
-      // node
-      return true;
-    }
-    CURRENTLY_PROCESSING_NODE_PATH.put(username, nodePath);
-
-    ManageableRepository repository = SessionProviderService.getRepository();
-    String workspace = node.getSession().getWorkspace().getName();
-
-    boolean isNew = node.isNew();
-
-    DEFAULT_DELAYED_EXECUTOR.execute(() -> {
-      ExoContainerContext.setCurrentContainer(container);
-      RequestLifeCycle.begin(container);
-      try {
-        CURRENTLY_PROCESSING_NODE_PATH.remove(username);
-
-        SessionProvider systemProvider = SessionProviderService.getSystemSessionProvider();
-        Session session = systemProvider.getSession(workspace, repository);
-        if (!session.itemExists(nodePath)) {
-          return;
-        }
-        Node changedNode = (Node) session.getItem(nodePath);
-        Node managedNode = getManagedNode(changedNode);
-        if (managedNode == null) {
-          return;
-        }
-
-        boolean isFile = managedNode.isNodeType("nt:file");
-
-        StatisticData statisticData = new StatisticData();
-        statisticData.setModule("Content");
-        if (isFile) {
-          statisticData.setSubModule("Document");
-        } else {
-          statisticData.setSubModule("Content");
-        }
-
-        String operation = null;
-        if (isNew) {
-          if (isFile) {
-            operation = "fileCreated";
-          } else {
-            operation = "documentCreated";
-          }
-        } else {
-          if (isFile) {
-            operation = "fileUpdated";
-          } else {
-            operation = "documentUpdated";
-          }
-        }
-        statisticData.setOperation(operation);
-
-        statisticData.setUserId(AnalyticsUtils.getUserIdentityId(username));
-        statisticData.addParameter("documentType", managedNode.getPrimaryNodeType().getName());
-        addDocumentTitle(managedNode, statisticData);
-        addSpaceStatistic(statisticData, nodePath);
-
-        AnalyticsUtils.addStatisticData(statisticData);
-      } catch (Exception e) {
-        LOG.warn("Error computing jcr statistics", e);
-      } finally {
-        RequestLifeCycle.end();
-        ExoContainerContext.setCurrentContainer(null);
+    try {
+      String username = AnalyticsUtils.getUsername(ConversationState.getCurrent());
+      boolean unkownUser = AnalyticsUtils.isUnkownUser(username);
+      if (unkownUser) {
+        return true;
       }
-      return;
-    });
+
+      Object item = context.get(InvocationContext.CURRENT_ITEM);
+      Node node = (item instanceof Property) ? ((Property) item).getParent() : (Node) item;
+      if (node == null) {
+        return true;
+      }
+      Node managedNode = getManagedNode(node);
+      if (managedNode == null) {
+        return true;
+      }
+
+      String nodePath = managedNode.getPath();
+      String queueKey = username + SEPARATOR + nodePath;
+
+      if (CURRENTLY_PROCESSING_NODE_PATH_QUEUE.contains(queueKey)) {
+        // Ignore multiple action invocations when adding new node or updating a
+        // node
+        return true;
+      }
+
+      CURRENTLY_PROCESSING_NODE_PATH_QUEUE.add(queueKey);
+
+      ManageableRepository repository = SessionProviderService.getRepository();
+      String workspace = managedNode.getSession().getWorkspace().getName();
+
+      boolean isNew = node.isNew();
+
+      DEFAULT_DELAYED_EXECUTOR.execute(() -> {
+        ExoContainerContext.setCurrentContainer(container);
+        RequestLifeCycle.begin(container);
+        try {
+          CURRENTLY_PROCESSING_NODE_PATH_QUEUE.remove(queueKey);
+
+          SessionProvider systemProvider = SessionProviderService.getSystemSessionProvider();
+          Session session = systemProvider.getSession(workspace, repository);
+          if (!session.itemExists(nodePath)) {
+            return;
+          }
+          Node changedNode = (Node) session.getItem(nodePath);
+
+          boolean isFile = changedNode.isNodeType(NodetypeConstant.NT_FILE);
+          StatisticData statisticData = addModuleName(isFile);
+          addOperationName(node, statisticData, isNew, isFile);
+          addUUID(changedNode, statisticData);
+          if (isFile) {
+            addFileProperties(statisticData, changedNode);
+          }
+          statisticData.setUserId(AnalyticsUtils.getUserIdentityId(username));
+          statisticData.addParameter(DOCUMENT_TYPE_PARAM, changedNode.getPrimaryNodeType().getName());
+          addDocumentTitle(changedNode, statisticData);
+          addSpaceStatistic(statisticData, nodePath);
+
+          AnalyticsUtils.addStatisticData(statisticData);
+        } catch (Exception e) {
+          LOG.warn("Error computing jcr statistics", e);
+        } finally {
+          RequestLifeCycle.end();
+          ExoContainerContext.setCurrentContainer(null);
+        }
+        return;
+      });
+    } catch (Exception e) {
+      if (LOG.isDebugEnabled()) {
+        LOG.warn("Error computing jcr statistics", e);
+      } else {
+        LOG.warn("Error computing jcr statistics", e.getMessage());
+      }
+    }
     return true;
+  }
+
+  private void addFileProperties(StatisticData statisticData, Node changedNode) throws RepositoryException {
+    if (changedNode.hasNode(NodetypeConstant.JCR_CONTENT)) {
+      Node fileMetadataNode = changedNode.getNode(NodetypeConstant.JCR_CONTENT);
+      if (fileMetadataNode.hasProperty(NodetypeConstant.JCR_MIME_TYPE)) {
+        statisticData.addParameter(FILE_MIME_TYPE_PARAM,
+                                   fileMetadataNode.getProperty(NodetypeConstant.JCR_MIME_TYPE).getString());
+      }
+      if (fileMetadataNode.hasProperty(NodetypeConstant.JCR_DATA)) {
+        statisticData.addParameter(FILE_SIZE_PARAM,
+                                   fileMetadataNode.getProperty(NodetypeConstant.JCR_DATA).getLength());
+      }
+    }
+
+    String nodeName = changedNode.getName();
+    int index = nodeName.lastIndexOf('.');
+    if (index != -1) {
+      statisticData.addParameter(FILE_EXTENSION_PARAM, nodeName.substring(index + 1));
+    }
+  }
+
+  private void addUUID(Node changedNode,
+                       StatisticData statisticData) throws RepositoryException {
+    if (changedNode.hasProperty(NodetypeConstant.JCR_UUID)) {
+      statisticData.addParameter(UUID_PARAM,
+                                 changedNode.getProperty(NodetypeConstant.JCR_UUID).getString());
+    }
+  }
+
+  private StatisticData addModuleName(boolean isFile) {
+    StatisticData statisticData = new StatisticData();
+    statisticData.setModule(MODULE_CONTENT);
+    if (isFile) {
+      statisticData.setSubModule(MODULE_DOCUMENT);
+    } else {
+      statisticData.setSubModule(MODULE_CONTENT);
+    }
+    return statisticData;
+  }
+
+  private void addOperationName(Node node,
+                                StatisticData statisticData,
+                                boolean isNew,
+                                boolean isFile) throws RepositoryException {
+    boolean movedToTrash = getTrashService().isInTrash(node);
+
+    String operation = null;
+    if (movedToTrash) {
+      if (isFile) {
+        operation = FILE_MOVED_TO_TRASH_OPERATION;
+      } else {
+        operation = DOCUMENT_MOVED_TO_TRASH_OPERATION;
+      }
+    } else if (isNew) {
+      if (isFile) {
+        operation = FILE_CREATED_OPERATION;
+      } else {
+        operation = DOCUMENT_CREATED_OPERATION;
+      }
+    } else {
+      if (isFile) {
+        operation = FILE_UPDATED_OPERATION;
+      } else {
+        operation = DOCUMENT_UPDATED_OPERATION;
+      }
+    }
+    statisticData.setOperation(operation);
   }
 
   private void addDocumentTitle(Node managedNode, StatisticData statisticData) throws RepositoryException,
                                                                                UnsupportedEncodingException {
     String title = null;
-    if (managedNode.hasProperty("exo:title")) {
-      title = managedNode.getProperty("exo:title").getString();
-    } else if (managedNode.hasProperty("exo:name")) {
-      title = managedNode.getProperty("exo:name").getString();
+    if (managedNode.hasProperty(NodetypeConstant.EXO_TITLE)) {
+      title = managedNode.getProperty(NodetypeConstant.EXO_TITLE).getString();
+    } else if (managedNode.hasProperty(NodetypeConstant.EXO_NAME)) {
+      title = managedNode.getProperty(NodetypeConstant.EXO_NAME).getString();
     } else {
       title = managedNode.getName();
     }
     title = URLDecoder.decode(URLDecoder.decode(title, DEFAULT_CHARSET), DEFAULT_CHARSET);
-    statisticData.addParameter("documentName", title);
+    statisticData.addParameter(DOCUMENT_NAME_PARAM, title);
   }
 
   private Node getManagedNode(Node changedNode) throws RepositoryException {
@@ -155,32 +255,31 @@ public class JCRNodeListener implements Action {
     Node nodeIndex = changedNode;
     do {
       String nodeType = nodeIndex.getPrimaryNodeType().getName();
-      if (!nodeIndex.getName().equals("nt:resource")
-          && (nodeIndex.isNodeType("nt:file") || getTemplateService().isManagedNodeType(nodeType))) {
+      if (!nodeIndex.isNodeType(NodetypeConstant.NT_RESOURCE)
+          && (nodeIndex.isNodeType(NodetypeConstant.NT_FILE) || getTemplateService().isManagedNodeType(nodeType))) {
         // Found parent managed node
         managedNode = nodeIndex;
-      } else {
-        // Continue iteration
-        if (StringUtils.equals(rootNodePath, nodeIndex.getPath())) {
-          nodeIndex = null;
-        } else {
-          nodeIndex = nodeIndex.getParent();
-        }
       }
-    } while (managedNode == null && nodeIndex != null);
+
+      if (StringUtils.equals(rootNodePath, nodeIndex.getPath())) {
+        nodeIndex = null;
+      } else {
+        nodeIndex = nodeIndex.getParent();
+      }
+    } while (nodeIndex != null);
     return managedNode;
   }
 
   private void addSpaceStatistic(StatisticData statisticData, String nodePath) {
-    if (nodePath.startsWith("/Groups/spaces")) {
+    if (nodePath.startsWith(GROUPS_SPACES_PARENT_FOLDER)) {
       String[] nodePathParts = nodePath.split("/");
 
       if (nodePathParts.length > 3) {
-        String groupId = "/spaces" + nodePathParts[3];
+        String groupId = "/spaces/" + nodePathParts[3];
         Space space = getSpaceService().getSpaceByGroupId(groupId);
         if (space != null) {
           statisticData.setSpaceId(Long.parseLong(space.getId()));
-          statisticData.addParameter("spaceTemplate", space.getTemplate());
+          statisticData.addParameter(SPACE_TEMPLATE_PARAM, space.getTemplate());
         }
       }
     }
@@ -198,6 +297,13 @@ public class JCRNodeListener implements Action {
       spaceService = this.container.getComponentInstanceOfType(SpaceService.class);
     }
     return spaceService;
+  }
+
+  public TrashService getTrashService() {
+    if (trashService == null) {
+      trashService = this.container.getComponentInstanceOfType(TrashService.class);
+    }
+    return trashService;
   }
 
   private static Executor delayedExecutor(long delay, TimeUnit unit) {

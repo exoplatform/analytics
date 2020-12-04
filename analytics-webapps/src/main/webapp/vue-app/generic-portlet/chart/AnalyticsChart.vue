@@ -65,7 +65,7 @@ export default {
           x: 'center'
         },
         grid: {
-          top: 10,
+          top: 0,
           bottom: 30,
         },
         color: this.colors,

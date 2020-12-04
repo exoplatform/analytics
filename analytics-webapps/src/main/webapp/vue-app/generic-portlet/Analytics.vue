@@ -25,7 +25,7 @@
         :retrieve-samples-url="retrieveChartSamplesURL"
         class="mt-0" />
     </template>
-    <v-card class="mx-3 mt-4 ma-auto analytics-chart-parent white" flat>
+    <v-card class="ma-auto analytics-chart-parent white" flat>
       <div class="d-flex pa-3 analytics-chart-header" flat>
         <v-toolbar-title class="d-flex">
           <v-tooltip bottom>
