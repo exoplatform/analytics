@@ -57,13 +57,10 @@ public class StatisticFieldMapping {
   }
 
   public String getAggregationFieldName() {
-    if (isAggregation()) {
-      if (hasKeywordSubField && StringUtils.equals(type, "text")) {
-        return name + ".keyword";
-      }
-      return name;
+    if (isAggregation() && hasKeywordSubField && StringUtils.equals(type, "text")) {
+      return name + ".keyword";
     }
-    return null;
+    return name;
   }
 
   public String getESQueryValue(String value) {

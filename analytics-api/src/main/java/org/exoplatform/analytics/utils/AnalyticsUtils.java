@@ -8,6 +8,7 @@ import java.time.format.*;
 import java.time.temporal.IsoFields;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.*;
@@ -229,7 +230,7 @@ public class AnalyticsUtils {
     String[] valuesString = value.split(VALUES_SEPARATOR);
     List<String> valuesList = new ArrayList<>();
     Collections.addAll(valuesList, valuesString);
-    return new JSONArray(valuesList).toString();
+    return new JSONArray(valuesList.stream().map(String::trim).collect(Collectors.toList())).toString();
   }
 
   public static final JSONObject getJSONObject(JSONObject jsonObject, int i, String... keys) {

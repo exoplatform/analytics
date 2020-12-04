@@ -366,8 +366,12 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     esQuery.append("      \"bool\" : {");
     esQuery.append("        \"must\" : [");
     for (AnalyticsFieldFilter fieldFilter : filters) {
-      String field = fieldFilter.getField();
-      StatisticFieldMapping fieldMapping = this.esMappings.get(field);
+      String esFieldName = fieldFilter.getField();
+      StatisticFieldMapping fieldMapping = this.esMappings.get(esFieldName);
+      if (fieldMapping != null) {
+        esFieldName = fieldMapping.getAggregationFieldName();
+      }
+
       String esQueryValue = fieldMapping == null ? StatisticFieldMapping.computeESQueryValue(fieldFilter.getValueString())
                                                  : fieldMapping.getESQueryValue(fieldFilter.getValueString());
       switch (fieldFilter.getType()) {
@@ -375,31 +379,31 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
           esQuery.append("        {\"exists\" : {\"")
                  .append("field")
                  .append("\" : \"")
-                 .append(field)
+                 .append(esFieldName)
                  .append("\"      }},");
           break;
         case IS_NULL:
           esQuery.append("        {\"bool\": {\"must_not\": {\"exists\": {\"field\": \"")
-                 .append(field)
+                 .append(esFieldName)
                  .append("\"      }}}},");
           break;
         case EQUAL:
           esQuery.append("        {\"match\" : {\"")
-                 .append(field)
+                 .append(esFieldName)
                  .append("\" : ")
                  .append(esQueryValue)
                  .append("        }},");
           break;
         case NOT_EQUAL:
           esQuery.append("        {\"bool\": {\"must_not\": {\"match\" : {\"")
-                 .append(field)
+                 .append(esFieldName)
                  .append("\" : ")
                  .append(esQueryValue)
                  .append("        }}}},");
           break;
         case GREATER:
           esQuery.append("        {\"range\" : {\"")
-                 .append(field)
+                 .append(esFieldName)
                  .append("\" : {")
                  .append("\"gte\" : ")
                  .append(esQueryValue)
@@ -407,7 +411,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
           break;
         case LESS:
           esQuery.append("        {\"range\" : {\"")
-                 .append(field)
+                 .append(esFieldName)
                  .append("\" : {")
                  .append("\"lte\" : ")
                  .append(esQueryValue)
@@ -416,7 +420,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
         case RANGE:
           Range range = fieldFilter.getRange();
           esQuery.append("        {\"range\" : {\"")
-                 .append(field)
+                 .append(esFieldName)
                  .append("\" : {")
                  .append("\"gte\" : ")
                  .append(range.getMin())
@@ -426,14 +430,14 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
           break;
         case IN_SET:
           esQuery.append("        {\"terms\" : {\"")
-                 .append(field)
+                 .append(esFieldName)
                  .append("\" : ")
                  .append(collectionToJSONString(fieldFilter.getValueString()))
                  .append("        }},");
           break;
         case NOT_IN_SET:
           esQuery.append("        {\"bool\": {\"must_not\": {\"terms\" : {\"")
-                 .append(field)
+                 .append(esFieldName)
                  .append("\" : ")
                  .append(collectionToJSONString(fieldFilter.getValueString()))
                  .append("        }}}},");
