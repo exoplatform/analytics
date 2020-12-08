@@ -169,7 +169,7 @@
                         "valueString": "enabledInternalUsers,enabledExternalUsers",
                         "range": null,
                         "field": "countType",
-                        "type": "EQUAL"
+                        "type": "IN_SET"
                       }
                     ],
                     "title": "Users count",
