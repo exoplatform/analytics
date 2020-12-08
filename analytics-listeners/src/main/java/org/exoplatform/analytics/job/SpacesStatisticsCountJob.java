@@ -30,6 +30,8 @@ public class SpacesStatisticsCountJob implements Job {
 
   @Override
   public void execute(JobExecutionContext context) throws JobExecutionException {
+    long startTime = System.currentTimeMillis();
+
     ExoContainer currentContainer = ExoContainerContext.getCurrentContainer();
     ExoContainerContext.setCurrentContainer(container);
     RequestLifeCycle.begin(this.container);
@@ -41,6 +43,7 @@ public class SpacesStatisticsCountJob implements Job {
       statisticData.setModule("social");
       statisticData.setSubModule("space");
       statisticData.setOperation("spacesCount");
+      statisticData.setDuration(System.currentTimeMillis() - startTime);
       statisticData.addParameter("countType", "allSpaces");
       statisticData.addParameter("count", allSpacesCount);
       AnalyticsUtils.addStatisticData(statisticData);

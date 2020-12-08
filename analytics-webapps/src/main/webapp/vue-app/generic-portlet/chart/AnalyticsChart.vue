@@ -66,6 +66,7 @@ export default {
         },
         grid: {
           top: 0,
+          left: 30,
           bottom: 30,
         },
         color: this.colors,

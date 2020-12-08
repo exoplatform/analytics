@@ -34,6 +34,8 @@ public class UsersStatisticsCountJob implements Job {
 
   @Override
   public void execute(JobExecutionContext context) throws JobExecutionException {
+    long startTime = System.currentTimeMillis();
+
     ExoContainer currentContainer = ExoContainerContext.getCurrentContainer();
     ExoContainerContext.setCurrentContainer(container);
     RequestLifeCycle.begin(this.container);
@@ -48,9 +50,11 @@ public class UsersStatisticsCountJob implements Job {
       int enabledUsersCount = enabledIdentities.getSize();
       int disabledUsersCount = allUsersCount - enabledUsersCount;
 
-      addUsersCountStatistic("allUsers", allUsersCount);
-      addUsersCountStatistic("enabledUsers", enabledUsersCount);
-      addUsersCountStatistic("disabledUsers", disabledUsersCount);
+      addUsersCountStatistic("allUsers", allUsersCount, startTime);
+      addUsersCountStatistic("enabledUsers", enabledUsersCount, startTime);
+      addUsersCountStatistic("disabledUsers", disabledUsersCount, startTime);
+
+      startTime = System.currentTimeMillis();
       Group externalsGroup = getOrganizationService().getGroupHandler().findGroupById("/platform/externals");
       int enabledExternalUsersCount = 0;
       if (externalsGroup != null) {
@@ -58,8 +62,8 @@ public class UsersStatisticsCountJob implements Job {
                                                                              .findAllMembershipsByGroup(externalsGroup);
         enabledExternalUsersCount = externalMemberships.getSize();
       }
-      addUsersCountStatistic("enabledExternalUsers", enabledExternalUsersCount);
-      addUsersCountStatistic("enabledInternalUsers", (enabledUsersCount - enabledExternalUsersCount));
+      addUsersCountStatistic("enabledExternalUsers", enabledExternalUsersCount, startTime);
+      addUsersCountStatistic("enabledInternalUsers", (enabledUsersCount - enabledExternalUsersCount), startTime);
     } catch (Exception e) {
       LOG.error("Error while computing users statistics", e);
     } finally {
@@ -68,11 +72,12 @@ public class UsersStatisticsCountJob implements Job {
     }
   }
 
-  private void addUsersCountStatistic(String countType, int count) {
+  private void addUsersCountStatistic(String countType, int count, long startTime) {
     StatisticData statisticData = new StatisticData();
     statisticData.setModule("portal");
     statisticData.setSubModule("account");
     statisticData.setOperation("usersCount");
+    statisticData.setDuration(System.currentTimeMillis() - startTime);
     statisticData.addParameter("countType", countType);
     statisticData.addParameter("count", count);
     AnalyticsUtils.addStatisticData(statisticData);

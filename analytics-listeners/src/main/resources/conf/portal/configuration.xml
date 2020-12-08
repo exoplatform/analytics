@@ -158,9 +158,9 @@
           <!-- REPEAT_INDEFINITELY -->
           <property name="repeatCount" value="0" />
           <!--
-            Period: each day (24 hours).
+            Period: each day (12 hours).
           -->
-          <property name="period" value="86400000" />
+          <property name="period" value="43200000" />
           <!-- Start exceution: a minute after server startup -->
           <property name="startTime" value="+60000" />
           <!-- REPEAT_INDEFINITELY -->
@@ -182,9 +182,9 @@
           <!-- REPEAT_INDEFINITELY -->
           <property name="repeatCount" value="0" />
           <!--
-            Period: each day (24 hours).
+            Period: each day (12 hours).
           -->
-          <property name="period" value="86400000" />
+          <property name="period" value="43200000" />
           <!-- Start exceution: a minute after server startup -->
           <property name="startTime" value="+60000" />
           <!-- REPEAT_INDEFINITELY -->
