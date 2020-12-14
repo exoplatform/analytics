@@ -77,7 +77,6 @@ public class AgendaSavedEventListener extends Listener<Long, Object> {
     statisticData.addParameter("eventStatus", event.getStatus());
     statisticData.addParameter("isRecurrent", event.getRecurrence() != null);
     statisticData.addParameter("isExceptionalOccurrence", event.getOccurrence() != null);
-    statisticData.addParameter("remoteProviderId", event.getRemoteProviderId());
     AnalyticsUtils.addStatisticData(statisticData);
   }
 
