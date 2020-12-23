@@ -323,7 +323,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     if (useSort) {
       if (sortFields == null || sortFields.isEmpty()) {
         // Sort by date
-        esQuery.append("     \"sort\" : [{ \"timestamp\":{\"order\" : \"asc\"}}]");
+        esQuery.append("     \"sort\" : [{ \"timestamp\":{\"order\" : \"desc\"}}]");
       } else {
         esQuery.append("     \"sort\" : [");
         for (int i = 0; i < sortFields.size(); i++) {
@@ -336,7 +336,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
           }
           String direction = sortField.getDirection();
           if (direction == null) {
-            direction = "asc";
+            direction = "desc";
           }
           esQuery.append("{ \"")
                  .append(sortField.getField())
