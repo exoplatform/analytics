@@ -161,7 +161,7 @@ public class JCRNodeListener implements Action {
       if (LOG.isDebugEnabled()) {
         LOG.warn("Error computing jcr statistics", e);
       } else {
-        LOG.warn("Error computing jcr statistics", e.getMessage());
+        LOG.warn("Error computing jcr statistics: {}", e.getMessage());
       }
     }
     return true;
