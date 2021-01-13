@@ -108,6 +108,11 @@ export default {
       return this.fieldNames.filter(field => (!this.aggregation || field.aggregation) && (!this.numeric || field.numeric));
     },
   },
+  watch : {
+    fields(){
+      this.fields = this.fields.sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()));
+    }
+  },
   methods: {
     updateData(){
       this.$emit('input', this.value);
