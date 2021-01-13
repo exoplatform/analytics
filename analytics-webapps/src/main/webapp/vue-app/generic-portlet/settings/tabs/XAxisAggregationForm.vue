@@ -18,7 +18,7 @@
                 :key="dateField.value"
                 :label="dateField.text"
                 :value="dateField.value" />
-              <v-radio label="Per custom field(s)" value="custom" />
+              <v-radio :label="$t('analytics.dateFields.custom')" value="custom" />
             </v-radio-group>
           </v-flex>
           <v-flex
@@ -30,7 +30,7 @@
                 <field-selection
                   v-model="item.field"
                   :fields-mappings="fieldsMappings"
-                  label="Field name"
+                  :label="$t('analytics.xAxis.aggregationField')"
                   aggregation />
               </v-flex>
               <v-flex class="my-auto" xs1>
@@ -76,28 +76,6 @@ export default {
     },
   },
   data: () => ({
-    dateFields: [
-      {
-        text: 'Per day',
-        value: 'day',
-      },
-      {
-        text: 'Per week',
-        value: 'week',
-      },
-      {
-        text: 'Per month',
-        value: 'month',
-      },
-      {
-        text: 'Per quarter',
-        value: 'quarter',
-      },
-      {
-        text: 'Per year',
-        value: 'year',
-      },
-    ],
     dateAggregationType: true,
     dateInterval: 'custom',
     dateAggregation: {
@@ -113,6 +91,30 @@ export default {
     },
   }),
   computed: {
+    dateFields() {
+      return [
+        {
+          text: this.$t('analytics.dateFields.day'),
+          value: 'day',
+        },
+        {
+          text: this.$t('analytics.dateFields.week'),
+          value: 'week',
+        },
+        {
+          text: this.$t('analytics.dateFields.month'),
+          value: 'month',
+        },
+        {
+          text: this.$t('analytics.dateFields.quarter'),
+          value: 'quarter',
+        },
+        {
+          text: this.$t('analytics.dateFields.year'),
+          value: 'year',
+        },
+      ]
+    } ,
     xAxisAggregations() {
       return this.settings && this.settings.xAxisAggregations;
     },

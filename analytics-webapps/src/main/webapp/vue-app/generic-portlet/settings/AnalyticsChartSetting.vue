@@ -15,7 +15,7 @@
           @click="dialog = false">
         </a>
         <span class="ignore-vuetify-classes PopupTitle popupTitle">
-          Edit chart settings
+          {{ $t('analytics.editChart') }}
         </span>
       </div>
       <v-card-text>
@@ -23,12 +23,12 @@
           v-model="tab"
           background-color="transparent"
           color="primary">
-          <v-tab>General</v-tab>
-          <v-tab>Colors</v-tab>
-          <v-tab>X axis</v-tab>
-          <v-tab>Y axis</v-tab>
-          <v-tab>Multiple charts</v-tab>
-          <v-tab>Data filters</v-tab>
+          <v-tab>{{ $t('analytics.general') }}</v-tab>
+          <v-tab>{{ $t('analytics.colors') }}</v-tab>
+          <v-tab>{{ $t('analytics.xAxis') }}</v-tab>
+          <v-tab>{{ $t('analytics.yAxis') }}</v-tab>
+          <v-tab>{{ $t('analytics.multiple.charts') }}</v-tab>
+          <v-tab>{{ $t('analytics.data.filters') }}</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-tab-item eager>
@@ -70,10 +70,10 @@
       <v-card-actions>
         <v-spacer />
         <button class="btn btn-primary ignore-vuetify-classes mr-1" @click="save">
-          Save settings
+          {{ $t('analytics.btn.save') }}
         </button>
         <button class="btn ignore-vuetify-classes ml-1" @click="dialog = false">
-          Close
+          {{ $t('analytics.btn.close') }}
         </button>
         <v-spacer />
       </v-card-actions>

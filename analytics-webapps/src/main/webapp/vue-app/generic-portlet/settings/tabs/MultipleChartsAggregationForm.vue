@@ -11,7 +11,7 @@
         <v-flex class="my-auto px-2" xs6>
           <v-switch
             v-model="multipleCharts"
-            label="Multiple charts"
+            :label="$t('analytics.multiple.charts')"
             required />
         </v-flex>
         <v-flex
@@ -21,7 +21,7 @@
           <field-selection
             v-model="settings.multipleChartsField"
             :fields-mappings="fieldsMappings"
-            label="Field comparator"
+            :label="$t('analytics.fieldComparator')"
             aggregation />
         </v-flex>
       </v-layout>

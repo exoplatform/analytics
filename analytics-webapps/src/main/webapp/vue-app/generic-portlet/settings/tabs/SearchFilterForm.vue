@@ -14,12 +14,12 @@
               <field-selection
                 v-model="item.field"
                 :fields-mappings="fieldsMappings"
-                placeholder="Field name" />
+                :placeholder="$t('analytics.FilterTypes.fieldName.placeholder')" />
             </v-flex>
             <v-flex xs3 class="d-flex my-auto px-2">
               <select
                 v-model="item.type"
-                placeholder="Operator"
+                :placeholder="$t('analytics.FilterTypes.operator.placeholder')"
                 class="operatorInput border-color ma-auto width-auto ignore-vuetify-classes"
                 @change="$forceUpdate()">
                 <option
@@ -35,14 +35,14 @@
                 v-if="item.type === 'EQUAL' || item.type === 'NOT_EQUAL'"
                 v-model="item.valueString"
                 type="text"
-                placeholder="Number value"
+                :placeholder="$t('analytics.FilterTypes.numberValue.placeholder')"
                 class="ignore-vuetify-classes width-auto pa-0 my-auto"
                 required>
               <input
                 v-else-if="item.type === 'LESS' || item.type === 'GREATER'"
                 v-model.number="item.valueString"
                 type="number"
-                placeholder="Value"
+                :placeholder="$t('analytics.FilterTypes.value.placeholder')"
                 class="ignore-vuetify-classes width-auto pa-0 my-auto"
                 required>
               <input
@@ -50,19 +50,19 @@
                 v-model="item.valueString"
                 type="text"
                 class="ignore-vuetify-classes width-auto pa-0 my-auto"
-                placeholder="Values (Separator ',')"
+                :placeholder="$t('analytics.FilterTypes.set.placeholder')"
                 required>
               <template v-else-if="item.type === 'RANGE' && (item.range || (item.range = {}))">
                 <input
                   v-model.number="item.range.min"
                   type="number"
-                  placeholder="Min"
+                  :placeholder="$t('analytics.FilterTypes.min.placeholder')"
                   class="ignore-vuetify-classes width-auto pa-0 my-auto"
                   required>
                 <input
                   v-model.number="item.range.max"
                   type="number"
-                  placeholder="Max"
+                  :placeholder="$t('analytics.FilterTypes.max.placeholder')"
                   class="ignore-vuetify-classes pa-0 width-auto my-auto"
                   required>
               </template>
@@ -115,55 +115,57 @@ export default {
       },
     },
   },
-  data: () => ({
-    searchFilterTypes: [
-      {
-        text: 'equals',
-        value: 'EQUAL',
-        placeholder: 'field value',
-      },
-      {
-        text: 'not equals',
-        value: 'NOT_EQUAL',
-        placeholder: 'field value',
-      },
-      {
-        text: 'in values',
-        value: 'IN_SET',
-        placeholder: 'values (separator \',\')',
-      },
-      {
-        text: 'not in values',
-        value: 'NOT_IN_SET',
-        placeholder: 'values (separator \',\')',
-      },
-      {
-        text: 'in range',
-        value: 'RANGE',
-        placeholder: 'Between \'min\' and \'max\'',
-      },
-      {
-        text: 'less',
-        value: 'LESS',
-        placeholder: 'less or equals than',
-      },
-      {
-        text: 'greater',
-        value: 'GREATER',
-        placeholder: 'greater or equals than',
-      },
-      {
-        text: 'is null',
-        value: 'IS_NULL',
-        placeholder: 'is empty',
-      },
-      {
-        text: 'is not null',
-        value: 'NOT_NULL',
-        placeholder: 'Is not null',
-      },
-    ],
-  }),
+  computed: {
+    searchFilterTypes() {
+      return [
+        {
+          text: this.$t('analytics.FilterTypes.equals'),
+          value: 'EQUAL',
+          placeholder: this.$t('analytics.FilterTypes.fieldValue.placeholder'),
+        },
+        {
+          text: this.$t('analytics.FilterTypes.notEquals'),
+          value: 'NOT_EQUAL',
+          placeholder: this.$t('analytics.FilterTypes.fieldValue.placeholder'),
+        },
+        {
+          text: this.$t('analytics.FilterTypes.inValues'),
+          value: 'IN_SET',
+          placeholder: this.$t('analytics.FilterTypes.set.placeholder'),
+        },
+        {
+          text: this.$t('analytics.FilterTypes.notInValues'),
+          value: 'NOT_IN_SET',
+          placeholder: this.$t('analytics.FilterTypes.set.placeholder'),
+        },
+        {
+          text: this.$t('analytics.FilterTypes.inRange'),
+          value: 'RANGE',
+          placeholder: this.$t('analytics.FilterTypes.range.placeholder'),
+        },
+        {
+          text: this.$t('analytics.FilterTypes.less'),
+          value: 'LESS',
+          placeholder: this.$t('analytics.FilterTypes.less.placeholder'),
+        },
+        {
+          text: this.$t('analytics.FilterTypes.greater'),
+          value: 'GREATER',
+          placeholder: this.$t('analytics.FilterTypes.greater.placeholder'),
+        },
+        {
+          text: this.$t('analytics.FilterTypes.isNull'),
+          value: 'IS_NULL',
+          placeholder: this.$t('analytics.FilterTypes.isEmpty.placeholder'),
+        },
+        {
+          text: this.$t('analytics.FilterTypes.isNotNull'),
+          value: 'NOT_NULL',
+          placeholder: this.$t('analytics.FilterTypes.isNotNull.placeholder'),
+        },
+      ]
+    }
+  },
   methods: {
     deleteFilter(searchFilterIndex){
       this.filters.splice(searchFilterIndex, 1);

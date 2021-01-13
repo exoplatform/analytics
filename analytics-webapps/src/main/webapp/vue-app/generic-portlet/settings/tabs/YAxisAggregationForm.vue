@@ -24,7 +24,7 @@
           <field-selection
             v-model="yAxisAggregation.field"
             :fields-mappings="fieldsMappings"
-            :placeholder="yAxisAggregationCardinality ? 'Distinct aggregation field' : 'Numeric aggregation field'"
+            :placeholder="yAxisAggregationCardinality ? $t('analytics.yAxis.aggregationCardinalityDistinct') : $t('analytics.yAxis.aggregationCardinalityNumeric')"
             :numeric="!yAxisAggregationCardinality"
             aggregation />
         </v-flex>
@@ -56,34 +56,36 @@ export default {
   },
   data: () => ({
     aggregationType: 'MAX',
-    aggregationTypes: [
-      {
-        text: 'Count samples',
-        value: 'COUNT',
-      },
-      {
-        text: 'Count samples with distinct field',
-        value: 'CARDINALITY',
-      },
-      {
-        text: 'Sum of',
-        value: 'SUM',
-      },
-      {
-        text: 'Average of',
-        value: 'AVG',
-      },
-      {
-        text: 'Max of',
-        value: 'MAX',
-      },
-      {
-        text: 'MIN of',
-        value: 'MIN',
-      },
-    ],
   }),
   computed: {
+    aggregationTypes() {
+      return [
+        {
+          text: this.$t('analytics.yAxis.aggregationTypes.count'),
+          value: 'COUNT',
+        },
+        {
+          text: this.$t('analytics.yAxis.aggregationTypes.cardinality'),
+          value: 'CARDINALITY',
+        },
+        {
+          text: this.$t('analytics.yAxis.aggregationTypes.sum'),
+          value: 'SUM',
+        },
+        {
+          text: this.$t('analytics.yAxis.aggregationTypes.avg'),
+          value: 'AVG',
+        },
+        {
+          text: this.$t('analytics.yAxis.aggregationTypes.max'),
+          value: 'MAX',
+        },
+        {
+          text: this.$t('analytics.yAxis.aggregationTypes.min'),
+          value: 'MIN',
+        },
+      ]
+    },
     yAxisAggregation() {
       return this.settings && this.settings.yAxisAggregation;
     },
