@@ -6,7 +6,7 @@
       <v-btn
         class="btn"
         v-on="on">
-        {{ selectedItem && $t(`analytics.periodOptions.`.concat(selectedItem.value)) }}
+        {{ selectedItem && selectedItem.text }}
       </v-btn>
     </template>
     <v-list>
@@ -14,7 +14,7 @@
         v-for="(item, index) in periodOptions"
         :key="index"
         @click="selectItem(item)">
-        <v-list-item-title>{{ $t(`analytics.periodOptions.`.concat(item.value)) }}</v-list-item-title>
+        <v-list-item-title>{{ item.text }}</v-list-item-title>
       </v-list-item>
     </v-list>
   </v-menu>
@@ -26,27 +26,37 @@ export default {
     return {
       defaultValue: 'last6Months',
       selectedItem: null,
-      periodOptions: [
+    }
+  },
+  computed : {
+    periodOptions() {
+      return [
         {
-          value: 'last24h'
+          value: 'last24h',
+          text: this.$t('analytics.periodOptions.last24h')
         },
         {
-          value: 'lastWeek'
+          value: 'lastWeek',
+          text: this.$t('analytics.periodOptions.lastWeek')
         },
         {
-          value: 'lastMonth'
+          value: 'lastMonth',
+          text: this.$t('analytics.periodOptions.lastMonth')
         },
         {
-          value: 'last3Months'
+          value: 'last3Months',
+          text: this.$t('analytics.periodOptions.last3Months')
         },
         {
-          value: 'last6Months'
+          value: 'last6Months',
+          text: this.$t('analytics.periodOptions.last6Months'),
         },
         {
-          value: 'lastYear'
+          value: 'lastYear',
+          text: this.$t('analytics.periodOptions.lastYear')
         },
-      ],
-    };
+      ];
+    }
   },
   mounted() {
     const defaultItem = this.periodOptions.find(item => item.value === this.defaultValue);
