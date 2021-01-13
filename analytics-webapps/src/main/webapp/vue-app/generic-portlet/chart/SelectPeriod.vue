@@ -6,7 +6,7 @@
       <v-btn
         class="btn"
         v-on="on">
-        {{ selectedItem && selectedItem.text }}
+        {{ selectedItem && $t(`analytics.periodOptions.`.concat(selectedItem.value)) }}
       </v-btn>
     </template>
     <v-list>
@@ -14,7 +14,7 @@
         v-for="(item, index) in periodOptions"
         :key="index"
         @click="selectItem(item)">
-        <v-list-item-title>{{ item.text }}</v-list-item-title>
+        <v-list-item-title>{{ $t(`analytics.periodOptions.`.concat(item.value)) }}</v-list-item-title>
       </v-list-item>
     </v-list>
   </v-menu>
@@ -28,28 +28,22 @@ export default {
       selectedItem: null,
       periodOptions: [
         {
-          value: 'last24h',
-          text: 'Last 24 hours',
+          value: 'last24h'
         },
         {
-          value: 'lastWeek',
-          text: 'Last week',
+          value: 'lastWeek'
         },
         {
-          value: 'lastMonth',
-          text: 'Last month',
+          value: 'lastMonth'
         },
         {
-          value: 'last3Months',
-          text: 'Last 3 month',
+          value: 'last3Months'
         },
         {
-          value: 'last6Months',
-          text: 'Last 6 month',
+          value: 'last6Months'
         },
         {
-          value: 'lastYear',
-          text: 'Last year',
+          value: 'lastYear'
         },
       ],
     };
