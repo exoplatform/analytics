@@ -105,13 +105,9 @@ export default {
       return this.fieldsMappings;
     },
     fields() {
-      return this.fieldNames.filter(field => (!this.aggregation || field.aggregation) && (!this.numeric || field.numeric));
+      return this.fieldNames.filter(field => (!this.aggregation || field.aggregation) && (!this.numeric || field.numeric))
+                 .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()));
     },
-  },
-  watch : {
-    fields(){
-      this.fields = this.fields.sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()));
-    }
   },
   methods: {
     updateData(){
