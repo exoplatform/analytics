@@ -92,11 +92,15 @@ export default {
   computed: {
     fieldNames() {
       this.fieldsMappings.forEach(fieldMapping => {
+        let label = null;
         if (!fieldMapping.label && this.fieldsMappings[fieldMapping.name]) {
-          fieldMapping.label = this.fieldLabels[fieldMapping.name];
+          label = this.fieldLabels[fieldMapping.name];
         } else {
-          fieldMapping.label = fieldMapping.name;
+          label = fieldMapping.name;
         }
+        const fieldLabelI18NKey = `analytics.field.label.${label}`;
+        const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
+        fieldMapping.label = fieldLabelI18NValue === fieldLabelI18NKey ? label : fieldLabelI18NValue;
       });
       return this.fieldsMappings;
     },
@@ -106,7 +110,6 @@ export default {
   },
   methods: {
     updateData(){
-      console.warn('updateData', this.label, this.value);
       this.$emit('input', this.value);
       this.$forceUpdate();
     },
