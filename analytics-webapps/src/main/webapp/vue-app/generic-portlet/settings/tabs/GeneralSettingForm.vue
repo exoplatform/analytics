@@ -13,7 +13,7 @@
         xs12>
         <v-text-field
           v-model="settings.title"
-          :label="$t('analytics.chartTypes.label')"
+          :label="$t('analytics.chartTitle')"
           required />
       </v-flex>
       <v-flex
@@ -26,7 +26,7 @@
           :value-comparator="selectedValueComparator"
           item-text="text"
           item-value="value"
-          :label="$t('analytics.chartTypes.label')"
+          :label="$t('analytics.chartTitle')"
           class="operatorInput"
           persistent-hint
           chips

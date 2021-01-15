@@ -24,7 +24,7 @@
           <field-selection
             v-model="yAxisAggregation.field"
             :fields-mappings="fieldsMappings"
-            :placeholder="yAxisAggregationCardinality ? $t('analytics.yAxis.aggregationCardinalityDistinct') : $t('analytics.yAxis.aggregationCardinalityNumeric')"
+            :placeholder="yAxisAggregationCardinality ? $t('analytics.distinctAggregationField') : $t('analytics.numericAggregationField')"
             :numeric="!yAxisAggregationCardinality"
             aggregation />
         </v-flex>
@@ -61,27 +61,27 @@ export default {
     aggregationTypes() {
       return [
         {
-          text: this.$t('analytics.yAxis.aggregationTypes.count'),
+          text: this.$t('analytics.count'),
           value: 'COUNT',
         },
         {
-          text: this.$t('analytics.yAxis.aggregationTypes.cardinality'),
+          text: this.$t('analytics.cardinality'),
           value: 'CARDINALITY',
         },
         {
-          text: this.$t('analytics.yAxis.aggregationTypes.sum'),
+          text: this.$t('analytics.sum'),
           value: 'SUM',
         },
         {
-          text: this.$t('analytics.yAxis.aggregationTypes.avg'),
+          text: this.$t('analytics.avg'),
           value: 'AVG',
         },
         {
-          text: this.$t('analytics.yAxis.aggregationTypes.max'),
+          text: this.$t('analytics.max'),
           value: 'MAX',
         },
         {
-          text: this.$t('analytics.yAxis.aggregationTypes.min'),
+          text: this.$t('analytics.min'),
           value: 'MIN',
         },
       ]

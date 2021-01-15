@@ -27,8 +27,8 @@
           <v-tab>{{ $t('analytics.colors') }}</v-tab>
           <v-tab>{{ $t('analytics.xAxis') }}</v-tab>
           <v-tab>{{ $t('analytics.yAxis') }}</v-tab>
-          <v-tab>{{ $t('analytics.multiple.charts') }}</v-tab>
-          <v-tab>{{ $t('analytics.data.filters') }}</v-tab>
+          <v-tab>{{ $t('analytics.multipleCharts') }}</v-tab>
+          <v-tab>{{ $t('analytics.dataFilters') }}</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-tab-item eager>
@@ -70,10 +70,10 @@
       <v-card-actions>
         <v-spacer />
         <button class="btn btn-primary ignore-vuetify-classes mr-1" @click="save">
-          {{ $t('analytics.btn.save') }}
+          {{ $t('analytics.save') }}
         </button>
         <button class="btn ignore-vuetify-classes ml-1" @click="dialog = false">
-          {{ $t('analytics.btn.close') }}
+          {{ $t('analytics.close') }}
         </button>
         <v-spacer />
       </v-card-actions>

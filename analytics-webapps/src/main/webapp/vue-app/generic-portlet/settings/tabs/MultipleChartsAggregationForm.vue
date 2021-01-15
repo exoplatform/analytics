@@ -11,7 +11,7 @@
         <v-flex class="my-auto px-2" xs6>
           <v-switch
             v-model="multipleCharts"
-            :label="$t('analytics.multiple.charts')"
+            :label="$t('analytics.multipleCharts')"
             required />
         </v-flex>
         <v-flex

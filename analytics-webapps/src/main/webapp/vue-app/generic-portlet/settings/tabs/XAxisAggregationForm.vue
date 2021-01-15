@@ -18,7 +18,7 @@
                 :key="dateField.value"
                 :label="dateField.text"
                 :value="dateField.value" />
-              <v-radio :label="$t('analytics.dateFields.custom')" value="custom" />
+              <v-radio :label="$t('analytics.perCustomField')" value="custom" />
             </v-radio-group>
           </v-flex>
           <v-flex
@@ -30,7 +30,7 @@
                 <field-selection
                   v-model="item.field"
                   :fields-mappings="fieldsMappings"
-                  :label="$t('analytics.xAxis.aggregationField')"
+                  :label="$t('analytics.fieldName')"
                   aggregation />
               </v-flex>
               <v-flex class="my-auto" xs1>
@@ -94,23 +94,23 @@ export default {
     dateFields() {
       return [
         {
-          text: this.$t('analytics.dateFields.day'),
+          text: this.$t('analytics.perDay'),
           value: 'day',
         },
         {
-          text: this.$t('analytics.dateFields.week'),
+          text: this.$t('analytics.perWeek'),
           value: 'week',
         },
         {
-          text: this.$t('analytics.dateFields.month'),
+          text: this.$t('analytics.perMonth'),
           value: 'month',
         },
         {
-          text: this.$t('analytics.dateFields.quarter'),
+          text: this.$t('analytics.perQuarter'),
           value: 'quarter',
         },
         {
-          text: this.$t('analytics.dateFields.year'),
+          text: this.$t('analytics.perYear'),
           value: 'year',
         },
       ]
