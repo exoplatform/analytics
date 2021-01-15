@@ -10,7 +10,7 @@
   </parent>
   <groupId>org.exoplatform.addons.analytics</groupId>
   <artifactId>analytics-parent</artifactId>
-  <version>1.1.x-SNAPSHOT</version>
+  <version>1.1.x-tasks-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo Analytics - Parent POM</name>
   <description>eXo Analytics Addon</description>
@@ -29,14 +29,14 @@
   </scm>
   <properties>
     <!-- 3rd party libraries versions -->
-    <org.exoplatform.social.version>6.2.x-SNAPSHOT</org.exoplatform.social.version>
-    <org.exoplatform.platform-ui.version>6.2.x-SNAPSHOT</org.exoplatform.platform-ui.version>
+    <org.exoplatform.social.version>6.2.x-tasks-SNAPSHOT</org.exoplatform.social.version>
+    <org.exoplatform.platform-ui.version>6.2.x-tasks-SNAPSHOT</org.exoplatform.platform-ui.version>
     <addon.exo.jcr.version>6.2.x-SNAPSHOT</addon.exo.jcr.version>
     <addon.exo.ecms.version>6.2.x-SNAPSHOT</addon.exo.ecms.version>
-    <addon.exo.tasks.version>3.2.x-SNAPSHOT</addon.exo.tasks.version>
+    <addon.exo.tasks.version>3.2.x-tasks-SNAPSHOT</addon.exo.tasks.version>
     <addon.exo.web-conferencing.version>2.2.x-SNAPSHOT</addon.exo.web-conferencing.version>
     <addon.exo.layout-management.version>1.2.x-SNAPSHOT</addon.exo.layout-management.version>
-    <addon.exo.digital-workplace.version>1.2.x-SNAPSHOT</addon.exo.digital-workplace.version>
+    <addon.exo.digital-workplace.version>1.2.x-tasks-SNAPSHOT</addon.exo.digital-workplace.version>
     <addon.exo.news.version>2.2.x-SNAPSHOT</addon.exo.news.version>
     <addon.exo.onlyoffice.version>2.2.x-SNAPSHOT</addon.exo.onlyoffice.version>
     <addon.exo.chat.version>3.2.x-SNAPSHOT</addon.exo.chat.version>
