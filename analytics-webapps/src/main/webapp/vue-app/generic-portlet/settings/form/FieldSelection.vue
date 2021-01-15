@@ -98,7 +98,9 @@ export default {
         } else {
           label = fieldMapping.name;
         }
-        fieldMapping.label = this.$t(`analytics.field.label.${label}`);
+        const fieldLabelI18NKey = `analytics.field.label.${label}`;
+        const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
+        fieldMapping.label = fieldLabelI18NValue === fieldLabelI18NKey ? label : fieldLabelI18NValue;
       });
       return this.fieldsMappings;
     },
