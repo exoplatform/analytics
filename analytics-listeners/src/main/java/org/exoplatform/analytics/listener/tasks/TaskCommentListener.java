@@ -20,16 +20,18 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.task.domain.*;
-import org.exoplatform.task.legacy.service.ProjectService;
-import org.exoplatform.task.legacy.service.TaskService;
+import org.exoplatform.task.dto.CommentDto;
+import org.exoplatform.task.dto.ProjectDto;
+import org.exoplatform.task.dto.TaskDto;
+import org.exoplatform.task.service.ProjectService;
+import org.exoplatform.task.service.TaskService;
 
 /**
  * This listener is added in a synchronous way to be able to get user modifier
  * identifier. The processing will be made in an asynchronous way after that.
  */
 // NOSONAR : FIXME @Asynchronous : Not used, see description
-public class TaskCommentListener extends Listener<TaskService, Comment> {
+public class TaskCommentListener extends Listener<TaskService, CommentDto> {
 
   private static final Log LOG = ExoLogger.getLogger(TaskCommentListener.class);
 
@@ -46,9 +48,9 @@ public class TaskCommentListener extends Listener<TaskService, Comment> {
   }
 
   @Override
-  public void onEvent(Event<TaskService, Comment> event) throws Exception {
-    final Comment comment = event.getData();
-    final Task task = comment.getTask();
+  public void onEvent(Event<TaskService, CommentDto> event) throws Exception {
+    final CommentDto comment = event.getData();
+    final TaskDto task = comment.getTask();
 
     ConversationState conversationstate = ConversationState.getCurrent();
     final String modifierUsername = conversationstate == null
@@ -69,7 +71,7 @@ public class TaskCommentListener extends Listener<TaskService, Comment> {
     });
   }
 
-  private void createCommentStatistic(Task task, Comment comment, long userIdentityId) {
+  private void createCommentStatistic(TaskDto task, CommentDto comment, long userIdentityId) {
     StatisticData statisticData = new StatisticData();
     statisticData.setModule("tasks");
     statisticData.setSubModule("comment");
@@ -92,21 +94,21 @@ public class TaskCommentListener extends Listener<TaskService, Comment> {
     AnalyticsUtils.addStatisticData(statisticData);
   }
 
-  private void addCommentProperties(StatisticData statisticData, Comment comment) {
+  private void addCommentProperties(StatisticData statisticData, CommentDto comment) {
     statisticData.addParameter("commentId", comment.getId());
     statisticData.addParameter("authorId", getUserIdentityId(comment.getAuthor()));
     statisticData.addParameter("commentLength", comment.getComment() == null ? 0 : comment.getComment().length());
     statisticData.addParameter("isSubComment", comment.getParentComment() != null);
   }
 
-  private void appendTaskProperties(StatisticData statisticData, Task task, String prefix) {
+  private void appendTaskProperties(StatisticData statisticData, TaskDto task, String prefix) {
     if (task == null) {
       return;
     }
     if (prefix == null) {
       prefix = "";
     }
-    Project project = task.getStatus() == null ? null : task.getStatus().getProject();
+    ProjectDto project = task.getStatus() == null ? null : task.getStatus().getProject();
     if (project != null) {
       statisticData.addParameter(prefix + "projectId", project.getId());
     }
@@ -161,11 +163,11 @@ public class TaskCommentListener extends Listener<TaskService, Comment> {
     }
   }
 
-  private Space getSpaceOfProject(Task task) {
+  private Space getSpaceOfProject(TaskDto task) {
     if (task == null) {
       return null;
     }
-    Project project = task.getStatus() == null ? null : task.getStatus().getProject();
+    ProjectDto project = task.getStatus() == null ? null : task.getStatus().getProject();
     if (project == null) {
       return null;
     }
