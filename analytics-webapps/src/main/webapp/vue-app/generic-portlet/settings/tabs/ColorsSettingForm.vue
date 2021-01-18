@@ -61,8 +61,7 @@ export default {
         || this.DEFAULT_COLORS;
     },
     setColor(color, index) {
-      this.colors.splice(index, 1, color);
-      this.settings.colors = this.colors;
+      this.settings.colors = this.colors.splice(index, 1, color);
     },
   },
 };
