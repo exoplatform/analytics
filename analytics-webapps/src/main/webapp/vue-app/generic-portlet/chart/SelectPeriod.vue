@@ -32,28 +32,28 @@ export default {
     periodOptions() {
       return [
         {
-          value: 'last24h',
-          text: this.$t('analytics.periodOptions.last24h')
-        },
-        {
-          value: 'lastWeek',
-          text: this.$t('analytics.periodOptions.lastWeek')
-        },
-        {
-          value: 'lastMonth',
-          text: this.$t('analytics.periodOptions.lastMonth')
-        },
-        {
-          value: 'last3Months',
-          text: this.$t('analytics.periodOptions.last3Months')
+          value: 'lastYear',
+          text: this.$t('analytics.periodOptions.lastYear')
         },
         {
           value: 'last6Months',
           text: this.$t('analytics.periodOptions.last6Months'),
         },
         {
-          value: 'lastYear',
-          text: this.$t('analytics.periodOptions.lastYear')
+          value: 'last3Months',
+          text: this.$t('analytics.periodOptions.last3Months')
+        },
+        {
+          value: 'lastMonth',
+          text: this.$t('analytics.periodOptions.lastMonth')
+        },
+        {
+          value: 'lastWeek',
+          text: this.$t('analytics.periodOptions.lastWeek')
+        },
+        {
+          value: 'last24h',
+          text: this.$t('analytics.periodOptions.last24h')
         },
       ];
     }
