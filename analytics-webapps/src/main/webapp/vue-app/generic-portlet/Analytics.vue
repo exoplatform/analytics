@@ -56,23 +56,23 @@
         </v-toolbar-title>
         <v-spacer />
         <select-period v-model="selectedPeriod" />
-        <v-menu v-if="canEdit" offset-y>
+        <v-menu v-if="canEdit" v-model="showMenu" offset-y>
           <template v-slot:activator="{ on }">
             <v-btn
               icon
               class="ml-2"
-              v-on="on">
+              v-on="on" @blur="closeMenu()">
               <v-icon>mdi-dots-vertical</v-icon>
             </v-btn>
           </template>
           <v-list>
-            <v-list-item @click="$refs.viewSamplesDrawer.open()">
+            <v-list-item @mousedown="$event.preventDefault()" @click="$refs.viewSamplesDrawer.open()">
               <v-list-item-title>{{ $t('analytics.samples') }}</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="$refs.chartSettingDialog.open()">
+            <v-list-item @mousedown="$event.preventDefault()" @click="$refs.chartSettingDialog.open()">
               <v-list-item-title>{{ $t('analytics.settings') }}</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="$refs.jsonPanelDialog.open()">
+            <v-list-item @mousedown="$event.preventDefault()" @click="$refs.jsonPanelDialog.open()">
               <v-list-item-title>{{ $t('analytics.jsonSettings') }}</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -160,6 +160,7 @@ export default {
     title: null,
     chartType: 'line',
     initialized: false,
+    showMenu:false,
     displaySamplesCount: false,
     selectedPeriod: null,
     userObjects: {},
@@ -354,6 +355,9 @@ export default {
         })
         .finally(() => this.loading = false);
     },
+    closeMenu(){
+      this.showMenu=false;
+    }
   }
 };
 </script>
