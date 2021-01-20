@@ -26,7 +26,7 @@
           :value-comparator="selectedValueComparator"
           item-text="text"
           item-value="value"
-          label="Chart type"
+          :label="$t('analytics.chartType')"
           class="operatorInput"
           persistent-hint
           chips
