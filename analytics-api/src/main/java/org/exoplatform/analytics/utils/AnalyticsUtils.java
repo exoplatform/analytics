@@ -59,6 +59,12 @@ public class AnalyticsUtils {
 
   public static final String            FIELD_MODIFIER_USER_SOCIAL_ID    = "modifierSocialId";
 
+  public static final String            AVATAR                           = "avatar";
+
+  public static final String            IMAGE_SIZE                       = "imageSize";
+
+  public static final String            IMAGE_TYPE                       = "imageType";
+
   public static final List<String>      COMPUTED_CHART_LABEL             = Arrays.asList(FIELD_MODIFIER_USER_SOCIAL_ID,                                 // NOSONAR
                                                                                          FIELD_USER_ID,
                                                                                          FIELD_SPACE_ID);
