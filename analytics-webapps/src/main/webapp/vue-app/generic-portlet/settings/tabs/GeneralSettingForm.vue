@@ -13,7 +13,7 @@
         xs12>
         <v-text-field
           v-model="settings.title"
-          label="Chart title"
+          :label="$t('analytics.chartTitle')"
           required />
       </v-flex>
       <v-flex
@@ -26,7 +26,7 @@
           :value-comparator="selectedValueComparator"
           item-text="text"
           item-value="value"
-          label="Chart type"
+          :label="$t('analytics.chartType')"
           class="operatorInput"
           persistent-hint
           chips
@@ -47,22 +47,24 @@ export default {
       },
     },
   },
-  data: () => ({
-    chartTypes: [
-      {
-        text: 'Bars',
-        value: 'bar',
-      },
-      {
-        text: 'Lines',
-        value: 'line',
-      },
-      {
-        text: 'Pie',
-        value: 'pie',
-      },
-    ],
-  }),
+  computed: {
+    chartTypes(){
+      return [
+        {
+          text: this.$t('analytics.bar'),
+          value: 'bar',
+        },
+        {
+          text: this.$t('analytics.line'),
+          value: 'line',
+        },
+        {
+          text: this.$t('analytics.pie'),
+          value: 'pie',
+        },
+      ]
+    }
+  },
   methods: {
     selectedValueComparator(item1, item2){
       const item1Value = (item1 && item1.value) || item1;

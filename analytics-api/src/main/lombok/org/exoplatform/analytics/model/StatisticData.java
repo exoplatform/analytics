@@ -4,8 +4,7 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import org.apache.commons.lang3.StringUtils;
+import java.util.stream.Collectors;
 
 import lombok.*;
 
@@ -14,56 +13,60 @@ import lombok.*;
 @NoArgsConstructor
 public class StatisticData implements Serializable {
 
-  private static final long   serialVersionUID = -2660993500359866340L;
+  private static final long               serialVersionUID = -2660993500359866340L;
 
-  private static final int    PRIME            = 59;
+  private static final int                PRIME            = 59;
 
   @ToString.Exclude
-  private DateFormat          dateFormat;
+  private DateFormat                      dateFormat;
 
   @Getter
   @Setter
-  private long                timestamp;
+  private long                            timestamp;
 
   @Getter
   @Setter
-  private long                userId;
+  private long                            userId;
 
   @Getter
   @Setter
-  private long                spaceId;
+  private long                            spaceId;
 
   @Getter
   @Setter
-  private String              module;
+  private String                          module;
 
   @Getter
   @Setter
-  private String              subModule;
+  private String                          subModule;
 
   @Getter
   @Setter
-  private String              operation;
+  private String                          operation;
 
   @Getter
   @Setter
-  private StatisticStatus     status           = StatisticStatus.OK;
+  private StatisticStatus                 status           = StatisticStatus.OK;
 
   @Getter
   @Setter
-  private String              errorMessage;
+  private String                          errorMessage;
 
   @Getter
   @Setter
-  private long                duration;
+  private long                            duration;
 
   @Getter
   @Setter
-  private long                errorCode;
+  private long                            errorCode;
 
   @Getter
   @Setter
-  private Map<String, String> parameters;
+  private Map<String, String>             parameters;
+
+  @Getter
+  @Setter
+  private Map<String, Collection<String>> listParameters;
 
   public void addParameter(String key, Object value) {
     if (parameters == null) {
@@ -72,16 +75,30 @@ public class StatisticData implements Serializable {
     if (value == null) {
       return;
     }
-    if (value instanceof Date) {
-      parameters.put(key, buildDateFormat().format(value));
-    } else if (value instanceof Collection) {
-      parameters.put(key, StringUtils.join(((Collection<?>) value), ","));
+    if (value instanceof Collection) {
+      Collection<?> collection = (Collection<?>) value;
+      Collection<String> values = collection.stream()
+                                            .filter(val -> val != null)
+                                            .map(this::getFieldValue)
+                                            .collect(Collectors.toList());
+      if (listParameters == null) {
+        listParameters = new HashMap<>();
+      }
+      listParameters.put(key, values);
     } else {
-      parameters.put(key, String.valueOf(value));
+      parameters.put(key, getFieldValue(value));
     }
   }
 
-  public DateFormat buildDateFormat() {
+  private String getFieldValue(Object value) {
+    if (value instanceof Date) {
+      return buildDateFormat().format(value);
+    } else {
+      return String.valueOf(value);
+    }
+  }
+
+  private DateFormat buildDateFormat() {
     if (dateFormat == null) {
       dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss Z");
     }
