@@ -122,12 +122,16 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     if (data.getParameters() != null && !data.getParameters().isEmpty()) {
       fields.putAll(data.getParameters());
     }
-    return new Document(DEFAULT_ES_ANALYTICS_INDEX_NAME,
-                        String.valueOf(id),
-                        null,
-                        null,
-                        (Set<String>) null,
-                        fields);
+    Document esDocument = new Document(DEFAULT_ES_ANALYTICS_INDEX_NAME,
+                                       String.valueOf(id),
+                                       null,
+                                       null,
+                                       (Set<String>) null,
+                                       fields);
+    if (data.getListParameters() != null && !data.getListParameters().isEmpty()) {
+      esDocument.setListFields(data.getListParameters());
+    }
+    return esDocument;
   }
 
   @Override

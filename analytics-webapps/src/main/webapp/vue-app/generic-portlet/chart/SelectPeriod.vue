@@ -26,33 +26,37 @@ export default {
     return {
       defaultValue: 'last6Months',
       selectedItem: null,
-      periodOptions: [
+    }
+  },
+  computed : {
+    periodOptions() {
+      return [
         {
-          value: 'last24h',
-          text: 'Last 24 hours',
-        },
-        {
-          value: 'lastWeek',
-          text: 'Last week',
-        },
-        {
-          value: 'lastMonth',
-          text: 'Last month',
-        },
-        {
-          value: 'last3Months',
-          text: 'Last 3 month',
+          value: 'lastYear',
+          text: this.$t('analytics.periodOptions.lastYear')
         },
         {
           value: 'last6Months',
-          text: 'Last 6 month',
+          text: this.$t('analytics.periodOptions.last6Months'),
         },
         {
-          value: 'lastYear',
-          text: 'Last year',
+          value: 'last3Months',
+          text: this.$t('analytics.periodOptions.last3Months')
         },
-      ],
-    };
+        {
+          value: 'lastMonth',
+          text: this.$t('analytics.periodOptions.lastMonth')
+        },
+        {
+          value: 'lastWeek',
+          text: this.$t('analytics.periodOptions.lastWeek')
+        },
+        {
+          value: 'last24h',
+          text: this.$t('analytics.periodOptions.last24h')
+        },
+      ];
+    }
   },
   mounted() {
     const defaultItem = this.periodOptions.find(item => item.value === this.defaultValue);
