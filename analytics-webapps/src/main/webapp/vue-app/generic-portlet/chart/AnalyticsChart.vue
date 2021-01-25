@@ -112,7 +112,9 @@ export default {
             data: chartData.values,
           };
 
-          serie.name = chartData.chartLabel;
+          if (chartData.chartLabel){
+            serie.name = this.getI18N(chartData.chartLabel);
+          }
           series.push(serie);
         });
       } else if (this.chartType === 'pie') {
@@ -131,7 +133,7 @@ export default {
               value: result.result,
             };
             if (result.label) {
-              chartDataValues.name = result.label;
+              chartDataValues.name = this.getI18N(result.label);
             }
             return chartDataValues;
           });
@@ -165,6 +167,12 @@ export default {
 
       const chart = echarts.init($container[0]);
       chart.setOption(chartOptions, true);
+    },
+    getI18N(label){
+      const field = label.split("=")[1];
+      const fieldLabelI18NKey = `analytics.${field}`;
+      const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
+      return  fieldLabelI18NValue === fieldLabelI18NKey ? field : fieldLabelI18NValue;
     }
   }
 }
