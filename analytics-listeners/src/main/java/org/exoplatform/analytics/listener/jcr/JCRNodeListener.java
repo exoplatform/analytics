@@ -71,7 +71,9 @@ public class JCRNodeListener implements Action {
 
   private static final String                   MODULE_DOCUMENT                      = "Document";
 
-  private static final String                   MODULE_CONTENT                       = "Content";
+  private static final String                   SUB_MODULE_CONTENT                   = "Content";
+
+  private static final String                   MODULE_DRIVE                         = "Drive";
 
   private static final String                   SEPARATOR                            = "@@";
 
@@ -197,11 +199,11 @@ public class JCRNodeListener implements Action {
 
   private StatisticData addModuleName(boolean isFile) {
     StatisticData statisticData = new StatisticData();
-    statisticData.setModule(MODULE_CONTENT);
+    statisticData.setModule(MODULE_DRIVE);
     if (isFile) {
       statisticData.setSubModule(MODULE_DOCUMENT);
     } else {
-      statisticData.setSubModule(MODULE_CONTENT);
+      statisticData.setSubModule(SUB_MODULE_CONTENT);
     }
     return statisticData;
   }
