@@ -1,4 +1,4 @@
-import Breadcrumb from './components/BreadcrumbAnalytics.vue';
+import Breadcrumb from './components/AnalyticsDashboardBreadcrumb.vue';
 
 const components = {
     'bread-crumb-analytics': Breadcrumb,

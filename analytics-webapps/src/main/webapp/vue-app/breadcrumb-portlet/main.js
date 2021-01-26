@@ -1,5 +1,3 @@
-import Vue from 'vue';
-import Vuetify from 'vuetify';
 import './initComponents.js';
 
 Vue.use(Vuetify);
@@ -21,7 +19,7 @@ export function init() {
         const appElement = document.createElement('div');
         appElement.id = appId;
 
-// init Vue app when locale ressources are ready
+        // init Vue app when locale ressources are ready
         new Vue({
             mounted() {
                 document.dispatchEvent(new CustomEvent('hideTopBarLoading'));

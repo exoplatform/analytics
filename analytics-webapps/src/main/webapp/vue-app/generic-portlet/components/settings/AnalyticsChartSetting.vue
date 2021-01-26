@@ -32,35 +32,35 @@
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-tab-item eager>
-            <general-setting-form
+            <analytics-general-setting-form
               ref="settingForm"
               :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
-            <colors-setting-form
+            <analytics-colors-setting-form
               ref="colorsForm"
               :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
-            <x-axis-form
+            <analytics-x-axis-form
               ref="xAxis"
               :fields-mappings="fieldsMappings"
               :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
-            <y-axis-form
+            <analytics-y-axis-form
               ref="yAxis"
               :fields-mappings="fieldsMappings"
               :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
-            <multiple-charts
+            <analytics-multiple-charts
               ref="multipleCharts"
               :fields-mappings="fieldsMappings"
               :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
-            <search-filter-form
+            <analytics-search-filter-form
               ref="searchFilter"
               :fields-mappings="fieldsMappings"
               :filters="chartSettings.filters" />
@@ -82,22 +82,8 @@
 </template>
 
 <script>
-import GeneralSettingForm from './tabs/GeneralSettingForm.vue';
-import ColorsSettingForm from './tabs/ColorsSettingForm.vue';
-import SearchFilterForm from './tabs/SearchFilterForm.vue';
-import XAxisForm from './tabs/XAxisAggregationForm.vue';
-import YAxisForm from './tabs/YAxisAggregationForm.vue';
-import MultipleCharts from './tabs/MultipleChartsAggregationForm.vue';
 
 export default {
-  components: {
-    GeneralSettingForm,
-    ColorsSettingForm,
-    SearchFilterForm,
-    XAxisForm,
-    YAxisForm,
-    MultipleCharts,
-  },
   props: {
     retrieveMappingsUrl: {
       type: String,

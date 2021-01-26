@@ -43,7 +43,7 @@
   </portlet>
 
   <portlet>
-    <name>breadcrumbAnalytics</name>
+    <name>AnalyticsDashboardBreadcrumb</name>
     <module>
       <script>
         <minify>false</minify>
