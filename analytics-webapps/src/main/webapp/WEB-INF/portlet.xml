@@ -79,8 +79,8 @@
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
-      <title>Agenda Admin Settings test</title>
-      <keywords>Agenda Admin Settings test</keywords>
+      <title>Breadcrumb Analytics</title>
+      <keywords>Breadcrumb Analytics</keywords>
     </portlet-info>
   </portlet>
 

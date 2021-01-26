@@ -35,7 +35,7 @@
             <application-ref>breadcrumbAnalytics</application-ref>
             <portlet-ref>breadcrumbAnalytics</portlet-ref>
           </portlet>
-          <title>breadcrumbAnalytics dsc</title>
+          <title>Breadcrumb Analytics</title>
           <access-permissions>Everyone</access-permissions>
           <show-info-bar>false</show-info-bar>
         </portlet-application>
