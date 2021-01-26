@@ -1,5 +1,5 @@
 <template>
-  <v-app id="idBreadcrumb">
+  <v-app>
     <h1>breadcrumb</h1>
   </v-app>
 </template>

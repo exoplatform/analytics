@@ -10,7 +10,7 @@ const vuetify = new Vuetify({
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-const appId = 'breadcrumb';
+const appId = 'analyticsDashboardBreadcrumb';
 
 // getting language of user
 const lang = eXo && eXo.env && eXo.env.portal && eXo.env.portal.language || 'en';
