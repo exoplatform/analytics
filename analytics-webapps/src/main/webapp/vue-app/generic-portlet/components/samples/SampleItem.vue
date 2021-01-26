@@ -8,12 +8,12 @@
               <v-col
                 v-if="userIdentity"
                 class="text-truncate">
-                User: <profile-chip :identity="userIdentity" /> 
+                User: <analytics-profile-chip :identity="userIdentity" /> 
               </v-col>
               <v-col
                 v-else-if="userModifierIdentity"
                 class="text-truncate">
-                Modifier user: <profile-chip :identity="userModifierIdentity" />
+                Modifier user: <analytics-profile-chip :identity="userModifierIdentity" />
               </v-col>
               <v-col
                 v-if="chartData.operation"
@@ -40,11 +40,11 @@
           <v-col>{{ chartDataProp }}</v-col>
           <v-col v-if="chartDataProp === 'userId' && userIdentity" class="text--secondary">
             {{ chartData[chartDataProp] }}
-            (<profile-chip :identity="userIdentity" />)
+            (<analytics-profile-chip :identity="userIdentity" />)
           </v-col>
           <v-col v-else-if="chartDataProp === 'spaceId' && spaceIdentity" class="text--secondary">
             {{ chartData[chartDataProp] }}
-            (<profile-chip :identity="spaceIdentity" />)
+            (<analytics-profile-chip :identity="spaceIdentity" />)
           </v-col>
           <v-col v-else class="text--secondary">
             {{ chartData[chartDataProp] }}
@@ -60,7 +60,7 @@
           <v-col>{{ chartDataParameter }}</v-col>
           <v-col v-if="chartDataParameter === 'modifierSocialId' && userModifierIdentity" class="text--secondary">
             {{ chartData.parameters[chartDataParameter] }}
-            (<profile-chip :identity="userModifierIdentity" />)
+            (<analytics-profile-chip :identity="userModifierIdentity" />)
           </v-col>
           <v-col v-else class="text--secondary">
             {{ chartData.parameters[chartDataParameter] }}
@@ -72,12 +72,7 @@
 </template>
 
 <script>
-import ProfileChip from './ProfileChip.vue';
-
 export default {
-  components: {
-    ProfileChip,
-  },
   props: {
     chartData: {
       type: Object,
