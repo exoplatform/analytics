@@ -66,4 +66,22 @@
     </portlet-info>
   </portlet>
 
+  <portlet>
+    <portlet-name>breadcrumbAnalytics</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/breadcrumb.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Agenda Admin Settings test</title>
+      <keywords>Agenda Admin Settings test</keywords>
+    </portlet-info>
+  </portlet>
+
 </portlet-app>

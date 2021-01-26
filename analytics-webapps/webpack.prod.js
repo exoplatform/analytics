@@ -23,6 +23,7 @@ const config = {
   },
   entry: {
     analytics: './src/main/webapp/vue-app/analytics.js',
+    breadcrumb: './src/main/webapp/vue-app/breadcrumb-portlet/main.js'
   },
   output: {
     path: path.join(__dirname, 'target/analytics/'),
