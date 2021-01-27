@@ -91,6 +91,11 @@
       <set-method>addListener</set-method>
       <type>org.exoplatform.analytics.listener.agenda.AgendaSavedEventListener</type>
     </component-plugin>
+    <component-plugin>
+      <name>exo.agenda.event.responseSent</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.agenda.AgendaEventResponseListener</type>
+    </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins profiles="kudos">
