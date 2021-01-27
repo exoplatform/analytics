@@ -1,6 +1,16 @@
 <template>
   <v-app>
-    <h1>breadcrumb</h1>
+    <v-card class="border-radius" flat>
+      <v-list>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title class="title text-color">
+              <strong>{{ $t('analytics.application') }}</strong>
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-card>
   </v-app>
 </template>
 <script>
