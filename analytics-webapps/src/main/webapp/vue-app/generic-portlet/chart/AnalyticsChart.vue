@@ -113,10 +113,7 @@ export default {
           };
 
           if (chartData.chartLabel){
-            const label = chartData.chartLabel.split("=")[1];
-            const fieldLabelI18NKey = `analytics.${label}`;
-            const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
-            serie.name = fieldLabelI18NValue === fieldLabelI18NKey ? chartData.chartLabel : fieldLabelI18NValue;
+            serie.name = this.getI18N(chartData.chartLabel);
           }
           series.push(serie);
         });
@@ -136,10 +133,7 @@ export default {
               value: result.result,
             };
             if (result.label) {
-              const nameModule = result.label.split("=")[1];
-              const fieldLabelI18NKey = `analytics.${nameModule}`;
-              const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
-              chartDataValues.name = fieldLabelI18NValue === fieldLabelI18NKey ? result.label : fieldLabelI18NValue;
+              chartDataValues.name = this.getI18N(result.label);
             }
             return chartDataValues;
           });
@@ -173,6 +167,12 @@ export default {
 
       const chart = echarts.init($container[0]);
       chart.setOption(chartOptions, true);
+    },
+    getI18N(label){
+      const field = label.split("=")[1];
+      const fieldLabelI18NKey = `analytics.${field}`;
+      const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
+      return  fieldLabelI18NValue === fieldLabelI18NKey ? field : fieldLabelI18NValue;
     }
   }
 }
