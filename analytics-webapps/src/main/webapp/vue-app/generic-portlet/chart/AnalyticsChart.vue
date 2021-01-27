@@ -112,7 +112,12 @@ export default {
             data: chartData.values,
           };
 
-          serie.name = chartData.chartLabel;
+          if (chartData.chartLabel){
+            const label = chartData.chartLabel.split("=")[1];
+            const fieldLabelI18NKey = `analytics.${label}`;
+            const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
+            serie.name = fieldLabelI18NValue === fieldLabelI18NKey ? chartData.chartLabel : fieldLabelI18NValue;
+          }
           series.push(serie);
         });
       } else if (this.chartType === 'pie') {
@@ -131,7 +136,10 @@ export default {
               value: result.result,
             };
             if (result.label) {
-              chartDataValues.name = result.label;
+              const nameModule = result.label.split("=")[1];
+              const fieldLabelI18NKey = `analytics.${nameModule}`;
+              const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
+              chartDataValues.name = fieldLabelI18NValue === fieldLabelI18NKey ? result.label : fieldLabelI18NValue;
             }
             return chartDataValues;
           });
