@@ -24,7 +24,7 @@ export function init() {
             mounted() {
                 document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
             },
-            template: `<bread-crumb-analytics v-cacheable id="${appId}" />`,
+            template: `<analytics-breadcrumb v-cacheable id="${appId}" />`,
             vuetify,
             i18n
         }).$mount(appElement);

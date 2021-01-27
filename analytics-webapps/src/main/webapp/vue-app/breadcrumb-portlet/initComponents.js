@@ -1,7 +1,7 @@
 import Breadcrumb from './components/AnalyticsDashboardBreadcrumb.vue';
 
 const components = {
-    'bread-crumb-analytics': Breadcrumb,
+    'analytics-breadcrumb': Breadcrumb,
 };
 
 for (const key in components) {

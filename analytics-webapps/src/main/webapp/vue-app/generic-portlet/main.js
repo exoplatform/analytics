@@ -50,6 +50,7 @@ export function init(dataId) {
            :save-settings-url="saveSettingsURL"
            data-id="${dataId}"
            data-settings-url="${retrieveSettingsURL}"
+           data-mappings-url="${retrieveMappingsURL}"
            data-filters-url="${retrieveFiltersURL}"
            data-chart-data-url="${retrieveChartDataURL}"
            data-chart-samples-url="${retrieveChartSamplesURL}"
