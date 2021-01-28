@@ -18,7 +18,7 @@
           v-if="multipleCharts"
           class="my-auto px-2"
           xs6>
-          <field-selection
+          <analytics-field-selection
             v-model="settings.multipleChartsField"
             :fields-mappings="fieldsMappings"
             :label="$t('analytics.fieldComparator')"
@@ -30,12 +30,7 @@
 </template>
 
 <script>
-import FieldSelection from '../form/FieldSelection.vue';
-
 export default {
-  components: {
-    FieldSelection,
-  },
   props: {
     settings: {
       type: Object,

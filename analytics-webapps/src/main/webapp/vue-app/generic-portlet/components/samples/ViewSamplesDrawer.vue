@@ -23,7 +23,7 @@
     <template slot="content">
       <v-row justify="center" class="ma-0 analyticsDrawerContent">
         <v-expansion-panels v-if="chartDatas" accordion>
-          <sample-item
+          <analytics-sample-item
             v-for="chartData in chartDatas"
             :key="chartData.id"
             :chart-data="chartData"
@@ -48,14 +48,7 @@
 </template>
 
 <script>
-import SampleItem from './SampleItem.vue';
-
-import {loadUser, loadSpace} from '../../js/utils.js';
-
 export default {
-  components: {
-    SampleItem,
-  },
   props: {
     selectedPeriod: {
       type: Object,
@@ -168,9 +161,9 @@ export default {
       }
       const chartData = chartDatas[index];
       if (chartData) {
-        return loadUser(this.users, chartData.userId)
-          .then(() => loadUser(this.users, chartData.parameters && chartData.parameters.modifierSocialId))
-          .then(() => loadSpace(this.spaces, chartData.spaceId))
+        return this.$analyticsUtils.loadUser(this.users, chartData.userId)
+          .then(() => this.$analyticsUtils.loadUser(this.users, chartData.parameters && chartData.parameters.modifierSocialId))
+          .then(() => this.$analyticsUtils.loadSpace(this.spaces, chartData.spaceId))
           .then(() => this.loadUsersAndSpacesObjects(chartDatas, ++index));
       }
     },
