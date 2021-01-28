@@ -23,8 +23,10 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.task.domain.*;
-import org.exoplatform.task.legacy.service.*;
+import org.exoplatform.task.dto.LabelDto;
+import org.exoplatform.task.dto.ProjectDto;
+import org.exoplatform.task.dto.TaskDto;
+import org.exoplatform.task.service.*;
 
 /**
  * This listener is added in a synchronous way to be able to get user modifier
@@ -41,6 +43,8 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
 
   private TaskService      taskService;
 
+  private LabelService      labelService;
+
   private IdentityManager  identityManager;
 
   private SpaceService     spaceService;
@@ -56,8 +60,8 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
   public void onEvent(Event<TaskService, TaskPayload> event) throws Exception {
     TaskPayload data = event.getData();
 
-    final Task oldTask = data.before();
-    final Task newTask = data.after();
+    final TaskDto oldTask = data.before();
+    final TaskDto newTask = data.after();
 
     ConversationState conversationstate = ConversationState.getCurrent();
 
@@ -70,15 +74,7 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
       try {
         long userIdentityId = getUserIdentityId(modifierUsername);
 
-        ListAccess<Label> taskLabelsListAccess = getTaskService().findLabelsByTask(newTask.getId(), modifierUsername);
-        int labelsSize = taskLabelsListAccess.getSize();
-        List<Label> taskLabels = null;
-        if (labelsSize > 0) {
-          taskLabels = Arrays.asList(taskLabelsListAccess.load(0, labelsSize));
-        } else {
-          taskLabels = Collections.emptyList();
-        }
-
+        List<LabelDto> taskLabels = getLabelService().findLabelsByTask(newTask.getId(), modifierUsername,0,-1);
         createTaskStatistic(oldTask, newTask, taskLabels, userIdentityId);
       } catch (Exception e) {
         LOG.warn("Error computing task statistics", e);
@@ -89,7 +85,7 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
     });
   }
 
-  private void createTaskStatistic(Task oldTask, Task newTask, List<Label> taskLabels, long userIdentityId) {
+  private void createTaskStatistic(TaskDto oldTask, TaskDto newTask, List<LabelDto> taskLabels, long userIdentityId) {
     StatisticData statisticData = new StatisticData();
     statisticData.setModule("tasks");
     statisticData.setSubModule("task");
@@ -106,7 +102,7 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
     statisticData.addParameter("spaceTemplate", spaceTemplate);
     statisticData.addParameter("taskId", newTask.getId());
 
-    List<Long> taskLabelIds = taskLabels.stream().map(Label::getId).collect(Collectors.toList());
+    List<Long> taskLabelIds = taskLabels.stream().map(LabelDto::getId).collect(Collectors.toList());
     statisticData.addParameter("taskLabelIds", taskLabelIds);
 
     appendTaskProperties(statisticData, newTask, null);
@@ -118,7 +114,7 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
     AnalyticsUtils.addStatisticData(statisticData);
   }
 
-  private String computeTaskOperation(Task oldTask, Task newTask) {
+  private String computeTaskOperation(TaskDto oldTask, TaskDto newTask) {
     String taskOperation = operation;
     if (oldTask != null) {
       if (isDiff(oldTask.isCompleted(), newTask.isCompleted())) {
@@ -154,14 +150,14 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
     return taskOperation;
   }
 
-  private void appendTaskProperties(StatisticData statisticData, Task task, String prefix) {
+  private void appendTaskProperties(StatisticData statisticData, TaskDto task, String prefix) {
     if (task == null) {
       return;
     }
     if (prefix == null) {
       prefix = "";
     }
-    Project project = task.getStatus() == null ? null : task.getStatus().getProject();
+    ProjectDto project = task.getStatus() == null ? null : task.getStatus().getProject();
     if (project != null) {
       statisticData.addParameter(prefix + "projectId", project.getId());
     }
@@ -216,11 +212,11 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
     }
   }
 
-  private Space getSpaceOfProject(Task task) {
+  private Space getSpaceOfProject(TaskDto task) {
     if (task == null) {
       return null;
     }
-    Project project = task.getStatus() == null ? null : task.getStatus().getProject();
+    ProjectDto project = task.getStatus() == null ? null : task.getStatus().getProject();
     if (project == null) {
       return null;
     }
@@ -288,5 +284,11 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
       taskService = this.container.getComponentInstanceOfType(TaskService.class);
     }
     return taskService;
+  }
+  private LabelService getLabelService() {
+    if (labelService == null) {
+      labelService = this.container.getComponentInstanceOfType(LabelService.class);
+    }
+    return labelService;
   }
 }
