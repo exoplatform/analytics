@@ -20,8 +20,9 @@
 <portlet:actionURL var="saveSettingsURL" />
 
 <div class="VuetifyApp">
-  <% int generatedId = (int) (Math.random() * 100000); %>
+  <% int generatedId = (int) (Math.random() * 1000000l); %>
   <div class="analytics-app-parent"
+    id="analytics-<%= generatedId %>"
     data-id="<%= generatedId %>"
     data-settings-url="<%=retrieveSettingsURL%>"
     data-mappings-url="<%=retrieveMappingsURL%>"
@@ -30,4 +31,7 @@
     data-chart-samples-url="<%=retrieveChartSamplesURL%>"
     data-save-settings-url="<%=saveSettingsURL%>">
   </div>
+  <script type="text/javascript">
+    require(['PORTLET/analytics/AnalyticsPortlet'], app => app.init('analytics-<%= generatedId %>'));
+  </script>
 </div>

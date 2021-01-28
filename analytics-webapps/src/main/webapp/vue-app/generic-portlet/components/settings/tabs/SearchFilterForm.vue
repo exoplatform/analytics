@@ -11,7 +11,7 @@
         <template v-if="filters && filters.length">
           <v-layout v-for="(item, index) in filters" :key="item">
             <v-flex xs4 class="my-auto">
-              <field-selection
+              <analytics-field-selection
                 v-model="item.field"
                 :fields-mappings="fieldsMappings"
                 :placeholder="$t('analytics.fieldNamePlaceholder')" />
@@ -95,12 +95,7 @@
 </template>
 
 <script>
-import FieldSelection from '../form/FieldSelection.vue';
-
 export default {
-  components: {
-    FieldSelection,
-  },
   props: {
     filters: {
       type: Array,

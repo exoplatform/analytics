@@ -12,7 +12,7 @@
         :key="index"
         class="mx-auto px-3 my-3"
         xs4>
-        <setting-color-picker
+        <analytics-setting-color-picker
           v-model="colors[index]"
           @updated="setColor($event, index)" />
       </v-flex>
@@ -21,12 +21,7 @@
 </template>
 
 <script>
-import SettingColorPicker from './SettingColorPicker.vue';
-
 export default {
-  components: {
-    SettingColorPicker,
-  },
   props: {
     settings: {
       type: Object,
