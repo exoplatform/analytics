@@ -22,11 +22,13 @@ const config = {
     ]
   },
   entry: {
-    analytics: './src/main/webapp/vue-app/analytics.js',
+    analytics: './src/main/webapp/vue-app/generic-portlet/main.js',
+    breadcrumb: './src/main/webapp/vue-app/breadcrumb-portlet/main.js'
   },
   output: {
     path: path.join(__dirname, 'target/analytics/'),
-    filename: 'js/[name].bundle.js'
+    filename: 'js/[name].bundle.js',
+    libraryTarget: 'amd'
   },
   externals: {
     vue: 'Vue',

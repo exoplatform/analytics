@@ -21,7 +21,7 @@
           v-show="!yAxisAggregationCount"
           class="my-auto px-2"
           xs6>
-          <field-selection
+          <analytics-field-selection
             v-model="yAxisAggregation.field"
             :fields-mappings="fieldsMappings"
             :placeholder="yAxisAggregationCardinality ? $t('analytics.distinctAggregationField') : $t('analytics.numericAggregationField')"
@@ -34,12 +34,7 @@
 </template>
 
 <script>
-import FieldSelection from '../form/FieldSelection.vue';
-
 export default {
-  components: {
-    FieldSelection,
-  },
   props: {
     settings: {
       type: Object,

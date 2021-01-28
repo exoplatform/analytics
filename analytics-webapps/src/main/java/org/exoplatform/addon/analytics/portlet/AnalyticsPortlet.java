@@ -48,7 +48,7 @@ public class AnalyticsPortlet extends GenericPortlet {
 
   @Override
   protected void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-    PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/analytics.jsp");
+    PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/analytics.jsp");
     dispatcher.forward(request, response);
   }
 
