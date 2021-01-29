@@ -25,6 +25,15 @@ export function loadUser(users, userId) {
   }
 }
 
+export function getAnalyticsPages() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/portal/?siteName=${eXo.env.portal.portalName}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {if(resp && resp.ok) {
+    return resp.json();
+  }});
+}
+
 export function loadSpace(spaces, spaceId) {
   if (!spaceId) {
     return Promise.resolve(null);
