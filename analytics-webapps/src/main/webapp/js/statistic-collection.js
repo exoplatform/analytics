@@ -28,6 +28,11 @@ function() {
         useWorkerScheduler: true,
       });
 
+      if (!this.cometdSubscription) {
+        // First time init, install listener
+        document.addEventListener('exo-statistic-message', event => this.sendMessage(event && event.detail));
+      }
+
       this.cometdSubscription = cCometd.subscribe(this.settings.cometdChannel, null, event => {}, null, (subscribeReply) => {
         self_.connected = subscribeReply && subscribeReply.successful;
       });
@@ -52,7 +57,7 @@ function() {
       const self_ = this;
       if ($watcher.length) {
         $watcher.off(watcher.domEvent).on(watcher.domEvent, (event) => {
-          self_.sendMessage.call(self_, watcher, event, self_.connected);
+          self_.sendWatcherMessage.call(self_, watcher, event, self_.connected);
         });
       } else {
         window.setTimeout(() => {
@@ -60,7 +65,7 @@ function() {
         }, 1000);
       }
     },
-    sendMessage : function(watcher, event) {
+    sendWatcherMessage : function(watcher, event) {
       try {
         const parameters = {};
         if (watcher.domProperties) {
@@ -80,17 +85,23 @@ function() {
             }
           });
         }
-  
-        cCometd.publish(this.settings.cometdChannel, JSON.stringify({
+
+        const statisticMessage = {
           'name': watcher.name,
           'userName': eXo.env.portal.userName,
           'spaceId': eXo.env.portal.spaceId,
           'portalUri': eXo.env.server.portalBaseURL,
-          'token': this.settings.cometdToken,
           'parameters' : parameters,
-        }));
+        };
+        this.sendMessage(statisticMessage);
       } catch (e) {
         console.debug('Error sending data', e);
+      }
+    },
+    sendMessage : function(statisticMessage) {
+      if (statisticMessage) {
+        statisticMessage.token = this.settings.cometdToken;
+        cCometd.publish(this.settings.cometdChannel, JSON.stringify(statisticMessage));
       }
     },
   };

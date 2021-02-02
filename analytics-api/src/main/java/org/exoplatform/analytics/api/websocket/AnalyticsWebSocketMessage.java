@@ -13,33 +13,53 @@ public class AnalyticsWebSocketMessage {
   /**
    * Watcher name from {@link StatisticWatcher#getName()}
    */
-  String              name;
+  private String              name;
+
+  /**
+   * statistic module
+   */
+  private String              module;
+
+  /**
+   * statistic subModule
+   */
+  private String              subModule;
+
+  /**
+   * statistic operation
+   */
+  private String              operation;
 
   /**
    * User login name
    */
-  String              userName;
+  private String              userName;
+
+  /**
+   * Current technical space pretty name
+   */
+  private String              spacePrettyName;
 
   /**
    * Current technical space id
    */
-  String              spaceId;
+  private String              spaceId;
 
   /**
    * Current portalUri
    */
-  String              portalUri;
+  private String              portalUri;
 
   /**
    * User cometd Token
    */
-  String              token;
+  private String              token;
 
   /**
    * Collected DOM properties switch {@link StatisticWatcher#getDomProperties()}
    * and DOM event properties collected using
    * {@link StatisticWatcher#getDomEventProperties()}
    */
-  Map<String, String> parameters = new HashMap<>();
+  private Map<String, String> parameters = new HashMap<>();
 
 }

@@ -57,7 +57,7 @@
           :key="chartDataParameter"
           class="ma-2"
           no-gutters>
-          <v-col>{{ chartDataParameter }}</v-col>
+          <v-col>{{ getI18N(chartDataParameter) }}</v-col>
           <v-col v-if="chartDataParameter === 'modifierSocialId' && userModifierIdentity" class="text--secondary">
             {{ chartData.parameters[chartDataParameter] }}
             (<profile-chip :identity="userModifierIdentity" />)
@@ -158,6 +158,11 @@ export default {
       const lang = eXo.env.portal.language;
       return dateTime.toLocaleString(lang);
     },
+    getI18N(label){
+      const fieldLabelI18NKey = `analytics.field.label.${label}`;
+      const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
+      return  fieldLabelI18NValue === fieldLabelI18NKey ? label : fieldLabelI18NValue;
+    }
   },
 };
 </script>
