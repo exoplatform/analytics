@@ -14,6 +14,16 @@ public class StatisticWatcher {
   private String              name;
 
   /**
+   * Statistic data: module field
+   */
+  private String              module;
+
+  /**
+   * Statistic data: subModule field
+   */
+  private String              subModule;
+
+  /**
    * Statistic data: operation field
    */
   private String              operation;

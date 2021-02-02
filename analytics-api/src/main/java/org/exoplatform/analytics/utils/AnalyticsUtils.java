@@ -276,6 +276,12 @@ public class AnalyticsUtils {
     return getIdentityId(OrganizationIdentityProvider.NAME, username);
   }
 
+  public static long getSpaceId(String prettyName) {
+    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+    Space space = spaceService.getSpaceByPrettyName(prettyName);
+    return space == null ? 0l : Long.parseLong(space.getId());
+  }
+
   public static Identity getIdentity(String identityId) {
     if (StringUtils.isBlank(identityId)) {
       return null;
