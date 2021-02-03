@@ -71,6 +71,11 @@
       <artifactId>ecms-core-services</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.exoplatform.addons.web-conferencing</groupId>
+      <artifactId>web-conferencing-services</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <finalName>analytics-listeners</finalName>
