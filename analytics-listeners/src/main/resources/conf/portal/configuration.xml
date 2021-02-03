@@ -147,6 +147,40 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins profiles="webconferencing">
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>exo.webconferencing.callCreated</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.webconferencing.WebConferencingListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.webconferencing.callStarted</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.webconferencing.WebConferencingListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.webconferencing.callJoined</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.webconferencing.WebConferencingListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.webconferencing.callLeft</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.webconferencing.WebConferencingListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.webconferencing.callStopped</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.webconferencing.WebConferencingListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.webconferencing.callRecorded</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.webconferencing.WebConferencingListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
   <external-component-plugins>
     <target-component>org.exoplatform.services.scheduler.JobSchedulerService</target-component>
     <component-plugin>
