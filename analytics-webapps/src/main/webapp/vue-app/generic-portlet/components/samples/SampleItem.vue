@@ -6,14 +6,9 @@
           <v-fade-transition leave-absolute>
             <v-row no-gutters class="sampleItemHeader">
               <v-col
-                v-if="userIdentity"
+                v-if="userIdentity || userModifierIdentity"
                 class="text-truncate">
-                User: <analytics-profile-chip :identity="userIdentity" /> 
-              </v-col>
-              <v-col
-                v-else-if="userModifierIdentity"
-                class="text-truncate">
-                Modifier user: <analytics-profile-chip :identity="userModifierIdentity" />
+                <analytics-profile-chip :identity="userIdentity || userModifierIdentity" />
               </v-col>
               <v-col
                 v-if="chartData.operation"
@@ -37,7 +32,7 @@
           :key="chartDataProp"
           class="ma-2"
           no-gutters>
-          <v-col>{{ chartDataProp }}</v-col>
+          <v-col>{{ getI18N(chartDataProp) }}</v-col>
           <v-col v-if="chartDataProp === 'userId' && userIdentity" class="text--secondary">
             {{ chartData[chartDataProp] }}
             (<analytics-profile-chip :identity="userIdentity" />)
