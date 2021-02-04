@@ -4,7 +4,7 @@
       <v-list>
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title class="title text-color">
+            <v-list-item-title class="titlePage text-color">
               <strong>{{ $t('analytics.application') }}</strong>
             </v-list-item-title>
           </v-list-item-content>
