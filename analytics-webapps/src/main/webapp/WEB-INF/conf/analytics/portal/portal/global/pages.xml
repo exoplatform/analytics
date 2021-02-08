@@ -25,6 +25,17 @@
     <title>Analytics</title>
     <access-permissions>*:/platform/analytics;*:/platform/administrators</access-permissions>
     <edit-permission>manager:/platform/analytics</edit-permission>
+    <container id="breadcrumbAnalytics" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+      <portlet-application>
+        <portlet>
+          <application-ref>analytics</application-ref>
+          <portlet-ref>AnalyticsDashboardBreadcrumb</portlet-ref>
+        </portlet>
+        <title>Breadcrumb Analytics</title>
+        <access-permissions>Everyone</access-permissions>
+        <show-info-bar>false</show-info-bar>
+      </portlet-application>
+    </container>
     <container
       id="topAnalyticsPage"
       template="system:/groovy/portal/webui/container/UIContainer.gtmpl"

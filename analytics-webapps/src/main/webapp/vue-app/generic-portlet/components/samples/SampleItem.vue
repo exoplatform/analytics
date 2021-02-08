@@ -35,11 +35,11 @@
           <v-col>{{ getI18N(chartDataProp) }}</v-col>
           <v-col v-if="chartDataProp === 'userId' && userIdentity" class="text--secondary">
             {{ chartData[chartDataProp] }}
-            (<profile-chip :identity="userIdentity" />)
+            (<analytics-profile-chip :identity="userIdentity" />)
           </v-col>
           <v-col v-else-if="chartDataProp === 'spaceId' && spaceIdentity" class="text--secondary">
             {{ chartData[chartDataProp] }}
-            (<profile-chip :identity="spaceIdentity" />)
+            (<analytics-profile-chip :identity="spaceIdentity" />)
           </v-col>
           <v-col v-else class="text--secondary">
             {{ chartData[chartDataProp] }}
@@ -55,7 +55,7 @@
           <v-col>{{ getI18N(chartDataParameter) }}</v-col>
           <v-col v-if="chartDataParameter === 'modifierSocialId' && userModifierIdentity" class="text--secondary">
             {{ chartData.parameters[chartDataParameter] }}
-            (<profile-chip :identity="userModifierIdentity" />)
+            (<analytics-profile-chip :identity="userModifierIdentity" />)
           </v-col>
           <v-col v-else class="text--secondary">
             {{ chartData.parameters[chartDataParameter] }}
@@ -67,12 +67,7 @@
 </template>
 
 <script>
-import ProfileChip from './ProfileChip.vue';
-
 export default {
-  components: {
-    ProfileChip,
-  },
   props: {
     chartData: {
       type: Object,

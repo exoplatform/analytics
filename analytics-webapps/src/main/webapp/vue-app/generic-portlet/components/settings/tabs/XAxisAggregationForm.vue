@@ -27,7 +27,7 @@
             xs8>
             <v-layout v-for="(item, index) in xAxisAggregations" :key="index">
               <v-flex xs10>
-                <field-selection
+                <analytics-field-selection
                   v-model="item.field"
                   :fields-mappings="fieldsMappings"
                   :label="$t('analytics.fieldName')"
@@ -55,12 +55,7 @@
 </template>
 
 <script>
-import FieldSelection from '../form/FieldSelection.vue';
-
 export default {
-  components: {
-    FieldSelection,
-  },
   props: {
     settings: {
       type: Object,

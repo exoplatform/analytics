@@ -6,23 +6,23 @@
     <template v-if="canEdit">
       <analytics-chart-setting
         ref="chartSettingDialog"
-        :retrieve-mappings-url="retrieveMappingsURL"
+        :retrieve-mappings-url="retrieveMappingsUrl"
         :settings="chartSettings"
         :users="userObjects"
         :spaces="spaceObjects"
         class="mt-0"
         @save="saveSettings" />
-      <json-panel-dialog
+      <analytics-json-panel-dialog
         ref="jsonPanelDialog"
         :settings="chartSettings"
         class="mt-0" />
-      <view-samples-drawer
+      <analytics-view-samples-drawer
         ref="viewSamplesDrawer"
         :title="title"
         :selected-period="selectedPeriod"
         :users="userObjects"
         :spaces="spaceObjects"
-        :retrieve-samples-url="retrieveChartSamplesURL"
+        :retrieve-samples-url="retrieveChartSamplesUrl"
         class="mt-0" />
     </template>
     <v-card class="ma-auto analytics-chart-parent white" flat>
@@ -55,13 +55,17 @@
           </div>
         </v-toolbar-title>
         <v-spacer />
-        <select-period v-model="selectedPeriod" />
-        <v-menu v-if="canEdit" v-model="showMenu" offset-y>
+        <analytics-select-period v-model="selectedPeriod" />
+        <v-menu
+          v-if="canEdit"
+          v-model="showMenu"
+          offset-y>
           <template v-slot:activator="{ on }">
             <v-btn
               icon
               class="ml-2"
-              v-on="on" @blur="closeMenu()">
+              v-on="on"
+              @blur="closeMenu()">
               <v-icon>mdi-dots-vertical</v-icon>
             </v-btn>
           </template>
@@ -101,52 +105,39 @@
 </template>
 
 <script>
-import AnalyticsChart from './chart/AnalyticsChart.vue';
-import SelectPeriod from './chart/SelectPeriod.vue';
-import AnalyticsChartSetting from './settings/AnalyticsChartSetting.vue';
-import JsonPanelDialog from './settings/JsonPanelDialog.vue';
-import ViewSamplesDrawer from './samples/ViewSamplesDrawer.vue';
-
 export default {
-  components: {
-    AnalyticsChart,
-    SelectPeriod,
-    AnalyticsChartSetting,
-    JsonPanelDialog,
-    ViewSamplesDrawer,
-  },
   props: {
-    retrieveSettingsURL: {
+    retrieveSettingsUrl: {
       type: String,
       default: function() {
         return null;
       },
     },
-    retrieveMappingsURL: {
+    retrieveMappingsUrl: {
       type: String,
       default: function() {
         return null;
       },
     },
-    retrieveFiltersURL: {
+    retrieveFiltersUrl: {
       type: String,
       default: function() {
         return null;
       },
     },
-    retrieveChartDataURL: {
+    retrieveChartDataUrl: {
       type: String,
       default: function() {
         return null;
       },
     },
-    retrieveChartSamplesURL: {
+    retrieveChartSamplesUrl: {
       type: String,
       default: function() {
         return null;
       },
     },
-    saveSettingsURL: {
+    saveSettingsUrl: {
       type: String,
       default: function() {
         return null;
@@ -227,7 +218,7 @@ export default {
               });
     },
     getSettings() {
-      return fetch(this.retrieveSettingsURL, {
+      return fetch(this.retrieveSettingsUrl, {
         method: 'GET',
         credentials: 'include',
       })
@@ -256,7 +247,7 @@ export default {
       if (!this.canEdit) {
         return;
       }
-      return fetch(this.retrieveFiltersURL, {
+      return fetch(this.retrieveFiltersUrl, {
         method: 'GET',
         credentials: 'include',
       })
@@ -293,7 +284,7 @@ export default {
     saveSettings(chartSettings) {
       this.loading = true;
 
-      return fetch(this.saveSettingsURL, {
+      return fetch(this.saveSettingsUrl, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -330,7 +321,7 @@ export default {
         min: this.selectedPeriod.min,
         max: this.selectedPeriod.max,
       };
-      return fetch(this.retrieveChartDataURL, {
+      return fetch(this.retrieveChartDataUrl, {
         method: 'POST',
         credentials: 'include',
         headers: {
