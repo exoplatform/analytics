@@ -38,7 +38,7 @@
 export default {
   data() {
     return {
-      DEFAULT_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/analytics`,
+      DEFAULT_SITE_URI: '',
       BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
       pages:[],
       listPage:[],
@@ -46,13 +46,28 @@ export default {
     };
   },
   mounted() {
-    this.$analyticsUtils.getAnalyticsPages().then((analyticsPages)=>{
-      const subPageAnalytics = analyticsPages.filter(site => site.name === 'analytics');
-      this.listPage = subPageAnalytics.length > 0 ? subPageAnalytics[0].children : [];
+    const siteType = document.location.href.indexOf("g/:spaces:") > -1 ? "group" : "portal";
+    let uri;
+    this.$analyticsUtils.getPages(siteType,eXo.env.portal.portalName).then((analyticsPages)=>{
+      this.listPage = analyticsPages.length > 0 ? analyticsPages[0].children : [];
+     this.listPage.forEach((page) =>{
+        if (page.siteKey.typeName === 'group'){
+          const uriPart = page.siteKey.name.replace(/\//g, ':');
+          page.trueUri = `${eXo.env.portal.context}/g/${uriPart}/${page.uri}`;
+        }else {
+          page.trueUri = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/${page.uri}`;
+        }
+      })
       this.getAllPages();
-      const uri = window.location.href.split(`${eXo.env.portal.portalName}/`)[1];
-      if (uri){
-        this.getPageTreeStructure(uri);
+      if (siteType === eXo.env.portal.containerName){
+        this.DEFAULT_SITE_URI = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/analytics`;
+        uri = window.location.href.split(`${eXo.env.portal.portalName}/`)[1];
+      }else {
+        this.DEFAULT_SITE_URI = `${eXo.env.portal.context}/g/:spaces:${eXo.env.portal.spaceGroup}/${eXo.env.portal.spaceUrl}/analytics`;
+        uri = window.location.href.split(`${eXo.env.portal.spaceUrl}/`)[1];
+      }
+     if (uri){
+        this.getPageTreeStructure(uri,siteType);
       }
     })
     this.$nextTick().then(() => this.$root.$emit('application-loaded'))
@@ -85,23 +100,23 @@ export default {
       });
       return childNodes;
     },
-    getPageTreeStructure(uri){
+    getPageTreeStructure(uri,siteType){
       const treeStructure = uri.split('/');
-      let pagePath = treeStructure[0];
+      let pagePath = siteType === eXo.env.portal.containerName ? treeStructure[0] : `${eXo.env.portal.spaceUrl}/${treeStructure[0]}`;
       for (let i =1 ; i < treeStructure.length;i++){
         pagePath = `${pagePath}/${treeStructure[i]}`;
         const pageInfo = {
           name :this.getLabelPage(pagePath),
-          uri : this.getPageUri(pagePath)
+          uri : this.getPageUri(pagePath),
         }
         this.pages.push(pageInfo);
       }
     },
     getLabelPage(uri){
-      return this.allItems.find(page =>page.uri === uri).label;
+        return this.allItems.find(page =>page.uri === uri).label;
     },
     getPageUri(uri){
-      return `${this.BASE_SITE_URI}${uri}`;
+        return this.allItems.find(page =>page.uri === uri).trueUri;
     },
   }
 };

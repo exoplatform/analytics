@@ -16,7 +16,7 @@
         <template slot="label" slot-scope="{ item }">
           <a
             class="pageNameAnalytics"
-            :href="getPageUri(item.uri)">{{ item.label }}</a>
+            :href="item.trueUri">{{ item.label }}</a>
         </template>
       </v-treeview>
     </template>
@@ -30,15 +30,7 @@ export default {
       default: () => [],
     },
   },
-  data() {
-    return {
-      BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
-    };
-  },
   methods:{
-    getPageUri(uri){
-      return `${this.BASE_SITE_URI}${uri}`;
-    },
     open(){
       this.$refs.analyticsPage.open();
     },

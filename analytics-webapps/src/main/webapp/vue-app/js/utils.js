@@ -25,13 +25,33 @@ export function loadUser(users, userId) {
   }
 }
 
-export function getAnalyticsPages() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/portal/?siteName=${eXo.env.portal.portalName}`, {
+export function getPages(siteType, siteName) {
+  let url;
+  if(siteType === eXo.env.portal.containerName) {
+    url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/${siteType}/?siteName=${siteName}&scope=all&visibility=displayed&visibility=system`;
+  } else {
+    url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/${siteType}/?scope=all&visibility=displayed&visibility=system`
+  }
+  return fetch(url, {
     method: 'GET',
     credentials: 'include',
-  }).then((resp) => {if(resp && resp.ok) {
+  }).then((resp) => {
+    if(!resp || !resp.ok) {
+      throw new Error('Error retrieving pages of current site');
+    }
     return resp.json();
-  }});
+  }).then((allPages) => {
+    let analyticsPages ;
+    if (siteType === eXo.env.portal.containerName) {
+      analyticsPages = allPages.filter(site => site.name === 'analytics');
+    } else {
+      const pages = allPages.filter(site => site.name === eXo.env.portal.spaceName)[0].children;
+      if (pages) {
+        analyticsPages = pages.filter(site => site.name === 'analytics');
+      }
+    }
+    return analyticsPages;
+  })
 }
 
 export function loadSpace(spaces, spaceId) {
