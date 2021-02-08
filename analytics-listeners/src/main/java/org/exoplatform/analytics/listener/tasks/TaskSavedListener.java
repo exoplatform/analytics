@@ -119,32 +119,21 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
     if (oldTask != null) {
       if (isDiff(oldTask.isCompleted(), newTask.isCompleted())) {
         taskOperation = "taskCompleted";
-      } else if (isDiff(oldTask.getDescription(), newTask.getDescription())) {
-        taskOperation = "taskDescriptionChanged";
-      } else if (isDiff(oldTask.getTitle(), newTask.getTitle())) {
-        taskOperation = "taskTitleChanged";
+      } else if (isDiff(oldTask.getDescription(), newTask.getDescription()) || isDiff(oldTask.getTitle(), newTask.getTitle()) || isDiff(oldTask.getPriority(), newTask.getPriority())
+                 || isDiff(oldTask.getRank(), newTask.getRank()) || isDiff(oldTask.getAssignee(), newTask.getAssignee()) || isDiff(oldTask.getCoworker(), newTask.getCoworker())) {
+        taskOperation = "taskUpdated";
       } else if (isDiff(oldTask.getDueDate(), newTask.getDueDate())) {
-        taskOperation = "taskDueDateChanged";
-      } else if (isDiff(oldTask.getPriority(), newTask.getPriority())) {
-        taskOperation = "taskPriorityChanged";
-      } else if (isDiff(oldTask.getRank(), newTask.getRank())) {
-        taskOperation = "taskRankChanged";
-      } else if (isDiff(oldTask.getAssignee(), newTask.getAssignee())) {
-        taskOperation = "taskAssigneeChanged";
-      } else if (isDiff(oldTask.getCoworker(), newTask.getCoworker())) {
-        taskOperation = "taskCoworderChanged";
+        taskOperation = "taskDatesChanged";
       } else if (oldTask.getStatus() != null
           && newTask.getStatus() != null
           && oldTask.getStatus().getProject() != null
           && newTask.getStatus().getProject() != null
           && isDiff(oldTask.getStatus().getProject().getId(), newTask.getStatus().getProject().getId())) {
-        taskOperation = "taskProjectChanged";
+        taskOperation = "taskUpdated";
       } else if (oldTask.getStatus() != null
           && newTask.getStatus() != null
           && isDiff(oldTask.getStatus().getName(), newTask.getStatus().getName())) {
         taskOperation = "taskStatusChanged";
-      } else if (isDiff(oldTask.getStartDate(), newTask.getStartDate()) || isDiff(oldTask.getEndDate(), newTask.getEndDate())) {
-        taskOperation = "taskDatesChanged";
       }
     }
     return taskOperation;
