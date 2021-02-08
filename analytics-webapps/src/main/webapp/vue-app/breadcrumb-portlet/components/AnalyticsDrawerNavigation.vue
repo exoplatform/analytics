@@ -16,7 +16,7 @@
         <template slot="label" slot-scope="{ item }">
           <a
             class="pageNameAnalytics"
-            :href="item.trueUri">{{ item.label }}</a>
+            :href="item.link">{{ item.label }}</a>
         </template>
       </v-treeview>
     </template>

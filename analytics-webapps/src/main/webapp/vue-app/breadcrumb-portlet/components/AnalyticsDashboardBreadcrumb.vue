@@ -53,9 +53,9 @@ export default {
      this.listPage.forEach((page) =>{
         if (page.siteKey.typeName === 'group'){
           const uriPart = page.siteKey.name.replace(/\//g, ':');
-          page.trueUri = `${eXo.env.portal.context}/g/${uriPart}/${page.uri}`;
+          page.link = `${eXo.env.portal.context}/g/${uriPart}/${page.uri}`;
         }else {
-          page.trueUri = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/${page.uri}`;
+          page.link = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/${page.uri}`;
         }
       })
       this.getAllPages();
@@ -116,7 +116,7 @@ export default {
         return this.allItems.find(page =>page.uri === uri).label;
     },
     getPageUri(uri){
-        return this.allItems.find(page =>page.uri === uri).trueUri;
+        return this.allItems.find(page =>page.uri === uri).link;
     },
   }
 };
