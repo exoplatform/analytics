@@ -1,0 +1,10 @@
+<div class="VuetifyApp">
+    <div data-app="true"
+         class="v-application v-application--is-ltr theme--light"
+         id="analyticsActiveUsers">
+        <v-cacheable-dom-app cache-id="analyticsActiveUsers"></v-cacheable-dom-app>
+        <script type="text/javascript">
+            require(['PORTLET/analytics/AnalyticsActiveUsers'], app => app.init());
+        </script>
+    </div>
+</div>
