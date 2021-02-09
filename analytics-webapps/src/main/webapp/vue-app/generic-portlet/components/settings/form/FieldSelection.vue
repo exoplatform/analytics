@@ -106,7 +106,7 @@ export default {
     },
     fields() {
       return this.fieldNames.filter(field => (!this.aggregation || field.aggregation) && (!this.numeric || field.numeric))
-                 .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()));
+        .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()));
     },
   },
   methods: {
@@ -120,5 +120,5 @@ export default {
       return item1Value === item2Value;
     },
   },
-}
+};
 </script>

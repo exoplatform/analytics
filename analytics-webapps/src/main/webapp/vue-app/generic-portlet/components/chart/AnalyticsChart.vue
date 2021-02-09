@@ -41,7 +41,7 @@ export default {
       id: `Chart${parseInt(Math.random() * 10000)
         .toString()
         .toString()}`,
-    }
+    };
   },
   watch: {
     data() {
@@ -120,7 +120,7 @@ export default {
       } else if (this.chartType === 'pie') {
         chartOptions.tooltip = {
           trigger: 'item',
-          formatter: "{b} : {c} ({d}%)"
+          formatter: '{b} : {c} ({d}%)'
         };
 
         const chartsLength = charts.length;
@@ -169,12 +169,12 @@ export default {
       chart.setOption(chartOptions, true);
     },
     getI18N(label){
-      const field = label.split("=")[1];
+      const field = label.split('=')[1];
       const fieldLabelI18NKey = `analytics.${field}`;
       const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
       return  fieldLabelI18NValue === fieldLabelI18NKey ? field : fieldLabelI18NValue;
     }
   }
-}
+};
 
 </script>
