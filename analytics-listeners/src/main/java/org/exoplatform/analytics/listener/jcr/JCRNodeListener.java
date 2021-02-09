@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
+import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -102,7 +103,7 @@ public class JCRNodeListener implements Action {
       if (node == null) {
         return true;
       }
-      Node managedNode = getManagedNode(node);
+      Node managedNode = getManagedNodeFromParents(node);
       if (managedNode == null) {
         return true;
       }
@@ -158,7 +159,7 @@ public class JCRNodeListener implements Action {
         return;
       });
     } catch (Exception e) {
-      if (LOG.isDebugEnabled()) {
+      if (LOG.isDebugEnabled() || PropertyManager.isDevelopping()) {
         LOG.warn("Error computing jcr statistics", e);
       } else {
         LOG.warn("Error computing jcr statistics: {}", e.getMessage());
@@ -249,25 +250,38 @@ public class JCRNodeListener implements Action {
     statisticData.addParameter(DOCUMENT_NAME_PARAM, title);
   }
 
-  private Node getManagedNode(Node changedNode) throws RepositoryException {
-    String rootNodePath = changedNode.getSession().getRootNode().getPath();
-    Node managedNode = null;
+  private Node getManagedNodeFromParents(Node changedNode) throws RepositoryException {
     Node nodeIndex = changedNode;
+    Node managedNode = getManagedNode(changedNode);
     do {
-      String nodeType = nodeIndex.getPrimaryNodeType().getName();
-      if (!nodeIndex.isNodeType(NodetypeConstant.NT_RESOURCE)
-          && (nodeIndex.isNodeType(NodetypeConstant.NT_FILE) || getTemplateService().isManagedNodeType(nodeType))) {
-        // Found parent managed node
-        managedNode = nodeIndex;
-      }
-
-      if (StringUtils.equals(rootNodePath, nodeIndex.getPath())) {
-        nodeIndex = null;
+      if (StringUtils.equals("/", nodeIndex.getPath())) {
+        break;
       } else {
-        nodeIndex = nodeIndex.getParent();
+        try {
+          nodeIndex = nodeIndex.getParent();
+          Node managedNodeTmp = getManagedNode(nodeIndex);
+          if (managedNodeTmp != null) {
+            // A parent node has Managed Template, thus, use it in Analytics
+            // reference instead of node itself
+            managedNode = managedNodeTmp;
+          }
+        } catch (AccessDeniedException e) {
+          LOG.trace("User doesn't have access to parent node of '{}'", nodeIndex.getPath(), e);
+          break;
+        }
       }
-    } while (nodeIndex != null);
+    } while (true);
     return managedNode;
+  }
+
+  private Node getManagedNode(Node node) throws RepositoryException {
+    String nodeType = node.getPrimaryNodeType().getName();
+    if (!node.isNodeType(NodetypeConstant.NT_RESOURCE)
+        && (node.isNodeType(NodetypeConstant.NT_FILE) || getTemplateService().isManagedNodeType(nodeType))) {
+      // Found parent managed node
+      return node;
+    }
+    return null;
   }
 
   private void addSpaceStatistic(StatisticData statisticData, String nodePath) {
@@ -285,21 +299,21 @@ public class JCRNodeListener implements Action {
     }
   }
 
-  public TemplateService getTemplateService() {
+  private TemplateService getTemplateService() {
     if (templateService == null) {
       templateService = this.container.getComponentInstanceOfType(TemplateService.class);
     }
     return templateService;
   }
 
-  public SpaceService getSpaceService() {
+  private SpaceService getSpaceService() {
     if (spaceService == null) {
       spaceService = this.container.getComponentInstanceOfType(SpaceService.class);
     }
     return spaceService;
   }
 
-  public TrashService getTrashService() {
+  private TrashService getTrashService() {
     if (trashService == null) {
       trashService = this.container.getComponentInstanceOfType(TrashService.class);
     }
