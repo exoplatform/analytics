@@ -26,7 +26,7 @@ export default {
     return {
       defaultValue: 'last6Months',
       selectedItem: null,
-    }
+    };
   },
   computed : {
     periodOptions() {
@@ -94,5 +94,5 @@ export default {
       this.$forceUpdate();
     },
   },
-}
+};
 </script>

@@ -62,7 +62,7 @@ export default {
           text: this.$t('analytics.pie'),
           value: 'pie',
         },
-      ]
+      ];
     }
   },
   methods: {

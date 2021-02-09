@@ -4,19 +4,27 @@
     ref="analyticsPage"
     right>
     <template slot="title">
-      {{ $t('analytics.drawer') }}
+      {{ $t('analytics.analyticsReports') }}
     </template>
     <template slot="content">
       <v-treeview
+        :items="pages"
+        item-children="children"
+        item-key="uri"
+        item-text="label"
         class="treeViewPage"
-        activatable
-        dense
-        hoverable
-        :items="listPage">
+        open-all
+        dense>
         <template slot="label" slot-scope="{ item }">
           <a
+            v-if="item.link"
             class="pageNameAnalytics"
-            :href="item.link">{{ item.label }}</a>
+            :href="item.link">
+            {{ item.label }}
+          </a>
+          <template v-else>
+            {{ item.label }}
+          </template>
         </template>
       </v-treeview>
     </template>
@@ -25,7 +33,7 @@
 <script>
 export default {
   props: {
-    listPage: {
+    pages: {
       type: Object,
       default: () => [],
     },

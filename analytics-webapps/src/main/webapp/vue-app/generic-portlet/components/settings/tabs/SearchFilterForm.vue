@@ -158,7 +158,7 @@ export default {
           value: 'NOT_NULL',
           placeholder: this.$t('analytics.isNotNullPlaceholder'),
         },
-      ]
+      ];
     }
   },
   methods: {
