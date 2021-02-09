@@ -209,13 +209,13 @@ export default {
     init() {
       this.loading = true;
       return this.getSettings()
-              .then(this.$nextTick)
-              .then(this.updateChart)
-              .then(this.$nextTick)
-              .then(this.getFilters)
-              .finally(() => {
-                this.loading = false;
-              });
+        .then(this.$nextTick)
+        .then(this.updateChart)
+        .then(this.$nextTick)
+        .then(this.getFilters)
+        .finally(() => {
+          this.loading = false;
+        });
     },
     getSettings() {
       return fetch(this.retrieveSettingsUrl, {

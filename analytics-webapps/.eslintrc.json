@@ -2,25 +2,27 @@
     "env": {
         "browser": true,
         "es6": true,
-        "node": true
+        "jest": true
     },
     "extends": [
         "eslint:recommended",
         "plugin:vue/recommended"
     ],
-    "plugins": [
-      "standard",
-      "vue"
-    ],
     "globals": {
         "Vue": true,
+        "VueI18n": true,
+        "VueEllipsis": true,
         "Vuetify": true,
         "eXo": true,
         "$": true,
         "global": true,
         "exoi18n": true,
         "echarts": true,
-        "cCometd": true
+        "extensionRegistry": true,
+        "CKEDITOR": true,
+        "cCometd": true,
+        "gapi": true,
+        "webConferencing": false
     },
     "parserOptions": {
         "sourceType": "module",
@@ -30,24 +32,25 @@
         "block-scoped-var": ["error"],
         "curly": ["error", "all"],
         "eqeqeq": ["error", "always", { "null": "ignore" }],
-        "new-cap": ["off"],
-        "no-alert": ["error"],
+        "indent": ["error", 2],
+        "new-cap": ["error"],
+        "new-parens": ["error"],
+        "no-alert": ["warn"],
         "no-await-in-loop": ["error"],
         "no-caller": ["error"],
         "no-confusing-arrow": ["error"],
-        "no-console": ["off"],
+        "no-console": ["warn", {"allow": ["error","warn","debug"]}],
         "no-empty-function": ["error"],
         "no-eval": ["error"],
         "no-extra-label": ["error"],
         "no-extend-native": ["error"],
-        "no-extra-parens": ["off"],
+        "no-floating-decimal": ["error"],
         "no-implied-eval": ["error"],
         "no-iterator": ["error"],
         "no-labels": ["error"],
         "no-label-var": ["error"],
         "no-lone-blocks": ["error"],
         "no-loop-func": ["error"],
-        "no-magic-numbers": ["off"],
         "no-new-require": ["error"],
         "no-path-concat": ["error"],
         "no-process-env": ["error"],
@@ -56,11 +59,11 @@
         "no-self-compare": ["error"],
         "no-sequences": ["error"],
         "no-shadow-restricted-names": ["error"],
+        "no-sync": ["error"],
         "no-template-curly-in-string": ["error"],
         "no-throw-literal": ["error"],
         "no-undefined": ["error"],
         "no-unmodified-loop-condition": ["error"],
-        "no-unused-vars": ["off"],
         "no-unused-expressions": ["error"],
         "no-useless-computed-key": ["error"],
         "no-useless-concat": ["error"],
@@ -70,11 +73,13 @@
         "prefer-promise-reject-errors": ["error"],
         "prefer-rest-params": ["error"],
         "prefer-spread": ["error"],
-        "prefer-template": ["warn"],
-        "quotes": ["off"],
+        "prefer-template": ["error"],
+        "quotes": ["error", "single"],
         "require-await": ["error"],
+        "semi": ["error", "always"],
         "valid-jsdoc": ["error"],
         "yoda": ["error", "never", { "exceptRange": true }],
+        "vue/html-self-closing": "off",
         "vue/max-attributes-per-line": ["warn", {
           "singleline": 2,
           "multiline": {
@@ -95,6 +100,14 @@
         "vue/html-closing-bracket-newline": ["warn", {
           "singleline": "never",
           "multiline": "never"
-        }]
-    }
+        }],
+        "vue/component-name-in-template-casing": ["error", "kebab-case"]
+    },
+    "overrides": [{
+        "files": [ "src/test/**/*" ],
+        "rules": {
+            "no-empty-function": "off",
+            "no-magic-numbers": "off"
+        }
+    }]
 }
