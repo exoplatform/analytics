@@ -43,7 +43,7 @@
   </portlet>
 
   <portlet>
-    <name>AnalyticsDashboardBreadcrumb</name>
+    <name>AnalyticsActiveUsers</name>
     <module>
       <script>
         <minify>false</minify>
@@ -69,7 +69,7 @@
   </portlet>
 
   <portlet>
-    <name>AnalyticsActiveUsers</name>
+    <name>AnalyticsDashboardBreadcrumb</name>
     <module>
       <script>
         <minify>false</minify>

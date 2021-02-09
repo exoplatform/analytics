@@ -36,20 +36,6 @@
         <show-info-bar>false</show-info-bar>
       </portlet-application>
     </container>
-
-    <container id="breadcrumbAnalytics" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
-      <portlet-application>
-        <portlet>
-          <application-ref>analytics</application-ref>
-          <portlet-ref>AnalyticsActiveUsers</portlet-ref>
-        </portlet>
-        <title>Active users Analytics</title>
-        <access-permissions>Everyone</access-permissions>
-        <show-info-bar>false</show-info-bar>
-      </portlet-application>
-    </container>
-
-
     <container
       id="topAnalyticsPage"
       template="system:/groovy/portal/webui/container/UIContainer.gtmpl"
