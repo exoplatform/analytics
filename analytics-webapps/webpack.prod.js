@@ -24,7 +24,8 @@ const config = {
   entry: {
     analytics: './src/main/webapp/vue-app/generic-portlet/main.js',
     breadcrumb: './src/main/webapp/vue-app/breadcrumb-portlet/main.js',
-    activeUsers: './src/main/webapp/vue-app/active-users/main.js'
+    activeUsers: './src/main/webapp/vue-app/active-users/main.js',
+    analysisChart: './src/main/webapp/vue-app/analysis-chart/main.js'
   },
   output: {
     path: path.join(__dirname, 'target/analytics/'),

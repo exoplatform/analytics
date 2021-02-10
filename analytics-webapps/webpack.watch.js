@@ -5,7 +5,7 @@ const webpackProductionConfig = require('./webpack.prod.js');
 
 module.exports = merge(webpackProductionConfig, {
   output: {
-    path: '/exo-server/webapps/analytics/',
+    path: '/home/exo/eXo-work/FT_Analytics/Server_Project/platform-6.2.x-analytics-SNAPSHOT/webapps/analytics/',
     filename: 'js/[name].bundle.js'
   }
 });
