@@ -79,7 +79,7 @@ export default {
           text: this.$t('analytics.min'),
           value: 'MIN',
         },
-      ]
+      ];
     },
     yAxisAggregation() {
       return this.settings && this.settings.yAxisAggregation;

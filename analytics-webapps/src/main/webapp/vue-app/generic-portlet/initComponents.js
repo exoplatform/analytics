@@ -38,7 +38,7 @@ const components = {
 };
 
 for (const key in components) {
-    Vue.component(key, components[key]);
+  Vue.component(key, components[key]);
 }
 
 import * as analyticsUtils from '../js/utils.js';

@@ -108,7 +108,7 @@ export default {
           text: this.$t('analytics.perYear'),
           value: 'year',
         },
-      ]
+      ];
     } ,
     xAxisAggregations() {
       return this.settings && this.settings.xAxisAggregations;
