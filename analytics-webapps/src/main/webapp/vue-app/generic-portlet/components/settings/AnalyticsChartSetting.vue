@@ -23,15 +23,15 @@
           v-model="tab"
           background-color="transparent"
           color="primary">
-          <v-tab>{{ $t('analytics.general') }}</v-tab>
+          <v-tab v-if="!isPercentageBar">{{ $t('analytics.general') }}</v-tab>
           <v-tab>{{ $t('analytics.colors') }}</v-tab>
-          <v-tab>{{ $t('analytics.xAxis') }}</v-tab>
+          <v-tab v-if="!isPercentageBar">{{ $t('analytics.xAxis') }}</v-tab>
           <v-tab>{{ $t('analytics.yAxis') }}</v-tab>
-          <v-tab>{{ $t('analytics.multipleCharts') }}</v-tab>
+          <v-tab v-if="!isPercentageBar">{{ $t('analytics.multipleCharts') }}</v-tab>
           <v-tab>{{ $t('analytics.dataFilters') }}</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
-          <v-tab-item eager>
+          <v-tab-item v-if="!isPercentageBar" eager>
             <analytics-general-setting-form
               ref="settingForm"
               :settings="chartSettings" />
@@ -41,7 +41,7 @@
               ref="colorsForm"
               :settings="chartSettings" />
           </v-tab-item>
-          <v-tab-item eager>
+          <v-tab-item v-if="!isPercentageBar" eager>
             <analytics-x-axis-form
               ref="xAxis"
               :fields-mappings="fieldsMappings"
@@ -52,8 +52,15 @@
               ref="yAxis"
               :fields-mappings="fieldsMappings"
               :settings="chartSettings" />
+            <template v-if="isPercentageBar">
+              <v-divider class="my-4" />
+              <analytics-y-axis-form
+                ref="yAxis"
+                :fields-mappings="fieldsMappings"
+                :settings="chartSettings" />
+            </template>
           </v-tab-item>
-          <v-tab-item eager>
+          <v-tab-item v-if="!isPercentageBar" eager>
             <analytics-multiple-charts
               ref="multipleCharts"
               :fields-mappings="fieldsMappings"
@@ -64,6 +71,13 @@
               ref="searchFilter"
               :fields-mappings="fieldsMappings"
               :filters="chartSettings.filters" />
+            <template v-if="isPercentageBar">
+              <v-divider class="my-4" />
+              <analytics-search-filter-form
+                ref="searchFilter"
+                :fields-mappings="fieldsMappings"
+                :filters="chartSettings.filters" />
+            </template>
           </v-tab-item>
         </v-tabs-items>
       </v-card-text>
@@ -122,11 +136,24 @@ export default {
     settingJsonContent() {
       return this.settings && JSON.stringify(this.settings, null, 2);
     },
+    chartType() {
+      return this.chartSettings && this.chartSettings.chartType;
+    },
+    isPercentageBar() {
+      return this.chartType === 'percentageBar';
+    },
   },
   watch: {
     dialog() {
       if (this.dialog) {
         this.init();
+      }
+    },
+    isPercentageBar() {
+      if (this.isPercentageBar) {
+        this.chartSettings.multipleChartsField = null;
+      } else {
+        this.chartSettings.multipleChartsField = this.settings.multipleChartsField;
       }
     },
   },
@@ -175,7 +202,7 @@ export default {
     save() {
       this.$emit('save', this.chartSettings);
       this.dialog = false;
-    }
+    },
   },
 };
 </script>

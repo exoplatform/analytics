@@ -28,7 +28,7 @@
             "filters":[],
             "xAxisAggregations":[
               {
-                "interval":"day",
+                "interval":"year",
                 "sortDirection":"asc",
                 "field":"timestamp",
                 "type":"DATE"
@@ -53,6 +53,53 @@
        <role-link>admin</role-link>
      </security-role-ref>
    </portlet>
+
+  <portlet>
+    <portlet-name>AnalyticsActiveUsersPortlet</portlet-name>
+    <display-name xml:lang="EN">Analytics Active Users Application</display-name>
+    <portlet-class>org.exoplatform.addon.analytics.portlet.AnalyticsActiveUsersPortlet</portlet-class>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <portlet-info>
+      <title>Analytics Active Users Application</title>
+      <keywords>Analytics Active Users Application</keywords>
+    </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>settings</name>
+        <value>
+          {
+          "chartType":"percentageBar",
+          "filters":[],
+          "xAxisAggregations":[
+          {
+          "interval":"day",
+          "sortDirection":"asc",
+          "field":"timestamp",
+          "type":"DATE"
+          }
+          ],
+          "yAxisAggregation":{
+          "interval":null,
+          "sortDirection":null,
+          "field":null,
+          "type":"COUNT"
+          },
+          "displayComputingTime":true,
+          "displaySamplesCount":true,
+          }
+        </value>
+      </preference>
+    </portlet-preferences>
+    <security-role-ref>
+      <role-name>admin</role-name>
+      <role-link>admin</role-link>
+    </security-role-ref>
+  </portlet>
 
   <portlet>
     <portlet-name>StatisticsCollection</portlet-name>
