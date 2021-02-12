@@ -17,7 +17,7 @@
         {{ $t('analytics.points', {0: diffWithLastPeriod}) }}
       </span>
       <span class="text-color">
-        {{ $t('analytics.vsLastPeriod') }}
+        {{ $t('analytics.comparingToLastPeriod') }}
       </span>
     </div>
   </v-flex>

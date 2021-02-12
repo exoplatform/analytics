@@ -21,7 +21,7 @@ import lombok.*;
 @AllArgsConstructor
 public class AnalyticsFilter implements Serializable, Cloneable {
 
-  private static final long          serialVersionUID    = 5699550622069979910L;
+  private static final long          serialVersionUID           = 5699550622069979910L;
 
   private String                     title;
 
@@ -29,19 +29,19 @@ public class AnalyticsFilter implements Serializable, Cloneable {
 
   private List<String>               colors;
 
-  private List<AnalyticsFieldFilter> filters             = new ArrayList<>();
+  private List<AnalyticsFieldFilter> filters                    = new ArrayList<>();
 
-  private String                     multipleChartsField = null;
+  private String                     multipleChartsField        = null;
 
-  private List<AnalyticsAggregation> xAxisAggregations   = new ArrayList<>();
+  private List<AnalyticsAggregation> xAxisAggregations          = new ArrayList<>();
 
-  private AnalyticsAggregation       yAxisAggregation    = null;
+  private AnalyticsAggregation       yAxisAggregation           = null;
 
-  private String                     lang                = null;
+  private String                     lang                       = null;
 
-  private long                       offset              = 0;
+  private long                       offset                     = 0;
 
-  private long                       limit               = 0;
+  private long                       limit                      = 0;
 
   public List<AnalyticsAggregation> getAggregations() {
     List<AnalyticsAggregation> aggregations = new ArrayList<>();
