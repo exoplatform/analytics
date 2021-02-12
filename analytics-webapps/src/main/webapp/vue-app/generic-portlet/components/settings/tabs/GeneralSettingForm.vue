@@ -62,6 +62,10 @@ export default {
           text: this.$t('analytics.pie'),
           value: 'pie',
         },
+        {
+          text: this.$t('analytics.percentageBar'),
+          value: 'percentageBar',
+        },
       ];
     }
   },
