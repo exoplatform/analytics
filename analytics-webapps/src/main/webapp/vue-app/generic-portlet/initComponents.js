@@ -15,6 +15,7 @@ import ViewSamplesDrawer from './components/samples/ViewSamplesDrawer.vue';
 import ProfileChip from './components/samples/ProfileChip.vue';
 import SampleItem from './components/samples/SampleItem.vue';
 
+import AnalyticsPercentageBarChart from './components/chart/AnalyticsPercentageBarChart.vue';
 import AnalyticsChart from './components/chart/AnalyticsChart.vue';
 import SelectPeriod from './components/chart/SelectPeriod.vue';
 
@@ -31,6 +32,7 @@ const components = {
   'analytics-y-axis-form': YAxisForm,
   'analytics-multiple-charts': MultipleCharts,
   'analytics-chart': AnalyticsChart,
+  'analytics-percentage-bar-chart': AnalyticsPercentageBarChart,
   'analytics-select-period': SelectPeriod,
   'analytics-chart-setting': AnalyticsChartSetting,
   'analytics-json-panel-dialog': JsonPanelDialog,

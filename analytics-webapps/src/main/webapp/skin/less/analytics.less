@@ -51,6 +51,7 @@
   background: transparent !important;
   max-width: fit-content;
   margin: auto;
+  min-width: 100%;
 
   textarea {
     margin-bottom: 0;
@@ -118,6 +119,8 @@
   }
 
   .analytics-chart-parent {
+    min-width: 100%;
+
     .analytics-chart-header {
       .analytics-chart-title {
         max-width: 215px;
@@ -126,6 +129,14 @@
     .analytics-chart-body {
       height: 250px;
       width: 650px;
+    }
+    .analytics-progress-bar-chart-body {
+      height: 120px;
+      width: 100%;
+
+      .analytics-progress-bar {
+        border-radius: 45px;
+      }
     }
   }
 }

@@ -94,8 +94,12 @@
           size="20" />
         <v-spacer />
       </v-card-title>
-
+      <analytics-percentage-bar-chart
+        v-if="isPercentageBar"
+        ref="analyticsChartBody"
+        :colors="colors" />
       <analytics-chart
+        v-else
         ref="analyticsChartBody"
         :title="title"
         :chart-type="chartType"
@@ -178,6 +182,9 @@ export default {
     ],
   }),
   computed: {
+    isPercentageBar() {
+      return this.chartType === 'percentageBar';
+    },
     scopeTooltip() {
       switch (this.scope) {
       case 'NONE': return this.$t('analytics.permissionDenied');
@@ -338,7 +345,43 @@ export default {
         })
         .then((chartsData) => {
           this.chartsData = chartsData;
-          this.$refs.analyticsChartBody.init(this.chartsData);
+          // FIXME wrong data
+          if (this.isPercentageBar) {
+            this.$refs.analyticsChartBody.init({
+              'charts':[
+                {
+                  'aggregationResults':[
+                    {
+                      'value':'2.0',
+                      'result':'2.0',
+                      'label':'W6 2021'
+                    },
+                    {
+                      'value':'3.0',
+                      'result':'3.0',
+                      'label':'W7 2021'
+                    }
+                  ],
+                },
+                {
+                  'aggregationResults':[
+                    {
+                      'value':'5.0',
+                      'result':'5.0',
+                      'label':'W6 2021'
+                    },
+                    {
+                      'value':'10.0',
+                      'result':'10.0',
+                      'label':'W7 2021'
+                    }
+                  ],
+                }
+              ],
+            });
+          } else {
+            this.$refs.analyticsChartBody.init(this.chartsData);
+          }
         })
         .catch((e) => {
           console.debug('fetch analytics - error', e);
