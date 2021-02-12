@@ -17,7 +17,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 @Asynchronous
-public class AgendaSavedEventListener extends Listener<Long, Object> {
+public class AgendaSavedEventListener extends Listener<AgendaEventModification, Object> {
 
   private static final String   EXO_AGENDA_EVENT_CREATED_EVENT_NAME = "exo.agenda.event.created";
 
@@ -32,15 +32,12 @@ public class AgendaSavedEventListener extends Listener<Long, Object> {
   private IdentityManager       identityManager;
 
   @Override
-  public void onEvent(Event<Long, Object> event) throws Exception {
-    Long eventId = event.getSource();
+  public void onEvent(Event<AgendaEventModification, Object> event) throws Exception {
+    Long eventId = event.getSource().getEventId();
     org.exoplatform.agenda.model.Event agendaEvent = getAgendaEventService().getEventById(eventId);
-
     boolean isNew = StringUtils.equals(event.getEventName(), EXO_AGENDA_EVENT_CREATED_EVENT_NAME);
-
     String operation = isNew ? EVENT_CREATED_OPERATION_NAME : EVENT_UPDATED_OPERATION_NAME;
     long userId = isNew ? agendaEvent.getCreatorId() : agendaEvent.getModifierId();
-
     addEventStatistic(agendaEvent, operation, userId);
   }
 
