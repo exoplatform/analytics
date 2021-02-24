@@ -7,7 +7,7 @@
       height="45">
       <h3
         v-if="initialized"
-        :style="`margin-left: calc(${currentPeriodPercentage}% / 2 - 24px); margin-right: auto;`"
+        :style="`margin-left: calc(${progressBarValueClass}% - 24px); margin-right: auto;`"
         class="font-weight-bold white--text">
         {{ currentPeriodPercentage }}%
       </h3>
@@ -59,6 +59,9 @@ export default {
     lastPeriodComparaisonClass() {
       return this.diffWithLastPeriod < 0 && 'error--text' ||  'success--text';
     },
+    progressBarValueClass(){
+      return (this.currentPeriodPercentage > 9 ? this.currentPeriodPercentage : 10) / 2 ;
+    }
   },
   watch: {
     data() {
