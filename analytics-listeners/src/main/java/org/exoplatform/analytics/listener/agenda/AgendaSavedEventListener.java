@@ -2,6 +2,7 @@ package org.exoplatform.analytics.listener.agenda;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.agenda.model.AgendaEventModification;
 import org.exoplatform.agenda.model.Calendar;
 import org.exoplatform.agenda.service.AgendaCalendarService;
 import org.exoplatform.agenda.service.AgendaEventService;
@@ -33,15 +34,20 @@ public class AgendaSavedEventListener extends Listener<AgendaEventModification, 
 
   @Override
   public void onEvent(Event<AgendaEventModification, Object> event) throws Exception {
-    Long eventId = event.getSource().getEventId();
+    AgendaEventModification eventModification = event.getSource();
+    Long eventId = eventModification.getEventId();
     org.exoplatform.agenda.model.Event agendaEvent = getAgendaEventService().getEventById(eventId);
     boolean isNew = StringUtils.equals(event.getEventName(), EXO_AGENDA_EVENT_CREATED_EVENT_NAME);
-    String operation = isNew ? EVENT_CREATED_OPERATION_NAME : EVENT_UPDATED_OPERATION_NAME;
     long userId = isNew ? agendaEvent.getCreatorId() : agendaEvent.getModifierId();
-    addEventStatistic(agendaEvent, operation, userId);
+    addEventStatistic(agendaEvent, eventModification, userId, isNew);
   }
 
-  private void addEventStatistic(org.exoplatform.agenda.model.Event event, String operation, long userId) {
+  private void addEventStatistic(org.exoplatform.agenda.model.Event event,
+                                 AgendaEventModification eventModification,
+                                 long userId,
+                                 boolean isNew) {
+    String operation = isNew ? EVENT_CREATED_OPERATION_NAME : EVENT_UPDATED_OPERATION_NAME;
+
     Calendar calendar = getAgendaCalendarService().getCalendarById(event.getCalendarId());
     long calendarOwnerId = calendar.getOwnerId();
 
@@ -74,6 +80,7 @@ public class AgendaSavedEventListener extends Listener<AgendaEventModification, 
     statisticData.addParameter("eventStatus", event.getStatus());
     statisticData.addParameter("isRecurrent", event.getRecurrence() != null);
     statisticData.addParameter("isExceptionalOccurrence", event.getOccurrence() != null);
+    statisticData.addParameter("eventModificationTypes", eventModification.getModificationTypes());
     AnalyticsUtils.addStatisticData(statisticData);
   }
 
