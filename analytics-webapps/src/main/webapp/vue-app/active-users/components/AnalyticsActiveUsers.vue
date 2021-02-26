@@ -298,6 +298,7 @@ export default {
         })
         .then((chartsData) => {
           this.chartsData = chartsData;
+          console.log(this.chartsData);
           // FIXME wrong data
           this.$refs.analyticsChartBody.init({
             'charts':[

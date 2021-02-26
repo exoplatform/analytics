@@ -338,6 +338,7 @@ export default {
         })
         .then((chartsData) => {
           this.chartsData = chartsData;
+          console.log(chartsData);
           this.$refs.analyticsChartBody.init(this.chartsData);
         })
         .catch((e) => {

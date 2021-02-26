@@ -180,11 +180,11 @@
                     "filters": [
                     {
                     "field": "operation",
-                    "type": "EQUAL",
-                    "valueString": "login"
+                    "type": "IN_SET",
+                    "valueString": "login,usersCount"
                     }
                     ],
-                    "title": "Distinct logins",
+                    "title": "Connected users",
                     "aggregations": [
                     {
                     "field": "timestamp",
@@ -205,11 +205,12 @@
                     "sortDirection": "asc"
                     }
                     ],
-                    "multipleCharts": false,
+                    "multipleCharts": true,
                     "yAxisAggregation": {
                     "field": "userId",
                     "type": "CARDINALITY"
                     },
+                    "multipleChartsField": "operation",
                     "chartType": "percentageBar",
                     "limit": 0
                     }</value>
