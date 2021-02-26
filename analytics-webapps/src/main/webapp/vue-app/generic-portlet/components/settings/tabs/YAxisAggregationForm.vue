@@ -48,6 +48,12 @@ export default {
         return [];
       },
     },
+    type:{
+      type: String,
+      default: function (){
+        return null;
+      }
+    }
   },
   data: () => ({
     aggregationType: 'MAX',
@@ -82,7 +88,13 @@ export default {
       ];
     },
     yAxisAggregation() {
-      return this.settings && this.settings.yAxisAggregation;
+      if (this.type === 'value'){
+        return this.settings && this.settings.value.yAxisAggregation;
+      }else if (this.type === 'threshold'){
+        return this.settings && this.settings.threshold.yAxisAggregation;
+      }else {
+        return this.settings && this.settings.yAxisAggregation;
+      }
     },
     yAxisAggregationCount() {
       return this.aggregationType === 'COUNT';

@@ -177,26 +177,29 @@
                   <name>settings</name>
                   <value>{
                     "offset": 0,
-                    "filters": [
-                    {
-                    "field": "operation",
-                    "type": "IN_SET",
-                    "valueString": "login,usersCount"
-                    }
-                    ],
-                    "title": "Connected users",
-                    "aggregations": [
-                    {
-                    "field": "timestamp",
-                    "type": "DATE",
-                    "interval": "day",
-                    "sortDirection": "asc"
+                    "value":{
+                      "filters": [{
+                      "field": "operation",
+                      "type": "EQUAL",
+                      "valueString": "login"
+                      }],
+                      "yAxisAggregation": {
+                        "field": "userId",
+                        "type": "CARDINALITY"
+                      },
                     },
-                    {
-                    "field": "userId",
-                    "type": "CARDINALITY"
-                    }
-                    ],
+                    "threshold":{
+                      "filters": [{
+                        "field": "operation",
+                        "type": "EQUAL",
+                       "valueString": "usersCount"
+                      }],
+                      "yAxisAggregation": {
+                        "field": "userId",
+                        "type": "CARDINALITY"
+                      },
+                    },
+                    "title": "Connected users",
                     "xAxisAggregations": [
                     {
                     "field": "timestamp",
@@ -205,12 +208,6 @@
                     "sortDirection": "asc"
                     }
                     ],
-                    "multipleCharts": true,
-                    "yAxisAggregation": {
-                    "field": "userId",
-                    "type": "CARDINALITY"
-                    },
-                    "multipleChartsField": "operation",
                     "chartType": "percentageBar",
                     "limit": 0
                     }</value>

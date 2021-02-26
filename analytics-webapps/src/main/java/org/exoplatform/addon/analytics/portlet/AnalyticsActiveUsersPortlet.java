@@ -8,13 +8,12 @@ import javax.portlet.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.util.StringUtil;
-import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticFieldMapping;
+import org.exoplatform.analytics.model.filter.AnalyticsPercentageFilter;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.json.*;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
-import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.PropertyManager;
@@ -40,7 +39,7 @@ public class AnalyticsActiveUsersPortlet extends GenericPortlet {
 
     private static final String                       READ_CHART_SAMPLES_OPERATOPN = "GET_CHART_SAMPLES_DATA";
 
-    private static final Map<String, AnalyticsFilter> FILTERS                      = new HashMap<>();
+    private static final Map<String, AnalyticsPercentageFilter> FILTERS                      = new HashMap<>();
 
     private SpaceService                              spaceService;
 
@@ -82,7 +81,7 @@ public class AnalyticsActiveUsersPortlet extends GenericPortlet {
 
         String windowId = request.getWindowID();
         if (StringUtils.equals(operation, READ_SETTINGS_OPERATOPN)) {
-            AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, false);
+            AnalyticsPercentageFilter filter = getFilterFromPreferences(windowId, preferences, false);
             JSONObject jsonResponse = new JSONObject();
             addJSONParam(jsonResponse, "title", filter.getTitle());
             addJSONParam(jsonResponse, "chartType", filter.getChartType());
@@ -93,7 +92,7 @@ public class AnalyticsActiveUsersPortlet extends GenericPortlet {
             response.setContentType("application/json");
             response.getWriter().write(jsonResponse.toString());
         } else if (StringUtils.equals(operation, READ_FILTERS_OPERATOPN)) {
-            AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, false);
+            AnalyticsPercentageFilter filter = getFilterFromPreferences(windowId, preferences, false);
             response.setContentType("application/json");
             response.getWriter().write(AnalyticsUtils.toJsonString(filter));
         } else if (StringUtils.equals(operation, READ_MAPPINGS_OPERATOPN)) {
@@ -103,46 +102,23 @@ public class AnalyticsActiveUsersPortlet extends GenericPortlet {
             response.setContentType("application/json");
             response.getWriter().write(jsonArrayResponse.toString());
         } else if (StringUtils.equals(operation, READ_CHART_SAMPLES_OPERATOPN)) {
-            if (!canModifyChartSettings(portletSession)) {
-                throw new PortletException("Not allowed to access samples");
-            }
-            AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, true);
-            addPeriodFilter(request, filter);
-            addScopeFilter(portletSession, filter);
-            addLanguageFilter(request, filter);
-            addLimitFilter(request, filter);
-            addSortFilter(filter, "desc");
-
-            List<StatisticData> statisticDatas = getAnalyticsService().retrieveData(filter);
-            List<JSONObject> objectMappings = statisticDatas.stream()
-                    .map(statisticData -> {
-                        JSONObject object = new JSONObject(statisticData);
-                        object.remove("class");
-                        return object;
-                    })
-                    .collect(Collectors.toList());
-            JSONArray jsonArrayResponse = new JSONArray(objectMappings);
+            Object result = new Object();
             response.setContentType("application/json");
-            response.getWriter().write(jsonArrayResponse.toString());
+            response.getWriter().write(AnalyticsUtils.toJsonString(result));
         } else if (StringUtils.equals(operation, READ_CHART_DATA_OPERATOPN)) {
-            AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, true);
-            addPeriodFilter(request, filter);
-            addScopeFilter(portletSession, filter);
-            addLanguageFilter(request, filter);
-
-            Object result = getAnalyticsService().computeChartData(filter);
+            Object result = new Object();
             response.setContentType("application/json");
             response.getWriter().write(AnalyticsUtils.toJsonString(result));
         }
         super.serveResource(request, response);
     }
 
-    private void addLanguageFilter(ResourceRequest request, AnalyticsFilter filter) {
+    private void addLanguageFilter(ResourceRequest request, AnalyticsPercentageFilter filter) {
         String lang = request.getParameter("lang");
         filter.setLang(lang);
     }
 
-    private void addSortFilter(AnalyticsFilter filter, String direction) {
+    private void addSortFilter(AnalyticsPercentageFilter filter, String direction) {
         List<AnalyticsAggregation> xAxisAggregations = filter.getXAxisAggregations();
         for (AnalyticsAggregation analyticsAggregation : xAxisAggregations) {
             if (StringUtils.equals(AnalyticsUtils.FIELD_TIMESTAMP, analyticsAggregation.getField())) {
@@ -151,7 +127,7 @@ public class AnalyticsActiveUsersPortlet extends GenericPortlet {
         }
     }
 
-    private void addLimitFilter(ResourceRequest request, AnalyticsFilter filter) {
+    private void addLimitFilter(ResourceRequest request, AnalyticsPercentageFilter filter) {
         String limitString = request.getParameter("limit");
         if (StringUtils.isBlank(limitString)) {
             limitString = "10";
@@ -159,13 +135,14 @@ public class AnalyticsActiveUsersPortlet extends GenericPortlet {
         filter.setLimit(Long.parseLong(limitString));
     }
 
-    private void addPeriodFilter(ResourceRequest request, AnalyticsFilter filter) {
+    private void addPeriodFilter(ResourceRequest request, AnalyticsPercentageFilter filter) {
         String fromDateString = request.getParameter("min");
         String toDateString = request.getParameter("max");
-        filter.addRangeFilter("timestamp", fromDateString, toDateString);
+        filter.getValue().addRangeFilter("timestamp", fromDateString, toDateString);
+        filter.getThreshold().addRangeFilter("timestamp", fromDateString, toDateString);
     }
 
-    private void addScopeFilter(PortletSession portletSession, AnalyticsFilter filter) throws PortletException {
+    private void addScopeFilter(PortletSession portletSession, AnalyticsPercentageFilter filter) throws PortletException {
         AnalyticsPortlet.SearchScope scope = getSearchScope(portletSession);
         switch (scope) {
             case GLOBAL:
@@ -174,27 +151,29 @@ public class AnalyticsActiveUsersPortlet extends GenericPortlet {
                 throw new PortletException("Not allowed to access information");
             case SPACE:
                 Space space = SpaceUtils.getSpaceByContext();
-                filter.addEqualFilter("spaceId", space.getId());
+                filter.getValue().addEqualFilter("spaceId", space.getId());
+                filter.getThreshold().addEqualFilter("spaceId", space.getId());
                 break;
             case USER:
                 String viewerIdentityId = Utils.getViewerIdentity().getId();
-                filter.addEqualFilter("userId", viewerIdentityId);
+                filter.getValue().addEqualFilter("userId", viewerIdentityId);
+                filter.getThreshold().addEqualFilter("userId", viewerIdentityId);
                 break;
         }
     }
 
-    private AnalyticsFilter getFilterFromPreferences(String windowId, PortletPreferences preferences, boolean clone) {
-        AnalyticsFilter filter = getAnlyticsFilterCache(windowId);
+    private AnalyticsPercentageFilter getFilterFromPreferences(String windowId, PortletPreferences preferences, boolean clone) {
+        AnalyticsPercentageFilter filter = getAnlyticsFilterCache(windowId);
 
         if (filter == null) {
             if (preferences != null) {
                 String analyticsFilterString = preferences.getValue("settings", null);
                 if (StringUtils.isNotBlank(analyticsFilterString)) {
-                    filter = AnalyticsUtils.fromJsonString(analyticsFilterString, AnalyticsFilter.class);
+                    filter = AnalyticsUtils.fromJsonString(analyticsFilterString, AnalyticsPercentageFilter.class);
                 }
             }
             if (filter == null) {
-                filter = new AnalyticsFilter();
+                filter = new AnalyticsPercentageFilter();
             }
             setAnlyticsFilterCache(windowId, filter);
         }
@@ -334,7 +313,7 @@ public class AnalyticsActiveUsersPortlet extends GenericPortlet {
         return spaceService;
     }
 
-    private void setAnlyticsFilterCache(String windowId, AnalyticsFilter filter) {
+    private void setAnlyticsFilterCache(String windowId, AnalyticsPercentageFilter filter) {
         if (filter == null) {
             clearAnlyticsFilterCache(windowId);
         } else {
@@ -342,9 +321,9 @@ public class AnalyticsActiveUsersPortlet extends GenericPortlet {
         }
     }
 
-    private AnalyticsFilter getAnlyticsFilterCache(String windowId) {
-        AnalyticsFilter analyticsFilter = FILTERS.get(windowId);
-        return analyticsFilter == null ? null : analyticsFilter.clone();
+    private AnalyticsPercentageFilter getAnlyticsFilterCache(String windowId) {
+        AnalyticsPercentageFilter analyticsPercentageFilter = FILTERS.get(windowId);
+        return analyticsPercentageFilter == null ? null : analyticsPercentageFilter.clone();
     }
 
     private void clearAnlyticsFilterCache(String windowId) {

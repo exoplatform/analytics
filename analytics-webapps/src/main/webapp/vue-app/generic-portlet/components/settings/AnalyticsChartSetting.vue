@@ -48,16 +48,20 @@
               :settings="chartSettings" />
           </v-tab-item>
           <v-tab-item eager>
+            <h3 v-if="isPercentageBar">chart value</h3>
             <analytics-y-axis-form
               ref="yAxis"
               :fields-mappings="fieldsMappings"
-              :settings="chartSettings" />
+              :settings="chartSettings"
+              :type="isPercentageBar ? 'value' : null" />
             <template v-if="isPercentageBar">
               <v-divider class="my-4" />
+              <h3>chart threshold</h3>
               <analytics-y-axis-form
                 ref="yAxis"
                 :fields-mappings="fieldsMappings"
-                :settings="chartSettings" />
+                :settings="chartSettings"
+                :type="isPercentageBar ? 'threshold' : null" />
             </template>
           </v-tab-item>
           <v-tab-item v-if="!isPercentageBar" eager>
@@ -70,13 +74,13 @@
             <analytics-search-filter-form
               ref="searchFilter"
               :fields-mappings="fieldsMappings"
-              :filters="chartSettings.filters" />
+              :filters="isPercentageBar ? chartSettings.threshold.filters : chartSettings.filters" />
             <template v-if="isPercentageBar">
               <v-divider class="my-4" />
               <analytics-search-filter-form
                 ref="searchFilter"
                 :fields-mappings="fieldsMappings"
-                :filters="chartSettings.filters" />
+                :filters="chartSettings.value.filters" />
             </template>
           </v-tab-item>
         </v-tabs-items>
@@ -140,7 +144,7 @@ export default {
       return this.chartSettings && this.chartSettings.chartType;
     },
     isPercentageBar() {
-      return this.chartType === 'percentageBar';
+      return this.chartType === 'percentageBar' || this.chartType=== 'percentage';
     },
   },
   watch: {

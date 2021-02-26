@@ -226,14 +226,20 @@ export default {
               aggregations: [],
             };
           }
-          if (!this.chartSettings.filters) {
-            this.chartSettings.filters = [];
+          if (!this.chartSettings.threshold.filters) {
+            this.chartSettings.threshold.filters = [];
+          }
+          if (!this.chartSettings.value.filters) {
+            this.chartSettings.value.filters = [];
           }
           if (!this.chartSettings.xAxisAggregations) {
             this.chartSettings.xAxisAggregations = [];
           }
-          if (!this.chartSettings.yAxisAggregation) {
-            this.chartSettings.yAxisAggregation = {};
+          if (!this.chartSettings.threshold.yAxisAggregation) {
+            this.chartSettings.threshold.yAxisAggregation = {};
+          }
+          if (!this.chartSettings.value.yAxisAggregation) {
+            this.chartSettings.value.yAxisAggregation = {};
           }
         })
         .catch((e) => {
@@ -298,7 +304,6 @@ export default {
         })
         .then((chartsData) => {
           this.chartsData = chartsData;
-          console.log(this.chartsData);
           // FIXME wrong data
           this.$refs.analyticsChartBody.init({
             'charts':[
