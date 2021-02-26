@@ -23,7 +23,7 @@
           v-model="tab"
           background-color="transparent"
           color="primary">
-          <v-tab v-if="!isPercentageBar">{{ $t('analytics.general') }}</v-tab>
+          <v-tab>{{ $t('analytics.general') }}</v-tab>
           <v-tab>{{ $t('analytics.colors') }}</v-tab>
           <v-tab v-if="!isPercentageBar">{{ $t('analytics.xAxis') }}</v-tab>
           <v-tab>{{ $t('analytics.yAxis') }}</v-tab>
@@ -31,7 +31,7 @@
           <v-tab>{{ $t('analytics.dataFilters') }}</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
-          <v-tab-item v-if="!isPercentageBar" eager>
+          <v-tab-item eager>
             <analytics-general-setting-form
               ref="settingForm"
               :settings="chartSettings" />
