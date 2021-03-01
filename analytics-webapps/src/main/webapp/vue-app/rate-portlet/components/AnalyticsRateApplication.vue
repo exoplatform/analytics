@@ -1,5 +1,5 @@
 <template>
-  <v-app id="chartAnalyticsActiveUsers">
+  <v-app>
     <analytics-chart-setting
       ref="chartSettingDialog"
       :retrieve-mappings-url="retrieveMappingsUrl"

@@ -171,7 +171,7 @@
           <portlet-application>
             <portlet>
               <application-ref>analytics</application-ref>
-              <portlet-ref>AnalyticsActiveUsersPortlet</portlet-ref>
+              <portlet-ref>AnalyticsRatePortlet</portlet-ref>
               <preferences>
                 <preference>
                   <name>settings</name>

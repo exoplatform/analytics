@@ -1,8 +1,8 @@
-import AnalyticsActiveUsers from './components/AnalyticsActiveUsers.vue';
+import AnalyticsRateApplication from './components/AnalyticsRateApplication.vue';
 import AnalyticsPercentageBarChart from './components/chart/AnalyticsPercentageBarChart.vue';
 
 const components = {
-  'analytics-active-users': AnalyticsActiveUsers,
+  'analytics-rate-application': AnalyticsRateApplication,
   'analytics-percentage-bar-chart': AnalyticsPercentageBarChart,
 };
 

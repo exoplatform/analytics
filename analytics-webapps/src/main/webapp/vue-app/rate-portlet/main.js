@@ -14,8 +14,7 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 // Display loading first time the page is displayed
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init() {
-  const dataId = 'analyticsActiveUsers';
+export function init(dataId) {
   // getting locale ressources
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
@@ -41,7 +40,7 @@ export function init() {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         },
         template: `
-        <analytics-active-users
+        <analytics-rate-application
            id="${dataId}"
            :retrieve-settings-url="retrieveSettingsURL"
            :retrieve-mappings-url="retrieveMappingsURL"

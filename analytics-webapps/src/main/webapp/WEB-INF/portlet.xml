@@ -55,8 +55,8 @@
    </portlet>
 
   <portlet>
-    <portlet-name>AnalyticsActiveUsersPortlet</portlet-name>
-    <display-name xml:lang="EN">Analytics Active Users Application</display-name>
+    <portlet-name>AnalyticsRatePortlet</portlet-name>
+    <display-name xml:lang="EN">Analytics Rate Application</display-name>
     <portlet-class>org.exoplatform.addon.analytics.portlet.AnalyticsActiveUsersPortlet</portlet-class>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -65,8 +65,8 @@
     </supports>
     <supported-locale>en</supported-locale>
     <portlet-info>
-      <title>Analytics Active Users Application</title>
-      <keywords>Analytics Active Users Application</keywords>
+      <title>Analytics Rate Application</title>
+      <keywords>Analytics Rate Application</keywords>
     </portlet-info>
     <portlet-preferences>
       <preference>

@@ -19,6 +19,7 @@ import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.chart.*;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter.Range;
+import org.exoplatform.analytics.model.filter.AnalyticsPercentageFilter;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
 import org.exoplatform.analytics.model.filter.search.*;
@@ -176,6 +177,15 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       LOG.error("Error getting mapping of analytics", e);
     }
     return new HashSet<>(esMappings.values());
+  }
+
+  @Override
+  public ChartDataList computeChartData(AnalyticsPercentageFilter filter) {
+    if (filter == null) {
+      throw new IllegalArgumentException("Filter is mandatory");
+    }
+    // TODO : resuse computeChartData(AnalyticsFilter filter)
+    return null;
   }
 
   @Override
