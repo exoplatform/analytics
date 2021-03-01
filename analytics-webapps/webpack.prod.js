@@ -22,9 +22,10 @@ const config = {
     ]
   },
   entry: {
+    commonAnalyticsVueComponents: './src/main/webapp/vue-app/common-components/main.js',
     analytics: './src/main/webapp/vue-app/generic-portlet/main.js',
     breadcrumb: './src/main/webapp/vue-app/breadcrumb-portlet/main.js',
-    analyticsActiveUsers:'./src/main/webapp/vue-app/active-users/main.js',
+    analyticsRate:'./src/main/webapp/vue-app/rate-portlet/main.js',
   },
   output: {
     path: path.join(__dirname, 'target/analytics/'),

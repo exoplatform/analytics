@@ -40,7 +40,7 @@
       id="topAnalyticsPage"
       template="system:/groovy/portal/webui/container/UIContainer.gtmpl"
       cssClass="singlePageApplication border-box-sizing">
-      <container id="parentSocialPage" template="system:/groovy/portal/webui/container/UIMobileSwipeContainer.gtmpl">
+      <container id="parentSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
         <access-permissions>Everyone</access-permissions>
         <container id="leftSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
           <access-permissions>Everyone</access-permissions>
@@ -176,41 +176,48 @@
                 <preference>
                   <name>settings</name>
                   <value>{
-                    "offset": 0,
-                    "value":{
-                      "filters": [{
-                      "field": "operation",
-                      "type": "EQUAL",
-                      "valueString": "login"
-                      }],
-                      "yAxisAggregation": {
-                        "field": "userId",
-                        "type": "CARDINALITY"
-                      },
-                    },
-                    "threshold":{
-                      "filters": [{
-                        "field": "operation",
-                        "type": "EQUAL",
-                       "valueString": "usersCount"
-                      }],
-                      "yAxisAggregation": {
-                        "field": "userId",
-                        "type": "CARDINALITY"
-                      },
-                    },
-                    "title": "Connected users",
-                    "xAxisAggregations": [
-                    {
-                    "field": "timestamp",
-                    "type": "DATE",
-                    "interval": "day",
-                    "sortDirection": "asc"
-                    }
-                    ],
+                    "title": "analytics.activeUsers",
                     "chartType": "percentageBar",
-                    "limit": 0
-                    }</value>
+                    "colors": ["#4273C8"],
+                    "threshold": {
+                      "filters": [
+                        {
+                          "range": null,
+                          "valueString": "usersCount",
+                          "field": "operation",
+                          "type": "EQUAL"
+                        },
+                        {
+                          "range": null,
+                          "valueString": "enabledUsers",
+                          "field": "countType",
+                          "type": "EQUAL"
+                        }
+                      ],
+                      "yAxisAggregation": {
+                        "interval": null,
+                        "sortDirection": null,
+                        "field": "count",
+                        "type": "MAX"
+                      }
+                    },
+                    "value": {
+                      "filters": [
+                        {
+                          "range": null,
+                          "valueString": "login",
+                          "field": "operation",
+                          "type": "EQUAL"
+                        }
+                      ],
+                      "yAxisAggregation": {
+                        "interval": null,
+                        "sortDirection": null,
+                        "field": "userId",
+                        "type": "CARDINALITY"
+                      }
+                    }
+                  }</value>
                 </preference>
               </preferences>
             </portlet>

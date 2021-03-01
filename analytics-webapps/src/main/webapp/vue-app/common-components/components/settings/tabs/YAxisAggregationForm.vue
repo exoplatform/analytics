@@ -36,7 +36,7 @@
 <script>
 export default {
   props: {
-    settings: {
+    yAxisAggregation: {
       type: Object,
       default: function() {
         return null;
@@ -86,15 +86,6 @@ export default {
           value: 'MIN',
         },
       ];
-    },
-    yAxisAggregation() {
-      if (this.type === 'value'){
-        return this.settings && this.settings.value.yAxisAggregation;
-      }else if (this.type === 'threshold'){
-        return this.settings && this.settings.threshold.yAxisAggregation;
-      }else {
-        return this.settings && this.settings.yAxisAggregation;
-      }
     },
     yAxisAggregationCount() {
       return this.aggregationType === 'COUNT';

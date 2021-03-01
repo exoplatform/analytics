@@ -83,7 +83,7 @@ public class AnalyticsRatePortlet extends GenericPortlet {
       JSONObject jsonResponse = new JSONObject();
       addJSONParam(jsonResponse, "title", filter.getTitle());
       addJSONParam(jsonResponse, "chartType", filter.getChartType());
-      addJSONParam(jsonResponse, "color", filter.getColor());
+      addJSONParam(jsonResponse, "colors", filter.getColors());
       addJSONParam(jsonResponse, "canEdit", canModifyChartSettings(portletSession));
       addJSONParam(jsonResponse, "scope", getSearchScope(portletSession).name());
       response.setContentType("application/json");
@@ -103,7 +103,6 @@ public class AnalyticsRatePortlet extends GenericPortlet {
       addLanguageFilter(request, filter);
       addPeriodFilter(request, filter);
       addScopeFilter(portletSession, filter);
-
       Object result = getAnalyticsService().computeChartData(filter);
       response.setContentType("application/json");
       response.getWriter().write(AnalyticsUtils.toJsonString(result));

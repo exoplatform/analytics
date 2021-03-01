@@ -1,14 +1,23 @@
 <template>
-  <v-app>
-    <analytics-chart-setting
-      ref="chartSettingDialog"
-      :retrieve-mappings-url="retrieveMappingsUrl"
-      :settings="chartSettings"
-      :users="userObjects"
-      :spaces="spaceObjects"
-      class="mt-0"
-      @save="saveSettings" />
-    <v-card class="analytics-chart-parent white" flat>
+  <v-app 
+    :id="appId"
+    class="analytics-application"
+    flat>
+    <template v-if="canEdit">
+      <analytics-chart-setting
+        ref="chartSettingDialog"
+        :retrieve-mappings-url="retrieveMappingsUrl"
+        :settings="chartSettings"
+        :users="userObjects"
+        :spaces="spaceObjects"
+        class="mt-0"
+        @save="saveSettings" />
+      <analytics-json-panel-dialog
+        ref="jsonPanelDialog"
+        :settings="chartSettings"
+        class="mt-0" />
+    </template>
+    <v-card class="ma-auto analytics-chart-parent white" flat>
       <div class="d-flex pa-3 analytics-chart-header" flat>
         <v-toolbar-title class="d-flex">
           <v-tooltip bottom>
@@ -26,18 +35,21 @@
               </v-btn>
             </template>
             <span>
-              <div>{{ $t('analytics.activeUsersInfo') }}</div>
+              <div>- {{ $t('analytics.dataRestriction') }}: {{ scopeTooltip }}</div>
+              <div>- {{ $t('analytics.totalSamplesCount') }}: {{ chartsData.dataCount }}</div>
+              <div>- {{ $t('analytics.computingTime') }}: {{ chartsData.computingTime }} ms</div>
             </span>
           </v-tooltip>
           <div
-            :title="$t('analytics.activeUsers')"
+            :title="title"
             class="my-auto text-truncate analytics-chart-title">
-            {{ $t('analytics.activeUsers') }}
+            {{ $t(title) }}
           </div>
         </v-toolbar-title>
         <v-spacer />
         <analytics-select-period v-model="selectedPeriod" />
         <v-menu
+          v-if="canEdit"
           v-model="showMenu"
           offset-y>
           <template v-slot:activator="{ on }">
@@ -53,11 +65,14 @@
             <v-list-item @mousedown="$event.preventDefault()" @click="$refs.chartSettingDialog.open()">
               <v-list-item-title>{{ $t('analytics.settings') }}</v-list-item-title>
             </v-list-item>
+            <v-list-item @mousedown="$event.preventDefault()" @click="$refs.jsonPanelDialog.open()">
+              <v-list-item-title>{{ $t('analytics.jsonSettings') }}</v-list-item-title>
+            </v-list-item>
           </v-list>
         </v-menu>
       </div>
       <analytics-percentage-bar-chart
-        ref="analyticsChartBody"
+        ref="analyticsRateBody"
         :colors="colors" />
     </v-card>
   </v-app>
@@ -138,6 +153,9 @@ export default {
     ],
   }),
   computed: {
+    randomColorIndex() {
+      return Math.floor(Math.random() * this.DEFAULT_COLORS.length);
+    },
     scopeTooltip() {
       switch (this.scope) {
       case 'NONE': return this.$t('analytics.permissionDenied');
@@ -151,8 +169,8 @@ export default {
       return this.chartSettings
           && this.chartSettings.colors
           && this.chartSettings.colors.length
-          && this.chartSettings.colors.slice()
-          || this.DEFAULT_COLORS;
+          && this.chartSettings.colors.slice(0, 1)
+          || this.DEFAULT_COLORS.slice(this.randomColorIndex, 1);
     },
   },
   watch: {
@@ -226,20 +244,26 @@ export default {
               aggregations: [],
             };
           }
-          if (!this.chartSettings.threshold.filters) {
-            this.chartSettings.threshold.filters = [];
+          if (!this.chartSettings.value) {
+            this.chartSettings.value = {};
+          }
+          if (!this.chartSettings.threshold) {
+            this.chartSettings.threshold = {};
           }
           if (!this.chartSettings.value.filters) {
             this.chartSettings.value.filters = [];
           }
+          if (!this.chartSettings.threshold.filters) {
+            this.chartSettings.threshold.filters = [];
+          }
           if (!this.chartSettings.xAxisAggregations) {
             this.chartSettings.xAxisAggregations = [];
           }
-          if (!this.chartSettings.threshold.yAxisAggregation) {
-            this.chartSettings.threshold.yAxisAggregation = {};
-          }
           if (!this.chartSettings.value.yAxisAggregation) {
             this.chartSettings.value.yAxisAggregation = {};
+          }
+          if (!this.chartSettings.threshold.yAxisAggregation) {
+            this.chartSettings.threshold.yAxisAggregation = {};
           }
         })
         .catch((e) => {
@@ -304,40 +328,7 @@ export default {
         })
         .then((chartsData) => {
           this.chartsData = chartsData;
-          // FIXME wrong data
-          this.$refs.analyticsChartBody.init({
-            'charts':[
-              {
-                'aggregationResults':[
-                  {
-                    'value':'2.0',
-                    'result':'2.0',
-                    'label':'W6 2021'
-                  },
-                  {
-                    'value':'3.0',
-                    'result':'3.0',
-                    'label':'W7 2021'
-                  }
-                ],
-              },
-              {
-                'aggregationResults':[
-                  {
-                    'value':'5.0',
-                    'result':'5.0',
-                    'label':'W6 2021'
-                  },
-                  {
-                    'value':'10.0',
-                    'result':'10.0',
-                    'label':'W7 2021'
-                  }
-                ],
-              }
-            ],
-          });
-
+          this.$refs.analyticsRateBody.init(this.chartsData);
         })
         .catch((e) => {
           console.debug('fetch analytics - error', e);

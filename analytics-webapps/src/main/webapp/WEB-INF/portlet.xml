@@ -57,7 +57,7 @@
   <portlet>
     <portlet-name>AnalyticsRatePortlet</portlet-name>
     <display-name xml:lang="EN">Analytics Rate Application</display-name>
-    <portlet-class>org.exoplatform.addon.analytics.portlet.AnalyticsActiveUsersPortlet</portlet-class>
+    <portlet-class>org.exoplatform.addon.analytics.portlet.AnalyticsRatePortlet</portlet-class>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -73,24 +73,8 @@
         <name>settings</name>
         <value>
           {
-          "chartType":"percentageBar",
-          "filters":[],
-          "xAxisAggregations":[
-          {
-          "interval":"day",
-          "sortDirection":"asc",
-          "field":"timestamp",
-          "type":"DATE"
-          }
-          ],
-          "yAxisAggregation":{
-          "interval":null,
-          "sortDirection":null,
-          "field":null,
-          "type":"COUNT"
-          },
-          "displayComputingTime":true,
-          "displaySamplesCount":true,
+            "title":"Chart title",
+            "chartType":"percentageBar"
           }
         </value>
       </preference>

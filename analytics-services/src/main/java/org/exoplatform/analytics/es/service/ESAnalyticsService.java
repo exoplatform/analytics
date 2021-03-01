@@ -184,8 +184,9 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     if (filter == null) {
       throw new IllegalArgumentException("Filter is mandatory");
     }
-    // TODO : resuse computeChartData(AnalyticsFilter filter)
-    return null;
+    ChartDataList valueChartData = computeChartData(filter.computeValueFilter());
+    ChartDataList thresholdChartData = computeChartData(filter.computeThresholdFilter());
+    return combineCharts(valueChartData, thresholdChartData);
   }
 
   @Override
@@ -196,14 +197,12 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     if (filter.getAggregations() == null || filter.getAggregations().isEmpty()) {
       throw new IllegalArgumentException("Filter aggregations is mandatory");
     }
-    boolean retrieveUsedTuples = false;
 
-    StringBuilder esQuery = new StringBuilder();
-    buildAnalyticsQuery(filter, retrieveUsedTuples, esQuery);
-
-    String esQueryString = esQuery.toString();
-    esQueryString = fixJSONStringFormat(esQueryString);
-    LOG.debug("ES query to compute chart data with filter :{} . Query: {}", filter, esQueryString);
+    String esQueryString = buildAnalyticsQuery(filter.getAggregations(),
+                                               filter.getFilters(),
+                                               filter.getOffset(),
+                                               filter.getLimit(),
+                                               false);
 
     String jsonResponse = this.esClient.sendRequest(esQueryString);
     try {
@@ -261,17 +260,29 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     uiWatchers.add(uiWatcherPlugin.getStatisticWatcher());
   }
 
-  private void buildAnalyticsQuery(AnalyticsFilter analyticsFilter, boolean retrieveUsedTuples, StringBuilder esQuery) {
+  private String buildAnalyticsQuery(List<AnalyticsAggregation> aggregations,
+                                     List<AnalyticsFieldFilter> filters,
+                                     long offset,
+                                     long limit,
+                                     boolean retrieveUsedTuples) {
+    StringBuilder esQuery = new StringBuilder();
     esQuery.append("{");
     buildSearchFilterQuery(esQuery,
-                           analyticsFilter.getFilters(),
+                           filters,
                            null,
-                           analyticsFilter.getOffset(),
-                           analyticsFilter.getLimit(),
+                           offset,
+                           limit,
                            !retrieveUsedTuples,
                            false);
-    buildAggregationQuery(esQuery, analyticsFilter.getAggregations());
+    buildAggregationQuery(esQuery, aggregations);
     esQuery.append("}");
+    String esQueryString = esQuery.toString();
+    esQueryString = fixJSONStringFormat(esQueryString);
+    LOG.debug("ES query to compute chart data with aggregations :{}, filters :{} . Query: {}",
+              aggregations,
+              filters,
+              esQueryString);
+    return esQueryString;
   }
 
   private List<AnalyticsSortField> getSortFields(List<AnalyticsAggregation> aggregations) {
@@ -507,10 +518,11 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   private ChartDataList buildChartDataFromESResponse(AnalyticsFilter filter, String jsonResponse) throws JSONException {
-    ChartDataList chartsData = new ChartDataList(filter.getLang());
+    AnalyticsAggregation multipleChartsAggregation = filter.getMultipleChartsAggregation();
+    String lang = filter.getLang();
 
+    ChartDataList chartsData = new ChartDataList(lang);
     JSONObject json = new JSONObject(jsonResponse);
-
     JSONObject aggregations = json.getJSONObject("aggregations");
     if (aggregations == null) {
       return chartsData;
@@ -520,8 +532,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     chartsData.setComputingTime(json.getLong("took"));
     chartsData.setDataCount(hitsResult.getLong("total"));
 
-    int level = filter.isMultipleCharts() ? -1 : 0;
-    AnalyticsAggregation multipleChartsAggregation = filter.getMultipleChartsAggregation();
+    int level = multipleChartsAggregation == null ? 0 : -1;
     computeAggregatedResultEntry(filter, aggregations, chartsData, multipleChartsAggregation, null, null, level);
     addEmptyResultsToNotExistingEntries(chartsData);
     return chartsData;
@@ -534,9 +545,10 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                                             ChartAggregationValue parentAggregation,
                                             ArrayList<ChartAggregationValue> aggregationValues,
                                             int level) throws JSONException {
+    String lang = filter.getLang();
+
     JSONObject aggsResult = aggregations.getJSONObject(AGGREGATION_RESULT_PARAM);
     JSONArray buckets = aggsResult.getJSONArray("buckets");
-    String lang = filter.getLang();
     if (buckets.length() > 0) {
       int nextLevel = level + 1;
       for (int i = 0; i < buckets.length(); i++) {
@@ -695,6 +707,36 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       }
       index++;
     }
+  }
+
+  private ChartDataList combineCharts(ChartDataList valueChartData, ChartDataList thresholdChartData) {
+    ChartDataList dataList = new ChartDataList(valueChartData.getLang());
+
+    long computingTime = valueChartData.getComputingTime() + thresholdChartData.getComputingTime();
+    dataList.setComputingTime(computingTime);
+
+    long dataCount = valueChartData.getDataCount() + thresholdChartData.getDataCount();
+    dataList.setDataCount(dataCount);
+
+    LinkedHashSet<ChartAggregationLabel> aggregationLabels = new LinkedHashSet<>(valueChartData.getAggregationLabels());
+    aggregationLabels.addAll(thresholdChartData.getAggregationLabels());
+    dataList.setAggregationLabels(aggregationLabels);
+
+    LinkedHashSet<ChartData> charts = new LinkedHashSet<>();
+    Iterator<ChartData> valueChartIterator = valueChartData.getCharts().iterator();
+    ChartData valueChart = valueChartIterator.hasNext() ? valueChartIterator.next() : null;
+    if (valueChart != null) {
+      valueChart.setChartLabel("value");
+      charts.add(valueChart);
+    }
+    Iterator<ChartData> thresholdChartIterator = thresholdChartData.getCharts().iterator();
+    ChartData thresholdChart = thresholdChartIterator.hasNext() ? thresholdChartIterator.next() : null;
+    if (thresholdChart != null) {
+      thresholdChart.setChartLabel("threshold");
+      charts.add(thresholdChart);
+    }
+    dataList.setCharts(charts);
+    return dataList;
   }
 
 }

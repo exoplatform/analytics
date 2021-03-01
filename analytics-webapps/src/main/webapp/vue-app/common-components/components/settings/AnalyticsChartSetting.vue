@@ -25,10 +25,16 @@
           color="primary">
           <v-tab>{{ $t('analytics.general') }}</v-tab>
           <v-tab>{{ $t('analytics.colors') }}</v-tab>
-          <v-tab v-if="!isPercentageBar">{{ $t('analytics.xAxis') }}</v-tab>
-          <v-tab>{{ $t('analytics.yAxis') }}</v-tab>
-          <v-tab v-if="!isPercentageBar">{{ $t('analytics.multipleCharts') }}</v-tab>
-          <v-tab>{{ $t('analytics.dataFilters') }}</v-tab>
+          <template v-if="isPercentageBar">
+            <v-tab>{{ $t('analytics.percentageValue') }}</v-tab>
+            <v-tab>{{ $t('analytics.percentageThreshold') }}</v-tab>
+          </template>
+          <template v-else>
+            <v-tab>{{ $t('analytics.xAxis') }}</v-tab>
+            <v-tab>{{ $t('analytics.yAxis') }}</v-tab>
+            <v-tab>{{ $t('analytics.multipleCharts') }}</v-tab>
+            <v-tab>{{ $t('analytics.dataFilters') }}</v-tab>
+          </template>
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-tab-item eager>
@@ -41,48 +47,60 @@
               ref="colorsForm"
               :settings="chartSettings" />
           </v-tab-item>
-          <v-tab-item v-if="!isPercentageBar" eager>
-            <analytics-x-axis-form
-              ref="xAxis"
-              :fields-mappings="fieldsMappings"
-              :settings="chartSettings" />
-          </v-tab-item>
-          <v-tab-item eager>
-            <h3 v-if="isPercentageBar">chart value</h3>
-            <analytics-y-axis-form
-              ref="yAxis"
-              :fields-mappings="fieldsMappings"
-              :settings="chartSettings"
-              :type="isPercentageBar ? 'value' : null" />
-            <template v-if="isPercentageBar">
-              <v-divider class="my-4" />
-              <h3>chart threshold</h3>
+          <template v-if="isPercentageBar">
+            <v-tab-item eager>
+              <h3>{{ $t('analytics.computingRule') }}</h3>
               <analytics-y-axis-form
                 ref="yAxis"
                 :fields-mappings="fieldsMappings"
-                :settings="chartSettings"
-                :type="isPercentageBar ? 'threshold' : null" />
-            </template>
-          </v-tab-item>
-          <v-tab-item v-if="!isPercentageBar" eager>
-            <analytics-multiple-charts
-              ref="multipleCharts"
-              :fields-mappings="fieldsMappings"
-              :settings="chartSettings" />
-          </v-tab-item>
-          <v-tab-item eager>
-            <analytics-search-filter-form
-              ref="searchFilter"
-              :fields-mappings="fieldsMappings"
-              :filters="isPercentageBar ? chartSettings.threshold.filters : chartSettings.filters" />
-            <template v-if="isPercentageBar">
+                :y-axis-aggregation="chartSettings.value.yAxisAggregation" />
               <v-divider class="my-4" />
+              <h3>{{ $t('analytics.dataFilters') }}</h3>
               <analytics-search-filter-form
                 ref="searchFilter"
                 :fields-mappings="fieldsMappings"
                 :filters="chartSettings.value.filters" />
-            </template>
-          </v-tab-item>
+            </v-tab-item>
+            <v-tab-item eager>
+              <h3>{{ $t('analytics.computingRule') }}</h3>
+              <analytics-y-axis-form
+                ref="yAxis"
+                :fields-mappings="fieldsMappings"
+                :y-axis-aggregation="chartSettings.threshold.yAxisAggregation" />
+              <v-divider class="my-4" />
+              <h3>{{ $t('analytics.dataFilters') }}</h3>
+              <analytics-search-filter-form
+                ref="searchFilter"
+                :fields-mappings="fieldsMappings"
+                :filters="chartSettings.threshold.filters" />
+            </v-tab-item>
+          </template>
+          <template v-else>
+            <v-tab-item eager>
+              <analytics-x-axis-form
+                ref="xAxis"
+                :fields-mappings="fieldsMappings"
+                :settings="chartSettings" />
+            </v-tab-item>
+            <v-tab-item eager>
+              <analytics-y-axis-form
+                ref="yAxis"
+                :fields-mappings="fieldsMappings"
+                :y-axis-aggregation="chartSettings.yAxisAggregation" />
+            </v-tab-item>
+            <v-tab-item eager>
+              <analytics-multiple-charts
+                ref="multipleCharts"
+                :fields-mappings="fieldsMappings"
+                :settings="chartSettings" />
+            </v-tab-item>
+            <v-tab-item eager>
+              <analytics-search-filter-form
+                ref="searchFilter"
+                :fields-mappings="fieldsMappings"
+                :filters="chartSettings.filters" />
+            </v-tab-item>
+          </template>
         </v-tabs-items>
       </v-card-text>
       <v-card-actions>

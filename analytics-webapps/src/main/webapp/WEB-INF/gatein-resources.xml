@@ -24,6 +24,9 @@
         <module>eXoVueI18n</module>
       </depends>
       <depends>
+        <module>commonAnalyticsVueComponents</module>
+      </depends>
+      <depends>
         <module>jquery</module>
         <as>$</as>
       </depends>
@@ -43,11 +46,11 @@
   </portlet>
 
   <portlet>
-    <name>AnalyticsActiveUsersPortlet</name>
+    <name>AnalyticsRatePortlet</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/analyticsActiveUsers.bundle.js</path>
+        <path>/js/analyticsRate.bundle.js</path>
       </script>
       <depends>
         <module>vue</module>
@@ -57,6 +60,9 @@
       </depends>
       <depends>
         <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>commonAnalyticsVueComponents</module>
       </depends>
       <depends>
         <module>jquery</module>
@@ -120,5 +126,26 @@
       </depends>
     </module>
   </portlet>
+
+  <module>
+    <name>commonAnalyticsVueComponents</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/commonAnalyticsVueComponents.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>$</as>
+    </depends>
+  </module>
 
 </gatein-resources>
