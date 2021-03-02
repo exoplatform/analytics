@@ -180,13 +180,14 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   @Override
-  public ChartDataList computeChartData(AnalyticsPercentageFilter filter) {
+  public PercentageChartDataList computeChartData(AnalyticsPercentageFilter filter) {
     if (filter == null) {
       throw new IllegalArgumentException("Filter is mandatory");
     }
     ChartDataList valueChartData = computeChartData(filter.computeValueFilter());
     ChartDataList thresholdChartData = computeChartData(filter.computeThresholdFilter());
-    return combineCharts(valueChartData, thresholdChartData);
+    // TODO
+    return null;
   }
 
   @Override
