@@ -28,7 +28,7 @@
             "filters":[],
             "xAxisAggregations":[
               {
-                "interval":"year",
+                "interval":"day",
                 "sortDirection":"asc",
                 "field":"timestamp",
                 "type":"DATE"

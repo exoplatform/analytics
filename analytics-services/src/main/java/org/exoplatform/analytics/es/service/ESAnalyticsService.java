@@ -186,8 +186,32 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     }
     ChartDataList valueChartData = computeChartData(filter.computeValueFilter());
     ChartDataList thresholdChartData = computeChartData(filter.computeThresholdFilter());
-    // TODO
-    return null;
+    LinkedHashSet<ChartData> charts = valueChartData.getCharts();
+    ChartData currentChartValue = null; // TODO compute from valueChartData
+    ChartData previousChartValue = null; // TODO compute from valueChartData
+    ChartData currentChartThreshold = null; // TODO compute from thresholdChartData
+    ChartData previousChartThreshold = null; // TODO thresholdChartData
+
+    // currentChartValue.getChartKey(); // Date à comparer avec
+    // filter.getCurrentAnalyticsPeriod()
+    // previousChartValue.getChartKey(); // Date à comparer avec
+    // filter.getPreviousAnalyticsPeriod()
+    // currentChartThreshold.getChartKey(); // Date à comparer avec
+    // filter.getCurrentAnalyticsPeriod()
+    // previousChartThreshold.getChartKey(); // Date à comparer avec
+    // filter.getPreviousAnalyticsPeriod()
+
+    double currentPeriodValue = currentChartValue == null ? 0 : Double.parseDouble(currentChartValue.getChartValue());
+    double currentPeriodThreshold = currentChartThreshold == null ? 0 : Double.parseDouble(currentChartThreshold.getChartValue());
+    double previousPeriodValue = previousChartValue == null ? 0 : Double.parseDouble(previousChartValue.getChartValue());
+    double previousPeriodThreshold = previousChartThreshold == null ? 0
+                                                                    : Double.parseDouble(previousChartThreshold.getChartValue());
+    return new PercentageChartDataList(currentPeriodValue,
+                                       currentPeriodThreshold,
+                                       previousPeriodValue,
+                                       previousPeriodThreshold,
+                                       valueChartData.getComputingTime() + thresholdChartData.getComputingTime(),
+                                       valueChartData.getDataCount() + thresholdChartData.getDataCount());
   }
 
   @Override

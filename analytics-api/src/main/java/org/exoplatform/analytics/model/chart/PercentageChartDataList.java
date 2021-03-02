@@ -2,16 +2,14 @@ package org.exoplatform.analytics.model.chart;
 
 import java.io.Serializable;
 
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 @Data
 @ToString
+@AllArgsConstructor
 public class PercentageChartDataList implements Serializable {
 
   private static final long serialVersionUID = 5490607865795348987L;
-
-  private String            lang;
 
   private double            currentPeriodValue;
 
@@ -24,9 +22,5 @@ public class PercentageChartDataList implements Serializable {
   private long              computingTime;
 
   private long              dataCount;
-
-  public PercentageChartDataList(String lang) {
-    this.lang = lang;
-  }
 
 }

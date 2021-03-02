@@ -62,7 +62,7 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
     return AnalyticsPeriodType.periodTypeByName(periodType);
   }
 
-  private AnalyticsPeriod getCurrentAnalyticsPeriod() {
+  public AnalyticsPeriod getCurrentAnalyticsPeriod() {
     AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
     if (analyticsPeriodType == null || periodDate == null) {
       return null;
@@ -70,7 +70,7 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
     return analyticsPeriodType.getCurrentPeriod(periodDate);
   }
 
-  private AnalyticsPeriod getPreviousAnalyticsPeriod() {
+  public AnalyticsPeriod getPreviousAnalyticsPeriod() {
     AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
     if (analyticsPeriodType == null || periodDate == null) {
       return null;
