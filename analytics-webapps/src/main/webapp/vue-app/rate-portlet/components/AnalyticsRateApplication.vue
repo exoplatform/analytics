@@ -16,14 +16,6 @@
         ref="jsonPanelDialog"
         :settings="chartSettings"
         class="mt-0" />
-      <analytics-view-samples-drawer
-        ref="viewSamplesDrawer"
-        :title="title"
-        :selected-period="selectedPeriod"
-        :users="userObjects"
-        :spaces="spaceObjects"
-        :retrieve-samples-url="retrieveChartSamplesUrl"
-        class="mt-0" />
     </template>
     <v-card class="ma-auto analytics-chart-parent white" flat>
       <div class="d-flex pa-3 analytics-chart-header" flat>
@@ -70,9 +62,6 @@
             </v-btn>
           </template>
           <v-list>
-            <v-list-item @mousedown="$event.preventDefault()" @click="$refs.viewSamplesDrawer.open()">
-              <v-list-item-title>{{ $t('analytics.samples') }}</v-list-item-title>
-            </v-list-item>
             <v-list-item @mousedown="$event.preventDefault()" @click="$refs.chartSettingDialog.open()">
               <v-list-item-title>{{ $t('analytics.settings') }}</v-list-item-title>
             </v-list-item>
@@ -82,23 +71,8 @@
           </v-list>
         </v-menu>
       </div>
-
-      <v-card-title
-        v-if="loading"
-        primary-title
-        class="ma-auto">
-        <v-spacer />
-        <v-progress-circular
-          color="primary"
-          indeterminate
-          size="20" />
-        <v-spacer />
-      </v-card-title>
-
-      <analytics-chart
-        ref="analyticsChartBody"
-        :title="title"
-        :chart-type="chartType"
+      <analytics-percentage-bar-chart
+        ref="analyticsRateBody"
         :colors="colors" />
     </v-card>
   </v-app>
@@ -146,6 +120,7 @@ export default {
   },
   data: () => ({
     canEdit: false,
+    value: 0,
     error: null,
     scope: null,
     title: null,
@@ -178,6 +153,9 @@ export default {
     ],
   }),
   computed: {
+    randomColorIndex() {
+      return Math.floor(Math.random() * this.DEFAULT_COLORS.length);
+    },
     scopeTooltip() {
       switch (this.scope) {
       case 'NONE': return this.$t('analytics.permissionDenied');
@@ -189,10 +167,10 @@ export default {
     },
     colors() {
       return this.chartSettings
-        && this.chartSettings.colors
-        && this.chartSettings.colors.length
-        && this.chartSettings.colors.slice()
-        || this.DEFAULT_COLORS;
+          && this.chartSettings.colors
+          && this.chartSettings.colors.length
+          && this.chartSettings.colors.slice(0, 1)
+          || this.DEFAULT_COLORS.slice(this.randomColorIndex, 1);
     },
   },
   watch: {
@@ -266,14 +244,26 @@ export default {
               aggregations: [],
             };
           }
-          if (!this.chartSettings.filters) {
-            this.chartSettings.filters = [];
+          if (!this.chartSettings.value) {
+            this.chartSettings.value = {};
+          }
+          if (!this.chartSettings.threshold) {
+            this.chartSettings.threshold = {};
+          }
+          if (!this.chartSettings.value.filters) {
+            this.chartSettings.value.filters = [];
+          }
+          if (!this.chartSettings.threshold.filters) {
+            this.chartSettings.threshold.filters = [];
           }
           if (!this.chartSettings.xAxisAggregations) {
             this.chartSettings.xAxisAggregations = [];
           }
-          if (!this.chartSettings.yAxisAggregation) {
-            this.chartSettings.yAxisAggregation = {};
+          if (!this.chartSettings.value.yAxisAggregation) {
+            this.chartSettings.value.yAxisAggregation = {};
+          }
+          if (!this.chartSettings.threshold.yAxisAggregation) {
+            this.chartSettings.threshold.yAxisAggregation = {};
           }
         })
         .catch((e) => {
@@ -338,7 +328,7 @@ export default {
         })
         .then((chartsData) => {
           this.chartsData = chartsData;
-          this.$refs.analyticsChartBody.init(this.chartsData);
+          this.$refs.analyticsRateBody.init(this.chartsData);
         })
         .catch((e) => {
           console.debug('fetch analytics - error', e);

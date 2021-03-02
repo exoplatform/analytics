@@ -36,7 +36,7 @@
 <script>
 export default {
   props: {
-    settings: {
+    yAxisAggregation: {
       type: Object,
       default: function() {
         return null;
@@ -48,6 +48,12 @@ export default {
         return [];
       },
     },
+    type:{
+      type: String,
+      default: function (){
+        return null;
+      }
+    }
   },
   data: () => ({
     aggregationType: 'MAX',
@@ -80,9 +86,6 @@ export default {
           value: 'MIN',
         },
       ];
-    },
-    yAxisAggregation() {
-      return this.settings && this.settings.yAxisAggregation;
     },
     yAxisAggregationCount() {
       return this.aggregationType === 'COUNT';
