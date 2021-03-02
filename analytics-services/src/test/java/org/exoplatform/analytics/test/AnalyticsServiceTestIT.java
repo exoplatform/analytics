@@ -18,15 +18,16 @@ package org.exoplatform.analytics.test;
 
 import static org.junit.Assert.*;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import org.junit.Test;
 
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticFieldMapping;
-import org.exoplatform.analytics.model.chart.ChartData;
-import org.exoplatform.analytics.model.chart.ChartDataList;
-import org.exoplatform.analytics.model.filter.AnalyticsFilter;
+import org.exoplatform.analytics.model.chart.*;
+import org.exoplatform.analytics.model.filter.*;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
 import org.exoplatform.services.log.ExoLogger;
@@ -204,4 +205,38 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     }
   }
 
+  @Test
+  public void testGetAnalyticsPercentage() {
+    AnalyticsPercentageFilter analyticsPercentageFilter = new AnalyticsPercentageFilter();
+    analyticsPercentageFilter.setChartType("percentageBar");
+    analyticsPercentageFilter.setScopeFilter(null); // TODO test on other type
+                                                    // of scopes
+    AnalyticsPercentageItemFilter valueFilter = new AnalyticsPercentageItemFilter();
+    analyticsPercentageFilter.setValue(valueFilter);
+    AnalyticsPercentageItemFilter thresholdFilter = new AnalyticsPercentageItemFilter();
+    analyticsPercentageFilter.setThreshold(thresholdFilter);
+
+    // compute percentage of login of a user (id = 19) comparing to all logins
+    // in the platform
+    valueFilter.addEqualFilter("operation", "login");
+    thresholdFilter.addEqualFilter("operation", "login");
+    thresholdFilter.addEqualFilter("userId", "19");
+
+    analyticsPercentageFilter.setPeriodType(AnalyticsPeriodType.LAST_MONTH.getTypeName());
+    analyticsPercentageFilter.setPeriodDateInMS(LocalDate.of(2019, 12, 01)
+                                                         .atStartOfDay(ZoneOffset.UTC)
+                                                         .toInstant()
+                                                         .toEpochMilli());
+
+    AnalyticsAggregation yAxisAggregation = new AnalyticsAggregation(AnalyticsAggregationType.COUNT, null, "desc", "1d");
+    valueFilter.setYAxisAggregation(yAxisAggregation);
+    thresholdFilter.setYAxisAggregation(yAxisAggregation);
+
+    PercentageChartDataList percentageChartDataList = analyticsService.computeChartData(analyticsPercentageFilter);
+    assertNotNull(percentageChartDataList);
+    assertEquals(33l, percentageChartDataList.getCurrentPeriodValue(), 0);
+    assertEquals(47l, percentageChartDataList.getPreviousPeriodValue(), 0);
+    assertEquals(1006l, percentageChartDataList.getCurrentPeriodThreshold(), 0);
+    assertEquals(1683l, percentageChartDataList.getPreviousPeriodThreshold(), 0);
+  }
 }

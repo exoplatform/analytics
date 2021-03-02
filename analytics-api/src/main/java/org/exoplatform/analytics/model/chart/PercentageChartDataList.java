@@ -13,9 +13,13 @@ public class PercentageChartDataList implements Serializable {
 
   private String            lang;
 
-  private double            currentPeriodPercentage;
+  private double            currentPeriodValue;
 
-  private double            lastPeriodPercentage;
+  private double            currentPeriodThreshold;
+
+  private double            previousPeriodValue;
+
+  private double            previousPeriodThreshold;
 
   private long              computingTime;
 

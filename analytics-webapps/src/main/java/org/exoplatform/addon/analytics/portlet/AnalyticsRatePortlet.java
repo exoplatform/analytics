@@ -116,10 +116,10 @@ public class AnalyticsRatePortlet extends GenericPortlet {
   }
 
   private void addPeriodFilter(ResourceRequest request, AnalyticsPercentageFilter filter) {
-    String fromDateString = request.getParameter("min");
-    String toDateString = request.getParameter("max");
-    filter.setFromDateInMS(Long.parseLong(fromDateString));
-    filter.setToDateInMS(Long.parseLong(toDateString));
+    String periodType = request.getParameter("period");
+    String periodDateString = request.getParameter("date");
+    filter.setPeriodDateInMS(Long.parseLong(periodDateString));
+    filter.setPeriodType(periodType);
   }
 
   private void addScopeFilter(PortletSession portletSession, AnalyticsPercentageFilter filter) throws PortletException {

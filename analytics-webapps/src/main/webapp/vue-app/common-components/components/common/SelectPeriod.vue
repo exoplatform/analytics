@@ -90,6 +90,7 @@ export default {
         selectedPeriod.min = nowInMS - 31536000000;
         break;
       }
+      selectedPeriod.period = this.selectedItem.value;
       this.$emit('input', selectedPeriod);
       this.$forceUpdate();
     },

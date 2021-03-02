@@ -308,8 +308,8 @@ export default {
       this.loading = true;
       const params = {
         lang: eXo.env.portal.language,
-        min: this.selectedPeriod.min,
-        max: this.selectedPeriod.max,
+        date: Date.now(),
+        period: this.selectedPeriod.period,
       };
       return fetch(this.retrieveChartDataUrl, {
         method: 'POST',

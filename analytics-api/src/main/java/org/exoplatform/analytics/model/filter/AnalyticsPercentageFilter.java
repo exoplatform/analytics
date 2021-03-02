@@ -4,7 +4,6 @@ import static org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter
 
 import java.io.Serializable;
 import java.time.*;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
@@ -30,9 +29,9 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
   private AnalyticsFieldFilter          scopeFilter;
 
-  private LocalDate                     fromDate;
+  private String                        periodType;
 
-  private LocalDate                     toDate;
+  private LocalDate                     periodDate;
 
   private AnalyticsPercentageItemFilter value;
 
@@ -40,21 +39,43 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
   private String                        lang             = null;
 
+  // TODO to delete if not used in second chart
   private long                          offset           = 0;
 
+  // TODO to delete if not used in second chart
   private long                          limit            = 0;
 
   public AnalyticsAggregation computeXAxisAggregation() {
-    if (fromDate == null || toDate == null) {
+    AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
+    if (analyticsPeriodType == null) {
       return null;
     }
     AnalyticsAggregation xAxisAggregation = new AnalyticsAggregation();
     xAxisAggregation.setField("timestamp");
     xAxisAggregation.setSortDirection("DESC");
     xAxisAggregation.setType(AnalyticsAggregationType.DATE);
-    long daysPeriod = ChronoUnit.DAYS.between(fromDate, toDate);
-    xAxisAggregation.setInterval(daysPeriod + "d");
+    xAxisAggregation.setInterval(analyticsPeriodType.getInterval());
     return xAxisAggregation;
+  }
+
+  public AnalyticsPeriodType getAnalyticsPeriodType() {
+    return AnalyticsPeriodType.periodTypeByName(periodType);
+  }
+
+  private AnalyticsPeriod getCurrentAnalyticsPeriod() {
+    AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
+    if (analyticsPeriodType == null || periodDate == null) {
+      return null;
+    }
+    return analyticsPeriodType.getCurrentPeriod(periodDate);
+  }
+
+  private AnalyticsPeriod getPreviousAnalyticsPeriod() {
+    AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
+    if (analyticsPeriodType == null || periodDate == null) {
+      return null;
+    }
+    return analyticsPeriodType.getPreviousPeriod(periodDate);
   }
 
   public AnalyticsAggregation computeValueYAggregations() {
@@ -68,7 +89,8 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
   public List<AnalyticsFieldFilter> computeValueFilters() {
     List<AnalyticsFieldFilter> filters = new ArrayList<>();
 
-    if (fromDate != null && toDate != null) {
+    AnalyticsFieldFilter periodFilter = computePeriodFilter();
+    if (periodFilter != null) {
       filters.add(computePeriodFilter());
     }
     if (scopeFilter != null) {
@@ -83,8 +105,9 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
   public List<AnalyticsFieldFilter> computeThresholdFilters() {
     List<AnalyticsFieldFilter> filters = new ArrayList<>();
 
-    if (fromDate != null && toDate != null) {
-      filters.add(computePeriodFilter());
+    AnalyticsFieldFilter periodFilter = computePeriodFilter();
+    if (periodFilter != null) {
+      filters.add(periodFilter);
     }
     if (scopeFilter != null) {
       filters.add(scopeFilter);
@@ -97,8 +120,10 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
   public List<AnalyticsAggregation> computeValueAggregations() {
     List<AnalyticsAggregation> aggregations = new ArrayList<>();
-    if (fromDate != null && toDate != null) {
-      aggregations.add(computeXAxisAggregation());
+
+    AnalyticsAggregation xAxisAggregation = computeXAxisAggregation();
+    if (xAxisAggregation != null) {
+      aggregations.add(xAxisAggregation);
     }
     if (value != null && value.getYAxisAggregation() != null) {
       aggregations.add(value.getYAxisAggregation());
@@ -108,8 +133,10 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
   public List<AnalyticsAggregation> computeThresholdAggregations() {
     List<AnalyticsAggregation> aggregations = new ArrayList<>();
-    if (fromDate != null && toDate != null) {
-      aggregations.add(computeXAxisAggregation());
+
+    AnalyticsAggregation xAxisAggregation = computeXAxisAggregation();
+    if (xAxisAggregation != null) {
+      aggregations.add(xAxisAggregation);
     }
     if (threshold != null && threshold.getYAxisAggregation() != null) {
       aggregations.add(threshold.getYAxisAggregation());
@@ -117,12 +144,8 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
     return aggregations;
   }
 
-  public void setFromDateInMS(long timestampInMS) {
-    fromDate = Instant.ofEpochMilli(timestampInMS).atZone(ZoneOffset.UTC).toLocalDate();
-  }
-
-  public void setToDateInMS(long timestampInMS) {
-    toDate = Instant.ofEpochMilli(timestampInMS).atZone(ZoneOffset.UTC).toLocalDate();
+  public void setPeriodDateInMS(long timestampInMS) {
+    periodDate = Instant.ofEpochMilli(timestampInMS).atZone(ZoneOffset.UTC).toLocalDate();
   }
 
   public AnalyticsFilter computeValueFilter() {
@@ -159,8 +182,7 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
   @Override
   public AnalyticsPercentageFilter clone() { // NOSONAR
-    LocalDate clonedFromDate = fromDate == null ? null : LocalDate.from(fromDate);
-    LocalDate clonedToDate = toDate == null ? null : LocalDate.from(toDate);
+    LocalDate clonedPeriodDate = periodDate == null ? null : LocalDate.from(periodDate);
     AnalyticsFieldFilter clonedScopeFilter = scopeFilter == null ? null : scopeFilter.clone();
     AnalyticsPercentageItemFilter cloneAnalyticsPercentageItemFilterValue = value == null ? null : value.clone();
     AnalyticsPercentageItemFilter cloneAnalyticsPercentageItemFilterThreshold = threshold == null ? null
@@ -170,8 +192,8 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
                                          chartType,
                                          colors,
                                          clonedScopeFilter,
-                                         clonedFromDate,
-                                         clonedToDate,
+                                         periodType,
+                                         clonedPeriodDate,
                                          cloneAnalyticsPercentageItemFilterValue,
                                          cloneAnalyticsPercentageItemFilterThreshold,
                                          lang,
@@ -180,16 +202,23 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
   }
 
   private AnalyticsFieldFilter computePeriodFilter() {
-    long daysPeriod = ChronoUnit.DAYS.between(fromDate, toDate);
-    LocalDate fromDateFilter = fromDate.minusDays(daysPeriod);
+    AnalyticsPeriod currentAnalyticsPeriod = getCurrentAnalyticsPeriod();
+    AnalyticsPeriod previousAnalyticsPeriod = getPreviousAnalyticsPeriod();
+    if (previousAnalyticsPeriod == null || currentAnalyticsPeriod == null) {
+      return null;
+    }
+    LocalDate previousPeriodStart = previousAnalyticsPeriod.getFrom();
+    LocalDate currentPeriodEnd = currentAnalyticsPeriod.getTo();
     return new AnalyticsFieldFilter("timestamp",
                                     RANGE,
-                                    new AnalyticsFilter.Range(fromDateFilter.atStartOfDay()
-                                                                            .toInstant(ZoneOffset.UTC)
-                                                                            .toEpochMilli(),
-                                                              toDate.atStartOfDay()
-                                                                    .toInstant(ZoneOffset.UTC)
-                                                                    .toEpochMilli()));
+                                    new AnalyticsFilter.Range(previousPeriodStart
+                                                                                 .atStartOfDay()
+                                                                                 .toInstant(ZoneOffset.UTC)
+                                                                                 .toEpochMilli(),
+                                                              currentPeriodEnd
+                                                                              .atStartOfDay()
+                                                                              .toInstant(ZoneOffset.UTC)
+                                                                              .toEpochMilli()));
   }
 
 }
