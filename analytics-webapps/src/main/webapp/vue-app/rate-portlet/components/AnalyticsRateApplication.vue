@@ -319,7 +319,6 @@ export default {
         })
         .then((chartsData) => {
           this.chartsData = chartsData;
-          console.log('test',chartsData);
           this.$refs.analyticsRateBody.init(this.chartsData);
         })
         .catch((e) => {
