@@ -211,13 +211,11 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
     LocalDate currentPeriodEnd = currentAnalyticsPeriod.getTo();
     return new AnalyticsFieldFilter("timestamp",
                                     RANGE,
-                                    new AnalyticsFilter.Range(previousPeriodStart
-                                                                                 .atStartOfDay()
-                                                                                 .toInstant(ZoneOffset.UTC)
+                                    new AnalyticsFilter.Range(previousPeriodStart.atStartOfDay(ZoneOffset.UTC)
+                                                                                 .toInstant()
                                                                                  .toEpochMilli(),
-                                                              currentPeriodEnd
-                                                                              .atStartOfDay()
-                                                                              .toInstant(ZoneOffset.UTC)
+                                                              currentPeriodEnd.atStartOfDay(ZoneOffset.UTC)
+                                                                              .toInstant()
                                                                               .toEpochMilli()));
   }
 

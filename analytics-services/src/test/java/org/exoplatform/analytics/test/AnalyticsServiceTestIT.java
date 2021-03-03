@@ -30,6 +30,8 @@ import org.exoplatform.analytics.model.chart.*;
 import org.exoplatform.analytics.model.filter.*;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
+import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
+import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilterType;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
@@ -78,7 +80,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
       filter.addInSetFilter("operation", "login", "logout");
 
       List<StatisticData> statisticsData = analyticsService.retrieveData(filter);
-      assertEquals("Unexpected injected data size", 14, statisticsData.size());
+      assertEquals("Unexpected injected data size", 388, statisticsData.size());
     } catch (Exception e) {
       LOG.error("Error occurred in test", e);
       fail(e.getMessage());
@@ -118,7 +120,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
       ChartData chartData = chartDataList.getCharts().iterator().next();
 
       assertNotNull("Unexpected injected data size", chartData);
-      assertEquals("Unexpected injected labels (X axis) data size", 4, chartDataList.getLabels().size());
+      assertEquals("Unexpected injected labels (X axis) data size", 66, chartDataList.getLabels().size());
       assertEquals("Unexpected injected values (Y axis) data size",
                    chartDataList.getLabels().size(),
                    chartData.getValues().size());
@@ -152,7 +154,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
       Set<ChartData> charts = chartDataList.getCharts();
       assertNotNull("Unexpected empty charts data list", charts);
       assertEquals("Unexpected charts data size", 2, charts.size());
-      assertEquals("Unexpected injected labels (X axis) data size", 2, chartDataList.getLabels().size());
+      assertEquals("Unexpected injected labels (X axis) data size", 33, chartDataList.getLabels().size());
 
       Iterator<ChartData> chartsIterator = charts.iterator();
       while (chartsIterator.hasNext()) {
@@ -188,7 +190,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
 
       assertNotNull("Unexpected empty charts data", chartDataList);
       assertNotNull("Unexpected empty charts data list", chartDataList.getCharts());
-      assertEquals("Unexpected charts data size", 2, chartDataList.getCharts().size());
+      assertEquals("Unexpected charts data size", 33, chartDataList.getCharts().size());
       assertEquals("Unexpected injected labels (X axis) data size", 5, chartDataList.getLabels().size());
 
       Set<ChartData> charts = chartDataList.getCharts();
@@ -207,36 +209,86 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
 
   @Test
   public void testGetAnalyticsPercentage() {
-    AnalyticsPercentageFilter analyticsPercentageFilter = new AnalyticsPercentageFilter();
-    analyticsPercentageFilter.setChartType("percentageBar");
-    analyticsPercentageFilter.setScopeFilter(null); // TODO test on other type
-                                                    // of scopes
+    AnalyticsPercentageFilter filter = new AnalyticsPercentageFilter();
+    filter.setChartType("percentageBar");
+    filter.setScopeFilter(null);
     AnalyticsPercentageItemFilter valueFilter = new AnalyticsPercentageItemFilter();
-    analyticsPercentageFilter.setValue(valueFilter);
+    filter.setValue(valueFilter);
     AnalyticsPercentageItemFilter thresholdFilter = new AnalyticsPercentageItemFilter();
-    analyticsPercentageFilter.setThreshold(thresholdFilter);
+    filter.setThreshold(thresholdFilter);
 
     // compute percentage of login of a user (id = 19) comparing to all logins
     // in the platform
-    valueFilter.addEqualFilter("operation", "login");
-    thresholdFilter.addEqualFilter("operation", "login");
-    thresholdFilter.addEqualFilter("userId", "19");
+    valueFilter.addEqualFilter("subModule", "login");
+    valueFilter.addEqualFilter("userId", "19");
+    thresholdFilter.addEqualFilter("subModule", "login");
 
-    analyticsPercentageFilter.setPeriodType(AnalyticsPeriodType.LAST_MONTH.getTypeName());
-    analyticsPercentageFilter.setPeriodDateInMS(LocalDate.of(2019, 12, 01)
-                                                         .atStartOfDay(ZoneOffset.UTC)
-                                                         .toInstant()
-                                                         .toEpochMilli());
+    filter.setPeriodType(AnalyticsPeriodType.LAST_MONTH.getTypeName());
+    filter.setPeriodDateInMS(LocalDate.of(2019, 12, 01)
+                                      .atStartOfDay(ZoneOffset.UTC)
+                                      .toInstant()
+                                      .toEpochMilli());
 
     AnalyticsAggregation yAxisAggregation = new AnalyticsAggregation(AnalyticsAggregationType.COUNT, null, "desc", "1d");
     valueFilter.setYAxisAggregation(yAxisAggregation);
     thresholdFilter.setYAxisAggregation(yAxisAggregation);
 
-    PercentageChartDataList percentageChartDataList = analyticsService.computeChartData(analyticsPercentageFilter);
+    PercentageChartDataList percentageChartDataList = analyticsService.computeChartData(filter);
     assertNotNull(percentageChartDataList);
-    assertEquals(33l, percentageChartDataList.getCurrentPeriodValue(), 0);
-    assertEquals(47l, percentageChartDataList.getPreviousPeriodValue(), 0);
-    assertEquals(1006l, percentageChartDataList.getCurrentPeriodThreshold(), 0);
-    assertEquals(1683l, percentageChartDataList.getPreviousPeriodThreshold(), 0);
+    assertEquals(48d, percentageChartDataList.getCurrentPeriodValue(), 0);
+    assertEquals(32d, percentageChartDataList.getPreviousPeriodValue(), 0);
+    assertEquals(1691d, percentageChartDataList.getCurrentPeriodThreshold(), 0);
+    assertEquals(985d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
+
+    filter.setPeriodType(AnalyticsPeriodType.LAST_3_MONTHS.getTypeName());
+    filter.setPeriodDateInMS(LocalDate.of(2019, 12, 01)
+                                      .atStartOfDay(ZoneOffset.UTC)
+                                      .toInstant()
+                                      .toEpochMilli());
+    percentageChartDataList = analyticsService.computeChartData(filter);
+    assertNotNull(percentageChartDataList);
+    assertEquals(80l, percentageChartDataList.getCurrentPeriodValue(), 0);
+    assertEquals(0, percentageChartDataList.getPreviousPeriodValue(), 0);
+    assertEquals(2676d, percentageChartDataList.getCurrentPeriodThreshold(), 0);
+    assertEquals(0, percentageChartDataList.getPreviousPeriodThreshold(), 0);
+
+    filter.setPeriodType(AnalyticsPeriodType.LAST_3_MONTHS.getTypeName());
+    filter.setPeriodDateInMS(LocalDate.of(2020, 6, 01)
+                                      .atStartOfDay(ZoneOffset.UTC)
+                                      .toInstant()
+                                      .toEpochMilli());
+    percentageChartDataList = analyticsService.computeChartData(filter);
+    assertNotNull(percentageChartDataList);
+    assertEquals(0, percentageChartDataList.getCurrentPeriodValue(), 0);
+    assertEquals(103d, percentageChartDataList.getPreviousPeriodValue(), 0);
+    assertEquals(0, percentageChartDataList.getCurrentPeriodThreshold(), 0);
+    assertEquals(3483d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
+
+    AnalyticsFieldFilter spaceScopeFilter = new AnalyticsFieldFilter("spaceId", AnalyticsFieldFilterType.EQUAL, "2");
+    filter.setScopeFilter(spaceScopeFilter);
+    percentageChartDataList = analyticsService.computeChartData(filter);
+    assertNotNull(percentageChartDataList);
+    assertEquals(0, percentageChartDataList.getCurrentPeriodValue(), 0);
+    assertEquals(0, percentageChartDataList.getPreviousPeriodValue(), 0);
+    assertEquals(0, percentageChartDataList.getCurrentPeriodThreshold(), 0);
+    assertEquals(0, percentageChartDataList.getPreviousPeriodThreshold(), 0);
+
+    AnalyticsFieldFilter userScopeFilter = new AnalyticsFieldFilter("userId", AnalyticsFieldFilterType.EQUAL, "18");
+    filter.setScopeFilter(userScopeFilter);
+    percentageChartDataList = analyticsService.computeChartData(filter);
+    assertNotNull(percentageChartDataList);
+    assertEquals(0, percentageChartDataList.getCurrentPeriodValue(), 0);
+    assertEquals(0, percentageChartDataList.getPreviousPeriodValue(), 0);
+    assertEquals(0, percentageChartDataList.getCurrentPeriodThreshold(), 0);
+    assertEquals(102d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
+
+    userScopeFilter = new AnalyticsFieldFilter("userId", AnalyticsFieldFilterType.EQUAL, "19");
+    filter.setScopeFilter(userScopeFilter);
+    percentageChartDataList = analyticsService.computeChartData(filter);
+    assertNotNull(percentageChartDataList);
+    assertEquals(0, percentageChartDataList.getCurrentPeriodValue(), 0);
+    assertEquals(103d, percentageChartDataList.getPreviousPeriodValue(), 0);
+    assertEquals(0, percentageChartDataList.getCurrentPeriodThreshold(), 0);
+    assertEquals(103d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
   }
 }

@@ -17,9 +17,8 @@ import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticData.StatisticStatus;
 import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.chart.*;
-import org.exoplatform.analytics.model.filter.AnalyticsFilter;
+import org.exoplatform.analytics.model.filter.*;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter.Range;
-import org.exoplatform.analytics.model.filter.AnalyticsPercentageFilter;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
 import org.exoplatform.analytics.model.filter.search.*;
@@ -184,50 +183,48 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     if (filter == null) {
       throw new IllegalArgumentException("Filter is mandatory");
     }
-    int lastPeriodValue = 0;
-    int lastPeriodThreshold = 0;
-    int currentPeriodValue = 0;
-    int currentPeriodThreshold = 0;
-    double currentPeriodPercentage = 0;
-    double lastPeriodPercentage = 0;
+    AnalyticsAggregation dateAxisAggregation = filter.computeXAxisAggregation();
 
     ChartDataList valueChartData = computeChartData(filter.computeValueFilter());
-    ChartDataList thresholdChartData = computeChartData(filter.computeThresholdFilter());
-    List<ChartAggregationResult> chartAggregationResultsValue = valueChartData.getCharts().iterator().next().getAggregationResults();
-    List<ChartAggregationResult> chartAggregationResultsThreshold = thresholdChartData.getCharts().iterator().next().getAggregationResults();
-    if (chartAggregationResultsValue.size() > 1) {
-      lastPeriodValue = Integer.parseInt(chartAggregationResultsValue.get(0).getValue());
-      currentPeriodValue = Integer.parseInt(chartAggregationResultsValue.get(1).getValue());
-    }else if (!chartAggregationResultsValue.isEmpty() && chartAggregationResultsValue.size() > 0) {
-      currentPeriodValue = Integer.parseInt(chartAggregationResultsValue.get(0).getValue());
-    }
+    ChartData valueChart = valueChartData.getCharts() == null
+        || valueChartData.getCharts().isEmpty() ? null : valueChartData.getCharts().iterator().next();
+    List<ChartAggregationResult> valueAggregationResults = valueChart == null
+        || valueChart.getAggregationResults() == null ? Collections.emptyList() : valueChart.getAggregationResults();
 
-    if (chartAggregationResultsThreshold.size() > 1) {
-      lastPeriodThreshold = Integer.parseInt(chartAggregationResultsThreshold.get(0).getValue());
-      currentPeriodThreshold = Integer.parseInt(chartAggregationResultsThreshold.get(1).getValue());
-    } else if (chartAggregationResultsThreshold.isEmpty() && chartAggregationResultsThreshold.size() > 0) {
-      currentPeriodThreshold = Integer.parseInt(chartAggregationResultsThreshold.get(0).getValue());
-    }
-    if (currentPeriodThreshold < currentPeriodValue) {
-      // Permutation of values to get the max value in threshold
-      int value = currentPeriodValue;
-      currentPeriodValue = currentPeriodThreshold;
-      currentPeriodThreshold = value;
-    }
-    if (lastPeriodThreshold < lastPeriodValue) {
-      // Permutation of values to get the max value in threshold
-      int value = lastPeriodValue;
-      lastPeriodValue = lastPeriodThreshold;
-      lastPeriodThreshold = value;
-    }
-    PercentageChartDataList percentageChartDataList =  new PercentageChartDataList();
-    percentageChartDataList.setCurrentPeriodValue(currentPeriodValue);
-    percentageChartDataList.setCurrentPeriodThreshold(currentPeriodThreshold);
-    percentageChartDataList.setPreviousPeriodThreshold(lastPeriodThreshold);
-    percentageChartDataList.setPreviousPeriodValue(lastPeriodValue);
-    percentageChartDataList.setDataCount(valueChartData.getDataCount() + thresholdChartData.getDataCount());
-    percentageChartDataList.setComputingTime(valueChartData.getComputingTime() + thresholdChartData.getComputingTime());
-    return percentageChartDataList;
+    ChartDataList thresholdChartData = computeChartData(filter.computeThresholdFilter());
+    ChartData thresholdChart = thresholdChartData.getCharts() == null
+        || thresholdChartData.getCharts().isEmpty() ? null : thresholdChartData.getCharts().iterator().next();
+    List<ChartAggregationResult> thresholdAggregationResults = thresholdChart == null
+        || thresholdChart.getAggregationResults() == null ? Collections.emptyList() : thresholdChart.getAggregationResults();
+
+    AnalyticsPeriod currentAnalyticsPeriod = filter.getCurrentAnalyticsPeriod();
+    AnalyticsPeriod previousAnalyticsPeriod = filter.getPreviousAnalyticsPeriod();
+
+    ChartAggregationResult currentValueResult = getChartDateAggregationResult(dateAxisAggregation,
+                                                                              valueAggregationResults,
+                                                                              currentAnalyticsPeriod);
+    ChartAggregationResult previousValueResult = getChartDateAggregationResult(dateAxisAggregation,
+                                                                               valueAggregationResults,
+                                                                               previousAnalyticsPeriod);
+
+    ChartAggregationResult currentThresholdResult = getChartDateAggregationResult(dateAxisAggregation,
+                                                                                  thresholdAggregationResults,
+                                                                                  currentAnalyticsPeriod);
+    ChartAggregationResult previousThresholdResult = getChartDateAggregationResult(dateAxisAggregation,
+                                                                                   thresholdAggregationResults,
+                                                                                   previousAnalyticsPeriod);
+
+    double currentPeriodValue = currentValueResult == null ? 0 : Double.parseDouble(currentValueResult.getValue());
+    double currentPeriodThreshold = currentThresholdResult == null ? 0 : Double.parseDouble(currentThresholdResult.getValue());
+    double previousPeriodValue = previousValueResult == null ? 0 : Double.parseDouble(previousValueResult.getValue());
+    double previousPeriodThreshold = previousThresholdResult == null ? 0
+                                                                     : Double.parseDouble(previousThresholdResult.getValue());
+    return new PercentageChartDataList(currentPeriodValue,
+                                       currentPeriodThreshold,
+                                       previousPeriodValue,
+                                       previousPeriodThreshold,
+                                       valueChartData.getComputingTime() + thresholdChartData.getComputingTime(),
+                                       valueChartData.getDataCount() + thresholdChartData.getDataCount());
   }
 
   @Override
@@ -750,34 +747,26 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     }
   }
 
-  private ChartDataList combineCharts(ChartDataList valueChartData, ChartDataList thresholdChartData) {
-    ChartDataList dataList = new ChartDataList(valueChartData.getLang());
-
-    long computingTime = valueChartData.getComputingTime() + thresholdChartData.getComputingTime();
-    dataList.setComputingTime(computingTime);
-
-    long dataCount = valueChartData.getDataCount() + thresholdChartData.getDataCount();
-    dataList.setDataCount(dataCount);
-
-    LinkedHashSet<ChartAggregationLabel> aggregationLabels = new LinkedHashSet<>(valueChartData.getAggregationLabels());
-    aggregationLabels.addAll(thresholdChartData.getAggregationLabels());
-    dataList.setAggregationLabels(aggregationLabels);
-
-    LinkedHashSet<ChartData> charts = new LinkedHashSet<>();
-    Iterator<ChartData> valueChartIterator = valueChartData.getCharts().iterator();
-    ChartData valueChart = valueChartIterator.hasNext() ? valueChartIterator.next() : null;
-    if (valueChart != null) {
-      valueChart.setChartLabel("value");
-      charts.add(valueChart);
-    }
-    Iterator<ChartData> thresholdChartIterator = thresholdChartData.getCharts().iterator();
-    ChartData thresholdChart = thresholdChartIterator.hasNext() ? thresholdChartIterator.next() : null;
-    if (thresholdChart != null) {
-      thresholdChart.setChartLabel("threshold");
-      charts.add(thresholdChart);
-    }
-    dataList.setCharts(charts);
-    return dataList;
+  private ChartAggregationResult getChartDateAggregationResult(AnalyticsAggregation dateAxisAggregation,
+                                                               List<ChartAggregationResult> aggregationResults,
+                                                               AnalyticsPeriod period) {
+    return aggregationResults.stream().filter(valueAggregationResult -> {
+      ChartAggregationLabel chartLabel = valueAggregationResult.retrieveChartLabel();
+      if (chartLabel == null || chartLabel.getAggregationValues() == null || chartLabel.getAggregationValues().isEmpty()) {
+        return false;
+      }
+      ChartAggregationValue periodAggregationValue = chartLabel.getAggregationValues()
+                                                               .stream()
+                                                               .filter(aggregationValue -> dateAxisAggregation
+                                                                                                              .equals(aggregationValue.getAggregation()))
+                                                               .findFirst()
+                                                               .orElse(null);
+      if (periodAggregationValue == null) {
+        return false;
+      }
+      long timestamp = Long.parseLong(periodAggregationValue.getFieldValue());
+      return timestamp < period.getToInMS() && timestamp >= period.getFromInMS();
+    }).findFirst().orElse(null);
   }
 
 }

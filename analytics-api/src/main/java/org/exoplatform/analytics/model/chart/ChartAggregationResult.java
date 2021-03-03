@@ -30,7 +30,7 @@ public class ChartAggregationResult implements Serializable {
     return StringUtils.isBlank(result) ? "0" : result;
   }
 
-  protected ChartAggregationLabel getChartLabel() {
+  public ChartAggregationLabel retrieveChartLabel() {
     return chartLabel;
   }
 

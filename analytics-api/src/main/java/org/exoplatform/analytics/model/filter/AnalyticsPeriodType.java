@@ -7,12 +7,12 @@ import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 
 public enum AnalyticsPeriodType {
-  LAST24H("last24h", "1d"),
-  LAST_WEEK("lastWeek", "7d"),
-  LAST_MONTH("lastMonth", "1m"),
-  LAST_3_MONTHS("last3Months", "3m"),
-  LAST_6_MONTHS("last6Months", "6m"),
-  LAST_YEAR("lastYear", "1y");
+  LAST24H("last24h", "day"),
+  LAST_WEEK("lastWeek", "week"),
+  LAST_MONTH("lastMonth", "month"),
+  LAST_3_MONTHS("last3Months", "90d"),
+  LAST_6_MONTHS("last6Months", "180d"),
+  LAST_YEAR("lastYear", "year");
 
   private String typeName;
 

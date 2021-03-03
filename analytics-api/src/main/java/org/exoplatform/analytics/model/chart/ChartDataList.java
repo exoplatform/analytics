@@ -30,7 +30,7 @@ public class ChartDataList implements Serializable {
   }
 
   public ChartData addAggregationResult(ChartAggregationValue chartParentAggregation, ChartAggregationResult aggregationResult) {
-    ChartAggregationLabel chartLabel = aggregationResult.getChartLabel();
+    ChartAggregationLabel chartLabel = aggregationResult.retrieveChartLabel();
 
     if (!aggregationLabels.contains(chartLabel)) {
       aggregationLabels.add(chartLabel);
