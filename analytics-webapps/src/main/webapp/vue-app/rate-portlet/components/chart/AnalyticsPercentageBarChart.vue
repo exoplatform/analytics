@@ -85,51 +85,14 @@ export default {
   },
   methods: {
     init(chartsData) {
-      const charts = (chartsData && chartsData.charts) || [];
-      if (charts.length === 2) {
-        const firstChart = charts[0];
-        const secondChart = charts[1];
-
-        const firstChartResults = firstChart.aggregationResults || [];
-        const secondChartResults = secondChart.aggregationResults || [];
-
-        if (firstChartResults.length > 1) {
-          this.lastPeriodValue = Number(firstChartResults[0].value);
-          this.currentPeriodValue = Number(firstChartResults[1].value);
-        } else if (firstChartResults.length > 0) {
-          this.lastPeriodValue = 0;
-          this.currentPeriodValue = Number(firstChartResults[0].value);
-        } else {
-          this.lastPeriodValue = 0;
-          this.currentPeriodValue = 0;
-        }
-
-        if (secondChartResults.length > 1) {
-          this.lastPeriodThreshold = Number(secondChartResults[0].value);
-          this.currentPeriodThreshold = Number(secondChartResults[1].value);
-        } else if (secondChartResults.length > 0) {
-          this.lastPeriodThreshold = 0;
-          this.currentPeriodThreshold = Number(secondChartResults[0].value);
-        } else {
-          this.lastPeriodThreshold = 0;
-          this.currentPeriodThreshold = 0;
-        }
-
-        if (this.currentPeriodThreshold < this.currentPeriodValue) {
-          // Permutation of values to get the max value in threshold
-          const value = this.currentPeriodValue;
-          this.currentPeriodValue = this.currentPeriodThreshold;
-          this.currentPeriodThreshold = value;
-        }
-        if (this.lastPeriodThreshold < this.lastPeriodValue) {
-          // Permutation of values to get the max value in threshold
-          const value = this.lastPeriodValue;
-          this.lastPeriodValue = this.lastPeriodThreshold;
-          this.lastPeriodThreshold = value;
-        }
-        this.$nextTick().then(() => this.initialized = true);
+      if (chartsData){
+        this.currentPeriodValue = chartsData.currentPeriodValue;
+        this.currentPeriodThreshold = chartsData.currentPeriodThreshold;
+        this.lastPeriodValue = chartsData.previousPeriodValue;
+        this.lastPeriodThreshold = chartsData.previousPeriodThreshold;
       }
-    },
-  }
+      this.$nextTick().then(() => this.initialized = true);
+    }
+  },
 };
 </script>

@@ -6,10 +6,34 @@
     > div {
       padding: 0;
     }
-    .UIMobileSwipeParentContainer {
-      > .leftSocialPage, > .rightSocialPage {
+    #firstBlock{
+      #firstBlockChildren{
+        display: flex;
         flex: 0 1 50%;
-        max-width: 50%;
+        #leftSocialPage{
+          max-width: 50%;
+          flex: 0 1 50%;
+        }
+        #rightSocialPage{
+          max-width: 50%;
+          flex: 0 1 50%;
+          margin-left: 20px;
+        }
+      }
+    }
+    #lastBlock{
+      #lastBlockChildren{
+        display: flex;
+        flex: 0 1 50%;
+        #leftSocialPage{
+          max-width: 50%;
+          flex: 0 1 50%;
+        }
+        #rightSocialPage{
+          max-width: 50%;
+          flex: 0 1 50%;
+          margin-left:  20px;
+        }
       }
     }
   }
@@ -17,9 +41,12 @@
     padding: 0 14% 20px;
   }
 }
-#activeUsersAnalytics{
-  width: 70%;
+#secondBlock{
+  #leftSocialPage{
+    width: 70%;
+  }
 }
+
 .activeUser{
   padding: 10px 28px 28px 23px;
   .v-progress-linear.v-progress-linear--reactive {
@@ -148,7 +175,7 @@
     }
     .analytics-chart-body {
       height: 250px;
-      width: 650px;
+      width: 450px;
     }
   }
 }

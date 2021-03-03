@@ -12,10 +12,6 @@
         :spaces="spaceObjects"
         class="mt-0"
         @save="saveSettings" />
-      <analytics-json-panel-dialog
-        ref="jsonPanelDialog"
-        :settings="chartSettings"
-        class="mt-0" />
     </template>
     <v-card class="ma-auto analytics-chart-parent white" flat>
       <div class="d-flex pa-3 analytics-chart-header" flat>
@@ -35,15 +31,13 @@
               </v-btn>
             </template>
             <span>
-              <div>- {{ $t('analytics.dataRestriction') }}: {{ scopeTooltip }}</div>
-              <div>- {{ $t('analytics.totalSamplesCount') }}: {{ chartsData.dataCount }}</div>
-              <div>- {{ $t('analytics.computingTime') }}: {{ chartsData.computingTime }} ms</div>
+              <div>- {{ $t('analytics.activeUsersInfo') }}</div>
             </span>
           </v-tooltip>
           <div
             :title="title"
             class="my-auto text-truncate analytics-chart-title">
-            {{ $t(title) }}
+            {{ title }}
           </div>
         </v-toolbar-title>
         <v-spacer />
@@ -64,9 +58,6 @@
           <v-list>
             <v-list-item @mousedown="$event.preventDefault()" @click="$refs.chartSettingDialog.open()">
               <v-list-item-title>{{ $t('analytics.settings') }}</v-list-item-title>
-            </v-list-item>
-            <v-list-item @mousedown="$event.preventDefault()" @click="$refs.jsonPanelDialog.open()">
-              <v-list-item-title>{{ $t('analytics.jsonSettings') }}</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -328,6 +319,7 @@ export default {
         })
         .then((chartsData) => {
           this.chartsData = chartsData;
+          console.log('test',chartsData);
           this.$refs.analyticsRateBody.init(this.chartsData);
         })
         .catch((e) => {
