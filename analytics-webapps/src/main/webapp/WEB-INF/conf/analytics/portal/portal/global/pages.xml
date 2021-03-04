@@ -179,7 +179,7 @@
                   <preference>
                     <name>settings</name>
                     <value>{
-                      "title": "Connected Users",
+                      "title": "analytics.activeUsers",
                       "chartType": "percentageBar",
                       "colors": ["#4273C8"],
                       "threshold": {

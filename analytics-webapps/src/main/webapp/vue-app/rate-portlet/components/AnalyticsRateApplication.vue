@@ -37,7 +37,7 @@
           <div
             :title="title"
             class="my-auto text-truncate analytics-chart-title">
-            {{ title }}
+            {{ $t(title) }}
           </div>
         </v-toolbar-title>
         <v-spacer />
