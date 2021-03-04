@@ -132,6 +132,11 @@ public class AnalyticsFilter implements Serializable, Cloneable {
 
     private String            max;
 
+    public Range(long min, long max) {
+      this.min = String.valueOf(min);
+      this.max = String.valueOf(max);
+    }
+
     @Override
     public Range clone() { // NOSONAR
       return new Range(min, max);
