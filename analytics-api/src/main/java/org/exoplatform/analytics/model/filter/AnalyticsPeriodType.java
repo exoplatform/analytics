@@ -2,6 +2,7 @@ package org.exoplatform.analytics.model.filter;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,8 +31,8 @@ public enum AnalyticsPeriodType {
       case LAST24H:
         return new AnalyticsPeriod(date, date.plusDays(1));
       case LAST_WEEK:
-        start = date.with(DayOfWeek.SUNDAY);
-        end = date.with(DayOfWeek.SATURDAY).plusDays(1);
+        start = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        end = start.plusDays(7);
         return new AnalyticsPeriod(start, end);
       case LAST_MONTH:
         start = date.withDayOfMonth(1);

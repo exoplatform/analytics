@@ -207,16 +207,9 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
     if (previousAnalyticsPeriod == null || currentAnalyticsPeriod == null) {
       return null;
     }
-    LocalDate previousPeriodStart = previousAnalyticsPeriod.getFrom();
-    LocalDate currentPeriodEnd = currentAnalyticsPeriod.getTo();
-    return new AnalyticsFieldFilter("timestamp",
-                                    RANGE,
-                                    new AnalyticsFilter.Range(previousPeriodStart.atStartOfDay(ZoneOffset.UTC)
-                                                                                 .toInstant()
-                                                                                 .toEpochMilli(),
-                                                              currentPeriodEnd.atStartOfDay(ZoneOffset.UTC)
-                                                                              .toInstant()
-                                                                              .toEpochMilli()));
+    AnalyticsFilter.Range rangeFilter = new AnalyticsFilter.Range(previousAnalyticsPeriod.getFromInMS(),
+                                                                  currentAnalyticsPeriod.getToInMS());
+    return new AnalyticsFieldFilter("timestamp", RANGE, rangeFilter);
   }
 
 }

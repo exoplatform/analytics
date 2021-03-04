@@ -2,50 +2,44 @@
 
 #topAnalyticsPage {
   padding-top: 0px;
-  #parentSocialPage {
-    > div {
-      padding: 0;
+
+  &.singlePageApplication {
+    margin: 20px 0;
+  }
+
+  .analyticsPageRow {
+    margin-bottom: 20px;
+  
+    .UIRowContainer {
+      display: flex;
+  
+      > div {
+        width: 50%;
+        box-sizing: border-box;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      > div:first-child {
+        padding-left: 0;
+      }
+      > div:last-child {
+        padding-right: 0;
+      }
     }
-    #firstBlock{
-      #firstBlockChildren{
-        display: flex;
-        flex: 0 1 50%;
-        #leftSocialPage{
-          max-width: 50%;
-          flex: 0 1 50%;
+  
+    &.analyticsPageActiveUsersRow {
+      .UIRowContainer {
+        > div:last-child {
+          width: 30%;
         }
-        #rightSocialPage{
-          max-width: 50%;
-          flex: 0 1 50%;
-          margin-left: 20px;
+        > div:first-child {
+          width: 70%;
         }
       }
     }
-    #lastBlock{
-      #lastBlockChildren{
-        display: flex;
-        flex: 0 1 50%;
-        #leftSocialPage{
-          max-width: 50%;
-          flex: 0 1 50%;
-        }
-        #rightSocialPage{
-          max-width: 50%;
-          flex: 0 1 50%;
-          margin-left:  20px;
-        }
-      }
-    }
-  }
-  .singlePageApplication {
-    padding: 0 14% 20px;
   }
 }
-#secondBlock{
-  #leftSocialPage{
-    width: 70%;
-  }
-}
+
 #drawerPageAnalytics{
   .treeViewPage{
     margin-top: 18px;
@@ -54,6 +48,7 @@
     color:rgba(0, 0, 0, 0.87);font-size: 16px !important;
   }
 }
+
 .iconAnalyticsPage {
   font-size: 23px;
   color: black;
@@ -68,7 +63,8 @@
 }
 
 #breadcrumbAnalytics {
-  padding: 17px 14%;
+  padding-bottom: 20px;
+
   .titlePage {
     font-size: 16px;
     font-weight: 500;
@@ -185,4 +181,41 @@
   background: url(/analytics/skin/images/analytics-layout.png) no-repeat center top transparent;
   background-size: 185px 125px;
   margin: auto;
+}
+
+
+@media (max-width: @maxMobileWidth) {
+  #breadcrumbAnalytics {
+    padding-bottom: 20px;
+  }
+  #topAnalyticsPage {
+    &.singlePageApplication {
+      margin: 20px;
+    }
+
+    .analyticsPageRow {
+        margin-bottom: 0;
+        .UIRowContainer {
+        flex-direction: column;
+        box-sizing: border-box;
+
+        > div {
+          width: 100%;
+          padding: 0;
+          margin-bottom: 20px;
+        }
+      }
+
+      &.analyticsPageActiveUsersRow {
+        .UIRowContainer {
+          > div:last-child {
+            width: 100%;
+          }
+          > div:first-child {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
 }
