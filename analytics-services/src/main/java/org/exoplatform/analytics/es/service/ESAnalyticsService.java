@@ -184,34 +184,50 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     if (filter == null) {
       throw new IllegalArgumentException("Filter is mandatory");
     }
+    int lastPeriodValue = 0;
+    int lastPeriodThreshold = 0;
+    int currentPeriodValue = 0;
+    int currentPeriodThreshold = 0;
+    double currentPeriodPercentage = 0;
+    double lastPeriodPercentage = 0;
+
     ChartDataList valueChartData = computeChartData(filter.computeValueFilter());
     ChartDataList thresholdChartData = computeChartData(filter.computeThresholdFilter());
-    LinkedHashSet<ChartData> charts = valueChartData.getCharts();
-    ChartData currentChartValue = null; // TODO compute from valueChartData
-    ChartData previousChartValue = null; // TODO compute from valueChartData
-    ChartData currentChartThreshold = null; // TODO compute from thresholdChartData
-    ChartData previousChartThreshold = null; // TODO thresholdChartData
+    List<ChartAggregationResult> chartAggregationResultsValue = valueChartData.getCharts().iterator().next().getAggregationResults();
+    List<ChartAggregationResult> chartAggregationResultsThreshold = thresholdChartData.getCharts().iterator().next().getAggregationResults();
+    if (chartAggregationResultsValue.size() > 1) {
+      lastPeriodValue = Integer.parseInt(chartAggregationResultsValue.get(0).getValue());
+      currentPeriodValue = Integer.parseInt(chartAggregationResultsValue.get(1).getValue());
+    }else if (!chartAggregationResultsValue.isEmpty() && chartAggregationResultsValue.size() > 0) {
+      currentPeriodValue = Integer.parseInt(chartAggregationResultsValue.get(0).getValue());
+    }
 
-    // currentChartValue.getChartKey(); // Date à comparer avec
-    // filter.getCurrentAnalyticsPeriod()
-    // previousChartValue.getChartKey(); // Date à comparer avec
-    // filter.getPreviousAnalyticsPeriod()
-    // currentChartThreshold.getChartKey(); // Date à comparer avec
-    // filter.getCurrentAnalyticsPeriod()
-    // previousChartThreshold.getChartKey(); // Date à comparer avec
-    // filter.getPreviousAnalyticsPeriod()
-
-    double currentPeriodValue = currentChartValue == null ? 0 : Double.parseDouble(currentChartValue.getChartValue());
-    double currentPeriodThreshold = currentChartThreshold == null ? 0 : Double.parseDouble(currentChartThreshold.getChartValue());
-    double previousPeriodValue = previousChartValue == null ? 0 : Double.parseDouble(previousChartValue.getChartValue());
-    double previousPeriodThreshold = previousChartThreshold == null ? 0
-                                                                    : Double.parseDouble(previousChartThreshold.getChartValue());
-    return new PercentageChartDataList(currentPeriodValue,
-                                       currentPeriodThreshold,
-                                       previousPeriodValue,
-                                       previousPeriodThreshold,
-                                       valueChartData.getComputingTime() + thresholdChartData.getComputingTime(),
-                                       valueChartData.getDataCount() + thresholdChartData.getDataCount());
+    if (chartAggregationResultsThreshold.size() > 1) {
+      lastPeriodThreshold = Integer.parseInt(chartAggregationResultsThreshold.get(0).getValue());
+      currentPeriodThreshold = Integer.parseInt(chartAggregationResultsThreshold.get(1).getValue());
+    } else if (chartAggregationResultsThreshold.isEmpty() && chartAggregationResultsThreshold.size() > 0) {
+      currentPeriodThreshold = Integer.parseInt(chartAggregationResultsThreshold.get(0).getValue());
+    }
+    if (currentPeriodThreshold < currentPeriodValue) {
+      // Permutation of values to get the max value in threshold
+      int value = currentPeriodValue;
+      currentPeriodValue = currentPeriodThreshold;
+      currentPeriodThreshold = value;
+    }
+    if (lastPeriodThreshold < lastPeriodValue) {
+      // Permutation of values to get the max value in threshold
+      int value = lastPeriodValue;
+      lastPeriodValue = lastPeriodThreshold;
+      lastPeriodThreshold = value;
+    }
+    PercentageChartDataList percentageChartDataList =  new PercentageChartDataList();
+    percentageChartDataList.setCurrentPeriodValue(currentPeriodValue);
+    percentageChartDataList.setCurrentPeriodThreshold(currentPeriodThreshold);
+    percentageChartDataList.setPreviousPeriodThreshold(lastPeriodThreshold);
+    percentageChartDataList.setPreviousPeriodValue(lastPeriodValue);
+    percentageChartDataList.setDataCount(valueChartData.getDataCount() + thresholdChartData.getDataCount());
+    percentageChartDataList.setComputingTime(valueChartData.getComputingTime() + thresholdChartData.getComputingTime());
+    return percentageChartDataList;
   }
 
   @Override
