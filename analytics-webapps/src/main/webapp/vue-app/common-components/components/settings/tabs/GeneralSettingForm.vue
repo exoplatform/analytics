@@ -48,21 +48,38 @@ export default {
     },
   },
   computed: {
+    isPercentageBar() {
+      return this.settings.chartType === 'percentageBar' || this.settings.chartType === 'percentage';
+    },
     chartTypes(){
-      return [
-        {
-          text: this.$t('analytics.bar'),
-          value: 'bar',
-        },
-        {
-          text: this.$t('analytics.line'),
-          value: 'line',
-        },
-        {
-          text: this.$t('analytics.pie'),
-          value: 'pie',
-        },
-      ];
+      if (this.isPercentageBar){
+        return [
+          {
+            text: 'Percentage Bar',
+            value: 'percentageBar',
+          },
+          {
+            text: 'Percentage',
+            value: 'percentage',
+          }
+        ];
+      }else {
+        return [
+          {
+            text: this.$t('analytics.bar'),
+            value: 'bar',
+          },
+          {
+            text: this.$t('analytics.line'),
+            value: 'line',
+          },
+          {
+            text: this.$t('analytics.pie'),
+            value: 'pie',
+          },
+        ];
+      }
+
     }
   },
   methods: {
