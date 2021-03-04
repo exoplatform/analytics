@@ -1,7 +1,22 @@
 @import "./variables.less";
 
+#singlePageApplicationContainer {
+  padding-bottom: 0 !important;
+}
 #topAnalyticsPage {
   padding-top: 0px;
+
+  #parentSocialPage {
+    > div {
+      padding: 0;
+    }
+    .UIMobileSwipeParentContainer {
+      > .leftSocialPage, > .rightSocialPage {
+        flex: 0 1 50%;
+        max-width: 50%;
+      }
+    }
+  }
 
   &.singlePageApplication {
     margin: 20px 0;

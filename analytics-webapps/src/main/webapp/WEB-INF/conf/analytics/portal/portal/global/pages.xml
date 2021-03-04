@@ -29,7 +29,9 @@
       id="topAnalyticsPage"
       template="system:/groovy/portal/webui/container/UIContainer.gtmpl"
       cssClass="singlePageApplication border-box-sizing">
+      <access-permissions>Everyone</access-permissions>
       <container id="breadcrumbAnalytics" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <access-permissions>Everyone</access-permissions>
         <portlet-application>
           <portlet>
             <application-ref>analytics</application-ref>
@@ -163,6 +165,7 @@
         </portlet-application>
       </container>
       <container cssClass="analyticsPageRow analyticsPageActiveUsersRow" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <access-permissions>Everyone</access-permissions>
         <portlet-application>
           <portlet>
             <application-ref>analytics</application-ref>
@@ -222,6 +225,7 @@
         </portlet-application>
       </container>
       <container cssClass="analyticsPageRow" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <access-permissions>Everyone</access-permissions>
         <portlet-application>
           <portlet>
             <application-ref>analytics</application-ref>
