@@ -11,10 +11,10 @@ import org.eclipse.jetty.util.StringUtil;
 import org.json.*;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
-import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticFieldMapping;
-import org.exoplatform.analytics.model.filter.AnalyticsFilter;
-import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
+import org.exoplatform.analytics.model.filter.AnalyticsPercentageFilter;
+import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
+import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilterType;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.PropertyManager;
@@ -24,31 +24,29 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.webui.Utils;
 
-public class AnalyticsPortlet extends GenericPortlet {
+public class AnalyticsRatePortlet extends GenericPortlet {
 
-  private static final String                       CAN_MODIFY_CHART_SETTINGS    = "canModifyChartSettings";
+  private static final String                                 CAN_MODIFY_CHART_SETTINGS = "canModifyChartSettings";
 
-  private static final String                       ANALYTICS_SEARCH_SCOPE       = "analyticsSearchScope";
+  private static final String                                 ANALYTICS_SEARCH_SCOPE    = "analyticsSearchScope";
 
-  private static final String                       READ_SETTINGS_OPERATION      = "GET_SETTINGS";
+  private static final String                                 READ_SETTINGS_OPERATION   = "GET_SETTINGS";
 
-  private static final String                       READ_FILTERS_OPERATION       = "GET_FILTERS";
+  private static final String                                 READ_FILTERS_OPERATION    = "GET_FILTERS";
 
-  private static final String                       READ_MAPPINGS_OPERATION      = "GET_MAPPINGS";
+  private static final String                                 READ_MAPPINGS_OPERATION   = "GET_MAPPINGS";
 
-  private static final String                       READ_CHART_DATA_OPERATION    = "GET_CHART_DATA";
+  private static final String                                 READ_CHART_DATA_OPERATION = "GET_CHART_DATA";
 
-  private static final String                       READ_CHART_SAMPLES_OPERATION = "GET_CHART_SAMPLES_DATA";
+  private static final Map<String, AnalyticsPercentageFilter> FILTERS                   = new HashMap<>();
 
-  private static final Map<String, AnalyticsFilter> FILTERS                      = new HashMap<>();
+  private SpaceService                                        spaceService;
 
-  private SpaceService                              spaceService;
-
-  private AnalyticsService                          analyticsService;
+  private AnalyticsService                                    analyticsService;
 
   @Override
   protected void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-    PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/analytics.jsp");
+    PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/analytics-rate.jsp");
     dispatcher.forward(request, response);
   }
 
@@ -81,18 +79,17 @@ public class AnalyticsPortlet extends GenericPortlet {
 
     String windowId = request.getWindowID();
     if (StringUtils.equals(operation, READ_SETTINGS_OPERATION)) {
-      AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, false);
+      AnalyticsPercentageFilter filter = getFilterFromPreferences(windowId, preferences, false);
       JSONObject jsonResponse = new JSONObject();
       addJSONParam(jsonResponse, "title", filter.getTitle());
       addJSONParam(jsonResponse, "chartType", filter.getChartType());
-      List<String> colors = filter.getColors() == null ? Collections.emptyList() : filter.getColors();
-      addJSONParam(jsonResponse, "colors", new JSONArray(colors));
+      addJSONParam(jsonResponse, "colors", filter.getColors());
       addJSONParam(jsonResponse, "canEdit", canModifyChartSettings(portletSession));
       addJSONParam(jsonResponse, "scope", getSearchScope(portletSession).name());
       response.setContentType("application/json");
       response.getWriter().write(jsonResponse.toString());
     } else if (StringUtils.equals(operation, READ_FILTERS_OPERATION)) {
-      AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, false);
+      AnalyticsPercentageFilter filter = getFilterFromPreferences(windowId, preferences, false);
       response.setContentType("application/json");
       response.getWriter().write(AnalyticsUtils.toJsonString(filter));
     } else if (StringUtils.equals(operation, READ_MAPPINGS_OPERATION)) {
@@ -101,34 +98,11 @@ public class AnalyticsPortlet extends GenericPortlet {
       JSONArray jsonArrayResponse = new JSONArray(objectMappings);
       response.setContentType("application/json");
       response.getWriter().write(jsonArrayResponse.toString());
-    } else if (StringUtils.equals(operation, READ_CHART_SAMPLES_OPERATION)) {
-      if (!canModifyChartSettings(portletSession)) {
-        throw new PortletException("Not allowed to access samples");
-      }
-      AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, true);
-      addPeriodFilter(request, filter);
-      addScopeFilter(portletSession, filter);
-      addLanguageFilter(request, filter);
-      addLimitFilter(request, filter);
-      addSortFilter(filter, "desc");
-
-      List<StatisticData> statisticDatas = getAnalyticsService().retrieveData(filter);
-      List<JSONObject> objectMappings = statisticDatas.stream()
-                                                      .map(statisticData -> {
-                                                        JSONObject object = new JSONObject(statisticData);
-                                                        object.remove("class");
-                                                        return object;
-                                                      })
-                                                      .collect(Collectors.toList());
-      JSONArray jsonArrayResponse = new JSONArray(objectMappings);
-      response.setContentType("application/json");
-      response.getWriter().write(jsonArrayResponse.toString());
     } else if (StringUtils.equals(operation, READ_CHART_DATA_OPERATION)) {
-      AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, true);
+      AnalyticsPercentageFilter filter = getFilterFromPreferences(windowId, preferences, true);
+      addLanguageFilter(request, filter);
       addPeriodFilter(request, filter);
       addScopeFilter(portletSession, filter);
-      addLanguageFilter(request, filter);
-
       Object result = getAnalyticsService().computeChartData(filter);
       response.setContentType("application/json");
       response.getWriter().write(AnalyticsUtils.toJsonString(result));
@@ -136,36 +110,20 @@ public class AnalyticsPortlet extends GenericPortlet {
     super.serveResource(request, response);
   }
 
-  private void addLanguageFilter(ResourceRequest request, AnalyticsFilter filter) {
+  private void addLanguageFilter(ResourceRequest request, AnalyticsPercentageFilter filter) {
     String lang = request.getParameter("lang");
     filter.setLang(lang);
   }
 
-  private void addSortFilter(AnalyticsFilter filter, String direction) {
-    List<AnalyticsAggregation> xAxisAggregations = filter.getXAxisAggregations();
-    for (AnalyticsAggregation analyticsAggregation : xAxisAggregations) {
-      if (StringUtils.equals(AnalyticsUtils.FIELD_TIMESTAMP, analyticsAggregation.getField())) {
-        analyticsAggregation.setSortDirection(direction);
-      }
-    }
+  private void addPeriodFilter(ResourceRequest request, AnalyticsPercentageFilter filter) {
+    String periodType = request.getParameter("period");
+    String periodDateString = request.getParameter("date");
+    filter.setPeriodDateInMS(Long.parseLong(periodDateString));
+    filter.setPeriodType(periodType);
   }
 
-  private void addLimitFilter(ResourceRequest request, AnalyticsFilter filter) {
-    String limitString = request.getParameter("limit");
-    if (StringUtils.isBlank(limitString)) {
-      limitString = "10";
-    }
-    filter.setLimit(Long.parseLong(limitString));
-  }
-
-  private void addPeriodFilter(ResourceRequest request, AnalyticsFilter filter) {
-    String fromDateString = request.getParameter("min");
-    String toDateString = request.getParameter("max");
-    filter.addRangeFilter("timestamp", fromDateString, toDateString);
-  }
-
-  private void addScopeFilter(PortletSession portletSession, AnalyticsFilter filter) throws PortletException {
-    SearchScope scope = getSearchScope(portletSession);
+  private void addScopeFilter(PortletSession portletSession, AnalyticsPercentageFilter filter) throws PortletException {
+    AnalyticsPortlet.SearchScope scope = getSearchScope(portletSession);
     switch (scope) {
       case GLOBAL:
         break;
@@ -173,61 +131,65 @@ public class AnalyticsPortlet extends GenericPortlet {
         throw new PortletException("Not allowed to access information");
       case SPACE:
         Space space = SpaceUtils.getSpaceByContext();
-        filter.addEqualFilter("spaceId", space.getId());
+        AnalyticsFieldFilter spaceScopeFilter =
+                                              new AnalyticsFieldFilter("spaceId", AnalyticsFieldFilterType.EQUAL, space.getId());
+        filter.setScopeFilter(spaceScopeFilter);
         break;
       case USER:
         String viewerIdentityId = Utils.getViewerIdentity().getId();
-        filter.addEqualFilter("userId", viewerIdentityId);
+        AnalyticsFieldFilter userScopeFilter =
+                                             new AnalyticsFieldFilter("userId", AnalyticsFieldFilterType.EQUAL, viewerIdentityId);
+        filter.setScopeFilter(userScopeFilter);
         break;
     }
   }
 
-  private AnalyticsFilter getFilterFromPreferences(String windowId, PortletPreferences preferences, boolean clone) {
-    AnalyticsFilter filter = getAnlyticsFilterCache(windowId);
+  private AnalyticsPercentageFilter getFilterFromPreferences(String windowId, PortletPreferences preferences, boolean clone) {
+    AnalyticsPercentageFilter filter = getAnlyticsFilterCache(windowId);
 
     if (filter == null) {
       if (preferences != null) {
         String analyticsFilterString = preferences.getValue("settings", null);
         if (StringUtils.isNotBlank(analyticsFilterString)) {
-          filter = AnalyticsUtils.fromJsonString(analyticsFilterString, AnalyticsFilter.class);
+          filter = AnalyticsUtils.fromJsonString(analyticsFilterString, AnalyticsPercentageFilter.class);
         }
       }
       if (filter == null) {
-        filter = new AnalyticsFilter();
+        filter = new AnalyticsPercentageFilter();
       }
       setAnlyticsFilterCache(windowId, filter);
     }
     return clone ? filter.clone() : filter;
   }
 
-  private SearchScope getSearchScope(PortletSession portletSession) {
-    SearchScope searchScopeFromCache = getSearchScopeFromCache(portletSession);
+  private AnalyticsPortlet.SearchScope getSearchScope(PortletSession portletSession) {
+    AnalyticsPortlet.SearchScope searchScopeFromCache = getSearchScopeFromCache(portletSession);
     if (searchScopeFromCache != null) {
       return searchScopeFromCache;
     }
 
     ConversationState current = ConversationState.getCurrent();
     if (current == null || current.getIdentity() == null) {
-      return cacheSearchScope(portletSession, SearchScope.NONE);
+      return cacheSearchScope(portletSession, AnalyticsPortlet.SearchScope.NONE);
     }
     Identity identity = current.getIdentity();
     String userId = identity.getUserId();
     if (StringUtils.isBlank(userId) || StringUtils.equals(userId, IdentityConstants.ANONIM)
         || StringUtils.equals(userId, IdentityConstants.SYSTEM)) {
-      return cacheSearchScope(portletSession, SearchScope.NONE);
+      return cacheSearchScope(portletSession, AnalyticsPortlet.SearchScope.NONE);
     }
 
     List<String> groupIds = getAnalyticsService().getAdministratorsPermissions();
     for (String groupId : groupIds) {
       if (StringUtils.isNotBlank(groupId) && identity.isMemberOf(MembershipEntry.parse(groupId))) {
-        return cacheSearchScope(portletSession, SearchScope.GLOBAL);
+        return cacheSearchScope(portletSession, AnalyticsPortlet.SearchScope.GLOBAL);
       }
     }
 
     groupIds = getAnalyticsService().getViewAllPermissions();
     for (String groupId : groupIds) {
       if (StringUtils.isNotBlank(groupId) && identity.isMemberOf(MembershipEntry.parse(groupId))) {
-        return cacheSearchScope(portletSession, SearchScope.GLOBAL);
+        return cacheSearchScope(portletSession, AnalyticsPortlet.SearchScope.GLOBAL);
       }
     }
 
@@ -241,22 +203,22 @@ public class AnalyticsPortlet extends GenericPortlet {
     }
 
     if (!canView) {
-      return cacheSearchScope(portletSession, SearchScope.NONE);
+      return cacheSearchScope(portletSession, AnalyticsPortlet.SearchScope.NONE);
     }
 
     Space space = SpaceUtils.getSpaceByContext();
     if (space != null) {
       if (getSpaceService().isSuperManager(userId) || getSpaceService().isMember(space, userId)) {
-        return cacheSearchScope(portletSession, SearchScope.SPACE);
+        return cacheSearchScope(portletSession, AnalyticsPortlet.SearchScope.SPACE);
       } else {
-        return cacheSearchScope(portletSession, SearchScope.NONE);
+        return cacheSearchScope(portletSession, AnalyticsPortlet.SearchScope.NONE);
       }
     }
 
     if (Utils.isOwner() || StringUtil.isBlank(Utils.getOwnerRemoteId())) {
-      return cacheSearchScope(portletSession, SearchScope.USER);
+      return cacheSearchScope(portletSession, AnalyticsPortlet.SearchScope.USER);
     } else {
-      return cacheSearchScope(portletSession, SearchScope.NONE);
+      return cacheSearchScope(portletSession, AnalyticsPortlet.SearchScope.NONE);
     }
   }
 
@@ -300,11 +262,11 @@ public class AnalyticsPortlet extends GenericPortlet {
     return canModify;
   }
 
-  private SearchScope getSearchScopeFromCache(PortletSession portletSession) {
-    return (SearchScope) portletSession.getAttribute(ANALYTICS_SEARCH_SCOPE);
+  private AnalyticsPortlet.SearchScope getSearchScopeFromCache(PortletSession portletSession) {
+    return (AnalyticsPortlet.SearchScope) portletSession.getAttribute(ANALYTICS_SEARCH_SCOPE);
   }
 
-  private SearchScope cacheSearchScope(PortletSession portletSession, SearchScope searchScope) {
+  private AnalyticsPortlet.SearchScope cacheSearchScope(PortletSession portletSession, AnalyticsPortlet.SearchScope searchScope) {
     if (!PropertyManager.isDevelopping()) {
       portletSession.setAttribute(ANALYTICS_SEARCH_SCOPE, searchScope);
     }
@@ -333,7 +295,7 @@ public class AnalyticsPortlet extends GenericPortlet {
     return spaceService;
   }
 
-  private void setAnlyticsFilterCache(String windowId, AnalyticsFilter filter) {
+  private void setAnlyticsFilterCache(String windowId, AnalyticsPercentageFilter filter) {
     if (filter == null) {
       clearAnlyticsFilterCache(windowId);
     } else {
@@ -341,9 +303,9 @@ public class AnalyticsPortlet extends GenericPortlet {
     }
   }
 
-  private AnalyticsFilter getAnlyticsFilterCache(String windowId) {
-    AnalyticsFilter analyticsFilter = FILTERS.get(windowId);
-    return analyticsFilter == null ? null : analyticsFilter.clone();
+  private AnalyticsPercentageFilter getAnlyticsFilterCache(String windowId) {
+    AnalyticsPercentageFilter analyticsPercentageFilter = FILTERS.get(windowId);
+    return analyticsPercentageFilter == null ? null : analyticsPercentageFilter.clone();
   }
 
   private void clearAnlyticsFilterCache(String windowId) {
