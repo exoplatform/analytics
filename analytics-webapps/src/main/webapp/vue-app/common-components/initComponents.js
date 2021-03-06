@@ -1,6 +1,9 @@
 import AnalyticsChartSetting from './components/settings/AnalyticsChartSetting.vue';
 import JsonPanelDialog from './components/settings/JsonPanelDialog.vue';
+
 import FieldSelection from './components/settings/form/FieldSelection.vue';
+import XAxisAggregationField from './components/settings/form/XAxisAggregationField.vue';
+
 import SettingColorPicker from './components/settings/tabs/SettingColorPicker.vue';
 import GeneralSettingForm from './components/settings/tabs/GeneralSettingForm.vue';
 import ColorsSettingForm from './components/settings/tabs/ColorsSettingForm.vue';
@@ -20,6 +23,7 @@ const components = {
   'analytics-sample-item': SampleItem,
   'analytics-setting-color-picker': SettingColorPicker,
   'analytics-field-selection': FieldSelection,
+  'analytics-x-axis-aggregation-field': XAxisAggregationField,
   'analytics-general-setting-form': GeneralSettingForm,
   'analytics-colors-setting-form': ColorsSettingForm,
   'analytics-search-filter-form': SearchFilterForm,

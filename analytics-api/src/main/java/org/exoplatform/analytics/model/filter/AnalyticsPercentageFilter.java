@@ -39,12 +39,6 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
   private String                        lang             = null;
 
-  // TODO to delete if not used in second chart
-  private long                          offset           = 0;
-
-  // TODO to delete if not used in second chart
-  private long                          limit            = 0;
-
   public AnalyticsAggregation computeXAxisAggregation() {
     AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
     if (analyticsPeriodType == null) {
@@ -160,8 +154,8 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
                                xAxisAggregation == null ? Collections.emptyList() : Collections.singletonList(xAxisAggregation),
                                valueYAggregations == null ? null : valueYAggregations,
                                lang,
-                               offset,
-                               limit);
+                               0l,
+                               0l);
   }
 
   public AnalyticsFilter computeThresholdFilter() {
@@ -176,8 +170,8 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
                                xAxisAggregation == null ? Collections.emptyList() : Collections.singletonList(xAxisAggregation),
                                thresholdYAggregations == null ? null : thresholdYAggregations,
                                lang,
-                               offset,
-                               limit);
+                               0l,
+                               0l);
   }
 
   @Override
@@ -196,9 +190,7 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
                                          clonedPeriodDate,
                                          cloneAnalyticsPercentageItemFilterValue,
                                          cloneAnalyticsPercentageItemFilterThreshold,
-                                         lang,
-                                         offset,
-                                         limit);
+                                         lang);
   }
 
   private AnalyticsFieldFilter computePeriodFilter() {

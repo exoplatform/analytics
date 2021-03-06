@@ -13,7 +13,7 @@
         class="mt-0"
         @save="saveSettings" />
     </template>
-    <v-card class="ma-auto analytics-chart-parent white" flat>
+    <v-card class="ma-auto analytics-chart-percentage analytics-chart-parent white" flat>
       <div class="d-flex pa-3 analytics-chart-header" flat>
         <v-toolbar-title class="d-flex">
           <v-tooltip bottom>
@@ -31,10 +31,13 @@
               </v-btn>
             </template>
             <span>
-              <div>- {{ $t('analytics.activeUsersInfo') }}</div>
+              <div>- {{ $t('analytics.dataRestriction') }}: {{ scopeTooltip }}</div>
+              <div>- {{ $t('analytics.totalSamplesCount') }}: {{ chartsData.dataCount }}</div>
+              <div>- {{ $t('analytics.computingTime') }}: {{ chartsData.computingTime }} ms</div>
             </span>
           </v-tooltip>
           <div
+            v-if="title"
             :title="title"
             class="my-auto text-truncate analytics-chart-title">
             {{ $t(title) }}
@@ -63,6 +66,11 @@
         </v-menu>
       </div>
       <analytics-percentage-bar-chart
+        v-if="chartType === 'percentageBar'"
+        ref="analyticsRateBody"
+        :colors="colors" />
+      <analytics-percentage-chart
+        v-else-if="chartType === 'percentage'"
         ref="analyticsRateBody"
         :colors="colors" />
     </v-card>
@@ -205,7 +213,7 @@ export default {
           this.scope = settings && settings.scope;
           this.canEdit = settings && settings.canEdit;
           this.chartType = settings && settings.chartType;
-          this.title = settings && settings.title || this.$t('analytics.chartDataPlaceholder');
+          this.title = settings && settings.title || '';
         })
         .catch((e) => {
           console.warn('Error retrieving chart filters', e);

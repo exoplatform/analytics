@@ -25,28 +25,15 @@
             v-if="!dateAggregationType"
             class="my-auto px-2"
             xs8>
-            <v-layout v-for="(item, index) in xAxisAggregations" :key="index">
-              <v-flex xs10>
-                <analytics-field-selection
-                  v-model="item.field"
-                  :fields-mappings="fieldsMappings"
-                  :label="$t('analytics.fieldName')"
-                  aggregation />
-              </v-flex>
-              <v-flex class="my-auto" xs1>
-                <v-btn icon @click="deleteAggregation(index)">
-                  <v-icon>fa-minus-circle</v-icon>
-                </v-btn>
-              </v-flex>
-              <v-flex
-                v-if="(index +1) === xAxisAggregations.length"
-                class="my-auto"
-                xs1>
-                <v-btn icon @click="addAggregation">
-                  <v-icon>fa-plus-circle</v-icon>
-                </v-btn>
-              </v-flex>
-            </v-layout>
+            <analytics-x-axis-aggregation-field
+              v-for="(aggregation, index) in xAxisAggregations"
+              :key="index"
+              :aggregation="aggregation"
+              :fields-mappings="fieldsMappings"
+              :display-add="(index +1) === xAxisAggregations.length"
+              :display-delete="xAxisAggregations.length > 1"
+              @delete="deleteAggregation(index)"
+              @add="addAggregation" />
           </v-flex>
         </template>
       </v-layout>
@@ -80,9 +67,10 @@ export default {
       interval: 'day',
     },
     fieldAggregation: {
-      type: 'COUNT',
+      type: 'TERMS',
       field: 'module',
-      sortDirection: 'asc',
+      sortDirection: 'desc',
+      limit: 0,
     },
   }),
   computed: {
@@ -112,6 +100,9 @@ export default {
     } ,
     xAxisAggregations() {
       return this.settings && this.settings.xAxisAggregations;
+    },
+    xAxisAggregation() {
+      return this.hasAggregations && this.settings.xAxisAggregations[0] || null;
     },
     hasAggregations() {
       return this.xAxisAggregations && this.xAxisAggregations.length;
@@ -150,7 +141,11 @@ export default {
       this.xAxisAggregations.splice(aggregationIndex, 1);
     },
     addAggregation() {
-      this.xAxisAggregations.push({type: 'COUNT'});
+      this.xAxisAggregations.push({
+        type: 'TERMS',
+        sortDirection: 'desc',
+        limit: 0,
+      });
       this.$forceUpdate();
     },
   },

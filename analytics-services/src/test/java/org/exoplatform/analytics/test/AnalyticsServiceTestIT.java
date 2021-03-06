@@ -32,178 +32,144 @@ import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilterType;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 
 public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
 
-  private static final Log LOG = ExoLogger.getLogger(AnalyticsServiceTestIT.class);
-
   @Test
   public void testAnalyticsInjection() {
-    try {
-      List<StatisticData> injectedDate = analyticsService.retrieveData(null);
-      assertNotNull("Returned injected data is null", injectedDate);
-      assertFalse("Returned injected data is empty", injectedDate.isEmpty());
-    } catch (Exception e) {
-      LOG.error("Error occurred in test", e);
-      fail(e.getMessage());
-    }
+    List<StatisticData> injectedDate = analyticsService.retrieveData(null);
+    assertNotNull("Returned injected data is null", injectedDate);
+    assertFalse("Returned injected data is empty", injectedDate.isEmpty());
   }
 
   @Test
   public void testRetrieveFieldsMapping() {
-    try {
-      Set<StatisticFieldMapping> fieldsMappings = analyticsService.retrieveMapping(true);
-      assertNotNull("Returned fields mapping is null", fieldsMappings);
-      assertFalse("Returned fields mapping is empty", fieldsMappings.isEmpty());
-      assertTrue("Returned fields mapping count is wrong, should be at least 11 as configured", fieldsMappings.size() >= 11);
-    } catch (Exception e) {
-      LOG.error("Error occurred in test", e);
-      fail(e.getMessage());
-    }
+    Set<StatisticFieldMapping> fieldsMappings = analyticsService.retrieveMapping(true);
+    assertNotNull("Returned fields mapping is null", fieldsMappings);
+    assertFalse("Returned fields mapping is empty", fieldsMappings.isEmpty());
+    assertTrue("Returned fields mapping count is wrong, should be at least 11 as configured", fieldsMappings.size() >= 11);
   }
 
   @Test
   public void testSearchAnalyticsData() {
-    try {
-      List<StatisticData> injectedDate = analyticsService.retrieveData(null);
-      assertNotNull("Returned injected data is null", injectedDate);
-      assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+    List<StatisticData> injectedDate = analyticsService.retrieveData(null);
+    assertNotNull("Returned injected data is null", injectedDate);
+    assertFalse("Returned injected data is empty", injectedDate.isEmpty());
 
-      AnalyticsFilter filter = new AnalyticsFilter();
+    AnalyticsFilter filter = new AnalyticsFilter();
 
-      filter.addEqualFilter("module", "portal");
-      filter.addEqualFilter("subModule", "login");
-      filter.addLessFilter("userId", 23);
-      filter.addRangeFilter("timestamp", "1574246024553", "1575775885451");
-      filter.addInSetFilter("operation", "login", "logout");
+    filter.addEqualFilter("module", "portal");
+    filter.addEqualFilter("subModule", "login");
+    filter.addLessFilter("userId", 23);
+    filter.addRangeFilter("timestamp", "1574246024552", "1575775885452");
+    filter.addInSetFilter("operation", "login", "logout");
 
-      List<StatisticData> statisticsData = analyticsService.retrieveData(filter);
-      assertEquals("Unexpected injected data size", 388, statisticsData.size());
-    } catch (Exception e) {
-      LOG.error("Error occurred in test", e);
-      fail(e.getMessage());
-    }
+    List<StatisticData> statisticsData = analyticsService.retrieveData(filter);
+    assertEquals("Unexpected injected data size", 388, statisticsData.size());
   }
 
   @Test
   public void testGetAnalyticsChart() {
-    try {
-      List<StatisticData> injectedDate = analyticsService.retrieveData(null);
-      assertNotNull("Returned injected data is null", injectedDate);
-      assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+    List<StatisticData> injectedDate = analyticsService.retrieveData(null);
+    assertNotNull("Returned injected data is null", injectedDate);
+    assertFalse("Returned injected data is empty", injectedDate.isEmpty());
 
-      AnalyticsFilter analyticsFilter = new AnalyticsFilter();
-      analyticsFilter.addEqualFilter("module", "portal");
-      analyticsFilter.addNotEqualFilter("module", "social");
-      analyticsFilter.addInSetFilter("subModule", "no_module", "login");
+    AnalyticsFilter analyticsFilter = new AnalyticsFilter();
+    analyticsFilter.addEqualFilter("module", "portal");
+    analyticsFilter.addNotEqualFilter("module", "social");
+    analyticsFilter.addInSetFilter("subModule", "no_module", "login");
 
-      AnalyticsAggregation operationAggregation = new AnalyticsAggregation();
-      operationAggregation.setField("operation");
-      operationAggregation.setType(AnalyticsAggregationType.COUNT);
-      analyticsFilter.addXAxisAggregation(operationAggregation);
-      AnalyticsAggregation userIdAggregation = new AnalyticsAggregation();
-      userIdAggregation.setField("userId");
-      userIdAggregation.setType(AnalyticsAggregationType.COUNT);
-      analyticsFilter.addXAxisAggregation(userIdAggregation);
-      AnalyticsAggregation statusAggregation = new AnalyticsAggregation();
-      statusAggregation.setField("status");
-      statusAggregation.setType(AnalyticsAggregationType.COUNT);
-      analyticsFilter.addXAxisAggregation(statusAggregation);
+    AnalyticsAggregation operationAggregation = new AnalyticsAggregation();
+    operationAggregation.setField("operation");
+    operationAggregation.setType(AnalyticsAggregationType.COUNT);
+    analyticsFilter.addXAxisAggregation(operationAggregation);
+    AnalyticsAggregation userIdAggregation = new AnalyticsAggregation();
+    userIdAggregation.setField("userId");
+    userIdAggregation.setType(AnalyticsAggregationType.COUNT);
+    analyticsFilter.addXAxisAggregation(userIdAggregation);
+    AnalyticsAggregation statusAggregation = new AnalyticsAggregation();
+    statusAggregation.setField("status");
+    statusAggregation.setType(AnalyticsAggregationType.COUNT);
+    analyticsFilter.addXAxisAggregation(statusAggregation);
 
-      ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
-      assertNotNull("Unexpected empty charts data", chartDataList);
-      assertNotNull("Unexpected empty charts data size", chartDataList.getCharts());
-      assertEquals("Unexpected empty charts data size", 1, chartDataList.getCharts().size());
+    ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
+    assertNotNull("Unexpected empty charts data", chartDataList);
+    assertNotNull("Unexpected empty charts data size", chartDataList.getCharts());
+    assertEquals("Unexpected empty charts data size", 1, chartDataList.getCharts().size());
 
-      ChartData chartData = chartDataList.getCharts().iterator().next();
+    ChartData chartData = chartDataList.getCharts().iterator().next();
 
-      assertNotNull("Unexpected injected data size", chartData);
-      assertEquals("Unexpected injected labels (X axis) data size", 66, chartDataList.getLabels().size());
-      assertEquals("Unexpected injected values (Y axis) data size",
-                   chartDataList.getLabels().size(),
-                   chartData.getValues().size());
-    } catch (Exception e) {
-      LOG.error("Error occurred in test", e);
-      fail(e.getMessage());
-    }
+    assertNotNull("Unexpected injected data size", chartData);
+    assertEquals("Unexpected injected labels (X axis) data size", 66, chartDataList.getLabels().size());
+    assertEquals("Unexpected injected values (Y axis) data size",
+                 chartDataList.getLabels().size(),
+                 chartData.getValues().size());
   }
 
   @Test
   public void testGetAnalyticsMultipleCharts() {
-    try {
-      List<StatisticData> injectedDate = analyticsService.retrieveData(null);
-      assertNotNull("Returned injected data is null", injectedDate);
-      assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+    List<StatisticData> injectedDate = analyticsService.retrieveData(null);
+    assertNotNull("Returned injected data is null", injectedDate);
+    assertFalse("Returned injected data is empty", injectedDate.isEmpty());
 
-      AnalyticsFilter analyticsFilter = new AnalyticsFilter();
-      analyticsFilter.addInSetFilter("module", "no_module", "portal");
+    AnalyticsFilter analyticsFilter = new AnalyticsFilter();
+    analyticsFilter.addInSetFilter("module", "no_module", "portal");
 
-      analyticsFilter.setMultipleChartsField("operation");
+    analyticsFilter.setMultipleChartsField("operation");
 
-      AnalyticsAggregation userIdAggregation = new AnalyticsAggregation();
-      userIdAggregation.setField("userId");
-      userIdAggregation.setType(AnalyticsAggregationType.COUNT);
-      analyticsFilter.addXAxisAggregation(userIdAggregation);
-      analyticsFilter.addNotInSetFilter("userId", "5366, 9999");
+    AnalyticsAggregation userIdAggregation = new AnalyticsAggregation();
+    userIdAggregation.setField("userId");
+    userIdAggregation.setType(AnalyticsAggregationType.COUNT);
+    analyticsFilter.addXAxisAggregation(userIdAggregation);
+    analyticsFilter.addNotInSetFilter("userId", "5366, 9999");
 
-      ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
+    ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
 
-      assertNotNull("Unexpected empty charts data", chartDataList);
-      Set<ChartData> charts = chartDataList.getCharts();
-      assertNotNull("Unexpected empty charts data list", charts);
-      assertEquals("Unexpected charts data size", 2, charts.size());
-      assertEquals("Unexpected injected labels (X axis) data size", 33, chartDataList.getLabels().size());
+    assertNotNull("Unexpected empty charts data", chartDataList);
+    Set<ChartData> charts = chartDataList.getCharts();
+    assertNotNull("Unexpected empty charts data list", charts);
+    assertEquals("Unexpected charts data size", 2, charts.size());
+    assertEquals("Unexpected injected labels (X axis) data size", 33, chartDataList.getLabels().size());
 
-      Iterator<ChartData> chartsIterator = charts.iterator();
-      while (chartsIterator.hasNext()) {
-        ChartData chartData = chartsIterator.next();
-        assertEquals("Unexpected injected values (Y axis) data size",
-                     chartDataList.getLabels().size(),
-                     chartData.getValues().size());
-      }
-    } catch (Exception e) {
-      LOG.error("Error occurred in test", e);
-      fail(e.getMessage());
+    Iterator<ChartData> chartsIterator = charts.iterator();
+    while (chartsIterator.hasNext()) {
+      ChartData chartData = chartsIterator.next();
+      assertEquals("Unexpected injected values (Y axis) data size",
+                   chartDataList.getLabels().size(),
+                   chartData.getValues().size());
     }
   }
 
   @Test
   public void testGetAnalyticsMultipleChartsByInterval() {
-    try {
-      List<StatisticData> injectedDate = analyticsService.retrieveData(null);
-      assertNotNull("Returned injected data is null", injectedDate);
-      assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+    List<StatisticData> injectedDate = analyticsService.retrieveData(null);
+    assertNotNull("Returned injected data is null", injectedDate);
+    assertFalse("Returned injected data is empty", injectedDate.isEmpty());
 
-      AnalyticsFilter analyticsFilter = new AnalyticsFilter();
+    AnalyticsFilter analyticsFilter = new AnalyticsFilter();
 
-      analyticsFilter.setMultipleChartsField("userId");
+    analyticsFilter.setMultipleChartsField("userId");
 
-      AnalyticsAggregation monthIntervalAggregation = new AnalyticsAggregation();
-      monthIntervalAggregation.setField("timestamp");
-      monthIntervalAggregation.setType(AnalyticsAggregationType.DATE);
-      monthIntervalAggregation.setInterval("month");
-      analyticsFilter.addXAxisAggregation(monthIntervalAggregation);
+    AnalyticsAggregation monthIntervalAggregation = new AnalyticsAggregation();
+    monthIntervalAggregation.setField("timestamp");
+    monthIntervalAggregation.setType(AnalyticsAggregationType.DATE);
+    monthIntervalAggregation.setInterval("month");
+    analyticsFilter.addXAxisAggregation(monthIntervalAggregation);
 
-      ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
+    ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
 
-      assertNotNull("Unexpected empty charts data", chartDataList);
-      assertNotNull("Unexpected empty charts data list", chartDataList.getCharts());
-      assertEquals("Unexpected charts data size", 33, chartDataList.getCharts().size());
-      assertEquals("Unexpected injected labels (X axis) data size", 5, chartDataList.getLabels().size());
+    assertNotNull("Unexpected empty charts data", chartDataList);
+    assertNotNull("Unexpected empty charts data list", chartDataList.getCharts());
+    assertEquals("Unexpected charts data size", 33, chartDataList.getCharts().size());
+    assertEquals("Unexpected injected labels (X axis) data size", 5, chartDataList.getLabels().size());
 
-      Set<ChartData> charts = chartDataList.getCharts();
-      Iterator<ChartData> chartsIterator = charts.iterator();
-      while (chartsIterator.hasNext()) {
-        ChartData chartData = chartsIterator.next();
-        assertEquals("Unexpected injected values (Y axis) data size",
-                     chartDataList.getLabels().size(),
-                     chartData.getValues().size());
-      }
-    } catch (Exception e) {
-      LOG.error("Error occurred in test", e);
-      fail(e.getMessage());
+    Set<ChartData> charts = chartDataList.getCharts();
+    Iterator<ChartData> chartsIterator = charts.iterator();
+    while (chartsIterator.hasNext()) {
+      ChartData chartData = chartsIterator.next();
+      assertEquals("Unexpected injected values (Y axis) data size",
+                   chartDataList.getLabels().size(),
+                   chartData.getValues().size());
     }
   }
 
@@ -229,7 +195,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
                                       .toInstant()
                                       .toEpochMilli());
 
-    AnalyticsAggregation yAxisAggregation = new AnalyticsAggregation(AnalyticsAggregationType.COUNT, null, "desc", "1d");
+    AnalyticsAggregation yAxisAggregation = new AnalyticsAggregation(AnalyticsAggregationType.COUNT, null, "desc", "1d", 0);
     valueFilter.setYAxisAggregation(yAxisAggregation);
     thresholdFilter.setYAxisAggregation(yAxisAggregation);
 

@@ -73,6 +73,8 @@ public interface AnalyticsService {
 
   /**
    * Add watcher plugin
+   * 
+   * @param uiWatcherPlugin Kernel component plugin to add
    */
   void addUIWatcherPlugin(StatisticUIWatcherPlugin uiWatcherPlugin);
 

@@ -162,9 +162,6 @@
   <profiles>
     <profile>
       <id>run-its</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
       <properties>
         <!-- No unit tests only integration tests with ES, but integration coverage is not correctly integrated with jacoco -->
         <!--exo.test.coverage.ratio>0.75</exo.test.coverage.ratio-->
@@ -322,5 +319,4 @@
       </build>
     </profile>
   </profiles>
-  
 </project>
