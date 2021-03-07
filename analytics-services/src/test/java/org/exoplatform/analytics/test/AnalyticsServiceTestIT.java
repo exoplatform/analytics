@@ -107,6 +107,119 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
   }
 
   @Test
+  public void testGetAnalyticsChartByLimit() {
+    List<StatisticData> injectedDate = analyticsService.retrieveData(null);
+    assertNotNull("Returned injected data is null", injectedDate);
+    assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+
+    AnalyticsFilter analyticsFilter = new AnalyticsFilter();
+    analyticsFilter.addEqualFilter("module", "portal");
+    analyticsFilter.addNotEqualFilter("module", "social");
+    analyticsFilter.addInSetFilter("subModule", "no_module", "login", "logout");
+
+    AnalyticsAggregation operationAggregation = new AnalyticsAggregation();
+    operationAggregation.setField("operation");
+    operationAggregation.setType(AnalyticsAggregationType.TERMS);
+    analyticsFilter.addXAxisAggregation(operationAggregation);
+    AnalyticsAggregation userIdAggregation = new AnalyticsAggregation();
+    userIdAggregation.setField("userId");
+    userIdAggregation.setType(AnalyticsAggregationType.TERMS);
+    userIdAggregation.setLimit(20);
+    analyticsFilter.addXAxisAggregation(userIdAggregation);
+    AnalyticsAggregation statusAggregation = new AnalyticsAggregation();
+    statusAggregation.setField("subModule");
+    statusAggregation.setType(AnalyticsAggregationType.TERMS);
+    analyticsFilter.addXAxisAggregation(statusAggregation);
+
+    ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
+    assertNotNull("Unexpected empty charts data", chartDataList);
+    assertNotNull("Unexpected empty charts data size", chartDataList.getCharts());
+    assertEquals("Unexpected empty charts data size", 1, chartDataList.getCharts().size());
+
+    ChartData chartData = chartDataList.getCharts().iterator().next();
+
+    assertNotNull("Unexpected injected data size", chartData);
+    assertEquals("Unexpected injected labels (X axis) data size", 40, chartDataList.getLabels().size());
+    assertEquals("Unexpected injected values (Y axis) data size",
+                 chartDataList.getLabels().size(),
+                 chartData.getValues().size());
+  }
+
+  @Test
+  public void testGetAnalyticsChartBySort() {
+    List<StatisticData> injectedDate = analyticsService.retrieveData(null);
+    assertNotNull("Returned injected data is null", injectedDate);
+    assertFalse("Returned injected data is empty", injectedDate.isEmpty());
+
+    AnalyticsFilter analyticsFilter = new AnalyticsFilter();
+    analyticsFilter.addEqualFilter("module", "portal");
+    analyticsFilter.addNotEqualFilter("module", "social");
+    analyticsFilter.addInSetFilter("subModule", "no_module", "login", "logout");
+
+    AnalyticsAggregation operationAggregation = new AnalyticsAggregation();
+    operationAggregation.setField("operation");
+    operationAggregation.setType(AnalyticsAggregationType.TERMS);
+    operationAggregation.setLimit(1);
+    operationAggregation.setSortDirection("asc");
+    analyticsFilter.addXAxisAggregation(operationAggregation);
+    AnalyticsAggregation userIdAggregation = new AnalyticsAggregation();
+    userIdAggregation.setField("userId");
+    userIdAggregation.setType(AnalyticsAggregationType.TERMS);
+    userIdAggregation.setLimit(1);
+    userIdAggregation.setSortDirection("asc");
+    analyticsFilter.addXAxisAggregation(userIdAggregation);
+    AnalyticsAggregation statusAggregation = new AnalyticsAggregation();
+    statusAggregation.setField("subModule");
+    statusAggregation.setType(AnalyticsAggregationType.TERMS);
+    statusAggregation.setLimit(1);
+    statusAggregation.setSortDirection("asc");
+    analyticsFilter.addXAxisAggregation(statusAggregation);
+
+    ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
+    assertNotNull("Unexpected empty charts data", chartDataList);
+    assertNotNull("Unexpected empty charts data size", chartDataList.getCharts());
+    assertEquals("Unexpected empty charts data size", 1, chartDataList.getCharts().size());
+
+    ChartData chartData = chartDataList.getCharts().iterator().next();
+
+    assertNotNull(chartData);
+    assertNotNull(chartData.getAggregationResults());
+
+    assertEquals("Unexpected aggregation results size",
+                 1,
+                 chartData.getAggregationResults().size());
+
+    assertEquals("Unexpected aggregation result",
+                 "operation=login-userId=42-subModule=login",
+                 chartData.getAggregationResults().get(0).getLabel());
+
+    assertEquals("Unexpected aggregation results size",
+                 "15",
+                 chartData.getAggregationResults().get(0).getValue());
+
+    operationAggregation.setSortDirection("desc");
+    userIdAggregation.setSortDirection("desc");
+    statusAggregation.setSortDirection("desc");
+    chartDataList = analyticsService.computeChartData(analyticsFilter);
+    chartData = chartDataList.getCharts().iterator().next();
+
+    assertNotNull(chartData);
+    assertNotNull(chartData.getAggregationResults());
+
+    assertEquals("Unexpected aggregation results size",
+                 1,
+                 chartData.getAggregationResults().size());
+
+    assertEquals("Unexpected aggregation result",
+                 "operation=logout-userId=11-subModule=login",
+                 chartData.getAggregationResults().get(0).getLabel());
+
+    assertEquals("Unexpected aggregation results size",
+                 "92",
+                 chartData.getAggregationResults().get(0).getValue());
+  }
+
+  @Test
   public void testGetAnalyticsMultipleCharts() {
     List<StatisticData> injectedDate = analyticsService.retrieveData(null);
     assertNotNull("Returned injected data is null", injectedDate);
