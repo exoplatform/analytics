@@ -6,8 +6,9 @@ import lombok.*;
 
 @Data
 @ToString
+@NoArgsConstructor
 @AllArgsConstructor
-public class PercentageChartDataList implements Serializable {
+public class PercentageChartResult implements Serializable {
 
   private static final long serialVersionUID = 5490607865795348987L;
 

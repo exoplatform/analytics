@@ -31,7 +31,7 @@ public enum AnalyticsPeriodType {
       case LAST24H:
         return new AnalyticsPeriod(date, date.plusDays(1));
       case LAST_WEEK:
-        start = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        start = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         end = start.plusDays(7);
         return new AnalyticsPeriod(start, end);
       case LAST_MONTH:

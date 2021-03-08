@@ -1,18 +1,18 @@
 <template>
-  <v-flex class="analytics-progress-bar-chart-body pa-4 border-box-sizing">
-    <v-progress-linear
-      :value="currentPeriodPercentage"
-      :color="chartColor"
-      class="analytics-progress-bar"
-      height="45">
-      <h3
-        v-if="initialized"
-        :style="`margin-left: calc(${progressBarValueClass}% - 24px); margin-right: auto;`"
-        class="font-weight-bold white--text">
-        {{ currentPeriodPercentage }}%
-      </h3>
-    </v-progress-linear>
-    <div class="text-no-wrap mt-2">
+  <v-flex class="analytics-percentage-chart-body align-center border-box-sizing">
+    <h1
+      v-if="initialized"
+      :style="`color: ${chartColor};`"
+      class="font-weight-bold display-2">
+      {{ currentPeriodPercentage }}%
+    </h1>
+    <template v-if="isUserLimit">
+      <div class="text-sub-title text-no-wrap mt-2">
+        {{ $t('analytics.ofActiveUsers') }}
+        <span class="primary--text">{{ $t('analytics.percentOfUsers', {0: percentage}) }}</span>
+      </div>
+    </template>
+    <div class="text-no-wrap mt-1">
       <span :class="lastPeriodComparaisonClass">
         {{ $t('analytics.points', {0: diffSign, 1: diffWithLastPeriod}) }}
       </span>
@@ -25,8 +25,8 @@
 <script>
 export default {
   props: {
-    colors: {
-      type: Array,
+    settings: {
+      type: Object,
       default: null,
     },
   },
@@ -40,12 +40,21 @@ export default {
     };
   },
   computed: {
+    hasLimit() {
+      return this.settings && this.settings.percentageLimit;
+    },
+    isUserLimit() {
+      return this.hasLimit && this.settings.percentageLimit.field === 'userId';
+    },
+    percentage() {
+      return this.hasLimit && this.settings.percentageLimit.percentage;
+    },
     chartColor() {
-      return this.colors && this.colors.length && this.colors[0] || '#319ab3';
+      return this.settings && this.settings.colors && this.settings.colors.length && this.settings.colors[0] || '#319ab3';
     },
     currentPeriodPercentage() {
       return this.currentPeriodThreshold
-              && (Math.round((this.currentPeriodValue / this.currentPeriodThreshold) * 10000) / 100)
+             && (Math.round((this.currentPeriodValue / this.currentPeriodThreshold) * 10000) / 100)
               || 0;
     },
     lastPeriodPercentage() {

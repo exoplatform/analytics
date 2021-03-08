@@ -60,6 +60,10 @@
                 ref="searchFilter"
                 :fields-mappings="fieldsMappings"
                 :filters="chartSettings.value.filters" />
+              <analytics-limit-filter-form
+                ref="searchFilter"
+                :fields-mappings="fieldsMappings"
+                :settings="chartSettings" />
             </v-tab-item>
             <v-tab-item eager>
               <h3>{{ $t('analytics.computingRule') }}</h3>
