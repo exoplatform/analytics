@@ -8,10 +8,7 @@
   <artifactId>analytics-services</artifactId>
   <name>eXo Analytics - Services</name>
   <properties>
-  <!-- Waiting to merge https://github.com/Meeds-io/maven-parent-pom/pull/6
-   & release & update parent pom of addons to uncomment real IT Test coverage -->
-<!--     <exo.test.coverage.ratio>0.77</exo.test.coverage.ratio> -->
-    <exo.test.coverage.ratio>0.0</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.77</exo.test.coverage.ratio>
     <org.elasticsearch.version>5.6.11</org.elasticsearch.version>
   </properties>
   <dependencies>
