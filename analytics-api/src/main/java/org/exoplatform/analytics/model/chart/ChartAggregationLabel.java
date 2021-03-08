@@ -21,4 +21,7 @@ public class ChartAggregationLabel implements Serializable {
   @Exclude
   private String                      lang;
 
+  public boolean hasValues() {
+    return aggregationValues != null && !aggregationValues.isEmpty();
+  }
 }

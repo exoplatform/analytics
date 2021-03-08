@@ -19,9 +19,9 @@ import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.chart.*;
 import org.exoplatform.analytics.model.filter.*;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter.Range;
-import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
-import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
-import org.exoplatform.analytics.model.filter.search.*;
+import org.exoplatform.analytics.model.filter.aggregation.*;
+import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
+import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilterType;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
@@ -179,52 +179,31 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   @Override
-  public PercentageChartDataList computeChartData(AnalyticsPercentageFilter filter) {
-    if (filter == null) {
+  public PercentageChartResult computeChartData(AnalyticsPercentageFilter percentageFilter) {
+    if (percentageFilter == null) {
       throw new IllegalArgumentException("Filter is mandatory");
     }
-    AnalyticsAggregation dateAxisAggregation = filter.computeXAxisAggregation();
+    AnalyticsPeriod currentPeriod = percentageFilter.getCurrentAnalyticsPeriod();
+    AnalyticsPeriod previousPeriod = percentageFilter.getPreviousAnalyticsPeriod();
 
-    ChartDataList valueChartData = computeChartData(filter.computeValueFilter());
-    ChartData valueChart = valueChartData.getCharts() == null
-        || valueChartData.getCharts().isEmpty() ? null : valueChartData.getCharts().iterator().next();
-    List<ChartAggregationResult> valueAggregationResults = valueChart == null
-        || valueChart.getAggregationResults() == null ? Collections.emptyList() : valueChart.getAggregationResults();
+    computePercentageLimits(percentageFilter, currentPeriod, previousPeriod);
 
-    ChartDataList thresholdChartData = computeChartData(filter.computeThresholdFilter());
-    ChartData thresholdChart = thresholdChartData.getCharts() == null
-        || thresholdChartData.getCharts().isEmpty() ? null : thresholdChartData.getCharts().iterator().next();
-    List<ChartAggregationResult> thresholdAggregationResults = thresholdChart == null
-        || thresholdChart.getAggregationResults() == null ? Collections.emptyList() : thresholdChart.getAggregationResults();
-
-    AnalyticsPeriod currentAnalyticsPeriod = filter.getCurrentAnalyticsPeriod();
-    AnalyticsPeriod previousAnalyticsPeriod = filter.getPreviousAnalyticsPeriod();
-
-    ChartAggregationResult currentValueResult = getChartDateAggregationResult(dateAxisAggregation,
-                                                                              valueAggregationResults,
-                                                                              currentAnalyticsPeriod);
-    ChartAggregationResult previousValueResult = getChartDateAggregationResult(dateAxisAggregation,
-                                                                               valueAggregationResults,
-                                                                               previousAnalyticsPeriod);
-
-    ChartAggregationResult currentThresholdResult = getChartDateAggregationResult(dateAxisAggregation,
-                                                                                  thresholdAggregationResults,
-                                                                                  currentAnalyticsPeriod);
-    ChartAggregationResult previousThresholdResult = getChartDateAggregationResult(dateAxisAggregation,
-                                                                                   thresholdAggregationResults,
-                                                                                   previousAnalyticsPeriod);
-
-    double currentPeriodValue = currentValueResult == null ? 0 : Double.parseDouble(currentValueResult.getValue());
-    double currentPeriodThreshold = currentThresholdResult == null ? 0 : Double.parseDouble(currentThresholdResult.getValue());
-    double previousPeriodValue = previousValueResult == null ? 0 : Double.parseDouble(previousValueResult.getValue());
-    double previousPeriodThreshold = previousThresholdResult == null ? 0
-                                                                     : Double.parseDouble(previousThresholdResult.getValue());
-    return new PercentageChartDataList(currentPeriodValue,
-                                       currentPeriodThreshold,
-                                       previousPeriodValue,
-                                       previousPeriodThreshold,
-                                       valueChartData.getComputingTime() + thresholdChartData.getComputingTime(),
-                                       valueChartData.getDataCount() + thresholdChartData.getDataCount());
+    PercentageChartResult percentageChartResult = new PercentageChartResult();
+    computePercentageValuesPerPeriod(percentageChartResult,
+                                     percentageFilter.computeValueFilter(),
+                                     currentPeriod,
+                                     previousPeriod,
+                                     percentageFilter.getCurrentPeriodLimit(),
+                                     percentageFilter.getPreviousPeriodLimit(),
+                                     true);
+    computePercentageValuesPerPeriod(percentageChartResult,
+                                     percentageFilter.computeThresholdFilter(),
+                                     currentPeriod,
+                                     previousPeriod,
+                                     0,
+                                     0,
+                                     false);
+    return percentageChartResult;
   }
 
   @Override
@@ -239,8 +218,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     String esQueryString = buildAnalyticsQuery(filter.getAggregations(),
                                                filter.getFilters(),
                                                filter.getOffset(),
-                                               filter.getLimit(),
-                                               false);
+                                               filter.getLimit());
 
     String jsonResponse = this.esClient.sendRequest(esQueryString);
     try {
@@ -252,18 +230,18 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   @Override
-  public List<StatisticData> retrieveData(AnalyticsFilter searchFilter) {
-    StringBuilder esQuery = buildFilterQuery(searchFilter, false);
+  public List<StatisticData> retrieveData(AnalyticsFilter filter) {
+    List<AnalyticsFieldFilter> filters = filter == null ? Collections.emptyList() : filter.getFilters();
+    long offset = filter == null ? 0 : filter.getOffset();
+    long limit = filter == null ? 10 : filter.getLimit();
 
-    String esQueryString = esQuery.toString();
-    esQueryString = fixJSONStringFormat(esQueryString);
-    LOG.debug("ES query to compute search count with filter {}: {}", searchFilter, esQueryString);
+    String esQueryString = buildAnalyticsQuery(null, filters, offset, limit);
 
     String jsonResponse = this.esClient.sendRequest(esQueryString);
     try {
       return buildSearchResultFromESResponse(jsonResponse);
     } catch (JSONException e) {
-      throw new IllegalStateException("Error parsing results with filter: " + searchFilter + ", response: " + jsonResponse, e);
+      throw new IllegalStateException("Error parsing results with filter: " + filter + ", response: " + jsonResponse, e);
     }
   }
 
@@ -301,18 +279,19 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   private String buildAnalyticsQuery(List<AnalyticsAggregation> aggregations,
                                      List<AnalyticsFieldFilter> filters,
                                      long offset,
-                                     long limit,
-                                     boolean retrieveUsedTuples) {
+                                     long limit) {
+    boolean isCount = aggregations != null;
+
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{");
     buildSearchFilterQuery(esQuery,
                            filters,
-                           null,
                            offset,
                            limit,
-                           !retrieveUsedTuples,
-                           false);
-    buildAggregationQuery(esQuery, aggregations);
+                           isCount);
+    if (isCount) {
+      buildAggregationQuery(esQuery, aggregations);
+    }
     esQuery.append("}");
     String esQueryString = esQuery.toString();
     esQueryString = fixJSONStringFormat(esQueryString);
@@ -323,52 +302,14 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     return esQueryString;
   }
 
-  private List<AnalyticsSortField> getSortFields(List<AnalyticsAggregation> aggregations) {
-    List<AnalyticsSortField> sortFields = new ArrayList<>();
-    aggregations.forEach(agg -> {
-      AnalyticsSortField sortField = new AnalyticsSortField(agg.getField(), agg.getSortDirection());
-      sortFields.add(sortField);
-    });
-    return sortFields;
-  }
-
-  private StringBuilder buildFilterQuery(AnalyticsFilter analyticsFilter, boolean isCount) {
-    List<AnalyticsSortField> sortFields = isCount
-        || analyticsFilter == null ? null : getSortFields(analyticsFilter.getXAxisAggregations());
-    List<AnalyticsFieldFilter> filters = analyticsFilter == null ? Collections.emptyList() : analyticsFilter.getFilters();
-    long offset = analyticsFilter == null ? 0 : analyticsFilter.getOffset();
-    long limit = analyticsFilter == null ? 0 : analyticsFilter.getLimit();
-
-    if (!isCount && (sortFields == null || sortFields.isEmpty())) {
-      sortFields = new ArrayList<>();
-      sortFields.add(new AnalyticsSortField("timestamp", "desc"));
-    }
-    StringBuilder esQuery = new StringBuilder();
-    esQuery.append("{");
-    buildSearchFilterQuery(esQuery,
-                           filters,
-                           sortFields,
-                           offset,
-                           limit,
-                           isCount,
-                           !isCount);
-    esQuery.append("}");
-    return esQuery;
-  }
-
   private void buildSearchFilterQuery(StringBuilder esQuery,
                                       List<AnalyticsFieldFilter> filters,
-                                      List<AnalyticsSortField> sortFields,
                                       long offset,
                                       long limit,
-                                      boolean isCount,
-                                      boolean useSort) {
+                                      boolean isCount) {
     // If it's a count query, no need for results and no need for sort neither
     if (isCount) {
       esQuery.append("     \"size\" : 0");
-      if (useSort) {
-        esQuery.append(",");
-      }
     } else {
       if (offset > 0) {
         esQuery.append("     \"from\" : ").append(offset).append(",");
@@ -377,34 +318,8 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
         limit = 10000;
       }
       esQuery.append("     \"size\" : ").append(limit).append(",");
-    }
-
-    if (useSort) {
-      if (sortFields == null || sortFields.isEmpty()) {
-        // Sort by date
-        esQuery.append("     \"sort\" : [{ \"timestamp\":{\"order\" : \"desc\"}}]");
-      } else {
-        esQuery.append("     \"sort\" : [");
-        for (int i = 0; i < sortFields.size(); i++) {
-          AnalyticsSortField sortField = sortFields.get(i);
-          if (sortField == null || sortField.getField() == null) {
-            continue;
-          }
-          if (i > 0) {
-            esQuery.append(",");
-          }
-          String direction = sortField.getDirection();
-          if (direction == null) {
-            direction = "desc";
-          }
-          esQuery.append("{ \"")
-                 .append(sortField.getField())
-                 .append("\":{\"order\" : \"")
-                 .append(direction)
-                 .append("\"}}");
-        }
-        esQuery.append("]");
-      }
+      // Sort by date
+      esQuery.append("     \"sort\" : [{ \"timestamp\":{\"order\" : \"desc\"}}]");
     }
 
     // Query body
@@ -514,36 +429,53 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                                      List<AnalyticsAggregation> aggregations) {
     if (aggregations != null && !aggregations.isEmpty()) {
       StringBuffer endOfQuery = new StringBuffer();
-      Iterator<AnalyticsAggregation> aggregationsIterator = aggregations.iterator();
-      while (aggregationsIterator.hasNext()) {
-        AnalyticsAggregation analyticsAggregation = aggregationsIterator.next();
+      for (int i = 0; i < aggregations.size(); i++) {
+        AnalyticsAggregation aggregation = aggregations.get(i);
+
+        AnalyticsAggregationType aggregationType = aggregation.getType();
+        if (aggregationType.isUseInterval() && StringUtils.isBlank(aggregation.getInterval())) {
+          throw new IllegalStateException("Analytics aggregation type '" + aggregationType
+              + "' is using intervals while it has empty interval");
+        }
+
+        String fieldName = getAggregationFieldName(aggregationType);
+
+        long limit = aggregation.getLimit();
+        if (aggregationType.isUseLimit() && limit <= 0) {
+          limit = aggregationReturnedDocumentsSize;
+        }
+
         esQuery.append("     ,\"aggs\": {");
+        esQuery.append("       \"")
+               .append(fieldName)
+               .append("\": {");
+        esQuery.append("         \"")
+               .append(aggregationType.getAggName())
+               .append("\": {");
+        esQuery.append("           \"field\": \"")
+               .append(aggregation.getField())
+               .append("\"");
 
-        String fieldName = null;
-        AnalyticsAggregationType aggregationType = analyticsAggregation.getType();
-        if (AnalyticsAggregationType.COUNT == aggregationType || AnalyticsAggregationType.DATE == aggregationType
-            || AnalyticsAggregationType.HISTOGRAM == aggregationType) {
-          fieldName = AGGREGATION_RESULT_PARAM;
-        } else {
-          fieldName = AGGREGATION_RESULT_VALUE_PARAM;
-        }
-
-        esQuery.append("       \"").append(fieldName).append("\": {");
-        esQuery.append("         \"").append(aggregationType.getName()).append("\": {");
-        esQuery.append("           \"field\": \"").append(analyticsAggregation.getField()).append("\"");
-        if (AnalyticsAggregationType.COUNT == aggregationType) {
-          esQuery.append("           ,\"size\": ").append(aggregationReturnedDocumentsSize);
-        }
         if (aggregationType.isUseInterval()) {
-          if (StringUtils.isBlank(analyticsAggregation.getInterval())) {
-            throw new IllegalStateException("Analytics aggregation type '" + aggregationType
-                + "' is using intervals while it has empty interval");
+          esQuery.append(",")
+                 .append("           \"interval\": \"")
+                 .append(aggregation.getInterval())
+                 .append("\"");
+        }
+
+        if (aggregationType.isUseLimit() && limit > 0) {
+          esQuery.append("           ,\"size\": ").append(limit);
+        }
+        if (aggregationType.isUseSort() && (i + 1) < aggregations.size()) {
+          AnalyticsAggregation nextAggregation = aggregations.get(i + 1);
+          String sortField = getSortField(nextAggregation);
+          if (sortField != null) {
+            esQuery.append(",           \"order\": {\"")
+                   .append(sortField)
+                   .append("\": \"")
+                   .append(aggregation.getSortDirection())
+                   .append("\"}");
           }
-          esQuery.append(",").append("           \"interval\": \"").append(analyticsAggregation.getInterval()).append("\"");
-        } else if (aggregationType.allowSort()) {
-          String sortDirection =
-                               analyticsAggregation.getSortDirection() == null ? "asc" : analyticsAggregation.getSortDirection();
-          esQuery.append(",").append("           \"order\": {\"_term\": \"").append(sortDirection).append("\"}");
         }
         esQuery.append("         }");
 
@@ -552,6 +484,153 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
         endOfQuery.append("     }");
       }
       esQuery.append(endOfQuery);
+    }
+  }
+
+  private String getAggregationFieldName(AnalyticsAggregationType aggregationType) {
+    String fieldName = null;
+    if (AnalyticsAggregationType.TERMS == aggregationType
+        || AnalyticsAggregationType.DATE == aggregationType
+        || AnalyticsAggregationType.HISTOGRAM == aggregationType) {
+      fieldName = AGGREGATION_RESULT_PARAM;
+    } else {
+      fieldName = AGGREGATION_RESULT_VALUE_PARAM;
+    }
+    return fieldName;
+  }
+
+  private String getSortField(AnalyticsAggregation nextAggregation) {
+    if (nextAggregation == null) {
+      return null;
+    }
+
+    AnalyticsAggregationType aggType = nextAggregation.getType();
+    if (aggType == AnalyticsAggregationType.COUNT
+        || aggType == AnalyticsAggregationType.MAX
+        || aggType == AnalyticsAggregationType.MIN
+        || aggType == AnalyticsAggregationType.AVG
+        || aggType == AnalyticsAggregationType.SUM) {
+      return getAggregationFieldName(aggType) + ".value";
+    }
+    return "_count";
+  }
+
+  private void computePercentageLimits(AnalyticsPercentageFilter percentageFilter,
+                                       AnalyticsPeriod currentPeriod,
+                                       AnalyticsPeriod previousPeriod) {
+    AnalyticsPercentageLimit percentageLimit = percentageFilter.getPercentageLimit();
+    if (percentageLimit != null) {
+      ChartDataList limitChartData = computeChartData(percentageFilter.computeLimitFilter());
+      ChartData limitChart = limitChartData.getCharts() == null
+          || limitChartData.getCharts().isEmpty() ? null : limitChartData.getCharts().iterator().next();
+      List<ChartAggregationResult> limitAggregationResults = limitChart == null
+          || limitChart.getAggregationResults() == null ? Collections.emptyList() : limitChart.getAggregationResults();
+      AnalyticsAggregation limitYAggregation = percentageLimit.getAggregation().getYAxisAggregation();
+
+      double currentPeriodLimit = getChartDateAggregationResult(limitAggregationResults,
+                                                                currentPeriod,
+                                                                limitYAggregation,
+                                                                0);
+      double previousPeriodLimit = getChartDateAggregationResult(limitAggregationResults,
+                                                                 previousPeriod,
+                                                                 limitYAggregation,
+                                                                 0);
+      percentageFilter.setCurrentPeriodLimit(Math.round(currentPeriodLimit * percentageLimit.getPercentage() / 100));
+      percentageFilter.setPreviousPeriodLimit(Math.round(previousPeriodLimit * percentageLimit.getPercentage() / 100));
+    } else {
+      percentageFilter.setCurrentPeriodLimit(0);
+      percentageFilter.setPreviousPeriodLimit(0);
+    }
+  }
+
+  private void computePercentageValuesPerPeriod(PercentageChartResult percentageResult,
+                                                AnalyticsFilter analyticsFilter,
+                                                AnalyticsPeriod currentPeriod,
+                                                AnalyticsPeriod previousPeriod,
+                                                long currentPeriodLimit,
+                                                long previousPeriodLimit,
+                                                boolean isValue) {
+    ChartDataList chartData = computeChartData(analyticsFilter);
+    ChartData valueChart = chartData.getCharts() == null
+        || chartData.getCharts().isEmpty() ? null : chartData.getCharts().iterator().next();
+    List<ChartAggregationResult> valueAggregationResults = valueChart == null
+        || valueChart.getAggregationResults() == null ? Collections.emptyList() : valueChart.getAggregationResults();
+
+    AnalyticsAggregation yAxisAggregation = analyticsFilter.getYAxisAggregation();
+
+    double currentPeriodValue = getChartDateAggregationResult(valueAggregationResults,
+                                                              currentPeriod,
+                                                              yAxisAggregation,
+                                                              currentPeriodLimit);
+    double previousPeriodValue = getChartDateAggregationResult(valueAggregationResults,
+                                                               previousPeriod,
+                                                               yAxisAggregation,
+                                                               previousPeriodLimit);
+    if (isValue) {
+      percentageResult.setCurrentPeriodValue(currentPeriodValue);
+      percentageResult.setPreviousPeriodValue(previousPeriodValue);
+    } else {
+      percentageResult.setCurrentPeriodThreshold(currentPeriodValue);
+      percentageResult.setPreviousPeriodThreshold(previousPeriodValue);
+    }
+    percentageResult.setComputingTime(percentageResult.getComputingTime() + chartData.getComputingTime());
+    percentageResult.setDataCount(percentageResult.getDataCount() + chartData.getDataCount());
+  }
+
+  private double getChartDateAggregationResult(List<ChartAggregationResult> aggregationResults,
+                                               AnalyticsPeriod period,
+                                               AnalyticsAggregation yAxisAggregation,
+                                               long limit) {
+    List<ChartAggregationResult> periodAggregationResults = aggregationResults.stream()
+                                                                              .filter(aggregationResult -> {
+                                                                                ChartAggregationLabel chartLabel =
+                                                                                                                 aggregationResult.retrieveChartLabel();
+                                                                                if (chartLabel == null
+                                                                                    || !chartLabel.hasValues()) {
+                                                                                  return false;
+                                                                                }
+                                                                                List<ChartAggregationValue> periods =
+                                                                                                                    chartLabel.getAggregationValues()
+                                                                                                                              .stream()
+                                                                                                                              .filter(aggregationValue -> {
+                                                                                                                                long timestamp =
+                                                                                                                                               Long.parseLong(aggregationValue.getFieldValue());
+                                                                                                                                return timestamp < period.getToInMS()
+                                                                                                                                    && timestamp >= period.getFromInMS();
+
+                                                                                                                              })
+                                                                                                                              .collect(Collectors.toList());
+                                                                                return !periods.isEmpty();
+                                                                              })
+                                                                              .limit(limit > 0 ? limit
+                                                                                               : aggregationResults.size())
+                                                                              .collect(Collectors.toList());
+    AnalyticsAggregationType yAxisAggregationType = yAxisAggregation == null ? AnalyticsAggregationType.COUNT
+                                                                             : yAxisAggregation.getType();
+    switch (yAxisAggregationType) {
+      case COUNT:
+      case CARDINALITY:
+      case SUM:
+        return periodAggregationResults.stream()
+                                       .mapToDouble(value -> value.getValue() == null ? 0 : Double.parseDouble(value.getValue()))
+                                       .sum();
+      case MIN:
+        return periodAggregationResults.stream()
+                                       .mapToDouble(value -> value.getValue() == null ? 0 : Double.parseDouble(value.getValue()))
+                                       .min()
+                                       .orElse(0);
+      case MAX:
+        return periodAggregationResults.stream()
+                                       .mapToDouble(value -> value.getValue() == null ? 0 : Double.parseDouble(value.getValue()))
+                                       .max()
+                                       .orElse(0);
+      case AVG:
+        return periodAggregationResults.stream()
+                                       .mapToDouble(value -> value.getValue() == null ? 0 : Double.parseDouble(value.getValue()))
+                                       .average()
+                                       .orElse(0);
+      default:
+        return 0;
     }
   }
 
@@ -745,28 +824,6 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       }
       index++;
     }
-  }
-
-  private ChartAggregationResult getChartDateAggregationResult(AnalyticsAggregation dateAxisAggregation,
-                                                               List<ChartAggregationResult> aggregationResults,
-                                                               AnalyticsPeriod period) {
-    return aggregationResults.stream().filter(valueAggregationResult -> {
-      ChartAggregationLabel chartLabel = valueAggregationResult.retrieveChartLabel();
-      if (chartLabel == null || chartLabel.getAggregationValues() == null || chartLabel.getAggregationValues().isEmpty()) {
-        return false;
-      }
-      ChartAggregationValue periodAggregationValue = chartLabel.getAggregationValues()
-                                                               .stream()
-                                                               .filter(aggregationValue -> dateAxisAggregation
-                                                                                                              .equals(aggregationValue.getAggregation()))
-                                                               .findFirst()
-                                                               .orElse(null);
-      if (periodAggregationValue == null) {
-        return false;
-      }
-      long timestamp = Long.parseLong(periodAggregationValue.getFieldValue());
-      return timestamp < period.getToInMS() && timestamp >= period.getFromInMS();
-    }).findFirst().orElse(null);
   }
 
 }
