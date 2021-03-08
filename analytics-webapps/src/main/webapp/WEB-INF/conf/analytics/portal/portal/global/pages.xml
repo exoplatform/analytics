@@ -257,7 +257,7 @@
                         "type": "MAX"
                       }
                     },
-                    "percentage": 50,
+                    "percentage": 10,
                     "field": "userId"
                   },
                   "threshold": {
