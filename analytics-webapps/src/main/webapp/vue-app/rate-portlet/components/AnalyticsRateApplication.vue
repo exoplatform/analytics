@@ -72,7 +72,7 @@
       <analytics-percentage-chart
         v-else-if="chartType === 'percentage'"
         ref="analyticsRateBody"
-        :colors="colors" />
+        :settings="chartSettings" />
     </v-card>
   </v-app>
 </template>

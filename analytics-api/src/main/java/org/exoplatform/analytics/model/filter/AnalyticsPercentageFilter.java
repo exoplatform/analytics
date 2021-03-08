@@ -6,12 +6,12 @@ import java.io.Serializable;
 import java.time.*;
 import java.util.*;
 
-import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
-import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
+import org.exoplatform.analytics.model.filter.aggregation.*;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
 
 import groovy.transform.ToString;
 import lombok.*;
+import lombok.EqualsAndHashCode.Exclude;
 
 @Data
 @ToString
@@ -19,7 +19,7 @@ import lombok.*;
 @AllArgsConstructor
 public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
-  private static final long             serialVersionUID = 5699550622069979910L;
+  private static final long             serialVersionUID    = 5699550622069979910L;
 
   private String                        title;
 
@@ -37,20 +37,15 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
   private AnalyticsPercentageItemFilter threshold;
 
-  private String                        lang             = null;
+  private AnalyticsPercentageLimit      percentageLimit     = null;
 
-  public AnalyticsAggregation computeXAxisAggregation() {
-    AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
-    if (analyticsPeriodType == null) {
-      return null;
-    }
-    AnalyticsAggregation xAxisAggregation = new AnalyticsAggregation();
-    xAxisAggregation.setField("timestamp");
-    xAxisAggregation.setSortDirection("DESC");
-    xAxisAggregation.setType(AnalyticsAggregationType.DATE);
-    xAxisAggregation.setInterval(analyticsPeriodType.getInterval());
-    return xAxisAggregation;
-  }
+  @Exclude
+  private long                          currentPeriodLimit  = 0;
+
+  @Exclude
+  private long                          previousPeriodLimit = 0;
+
+  private String                        lang                = null;
 
   public AnalyticsPeriodType getAnalyticsPeriodType() {
     return AnalyticsPeriodType.periodTypeByName(periodType);
@@ -72,20 +67,128 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
     return analyticsPeriodType.getPreviousPeriod(periodDate);
   }
 
-  public AnalyticsAggregation computeValueYAggregations() {
-    return value == null ? null : value.getYAxisAggregation();
+  public void setPeriodDateInMS(long timestampInMS) {
+    periodDate = Instant.ofEpochMilli(timestampInMS).atZone(ZoneOffset.UTC).toLocalDate();
   }
 
-  public AnalyticsAggregation computeThresholdYAggregations() {
-    return threshold == null ? null : threshold.getYAxisAggregation();
+  public AnalyticsFilter computeValueFilter() {
+    List<AnalyticsAggregation> xAxisAggregations = new ArrayList<>();
+    AnalyticsAggregation xAxisAggregation = getXAxisAggregation();
+    if (xAxisAggregation != null) {
+      xAxisAggregations.add(xAxisAggregation);
+    }
+    long maxPeriodLimit = getMaxPeriodLimit();
+    if (maxPeriodLimit > 0) {
+      AnalyticsAggregation limitAggregation = new AnalyticsAggregation(percentageLimit.getField());
+      limitAggregation.setType(AnalyticsAggregationType.TERMS);
+      limitAggregation.setLimit(maxPeriodLimit);
+      xAxisAggregations.add(limitAggregation);
+    }
+
+    return new AnalyticsFilter(title,
+                               chartType,
+                               colors,
+                               getValueFilters(),
+                               null,
+                               xAxisAggregations,
+                               getValueYAggregation(),
+                               lang,
+                               0l,
+                               0l);
   }
 
-  public List<AnalyticsFieldFilter> computeValueFilters() {
+  public AnalyticsFilter computeLimitFilter() {
+    AnalyticsAggregation xAxisAggregation = getXAxisAggregation();
+    return new AnalyticsFilter(title,
+                               chartType,
+                               colors,
+                               getLimitFilters(),
+                               null,
+                               xAxisAggregation == null ? Collections.emptyList() : Collections.singletonList(xAxisAggregation),
+                               getLimitYAggregation(),
+                               lang,
+                               0l,
+                               0l);
+  }
+
+  public AnalyticsFilter computeThresholdFilter() {
+    AnalyticsAggregation xAxisAggregation = getXAxisAggregation();
+    return new AnalyticsFilter(title,
+                               chartType,
+                               colors,
+                               getThresholdFilters(),
+                               null,
+                               xAxisAggregation == null ? Collections.emptyList() : Collections.singletonList(xAxisAggregation),
+                               getThresholdYAggregation(),
+                               lang,
+                               0l,
+                               0l);
+  }
+
+  public long getMaxPeriodLimit() {
+    return Math.max(currentPeriodLimit, previousPeriodLimit);
+  }
+
+  @Override
+  public AnalyticsPercentageFilter clone() { // NOSONAR
+    LocalDate clonedPeriodDate = periodDate == null ? null : LocalDate.from(periodDate);
+    AnalyticsFieldFilter clonedScopeFilter = scopeFilter == null ? null : scopeFilter.clone();
+    AnalyticsPercentageItemFilter cloneAnalyticsPercentageItemFilterValue = value == null ? null : value.clone();
+    AnalyticsPercentageItemFilter cloneAnalyticsPercentageItemFilterThreshold = threshold == null ? null
+                                                                                                  : threshold.clone();
+    AnalyticsPercentageLimit clonedAnalyticsPercentageLimit = percentageLimit == null ? null
+                                                                                      : percentageLimit.clone();
+    return new AnalyticsPercentageFilter(title,
+                                         chartType,
+                                         colors,
+                                         clonedScopeFilter,
+                                         periodType,
+                                         clonedPeriodDate,
+                                         cloneAnalyticsPercentageItemFilterValue,
+                                         cloneAnalyticsPercentageItemFilterThreshold,
+                                         clonedAnalyticsPercentageLimit,
+                                         currentPeriodLimit,
+                                         previousPeriodLimit,
+                                         lang);
+  }
+
+  private AnalyticsAggregation getXAxisAggregation() {
+    AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
+    if (analyticsPeriodType == null) {
+      return null;
+    }
+    AnalyticsAggregation xAxisAggregation = new AnalyticsAggregation();
+    xAxisAggregation.setField("timestamp");
+    xAxisAggregation.setSortDirection("DESC");
+    xAxisAggregation.setType(AnalyticsAggregationType.DATE);
+    xAxisAggregation.setInterval(analyticsPeriodType.getInterval());
+    return xAxisAggregation;
+  }
+
+  private AnalyticsAggregation getValueYAggregation() {
+    return value == null ? null : value.getYAxisAggregation().clone();
+  }
+
+  private AnalyticsAggregation getLimitYAggregation() {
+    return percentageLimit == null
+        || percentageLimit.getAggregation() == null
+        || percentageLimit.getAggregation().getYAxisAggregation() == null
+                                                                          ? null
+                                                                          : percentageLimit.getAggregation()
+                                                                                           .getYAxisAggregation()
+                                                                                           .clone();
+  }
+
+  private AnalyticsAggregation getThresholdYAggregation() {
+    return threshold == null ? null : threshold.getYAxisAggregation().clone();
+  }
+
+  private List<AnalyticsFieldFilter> getValueFilters() {
     List<AnalyticsFieldFilter> filters = new ArrayList<>();
 
-    AnalyticsFieldFilter periodFilter = computePeriodFilter();
+    AnalyticsFieldFilter periodFilter = getPeriodFilter();
     if (periodFilter != null) {
-      filters.add(computePeriodFilter());
+      filters.add(periodFilter);
     }
     if (scopeFilter != null) {
       filters.add(scopeFilter);
@@ -96,10 +199,27 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
     return filters;
   }
 
-  public List<AnalyticsFieldFilter> computeThresholdFilters() {
+  private List<AnalyticsFieldFilter> getLimitFilters() {
     List<AnalyticsFieldFilter> filters = new ArrayList<>();
 
-    AnalyticsFieldFilter periodFilter = computePeriodFilter();
+    AnalyticsFieldFilter periodFilter = getPeriodFilter();
+    if (periodFilter != null) {
+      filters.add(periodFilter);
+    }
+    if (scopeFilter != null) {
+      filters.add(scopeFilter);
+    }
+    if (percentageLimit != null && percentageLimit.getAggregation() != null
+        && percentageLimit.getAggregation().getFilters() != null) {
+      filters.addAll(percentageLimit.getAggregation().getFilters());
+    }
+    return filters;
+  }
+
+  private List<AnalyticsFieldFilter> getThresholdFilters() {
+    List<AnalyticsFieldFilter> filters = new ArrayList<>();
+
+    AnalyticsFieldFilter periodFilter = getPeriodFilter();
     if (periodFilter != null) {
       filters.add(periodFilter);
     }
@@ -112,88 +232,7 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
     return filters;
   }
 
-  public List<AnalyticsAggregation> computeValueAggregations() {
-    List<AnalyticsAggregation> aggregations = new ArrayList<>();
-
-    AnalyticsAggregation xAxisAggregation = computeXAxisAggregation();
-    if (xAxisAggregation != null) {
-      aggregations.add(xAxisAggregation);
-    }
-    if (value != null && value.getYAxisAggregation() != null) {
-      aggregations.add(value.getYAxisAggregation());
-    }
-    return aggregations;
-  }
-
-  public List<AnalyticsAggregation> computeThresholdAggregations() {
-    List<AnalyticsAggregation> aggregations = new ArrayList<>();
-
-    AnalyticsAggregation xAxisAggregation = computeXAxisAggregation();
-    if (xAxisAggregation != null) {
-      aggregations.add(xAxisAggregation);
-    }
-    if (threshold != null && threshold.getYAxisAggregation() != null) {
-      aggregations.add(threshold.getYAxisAggregation());
-    }
-    return aggregations;
-  }
-
-  public void setPeriodDateInMS(long timestampInMS) {
-    periodDate = Instant.ofEpochMilli(timestampInMS).atZone(ZoneOffset.UTC).toLocalDate();
-  }
-
-  public AnalyticsFilter computeValueFilter() {
-    AnalyticsAggregation xAxisAggregation = computeXAxisAggregation();
-    AnalyticsAggregation valueYAggregations = computeValueYAggregations();
-    List<AnalyticsFieldFilter> valueFilters = computeValueFilters();
-    return new AnalyticsFilter(title,
-                               chartType,
-                               colors,
-                               valueFilters == null ? Collections.emptyList() : valueFilters,
-                               null,
-                               xAxisAggregation == null ? Collections.emptyList() : Collections.singletonList(xAxisAggregation),
-                               valueYAggregations == null ? null : valueYAggregations,
-                               lang,
-                               0l,
-                               0l);
-  }
-
-  public AnalyticsFilter computeThresholdFilter() {
-    AnalyticsAggregation xAxisAggregation = computeXAxisAggregation();
-    AnalyticsAggregation thresholdYAggregations = computeThresholdYAggregations();
-    List<AnalyticsFieldFilter> thresholdFilters = computeThresholdFilters();
-    return new AnalyticsFilter(title,
-                               chartType,
-                               colors,
-                               thresholdFilters == null ? Collections.emptyList() : thresholdFilters,
-                               null,
-                               xAxisAggregation == null ? Collections.emptyList() : Collections.singletonList(xAxisAggregation),
-                               thresholdYAggregations == null ? null : thresholdYAggregations,
-                               lang,
-                               0l,
-                               0l);
-  }
-
-  @Override
-  public AnalyticsPercentageFilter clone() { // NOSONAR
-    LocalDate clonedPeriodDate = periodDate == null ? null : LocalDate.from(periodDate);
-    AnalyticsFieldFilter clonedScopeFilter = scopeFilter == null ? null : scopeFilter.clone();
-    AnalyticsPercentageItemFilter cloneAnalyticsPercentageItemFilterValue = value == null ? null : value.clone();
-    AnalyticsPercentageItemFilter cloneAnalyticsPercentageItemFilterThreshold = threshold == null ? null
-                                                                                                  : threshold.clone();
-
-    return new AnalyticsPercentageFilter(title,
-                                         chartType,
-                                         colors,
-                                         clonedScopeFilter,
-                                         periodType,
-                                         clonedPeriodDate,
-                                         cloneAnalyticsPercentageItemFilterValue,
-                                         cloneAnalyticsPercentageItemFilterThreshold,
-                                         lang);
-  }
-
-  private AnalyticsFieldFilter computePeriodFilter() {
+  private AnalyticsFieldFilter getPeriodFilter() {
     AnalyticsPeriod currentAnalyticsPeriod = getCurrentAnalyticsPeriod();
     AnalyticsPeriod previousAnalyticsPeriod = getPreviousAnalyticsPeriod();
     if (previousAnalyticsPeriod == null || currentAnalyticsPeriod == null) {

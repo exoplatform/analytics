@@ -6,9 +6,12 @@
       class="font-weight-bold display-2">
       {{ currentPeriodPercentage }}%
     </h1>
-    <div class="text-no-wrap mt-2">
-      of activity made by <span class="primary--text">10% of users</span>
-    </div>
+    <template v-if="isUserLimit">
+      <div class="text-no-wrap mt-2">
+        {{ $t('analytics.ofActiveUsers') }}
+        <span class="primary--text">{{ $t('analytics.percentOfUsers', {0: percentage}) }}</span>
+      </div>
+    </template>
     <div class="text-no-wrap mt-1">
       <span :class="lastPeriodComparaisonClass">
         {{ $t('analytics.points', {0: diffSign, 1: diffWithLastPeriod}) }}
@@ -22,8 +25,8 @@
 <script>
 export default {
   props: {
-    colors: {
-      type: Array,
+    settings: {
+      type: Object,
       default: null,
     },
   },
@@ -37,8 +40,17 @@ export default {
     };
   },
   computed: {
+    hasLimit() {
+      return this.settings && this.settings.percentageLimit;
+    },
+    isUserLimit() {
+      return this.hasLimit && this.settings.percentageLimit.field === 'userId';
+    },
+    percentage() {
+      return this.hasLimit && this.settings.percentageLimit.percentage;
+    },
     chartColor() {
-      return this.colors && this.colors.length && this.colors[0] || '#319ab3';
+      return this.settings && this.settings.colors && this.settings.colors.length && this.settings.colors[0] || '#319ab3';
     },
     currentPeriodPercentage() {
       return this.currentPeriodThreshold

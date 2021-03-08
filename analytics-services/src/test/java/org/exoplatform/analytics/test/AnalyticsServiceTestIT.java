@@ -28,8 +28,7 @@ import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.chart.*;
 import org.exoplatform.analytics.model.filter.*;
-import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
-import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
+import org.exoplatform.analytics.model.filter.aggregation.*;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilterType;
 
@@ -312,11 +311,11 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     valueFilter.setYAxisAggregation(yAxisAggregation);
     thresholdFilter.setYAxisAggregation(yAxisAggregation);
 
-    PercentageChartDataList percentageChartDataList = analyticsService.computeChartData(filter);
+    PercentageChartResult percentageChartDataList = analyticsService.computeChartData(filter);
     assertNotNull(percentageChartDataList);
     assertEquals(48d, percentageChartDataList.getCurrentPeriodValue(), 0);
-    assertEquals(32d, percentageChartDataList.getPreviousPeriodValue(), 0);
     assertEquals(1691d, percentageChartDataList.getCurrentPeriodThreshold(), 0);
+    assertEquals(32d, percentageChartDataList.getPreviousPeriodValue(), 0);
     assertEquals(985d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
 
     filter.setPeriodType(AnalyticsPeriodType.LAST_3_MONTHS.getTypeName());
@@ -369,5 +368,51 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     assertEquals(103d, percentageChartDataList.getPreviousPeriodValue(), 0);
     assertEquals(0, percentageChartDataList.getCurrentPeriodThreshold(), 0);
     assertEquals(103d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
+  }
+
+  @Test
+  public void testGetAnalyticsPercentageWithLimit() {
+    AnalyticsPercentageFilter filter = new AnalyticsPercentageFilter();
+    filter.setChartType("percentage");
+    filter.setScopeFilter(null);
+
+    AnalyticsPercentageItemFilter valueFilter = new AnalyticsPercentageItemFilter();
+    valueFilter.addEqualFilter("subModule", "login");
+    filter.setValue(valueFilter);
+
+    AnalyticsPercentageItemFilter thresholdFilter = new AnalyticsPercentageItemFilter();
+    thresholdFilter.addEqualFilter("subModule", "login");
+    filter.setThreshold(thresholdFilter);
+
+    AnalyticsPercentageLimit limitPercentageFilter = new AnalyticsPercentageLimit();
+    limitPercentageFilter.setPercentage(50);
+    limitPercentageFilter.setField("userId");
+    limitPercentageFilter.setAggregation(new AnalyticsPercentageItemFilter());
+    limitPercentageFilter.getAggregation().addEqualFilter("subModule", "login");
+    AnalyticsAggregation limitYAxisAggregation = new AnalyticsAggregation(AnalyticsAggregationType.CARDINALITY,
+                                                                          "userId",
+                                                                          "desc",
+                                                                          "1d",
+                                                                          0);
+    limitPercentageFilter.getAggregation().setYAxisAggregation(limitYAxisAggregation);
+    filter.setPercentageLimit(limitPercentageFilter);
+
+    filter.setPeriodType(AnalyticsPeriodType.LAST_MONTH.getTypeName());
+    filter.setPeriodDateInMS(LocalDate.of(2019, 12, 01)
+                                      .atStartOfDay(ZoneOffset.UTC)
+                                      .toInstant()
+                                      .toEpochMilli());
+
+    AnalyticsAggregation yAxisAggregation = new AnalyticsAggregation(AnalyticsAggregationType.COUNT, null, "desc", "1d", 0);
+    valueFilter.setYAxisAggregation(yAxisAggregation);
+    thresholdFilter.setYAxisAggregation(yAxisAggregation);
+    thresholdFilter.setYAxisAggregation(yAxisAggregation);
+
+    PercentageChartResult percentageChartDataList = analyticsService.computeChartData(filter);
+    assertNotNull(percentageChartDataList);
+    assertEquals(950d, percentageChartDataList.getCurrentPeriodValue(), 0);
+    assertEquals(1691d, percentageChartDataList.getCurrentPeriodThreshold(), 0);
+    assertEquals(580d, percentageChartDataList.getPreviousPeriodValue(), 0);
+    assertEquals(985d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
   }
 }

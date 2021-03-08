@@ -6,7 +6,7 @@ import java.util.Set;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.chart.ChartDataList;
-import org.exoplatform.analytics.model.chart.PercentageChartDataList;
+import org.exoplatform.analytics.model.chart.PercentageChartResult;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.analytics.model.filter.AnalyticsPercentageFilter;
 
@@ -26,7 +26,7 @@ public interface AnalyticsService {
    * @param filter used search filters and aggregations to compute data
    * @return computed analytics chart data
    */
-  PercentageChartDataList computeChartData(AnalyticsPercentageFilter filter);
+  PercentageChartResult computeChartData(AnalyticsPercentageFilter filter);
 
   /**
    * Retrieve data using search filters
