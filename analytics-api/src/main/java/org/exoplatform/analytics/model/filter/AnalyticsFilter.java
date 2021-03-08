@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
+import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationType;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 
@@ -48,12 +49,25 @@ public class AnalyticsFilter implements Serializable, Cloneable {
 
     AnalyticsAggregation multipleChartsAggregation = getMultipleChartsAggregation();
     if (multipleChartsAggregation != null) {
+      if (multipleChartsAggregation.getType() == AnalyticsAggregationType.COUNT) {
+        multipleChartsAggregation.setType(AnalyticsAggregationType.TERMS);
+      }
       aggregations.add(multipleChartsAggregation);
     }
 
+    for (AnalyticsAggregation analyticsAggregation : xAxisAggregations) {
+      if (analyticsAggregation.getType() == AnalyticsAggregationType.COUNT) {
+        analyticsAggregation.setType(AnalyticsAggregationType.TERMS);
+      }
+    }
     aggregations.addAll(xAxisAggregations);
 
-    if (yAxisAggregation != null && StringUtils.isNotBlank(yAxisAggregation.getField())) {
+    AnalyticsAggregation lastAggregation = aggregations.isEmpty() ? null : aggregations.get(aggregations.size() - 1);
+    if (yAxisAggregation != null) {
+      if (lastAggregation != null && StringUtils.isBlank(yAxisAggregation.getField())) {
+        yAxisAggregation.setField(lastAggregation.getField());
+        yAxisAggregation.setType(AnalyticsAggregationType.COUNT);
+      }
       aggregations.add(yAxisAggregation);
     }
 

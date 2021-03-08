@@ -104,62 +104,59 @@
               <preference>
                 <name>settings</name>
                 <value>{
-                  "offset": 0,
-                  "filters": [
+                 "title":"Users count",
+                 "chartType":"line",
+                 "multipleChartsField":"countType.keyword",
+                 "filters":[
                     {
-                      "field": "operation",
-                      "type": "EQUAL",
-                      "valueString": "usersCount"
+                       "field":"operation",
+                       "type":"EQUAL",
+                       "valueString":"usersCount"
                     },
                     {
-                      "valueString": "enabledInternalUsers,enabledExternalUsers",
-                      "range": null,
-                      "field": "countType",
-                      "type": "IN_SET"
+                       "valueString":"enabledInternalUsers,enabledExternalUsers",
+                       "field":"countType",
+                       "type":"IN_SET"
                     }
-                  ],
-                  "title": "Users count",
-                  "aggregations": [
+                 ],
+                 "aggregations":[
                     {
-                      "field": "countType.keyword",
-                      "type": "COUNT"
+                       "field":"countType.keyword",
+                       "type":"COUNT"
                     },
                     {
-                      "field": "timestamp",
-                      "type": "DATE",
-                      "interval": "day",
-                      "sortDirection": "asc"
+                       "field":"timestamp",
+                       "type":"DATE",
+                       "interval":"day",
+                       "sortDirection":"asc"
                     },
                     {
-                      "field": "count",
-                      "type": "MAX"
+                       "field":"count",
+                       "type":"MAX"
                     }
-                  ],
-                  "xAxisAggregations": [
+                 ],
+                 "xAxisAggregations":[
                     {
-                      "field": "timestamp",
-                      "type": "DATE",
-                      "interval": "day",
-                      "sortDirection": "asc"
+                       "field":"timestamp",
+                       "type":"DATE",
+                       "interval":"day",
+                       "sortDirection":"asc"
                     }
-                  ],
-                  "multipleCharts": true,
-                  "multipleChartsAggregation": {
-                    "field": "countType.keyword",
-                    "type": "COUNT"
-                  },
-                  "yAxisAggregation": {
-                    "field": "count",
-                    "type": "MAX"
-                  },
-                  "chartType": "line",
-                  "multipleChartsField": "countType.keyword",
-                  "limit": 0
-                }</value>
+                 ],
+                 "multipleCharts":true,
+                 "multipleChartsAggregation":{
+                    "field":"countType.keyword",
+                    "type":"COUNT"
+                 },
+                 "yAxisAggregation":{
+                    "field":"count",
+                    "type":"MAX"
+                 }
+              }</value>
               </preference>
             </preferences>
           </portlet>
-          <title>Spaces count Analytics</title>
+          <title>Users count Analytics</title>
           <access-permissions>Everyone</access-permissions>
           <show-info-bar>false</show-info-bar>
         </portlet-application>
@@ -220,6 +217,66 @@
             </preferences>
           </portlet>
           <title>Connected Users</title>
+          <access-permissions>Everyone</access-permissions>
+          <show-info-bar>false</show-info-bar>
+        </portlet-application>
+        <portlet-application>
+          <portlet>
+            <application-ref>analytics</application-ref>
+            <portlet-ref>AnalyticsRatePortlet</portlet-ref>
+            <preferences>
+              <preference>
+                <name>settings</name>
+                <value>{
+                  "title": "",
+                  "chartType": "percentage",
+                  "colors": ["#000000"],
+                  "value": {
+                    "filters": [
+                      {
+                        "field": "userId",
+                        "type": "GREATER",
+                        "valueString": "1"
+                      }
+                    ],
+                    "yAxisAggregation": {
+                      "type": "COUNT"
+                    }
+                  },
+                  "percentageLimit": {
+                    "aggregation": {
+                      "filters": [
+                        {
+                          "valueString": "enabledUsers",
+                          "field": "countType",
+                          "type": "EQUAL"
+                        }
+                      ],
+                      "yAxisAggregation": {
+                        "field": "count",
+                        "type": "MAX"
+                      }
+                    },
+                    "percentage": 10,
+                    "field": "userId"
+                  },
+                  "threshold": {
+                    "filters": [
+                      {
+                        "field": "userId",
+                        "type": "GREATER",
+                        "valueString": "1"
+                      }
+                    ],
+                    "yAxisAggregation": {
+                      "type": "COUNT"
+                    }
+                  }
+                }</value>
+              </preference>
+            </preferences>
+          </portlet>
+          <title>Active Users</title>
           <access-permissions>Everyone</access-permissions>
           <show-info-bar>false</show-info-bar>
         </portlet-application>
