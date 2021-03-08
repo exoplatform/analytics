@@ -32,6 +32,12 @@
       <label>#{analytics.navigation.Analytics}</label>
       <visibility>SYSTEM</visibility>
       <page-reference>portal::global::analytics</page-reference>
+      <node>
+        <name>analyticsUsers</name>
+        <label>#{analytics.navigation.AnalyticsUsers}</label>
+        <visibility>DISPLAYED</visibility>
+        <page-reference>portal::global::analytics-users</page-reference>
+      </node>
     </node>
   </page-nodes>
 </node-navigation>
