@@ -14,7 +14,7 @@
         xs4>
         <analytics-setting-color-picker
           v-model="colors[index]"
-          @updated="setColor($event, index)" />
+          @input="setColor($event, index)" />
       </v-flex>
     </v-layout>
   </v-form>
@@ -42,7 +42,7 @@ export default {
       '#774ea9',
       '#ffa500',
       '#bed67e',
-      '#bc99e7',
+      '#0E100F',
       '#ffaacc',
     ],
     colors: [],
