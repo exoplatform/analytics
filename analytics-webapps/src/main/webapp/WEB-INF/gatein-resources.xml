@@ -106,6 +106,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>commonAnalyticsVueComponents</module>
+      </depends>
     </module>
   </portlet>
 
