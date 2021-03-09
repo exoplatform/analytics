@@ -86,6 +86,37 @@
   </portlet>
 
   <portlet>
+    <portlet-name>AnalyticsBasePortlet</portlet-name>
+    <display-name xml:lang="EN">Analytics Base Application</display-name>
+    <portlet-class>org.exoplatform.addon.analytics.portlet.AnalyticsBasePortlet</portlet-class>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <portlet-info>
+      <title>Analytics Base Application</title>
+      <keywords>Analytics Base Application</keywords>
+    </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>settings</name>
+        <value>
+          {
+          "title":"Chart title",
+          "chartType":"Table"
+          }
+        </value>
+      </preference>
+    </portlet-preferences>
+    <security-role-ref>
+      <role-name>admin</role-name>
+      <role-link>admin</role-link>
+    </security-role-ref>
+  </portlet>
+
+  <portlet>
     <portlet-name>StatisticsCollection</portlet-name>
     <portlet-class>org.exoplatform.addon.analytics.portlet.StatisticDataCollectionPortlet</portlet-class>
     <expiration-cache>-1</expiration-cache>
