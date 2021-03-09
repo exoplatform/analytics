@@ -14,7 +14,7 @@
         </div>
         <div class="themeDetails">
           <label
-            :title="$t('analytics.color.clickToChange')"
+            :title="$t('analytics.label.clickToChange')"
             :style="`background-color: ${value};`"
             class="pa-3 box-border-sizing border-radius white--text"
             v-on="on">{{ value }}</label>
@@ -71,7 +71,7 @@ export default {
       ['#ffaacc', '#f97575', '#98cc81'],
       ['#4273c8', '#cea6ac', '#bc99e7'],
       ['#9ee4f5', '#774ea9', '#ffa500'],
-      ['#bed67e', '#bc99e7', '#319ab3'],
+      ['#bed67e', '#0E100F', '#319ab3'],
     ],
   }),
   watch: {
