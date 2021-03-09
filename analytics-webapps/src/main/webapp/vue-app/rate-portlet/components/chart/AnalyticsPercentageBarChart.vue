@@ -16,7 +16,7 @@
       <span :class="lastPeriodComparaisonClass">
         {{ $t('analytics.points', {0: diffSign, 1: diffWithLastPeriod}) }}
       </span>
-      <span class="text-color">
+      <span class="textColor">
         {{ $t('analytics.vsLastPeriod') }}
       </span>
     </div>
