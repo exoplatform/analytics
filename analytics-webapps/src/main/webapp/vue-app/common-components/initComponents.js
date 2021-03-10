@@ -32,10 +32,10 @@ const components = {
   'analytics-x-axis-form': XAxisForm,
   'analytics-y-axis-form': YAxisForm,
   'analytics-multiple-charts': MultipleCharts,
-  'analytics-select-period': SelectPeriod,
   'analytics-chart-setting': AnalyticsChartSetting,
   'analytics-json-panel-dialog': JsonPanelDialog,
   'analytics-view-samples-drawer': ViewSamplesDrawer,
+  'analytics-select-period': SelectPeriod,
 };
 
 for (const key in components) {

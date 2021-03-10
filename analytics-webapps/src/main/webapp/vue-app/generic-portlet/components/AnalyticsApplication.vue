@@ -82,7 +82,6 @@
           </v-list>
         </v-menu>
       </div>
-
       <v-card-title
         v-if="loading"
         primary-title
