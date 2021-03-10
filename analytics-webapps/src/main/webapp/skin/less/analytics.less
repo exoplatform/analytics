@@ -173,6 +173,74 @@
   .analytics-chart-percentage {
     height: 182px;
   }
+  .analyticsDatePicker{
+    .defaultPeriodAnalytics{
+      > button {
+        width: 22%;
+        span {
+          width: 134% !important;
+          justify-content: end;
+          align-items: normal;
+          > div {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-left: 6px;
+          }
+        }
+      }
+    }
+  }
+  .time-picker-analytics {
+    .v-picker__title{
+      padding: 9px ;
+    }
+    .v-time-picker-title__time{
+      .v-picker__title__btn{
+        font-size: 34px;
+      }
+      > span {
+        font-size: 34px;
+      }
+    }
+    .v-time-picker-title__ampm {
+      margin: 0 0 19px 8px;
+    }
+    .v-picker__body.theme--light {
+      max-height: 330px;
+    }
+    .v-picker__body > div {
+      width: 80%;
+      padding: 28px 10px 0px 0px;
+    }
+    .v-picker__actions.v-card__actions{
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: 13px;
+    }
+  }
+  .v-picker__title{
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+  }
+  .v-picker.v-card.v-picker--date.theme--light{
+    width: 400px;
+  }
+
+  .v-btn.v-btn--active.v-btn--rounded.theme--light.accent{
+    width: 22px;
+  }
+
+  .footer{
+    background-color: white;
+    max-width: fit-content;
+  }
+
+  .v-text-field__slot{
+    > input {
+      padding: 0px;
+    }
+  }
 }
 .analytics-progress-bar-chart-body {
   height: 120px;
@@ -237,6 +305,16 @@
             width: 100%;
           }
         }
+      }
+    }
+    .date-time-picker{
+      flex-direction: column;
+    }
+    .analytics-selected-period-menu{
+      .v-menu__content.theme--light.menuable__content__active {
+        max-width: 100% !important;
+        left: 0px !important;
+        right: 0px !important;
       }
     }
   }
