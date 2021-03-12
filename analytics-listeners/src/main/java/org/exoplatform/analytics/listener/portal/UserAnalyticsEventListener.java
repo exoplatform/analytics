@@ -3,13 +3,18 @@ package org.exoplatform.analytics.listener.portal;
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
 import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserEventListener;
+import org.exoplatform.services.organization.impl.NewUserEventListener;
 
-public class UserAnalyticsEventListener extends UserEventListener {
+public class UserAnalyticsEventListener extends NewUserEventListener {
 
   private ThreadLocal<Long> operationStartTime = new ThreadLocal<>();
-
+  
+  public UserAnalyticsEventListener(InitParams params) throws Exception {
+    super(params);
+  }
+  
   @Override
   public void preSave(User user, boolean isNew) throws Exception {
     operationStartTime.set(System.currentTimeMillis());
