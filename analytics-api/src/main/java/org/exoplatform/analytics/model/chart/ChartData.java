@@ -30,14 +30,14 @@ public class ChartData implements Serializable {
   public void addAggregationResult(ChartAggregationResult aggregationResult, int index, boolean replaceIfExists) {
     int existingIndex = aggregationResults.indexOf(aggregationResult);
     if (existingIndex < 0) {
-      if (index < 0) {
+      if (index < 0 || index >= aggregationResults.size()) {
         aggregationResults.add(aggregationResult);
       } else {
         aggregationResults.add(index, aggregationResult);
       }
     } else if (replaceIfExists) {
-      aggregationResults.remove(index);
-      if (index < 0) {
+      aggregationResults.remove(existingIndex);
+      if (index < 0 || index >= aggregationResults.size()) {
         aggregationResults.add(aggregationResult);
       } else {
         aggregationResults.add(index, aggregationResult);
