@@ -1,9 +1,9 @@
 <template>
-<h>test</h>
+  <h>test</h>
 </template>
 
 <script>
 export default {
-  name: "AnalyticsTable"
-}
+  name: 'AnalyticsTable'
+};
 </script>

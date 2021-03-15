@@ -421,6 +421,66 @@
           <show-info-bar>false</show-info-bar>
         </portlet-application>
       </container>
+      <container id="breadcrumbAnalytics" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <access-permissions>Everyone</access-permissions>
+        <portlet-application>
+          <portlet>
+            <application-ref>analytics</application-ref>
+            <portlet-ref>AnalyticsBasePortlet</portlet-ref>
+            <preferences>
+              <preference>
+                <name>settings</name>
+                <value>{
+                  "title": "analytics.activeUsers",
+                  "chartType": "percentageBar",
+                  "colors": ["#4273C8"],
+                  "threshold": {
+                  "filters": [
+                  {
+                  "range": null,
+                  "valueString": "usersCount",
+                  "field": "operation",
+                  "type": "EQUAL"
+                  },
+                  {
+                  "range": null,
+                  "valueString": "enabledUsers",
+                  "field": "countType",
+                  "type": "EQUAL"
+                  }
+                  ],
+                  "yAxisAggregation": {
+                  "interval": null,
+                  "sortDirection": null,
+                  "field": "count",
+                  "type": "MAX"
+                  }
+                  },
+                  "value": {
+                  "filters": [
+                  {
+                  "range": null,
+                  "valueString": "login",
+                  "field": "operation",
+                  "type": "EQUAL"
+                  }
+                  ],
+                  "yAxisAggregation": {
+                  "interval": null,
+                  "sortDirection": null,
+                  "field": "userId",
+                  "type": "CARDINALITY"
+                  }
+                  }
+                  }</value>
+              </preference>
+            </preferences>
+          </portlet>
+          <title>Analytics Base</title>
+          <access-permissions>Everyone</access-permissions>
+          <show-info-bar>false</show-info-bar>
+        </portlet-application>
+      </container>
     </container>
   </page>
 </page-set>
