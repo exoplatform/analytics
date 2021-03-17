@@ -32,43 +32,38 @@ public class StatisticDataProcessorService {
       return;
     }
 
-    int entriesCount = queueEntries.size();
-    if (entriesCount > MAX_BULK_DOCUMENTS) {
-      LOG.debug("Processing queue having {} documents with chunk of {}", entriesCount, MAX_BULK_DOCUMENTS);
+    List<? extends StatisticDataQueueEntry> queueEntriesToProcess = queueEntries.stream()
+                                                                                .filter(queueEntry -> !queueEntry.isProcessed())
+                                                                                .collect(Collectors.toList());
+    if (queueEntriesToProcess.isEmpty()) {
+      return;
+    } else if (queueEntriesToProcess.size() > MAX_BULK_DOCUMENTS) {
+      LOG.debug("Processing queue having {} documents with chunk of {}", queueEntriesToProcess.size(), MAX_BULK_DOCUMENTS);
 
       // Process queue entries by chunk of MAX_BULK_DOCUMENTS elements
       int index = 0;
       do {
-        int toIndex = Math.min(entriesCount, index + MAX_BULK_DOCUMENTS);
-        List<? extends StatisticDataQueueEntry> subList = queueEntries.subList(index, toIndex);
+        List<? extends StatisticDataQueueEntry> subList = queueEntriesToProcess.stream()
+                                                                               .skip(index)
+                                                                               .limit(MAX_BULK_DOCUMENTS)
+                                                                               .collect(Collectors.toList());
         process(subList);
-        index = toIndex;
-      } while (index < entriesCount);
-      return;
-    }
-
-    Iterator<? extends StatisticDataQueueEntry> queueEntriesIterator = queueEntries.iterator();
-    while (queueEntriesIterator.hasNext()) {
-      StatisticDataQueueEntry statisticDataQueueEntry = queueEntriesIterator.next();
-      if (statisticDataQueueEntry.isProcessed()
-          || (statisticDataQueueEntry.isError() && statisticDataQueueEntry.getAttemptCount() > MAX_PROCESS_ATTEMPTS_COUNT)) {
-        queueEntriesIterator.remove();
-      }
-    }
-
-    if (queueEntries.isEmpty()) {
+        index += subList.size();
+      } while (index < queueEntriesToProcess.size());
       return;
     }
 
     for (StatisticDataProcessorPlugin statisticDataProcessorPlugin : dataProcessorPlugins) {
       String processorId = statisticDataProcessorPlugin.getId();
-      List<StatisticDataQueueEntry> processorQueueEntries = queueEntries.stream()
-                                                                        .filter(queueEntry -> !isProcessorRun(queueEntry,
-                                                                                                              processorId))
-                                                                        .collect(Collectors.toList());
+      List<StatisticDataQueueEntry> processorQueueEntries = queueEntriesToProcess.stream()
+                                                                                 .filter(queueEntry -> !isProcessorRun(queueEntry,
+                                                                                                                       processorId))
+                                                                                 .collect(Collectors.toList());
+
       if (processorQueueEntries.isEmpty()) {
         continue;
       }
+
       try {
         statisticDataProcessorPlugin.process(processorQueueEntries);
         processorQueueEntries.forEach(queueEntry -> markProcessorAsSuccess(queueEntry, processorId, dataProcessorPlugins));
@@ -112,6 +107,12 @@ public class StatisticDataProcessorService {
     }
     dataQueueEntry.getProcessingStatus().put(processorId, false);
     dataQueueEntry.setError(true);
+    if (dataQueueEntry.getAttemptCount() >= MAX_PROCESS_ATTEMPTS_COUNT) {
+      LOG.warn("Delete from queue an entry that didn't suceeded to be injected for {} times: {}",
+               MAX_PROCESS_ATTEMPTS_COUNT,
+               dataQueueEntry);
+      dataQueueEntry.setProcessed(true);
+    }
   }
 
   private boolean isProcessedForAll(StatisticDataQueueEntry dataQueueEntry, List<StatisticDataProcessorPlugin> processors) {
