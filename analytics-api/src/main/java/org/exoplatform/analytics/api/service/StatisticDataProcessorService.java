@@ -32,18 +32,16 @@ public class StatisticDataProcessorService {
       return;
     }
 
-    int entriesCount = queueEntries.size();
-    if (entriesCount > MAX_BULK_DOCUMENTS) {
-      LOG.debug("Processing queue having {} documents with chunk of {}", entriesCount, MAX_BULK_DOCUMENTS);
+    if (queueEntries.size() > MAX_BULK_DOCUMENTS) {
+      LOG.debug("Processing queue having {} documents with chunk of {}", queueEntries.size(), MAX_BULK_DOCUMENTS);
 
       // Process queue entries by chunk of MAX_BULK_DOCUMENTS elements
       int index = 0;
       do {
-        int toIndex = Math.min(entriesCount, index + MAX_BULK_DOCUMENTS);
+        int toIndex = Math.min(queueEntries.size(), index + MAX_BULK_DOCUMENTS);
         List<? extends StatisticDataQueueEntry> subList = queueEntries.subList(index, toIndex);
         process(subList);
-        index = toIndex;
-      } while (index < entriesCount);
+      } while (!queueEntries.isEmpty());
       return;
     }
 
