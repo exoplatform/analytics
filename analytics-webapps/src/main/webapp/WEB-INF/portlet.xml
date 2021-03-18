@@ -55,6 +55,56 @@
    </portlet>
 
   <portlet>
+    <portlet-name>AnalyticsTablePortlet</portlet-name>
+    <display-name xml:lang="EN">Analytics Application</display-name>
+    <portlet-class>org.exoplatform.addon.analytics.portlet.AnalyticsTablePortlet</portlet-class>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <portlet-info>
+      <title>Analytics Table Application</title>
+      <keywords>Analytics Table Application</keywords>
+    </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>settings</name>
+        <value>
+          {
+          "title":"Chart title",
+          "chartType":"line",
+          "filters":[],
+          "xAxisAggregations":[
+          {
+          "interval":"day",
+          "sortDirection":"asc",
+          "field":"timestamp",
+          "type":"DATE"
+          }
+          ],
+          "yAxisAggregation":{
+          "interval":null,
+          "sortDirection":null,
+          "field":null,
+          "type":"COUNT"
+          },
+          "displayComputingTime":true,
+          "displaySamplesCount":true,
+          "multipleCharts":false,
+          "multipleChartsField":null
+          }
+        </value>
+      </preference>
+    </portlet-preferences>
+    <security-role-ref>
+      <role-name>admin</role-name>
+      <role-link>admin</role-link>
+    </security-role-ref>
+  </portlet>
+
+  <portlet>
     <portlet-name>AnalyticsRatePortlet</portlet-name>
     <display-name xml:lang="EN">Analytics Rate Application</display-name>
     <portlet-class>org.exoplatform.addon.analytics.portlet.AnalyticsRatePortlet</portlet-class>
