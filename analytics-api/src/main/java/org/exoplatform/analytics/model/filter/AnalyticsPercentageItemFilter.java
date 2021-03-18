@@ -94,7 +94,7 @@ public class AnalyticsPercentageItemFilter implements Serializable, Cloneable {
   @Override
   public AnalyticsPercentageItemFilter clone() { // NOSONAR
     List<AnalyticsFieldFilter> clonedFilters = new ArrayList<>(filters).stream()
-                                                                       .map(filter -> filter.clone())
+                                                                       .map(AnalyticsFieldFilter::clone)
                                                                        .collect(Collectors.toList());
     AnalyticsAggregation cloneyAggregation = yAxisAggregation == null ? null : yAxisAggregation.clone();
     return new AnalyticsPercentageItemFilter(clonedFilters, cloneyAggregation);
