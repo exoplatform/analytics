@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class AnalyticsBasePortlet extends GenericPortlet{
+public class AnalyticsTablePortlet extends GenericPortlet{
     private static final String                                 CAN_MODIFY_CHART_SETTINGS = "canModifyChartSettings";
 
     private static final String                                 ANALYTICS_SEARCH_SCOPE    = "analyticsSearchScope";
@@ -48,7 +48,7 @@ public class AnalyticsBasePortlet extends GenericPortlet{
 
     @Override
     protected void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-        PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/analytics-base.jsp");
+        PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/analytics-table.jsp");
         dispatcher.forward(request, response);
     }
 
@@ -85,7 +85,6 @@ public class AnalyticsBasePortlet extends GenericPortlet{
             JSONObject jsonResponse = new JSONObject();
             addJSONParam(jsonResponse, "title", filter.getTitle());
             addJSONParam(jsonResponse, "chartType", filter.getChartType());
-            addJSONParam(jsonResponse, "colors", filter.getColors());
             addJSONParam(jsonResponse, "canEdit", canModifyChartSettings(portletSession));
             addJSONParam(jsonResponse, "scope", getSearchScope(portletSession).name());
             response.setContentType("application/json");

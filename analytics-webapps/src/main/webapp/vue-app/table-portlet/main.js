@@ -40,7 +40,7 @@ export function init(dataId) {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         },
         template: `
-                  <analytics-base-application
+                  <analytics-table-application
                       id="${dataId}"
                       :retrieve-settings-url="retrieveSettingsURL"
                       :retrieve-mappings-url="retrieveMappingsURL"

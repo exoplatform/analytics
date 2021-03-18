@@ -21,8 +21,8 @@
 
 <div class="VuetifyApp">
     <% int generatedId = (int) (Math.random() * 1000000l); %>
-    <div class="analytics-base-app-parent"
-         id="analytics-base-<%= generatedId %>"
+    <div class="analytics-table-app-parent"
+         id="analytics-table-<%= generatedId %>"
          data-id="<%= generatedId %>"
          data-settings-url="<%=retrieveSettingsURL%>"
          data-mappings-url="<%=retrieveMappingsURL%>"
@@ -32,6 +32,6 @@
          data-save-settings-url="<%=saveSettingsURL%>">
     </div>
     <script type="text/javascript">
-        require(['PORTLET/analytics/AnalyticsBasePortlet'], app => app.init('analytics-base-<%= generatedId %>'));
+        require(['PORTLET/analytics/AnalyticsTablePortlet'], app => app.init('analytics-table-<%= generatedId %>'));
     </script>
 </div>

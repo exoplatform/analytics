@@ -15,8 +15,8 @@
     </template>
     <v-card class="ma-auto analytics-chart-percentage analytics-chart-parent white" flat>
       <div class="d-flex pa-3 analytics-chart-header" flat>
-        <v-spacer />
         <analytics-select-period v-model="selectedPeriod" />
+        <v-spacer />
         <v-menu
           v-if="canEdit"
           v-model="showMenu"
