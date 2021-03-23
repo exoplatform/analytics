@@ -301,7 +301,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     valueFilter.addEqualFilter("userId", "19");
     thresholdFilter.addEqualFilter("subModule", "login");
 
-    filter.setPeriodType(AnalyticsPeriodType.LAST_MONTH.getTypeName());
+    filter.setPeriodType(AnalyticsPeriodType.THIS_MONTH.getTypeName());
     filter.setPeriodDateInMS(LocalDate.of(2019, 12, 01)
                                       .atStartOfDay(ZoneOffset.UTC)
                                       .toInstant()
@@ -318,7 +318,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     assertEquals(32d, percentageChartDataList.getPreviousPeriodValue(), 0);
     assertEquals(985d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
 
-    filter.setPeriodType(AnalyticsPeriodType.LAST_3_MONTHS.getTypeName());
+    filter.setPeriodType(AnalyticsPeriodType.THIS_QUARTER.getTypeName());
     filter.setPeriodDateInMS(LocalDate.of(2019, 12, 01)
                                       .atStartOfDay(ZoneOffset.UTC)
                                       .toInstant()
@@ -330,7 +330,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     assertEquals(2676d, percentageChartDataList.getCurrentPeriodThreshold(), 0);
     assertEquals(0, percentageChartDataList.getPreviousPeriodThreshold(), 0);
 
-    filter.setPeriodType(AnalyticsPeriodType.LAST_3_MONTHS.getTypeName());
+    filter.setPeriodType(AnalyticsPeriodType.THIS_QUARTER.getTypeName());
     filter.setPeriodDateInMS(LocalDate.of(2020, 6, 01)
                                       .atStartOfDay(ZoneOffset.UTC)
                                       .toInstant()
@@ -397,7 +397,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     limitPercentageFilter.getAggregation().setYAxisAggregation(limitYAxisAggregation);
     filter.setPercentageLimit(limitPercentageFilter);
 
-    filter.setPeriodType(AnalyticsPeriodType.LAST_MONTH.getTypeName());
+    filter.setPeriodType(AnalyticsPeriodType.THIS_MONTH.getTypeName());
     filter.setPeriodDateInMS(LocalDate.of(2019, 12, 01)
                                       .atStartOfDay(ZoneOffset.UTC)
                                       .toInstant()

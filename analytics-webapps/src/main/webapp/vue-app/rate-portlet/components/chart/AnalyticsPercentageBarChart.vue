@@ -44,14 +44,16 @@ export default {
       return this.colors && this.colors.length && this.colors[0] || '#319ab3';
     },
     currentPeriodPercentage() {
-      return this.currentPeriodThreshold
+      const currentPeriodPercentage = this.currentPeriodThreshold
               && (Math.round((this.currentPeriodValue / this.currentPeriodThreshold) * 10000) / 100)
               || 0;
+      return this.toFixed(currentPeriodPercentage);
     },
     lastPeriodPercentage() {
-      return this.lastPeriodThreshold
+      const lastPeriodPercentage = this.lastPeriodThreshold
             && (Math.round((this.lastPeriodValue / this.lastPeriodThreshold) * 10000) / 100)
             || 0;
+      return this.toFixed(lastPeriodPercentage);
     },
     diffSign() {
       if (this.currentPeriodPercentage === this.lastPeriodPercentage) {
@@ -92,6 +94,9 @@ export default {
         this.lastPeriodThreshold = chartsData.previousPeriodThreshold;
       }
       this.$nextTick().then(() => this.initialized = true);
+    },
+    toFixed(value, decimals) {
+      return Number.parseFloat(value).toFixed(2).replace(/(\..*[1-9])0+$/, '$1').replace(/\.0*$/, '');
     }
   },
 };

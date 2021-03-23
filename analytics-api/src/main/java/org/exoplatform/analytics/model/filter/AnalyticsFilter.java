@@ -165,7 +165,7 @@ public class AnalyticsFilter implements Serializable, Cloneable {
     List<AnalyticsAggregation> cloneXAggs = new ArrayList<>(xAxisAggregations).stream()
                                                                               .map(aggr -> aggr.clone())
                                                                               .collect(Collectors.toList());
-    AnalyticsAggregation cloneyAggregation = yAxisAggregation.clone();
+    AnalyticsAggregation cloneyAggregation = yAxisAggregation == null ? null : yAxisAggregation.clone();
     return new AnalyticsFilter(title,
                                chartType,
                                colors,

@@ -8,12 +8,12 @@ import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 
 public enum AnalyticsPeriodType {
-  LAST24H("last24h", "day"),
-  LAST_WEEK("lastWeek", "week"),
-  LAST_MONTH("lastMonth", "month"),
-  LAST_3_MONTHS("last3Months", "90d"),
-  LAST_6_MONTHS("last6Months", "180d"),
-  LAST_YEAR("lastYear", "year");
+  TODAY("today", "day"),
+  THIS_WEEK("thisWeek", "week"),
+  THIS_MONTH("thisMonth", "month"),
+  THIS_QUARTER("thisQuarter", "quarter"),
+  THIS_SEMESTER("thisSemester", "182d"),
+  THIS_YEAR("thisYear", "year");
 
   private String typeName;
 
@@ -28,28 +28,28 @@ public enum AnalyticsPeriodType {
     LocalDate start = null;
     LocalDate end = null;
     switch (this) {
-      case LAST24H:
-        return new AnalyticsPeriod(date, date.plusDays(1));
-      case LAST_WEEK:
+      case TODAY:
+        return new AnalyticsPeriod(date, date.plusDays(1), interval);
+      case THIS_WEEK:
         start = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         end = start.plusDays(7);
-        return new AnalyticsPeriod(start, end);
-      case LAST_MONTH:
+        return new AnalyticsPeriod(start, end, interval);
+      case THIS_MONTH:
         start = date.withDayOfMonth(1);
         end = start.plusMonths(1);
-        return new AnalyticsPeriod(start, end);
-      case LAST_3_MONTHS:
+        return new AnalyticsPeriod(start, end, interval);
+      case THIS_QUARTER:
         start = date.withDayOfMonth(1).minusMonths(2);
         end = start.plusMonths(3);
-        return new AnalyticsPeriod(start, end);
-      case LAST_6_MONTHS:
+        return new AnalyticsPeriod(start, end, interval);
+      case THIS_SEMESTER:
         start = date.withDayOfMonth(1).minusMonths(5);
         end = start.plusMonths(6);
-        return new AnalyticsPeriod(start, end);
-      case LAST_YEAR:
+        return new AnalyticsPeriod(start, end, interval);
+      case THIS_YEAR:
         start = date.withDayOfYear(1);
         end = start.plusYears(1);
-        return new AnalyticsPeriod(start, end);
+        return new AnalyticsPeriod(start, end, interval);
       default:
         return null;
     }
@@ -57,17 +57,17 @@ public enum AnalyticsPeriodType {
 
   public AnalyticsPeriod getPreviousPeriod(LocalDate date) {
     switch (this) {
-      case LAST24H:
+      case TODAY:
         return getCurrentPeriod(date.minusDays(1));
-      case LAST_WEEK:
+      case THIS_WEEK:
         return getCurrentPeriod(date.minusWeeks(1));
-      case LAST_MONTH:
+      case THIS_MONTH:
         return getCurrentPeriod(date.minusMonths(1));
-      case LAST_3_MONTHS:
+      case THIS_QUARTER:
         return getCurrentPeriod(date.minusMonths(3));
-      case LAST_6_MONTHS:
+      case THIS_SEMESTER:
         return getCurrentPeriod(date.minusMonths(6));
-      case LAST_YEAR:
+      case THIS_YEAR:
         return getCurrentPeriod(date.minusYears(1));
       default:
         return null;
@@ -76,10 +76,6 @@ public enum AnalyticsPeriodType {
 
   public String getTypeName() {
     return typeName;
-  }
-
-  public String getInterval() {
-    return interval;
   }
 
   public static AnalyticsPeriodType periodTypeByName(String typeName) {

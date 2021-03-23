@@ -61,7 +61,25 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
   private String                        interval;
 
   @Exclude
+  private String                        offset;
+
+  @Exclude
   private long                          limit;
+
+  @Exclude
+  private Long                          minBound;
+
+  @Exclude
+  private Long                          maxBound;
+
+  public AnalyticsAggregation(AnalyticsAggregationType type, String field, String sortDirection, String interval, long limit) {
+    super();
+    this.type = type;
+    this.field = field;
+    this.sortDirection = sortDirection;
+    this.interval = interval;
+    this.limit = limit;
+  }
 
   public AnalyticsAggregation(String field) {
     this.field = field;
@@ -114,6 +132,7 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
 
   @Override
   public AnalyticsAggregation clone() { // NOSONAR
-    return new AnalyticsAggregation(type, field, sortDirection, interval, limit);
+    return new AnalyticsAggregation(type, field, sortDirection, interval, offset, limit, minBound, maxBound);
   }
+
 }
