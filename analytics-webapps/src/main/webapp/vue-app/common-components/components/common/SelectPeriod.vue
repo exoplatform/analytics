@@ -1,234 +1,322 @@
 <template>
   <v-menu
     v-model="menu"
-    :content-class="menuId"
+    :content-class="`${menuId} white`"
     class="analytics-selected-period-menu"
     :close-on-content-click="false"
-    :nudge-right="selectedTime ? -306 : -100"
     transition="scale-transition"
     offset-y
     attach
     min-width="auto">
     <template v-slot:activator="{ on, attrs }">
       <v-text-field
-        v-model="dateRangeText"
+        :value="rangeDate"
+        :title="rangeDateTimeTitle"
         prepend-inner-icon="mdi-calendar"
         class="pt-0 mt-0"
         rel="tooltip"
-        :title="$t('analytics.period', {0: from, 1: to})"
         readonly
         v-bind="attrs"
         v-on="on" />
     </template>
-    <div class="d-flex date-time-picker">
+    <div class="d-flex flex-column">
       <v-date-picker
         v-model="dates"
         :locale="lang"
-        class="analyticsDatePicker"
+        :max="maxDate"
+        width="100%"
+        show-current
+        show-week  
+        first-day-of-week="1"
+        class="analyticsDatePicker pb-2"
         range
         scrollable
-        @input="selectedCustomDate()">
-        <div class="dateFooter footer">
-          <div class="caption font-italic font-weight-light pl-1 muted">
-            {{ $t('analytics.period', {0: from, 1: to}) }}
-          </div>
-          <v-btn-toggle
-            v-model="defaultSelected"
-            class="d-flex flex-wrap justify-space-between defaultPeriodAnalytics"
-            tile
-            color="primary"
-            background-color="primary"
-            group>
-            <v-btn
-              v-for="(item, index) in periodOptions"
-              :key="index"
-              class="my-0"
-              small
-              :value="item.value"
-              @click="selectItem(item)">
-              <div>{{ item.text }}</div>
-            </v-btn>
-          </v-btn-toggle>
-        </div>
-      </v-date-picker>
-      <v-time-picker
-        v-show="selectedTime"
-        v-model="time"
-        :format="lang==='fr' ? '24hr' : 'ampm'"
-        class="time-picker-analytics"
-        ampm-in-title>
+        @input="selectCustomDates" />
+      <v-divider />
+      <v-btn-toggle
+        v-model="selectedPeriodName"
+        class="d-flex flex-wrap justify-space-between analytics-period-selection"
+        tile
+        color="primary"
+        background-color="primary"
+        group>
         <v-btn
-          class="btn"
-          text
-          @click="saveTime">
-          Select Time
+          v-for="(item, index) in periodOptions"
+          :key="index"
+          :value="item.value"
+          class="ma-0"
+          small
+          @click="selectPeriodItem(item.value)">
+          <div>{{ item.text }}</div>
         </v-btn>
-      </v-time-picker>
+      </v-btn-toggle>
+      <v-divider />
+      <div class="analytics-date-time-selection caption mx-auto pa-2 text-center muted ">
+        <span class="text-capitalize">{{ $t('analytics.from') }}</span>
+        <span class="primary--text">{{ fromDateTitle }}</span>
+        <input
+          v-if="!hideTime"
+          v-model="fromTime"
+          type="time"
+          class="ignore-vuetify-classes analytics-time-picker"
+          @change="updatePeriodTime">
+        <span class="text-capitalize">{{ $t('analytics.to') }}</span>
+        <span class="primary--text">{{ toDateTitle }}</span>
+        <input
+          v-if="!hideTime"
+          v-model="toTime"
+          type="time"
+          class="ignore-vuetify-classes analytics-time-picker"
+          @change="updatePeriodTime">
+      </div>
     </div>
   </v-menu>
 </template>
 
 <script>
 export default {
-  props: ['value'],
+  props: {
+    value: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
+    hideTime: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: () => ({
-    dates: [],
     menu: false,
     lang: eXo.env.portal.language,
-    selectedTime:false,
-    time:null,
-    defaultValue: 'last6Months',
-    selectedItem: null,
-    defaultSelected: 'last6Months',
+    dates: [],
+    fromTime: '00:00',
+    toTime: '23:59',
+    selectedPeriodName: 'thisMonth',
     menuId: `AnalyticsDatePickerMenu${parseInt(Math.random() * 10000)
       .toString()
       .toString()}`,
-    times: []
+    shortDateFormat: {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    },
+    dateFormat: {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    },
   }),
   computed:{
     periodOptions() {
       return [
         {
-          value: 'lastYear',
-          text: this.$t('analytics.periodOptions.lastYear')
+          value: 'thisYear',
+          text: this.$t('analytics.periodOptions.thisYear')
         },
         {
-          value: 'last6Months',
-          text: this.$t('analytics.periodOptions.last6Months'),
+          value: 'thisSemester',
+          text: this.$t('analytics.periodOptions.thisSemester'),
         },
         {
-          value: 'last3Months',
-          text: this.$t('analytics.periodOptions.last3Months')
+          value: 'thisQuarter',
+          text: this.$t('analytics.periodOptions.thisQuarter')
         },
         {
-          value: 'lastMonth',
-          text: this.$t('analytics.periodOptions.lastMonth')
+          value: 'thisMonth',
+          text: this.$t('analytics.periodOptions.thisMonth')
         },
         {
-          value: 'lastWeek',
-          text: this.$t('analytics.periodOptions.lastWeek')
+          value: 'thisWeek',
+          text: this.$t('analytics.periodOptions.thisWeek')
         },
         {
-          value: 'last24h',
-          text: this.$t('analytics.periodOptions.last24h')
+          value: 'today',
+          text: this.$t('analytics.periodOptions.today')
         },
       ];
     },
-    period(){
-      return this.value;
+    fromDate() {
+      return this.value && new Date(this.value.min);
     },
-    dateRangeText () {
-      return this.dates.join('~');
+    toDate() {
+      return this.value && new Date(this.value.max);
     },
-    from(){
-      return this.value && new Date(this.value.min).toLocaleString(this.lang,{year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'});
+    maxDate() {
+      return new Date().toLocaleDateString('sv-SV');
     },
-    to(){
-      return this.value && new Date(this.value.max).toLocaleString(this.lang,{year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'});
-    }
+    maxDateTime() {
+      const today = new Date();
+      today.setHours(23);
+      today.setMinutes(59);
+      return today;
+    },
+    fromDateTitle() {
+      return this.fromDate && this.fromDate.toLocaleString(this.lang, this.dateFormat);
+    },
+    toDateTitle() {
+      return this.toDate && this.toDate.toLocaleString(this.lang, this.dateFormat);
+    },
+    rangeDateTimeTitle() {
+      return this.$t('analytics.period', {
+        0: this.fromFullDateFormat,
+        1: this.toFullDateFormat
+      });
+    },
+    rangeDate() {
+      if (!this.fromDate || !this.toDate) {
+        return '';
+      }
+      return `${this.fromDate.toLocaleString(this.lang, this.dateFormat)}~${this.toDate.toLocaleString(this.lang, this.dateFormat)}`;
+    },
+    fromFullDateFormat() {
+      return this.fromDate && this.fromDate.toLocaleString(this.lang, this.shortDateFormat);
+    },
+    toFullDateFormat() {
+      return this.toDate && this.toDate.toLocaleString(this.lang, this.shortDateFormat);
+    },
   },
   watch: {
-    period(){
-      this.definePeriod();
-    },
-    menu(){
-      if((this.dates.length < 2 || this.times.length < 2 ) && !this.menu) {
-        this.definePeriod();
+    menu(newVal, oldVal) {
+      if (newVal && !oldVal && newVal !== oldVal) {
+        if (this.value) {
+          this.dates = [
+            this.fromDate.toLocaleDateString('sv-SV'),
+            this.toDate.toLocaleDateString('sv-SV'),
+          ];
+          this.fromTime = this.fromDate.toLocaleTimeString('sv-SV');
+          this.toTime = this.toDate.toLocaleTimeString('sv-SV');
+        }
       }
     },
   },
   mounted() {
     $(document).on('click', (e) => {
       if (e.target && !$(e.target).parents(`.${this.menuId}`).length) {
-        this.menu = false;
-        this.selectedTime=false;
+        this.close();
       }
     });
-    const defaultItem = this.periodOptions.find(item => item.value === this.defaultValue);
-    this.selectItem(defaultItem);
+    this.selectPeriodItem(this.selectedPeriodName);
   },
   methods: {
-    saveTime(){
-      this.times.push(this.time);
-      //check if period selected
-      if (this.times && this.times.length === 2 && this.dates.length === 2) {
+    selectDates() {
+      const selectedPeriod = {};
+      if (this.selectedPeriodName) {
+        selectedPeriod.period = this.selectedPeriodName;
+
+        this.fromTime = '00:00';
+        this.toTime = '23:59';
+
+        const today = new Date();
+
+        switch (this.selectedPeriodName) {
+        case 'today': {
+          const todayDate = today.toISOString().slice(0, 10);
+          this.dates = [
+            todayDate,
+            todayDate
+          ];
+          break;
+        }
+        case 'thisWeek': {
+          const day = today.getDay();
+          const diff = today.getDate() - day + (day === 0 && -6 || 1);
+          const startOfWeek = new Date(today.setDate(diff));
+          let endOfWeek = new Date(new Date(startOfWeek).setDate(startOfWeek.getDate() + 6));
+          if (endOfWeek > this.maxDateTime) {
+            endOfWeek = this.maxDateTime;
+          }
+          this.dates = [
+            startOfWeek.toISOString().slice(0, 10),
+            endOfWeek.toISOString().slice(0, 10)
+          ];
+          break;
+        }
+        case 'thisMonth': {
+          const startOfMonth = new Date(new Date(today).setDate(1));
+          let endOfMonth = new Date(new Date(new Date(today).setMonth(today.getMonth() + 1)).setDate(0));
+          if (endOfMonth > this.maxDateTime) {
+            endOfMonth = this.maxDateTime;
+          }
+          this.dates = [
+            startOfMonth.toISOString().slice(0, 10),
+            endOfMonth.toISOString().slice(0, 10)
+          ];
+          break;
+        }
+        case 'thisQuarter': {
+          const startOfQuarterMonth = today.getMonth() - (today.getMonth() -1) % 3 - 1;
+          const startOfQuarter = new Date(new Date(today.setMonth(startOfQuarterMonth)).setDate(1));
+          let endOfQuarter = new Date(new Date(new Date(startOfQuarter).setMonth(startOfQuarterMonth + 3)).setDate(0));
+          if (endOfQuarter > this.maxDateTime) {
+            endOfQuarter = this.maxDateTime;
+          }
+          this.dates = [
+            startOfQuarter.toISOString().slice(0, 10),
+            endOfQuarter.toISOString().slice(0, 10)
+          ];
+          break;
+        }
+        case 'thisSemester': {
+          const startOfSemesterMonth = today.getMonth() - (today.getMonth() -1) % 6 - 1;
+          const startOfSemester = new Date(new Date(today.setMonth(startOfSemesterMonth)).setDate(1));
+          let endOfSemester = new Date(new Date(new Date(startOfSemester).setMonth(startOfSemesterMonth + 6)).setDate(0));
+          if (endOfSemester > this.maxDateTime) {
+            endOfSemester = this.maxDateTime;
+          }
+          this.dates = [
+            startOfSemester.toISOString().slice(0, 10),
+            endOfSemester.toISOString().slice(0, 10)
+          ];
+          break;
+        }
+        case 'thisYear': {
+          this.dates = [
+            `${today.getYear() + 1900}-01-01`,
+            this.maxDate
+          ];
+          break;
+        }
+        }
+      }
+      if (this.dates && this.dates.length === 2) {
         // permutation if end date > start date
         if (new Date(this.dates[0]) > new Date(this.dates[1])){
           const value = this.dates[0];
-          const valueTime = this.times[0];
-          this.times[0] = this.times[1];
-          this.times[1] = valueTime;
           this.dates[0] = this.dates[1];
           this.dates[1] = value;
         }
-        const selectedPeriod = {
-          min: new Date(`${this.dates[0] } ${ this.times[0]}`).getTime(),
-          max: new Date(`${this.dates[1] } ${  this.times[1]}`).getTime()
-        };
+        selectedPeriod.min = new Date(`${this.dates[0]}T${this.fromTime}`).getTime();
+        selectedPeriod.max = new Date(`${this.dates[1]}T${this.toTime}`).getTime();
         this.$emit('input', selectedPeriod);
-        this.$forceUpdate();
-        this.value = selectedPeriod;
-        //initialize variables
-        this.defaultSelected = null;
-        this.selectedTime = false;
+        return true;
+      }
+      return false;
+    },
+    selectCustomDates() {
+      this.selectedPeriodName = null;
+      this.fromTime = '00:00';
+      this.toTime = '23:59';
+      this.selectDates();
+    },
+    updatePeriodTime() {
+      this.selectedPeriodName = null;
+      this.selectDates();
+    },
+    selectPeriodItem(periodName) {
+      this.selectedPeriodName = periodName;
+      const periodChanged = this.selectDates();
+      if (periodChanged) {
+        this.close();
+      }
+    },
+    close() {
+      this.$nextTick().then(() => {
         this.menu = false;
-        this.times = [];
-        this.time = null;
-      } else {
-        this.selectedTime = false;
-        this.menu = true;
-      }
-
-    },
-    definePeriod(){
-      if (this.value){
-        this.dates = [];
-        this.dates.push(new Date(this.period.min).toISOString().slice(0,10));
-        this.dates.push(new Date(this.period.max).toISOString().slice(0,10));
-        this.times = [];
-        this.time = null;
-      }
-    },
-    selectedCustomDate(){
-      this.selectedTime = true;
-      if (!this.time) {
-        const currentDate= new Date();
-        this.time = `${currentDate.getHours()}:${currentDate.getMinutes()}`;
-      }
-    },
-    selectItem(item){
-      this.selectedItem = item;
-
-      const nowInMS = Date.now();
-      const selectedPeriod = {
-        max: nowInMS,
-      };
-      switch (this.selectedItem.value) {
-      case 'last24h':
-        selectedPeriod.min = nowInMS - 86400000;
-        break;
-      case 'lastWeek':
-        selectedPeriod.min = nowInMS - 604800000;
-        break;
-      case 'lastMonth':
-        selectedPeriod.min = nowInMS - 2592000000;
-        break;
-      case 'last3Months':
-        selectedPeriod.min = nowInMS - 7776000000;
-        break;
-      case 'last6Months':
-        selectedPeriod.min = nowInMS - 15552000000;
-        break;
-      case 'lastYear':
-        selectedPeriod.min = nowInMS - 31536000000;
-        break;
-      }
-      selectedPeriod.period = this.selectedItem.value;
-      this.$emit('input', selectedPeriod);
-      this.value = selectedPeriod;
-      this.$forceUpdate();
-      this.menu = false;
-      this.selectedTime = false;
+      });
     },
   },
 };

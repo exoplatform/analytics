@@ -27,7 +27,7 @@ public class ChartAggregationResult implements Serializable {
   }
 
   public String getValue() {
-    return StringUtils.isBlank(result) ? "0" : result;
+    return StringUtils.isBlank(result) || StringUtils.equals(result, "null") ? "0" : result;
   }
 
   public ChartAggregationLabel retrieveChartLabel() {

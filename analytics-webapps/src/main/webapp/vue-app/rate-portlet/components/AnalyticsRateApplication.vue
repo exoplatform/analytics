@@ -31,7 +31,6 @@
               </v-btn>
             </template>
             <span>
-              <div>- {{ $t('analytics.dataRestriction') }}: {{ scopeTooltip }}</div>
               <div>- {{ $t('analytics.totalSamplesCount') }}: {{ chartsData.dataCount }}</div>
               <div>- {{ $t('analytics.computingTime') }}: {{ chartsData.computingTime }} ms</div>
             </span>
@@ -44,7 +43,9 @@
           </div>
         </v-toolbar-title>
         <v-spacer />
-        <analytics-select-period v-model="selectedPeriod" />
+        <analytics-select-period
+          v-model="selectedPeriod"
+          hide-time />
         <v-menu
           v-if="canEdit"
           v-model="showMenu"
@@ -121,7 +122,6 @@ export default {
     canEdit: false,
     value: 0,
     error: null,
-    scope: null,
     title: null,
     chartType: 'line',
     initialized: false,
@@ -131,6 +131,7 @@ export default {
     userObjects: {},
     spaceObjects: {},
     loading: true,
+    timeZoneOffset: new Date().getTimezoneOffset() * 60 * 1000,
     appId: `AnalyticsApplication${parseInt(Math.random() * 10000)
       .toString()
       .toString()}`,
@@ -154,15 +155,6 @@ export default {
   computed: {
     randomColorIndex() {
       return Math.floor(Math.random() * this.DEFAULT_COLORS.length);
-    },
-    scopeTooltip() {
-      switch (this.scope) {
-      case 'NONE': return this.$t('analytics.permissionDenied');
-      case 'GLOBAL': return this.$t('analytics.noDataRestriction');
-      case 'USER': return this.$t('analytics.dataRestrictedToCurrentUser');
-      case 'SPACE': return this.$t('analytics.dataRestrictedToCurrentSpace');
-      }
-      return this.error;
     },
     colors() {
       return this.chartSettings
@@ -210,7 +202,6 @@ export default {
           if (!this.chartSettings) {
             this.chartSettings = settings;
           }
-          this.scope = settings && settings.scope;
           this.canEdit = settings && settings.canEdit;
           this.chartType = settings && settings.chartType;
           this.title = settings && settings.title || '';
@@ -305,11 +296,14 @@ export default {
       }
 
       this.loading = true;
+      const period = this.selectedPeriod.period || `${this.selectedPeriod.min - this.timeZoneOffset}~${this.selectedPeriod.max + 60000 - this.timeZoneOffset}`;
       const params = {
         lang: eXo.env.portal.language,
-        date: Date.now(),
-        period: this.selectedPeriod.period,
+        period
       };
+      if (this.selectedPeriod.period) {
+        params.date = Date.now();
+      }
       return fetch(this.retrieveChartDataUrl, {
         method: 'POST',
         credentials: 'include',
