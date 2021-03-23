@@ -31,6 +31,8 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
   private String                        periodType;
 
+  private AnalyticsPeriod               customPeriod;
+
   private LocalDate                     periodDate;
 
   private AnalyticsPercentageItemFilter value;
@@ -51,20 +53,34 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
     return AnalyticsPeriodType.periodTypeByName(periodType);
   }
 
+  public String getAnalyticsPeriodInterval() {
+    AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
+    if (analyticsPeriodType != null && periodDate != null) {
+      return analyticsPeriodType.getCurrentPeriod(periodDate).getInterval();
+    } else if (customPeriod != null) {
+      return customPeriod.getInterval();
+    }
+    return null;
+  }
+
   public AnalyticsPeriod getCurrentAnalyticsPeriod() {
     AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
-    if (analyticsPeriodType == null || periodDate == null) {
-      return null;
+    if (analyticsPeriodType != null && periodDate != null) {
+      return analyticsPeriodType.getCurrentPeriod(periodDate);
+    } else if (customPeriod != null) {
+      return customPeriod.clone();
     }
-    return analyticsPeriodType.getCurrentPeriod(periodDate);
+    return null;
   }
 
   public AnalyticsPeriod getPreviousAnalyticsPeriod() {
     AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
-    if (analyticsPeriodType == null || periodDate == null) {
-      return null;
+    if (analyticsPeriodType != null && periodDate != null) {
+      return analyticsPeriodType.getPreviousPeriod(periodDate);
+    } else if (customPeriod != null) {
+      return customPeriod.previousPeriod();
     }
-    return analyticsPeriodType.getPreviousPeriod(periodDate);
+    return null;
   }
 
   public void setPeriodDateInMS(long timestampInMS) {
@@ -132,6 +148,7 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
   @Override
   public AnalyticsPercentageFilter clone() { // NOSONAR
     LocalDate clonedPeriodDate = periodDate == null ? null : LocalDate.from(periodDate);
+    AnalyticsPeriod clonedAnalyticsPeriod = customPeriod == null ? null : customPeriod.clone();
     AnalyticsFieldFilter clonedScopeFilter = scopeFilter == null ? null : scopeFilter.clone();
     AnalyticsPercentageItemFilter cloneAnalyticsPercentageItemFilterValue = value == null ? null : value.clone();
     AnalyticsPercentageItemFilter cloneAnalyticsPercentageItemFilterThreshold = threshold == null ? null
@@ -143,6 +160,7 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
                                          colors,
                                          clonedScopeFilter,
                                          periodType,
+                                         clonedAnalyticsPeriod,
                                          clonedPeriodDate,
                                          cloneAnalyticsPercentageItemFilterValue,
                                          cloneAnalyticsPercentageItemFilterThreshold,
@@ -153,15 +171,23 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
   }
 
   private AnalyticsAggregation getXAxisAggregation() {
-    AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
-    if (analyticsPeriodType == null) {
+    String interval = getAnalyticsPeriodInterval();
+    if (interval == null) {
       return null;
     }
     AnalyticsAggregation xAxisAggregation = new AnalyticsAggregation();
     xAxisAggregation.setField("timestamp");
     xAxisAggregation.setSortDirection("DESC");
     xAxisAggregation.setType(AnalyticsAggregationType.DATE);
-    xAxisAggregation.setInterval(analyticsPeriodType.getInterval());
+    xAxisAggregation.setInterval(interval);
+    xAxisAggregation.setMinBound(getPreviousAnalyticsPeriod().getFromInMS());
+    xAxisAggregation.setMaxBound(getCurrentAnalyticsPeriod().getToInMS() - 1000);
+    if (customPeriod != null) {
+      long offset = xAxisAggregation.getMinBound() % (86400000l * customPeriod.getDiffInDays()) / 86400000l;
+      if (offset > 0) {
+        xAxisAggregation.setOffset(offset + "d");
+      }
+    }
     return xAxisAggregation;
   }
 

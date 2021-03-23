@@ -461,6 +461,22 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                  .append("           \"interval\": \"")
                  .append(aggregation.getInterval())
                  .append("\"");
+          if (aggregation.getOffset() != null) {
+            esQuery.append(",")
+                   .append("           \"offset\": \"")
+                   .append(aggregation.getOffset())
+                   .append("\"");
+          }
+          if (aggregation.getMinBound() != null && aggregation.getMaxBound() != null) {
+            esQuery.append(",")
+                   .append("           \"extended_bounds\": {")
+                   .append("             \"min\": ")
+                   .append(aggregation.getMinBound())
+                   .append(",")
+                   .append("             \"max\": ")
+                   .append(aggregation.getMaxBound())
+                   .append("            }");
+          }
         }
 
         if (aggregationType.isUseLimit() && limit > 0) {
@@ -688,7 +704,9 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
           }
           addAggregationValue(key, filter, childAggregationValues, level);
 
-          List<String> labels = childAggregationValues.stream().map(value -> value.getFieldLabel()).collect(Collectors.toList());
+          List<String> labels = childAggregationValues.stream()
+                                                      .map(ChartAggregationValue::getFieldLabel)
+                                                      .collect(Collectors.toList());
           String label = StringUtils.join(labels, AGGREGATION_KEYS_SEPARATOR);
 
           ChartAggregationLabel chartLabel = new ChartAggregationLabel(childAggregationValues, label, lang);
@@ -758,7 +776,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       int statusOrdinal = statisticDataJsonObject.getInt("status");
       statisticDataJsonObject.put("status", StatisticStatus.values()[statusOrdinal]);
       StatisticData statisticData = fromJsonString(statisticDataJsonObject.toString(), StatisticData.class);
-      DEFAULT_FIELDS.stream().forEach(fieldName -> statisticDataJsonObject.remove(fieldName));
+      DEFAULT_FIELDS.stream().forEach(statisticDataJsonObject::remove);
 
       statisticData.setParameters(new HashMap<>());
       Iterator<?> remainingKeys = statisticDataJsonObject.keys();
