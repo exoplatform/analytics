@@ -68,8 +68,10 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
       RequestLifeCycle.begin(container);
       try {
         long userIdentityId = getUserIdentityId(modifierUsername);
-
-        List<LabelDto> taskLabels = getLabelService().findLabelsByTask(newTask.getId(), modifierUsername, 0, -1);
+        List<LabelDto> taskLabels = new ArrayList<>();
+        if(newTask.getStatus()!=null && newTask.getStatus().getProject()!=null){
+          taskLabels = getLabelService().findLabelsByTask(newTask,newTask.getStatus().getProject().getId(), conversationstate.getIdentity(), 0, -1);
+        }
         createTaskStatistic(oldTask, newTask, taskLabels, userIdentityId);
       } catch (Exception e) {
         LOG.warn("Error computing task statistics", e);
