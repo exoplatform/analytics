@@ -13,7 +13,7 @@
         class="mt-0"
         @save="saveSettings" />
     </template>
-    <v-card class="ma-auto analytics-chart-percentage analytics-chart-parent white" flat>
+    <v-card class="d-flex flex-column ma-auto analytics-chart-percentage analytics-chart-parent white" flat>
       <div class="d-flex pa-3 analytics-chart-header" flat>
         <v-toolbar-title class="d-flex">
           <v-tooltip bottom>
@@ -66,12 +66,25 @@
           </v-list>
         </v-menu>
       </div>
+      <v-card-text
+        v-if="loading && chartType === 'percentageBar'"
+        color="primary"
+        class="ma-auto">
+        <v-progress-linear indeterminate />
+      </v-card-text>
+      <v-progress-circular
+        v-else-if="loading && chartType === 'percentage'"
+        color="primary"
+        indeterminate
+        class="ma-auto" />
       <analytics-percentage-bar-chart
         v-if="chartType === 'percentageBar'"
+        v-show="!loading"
         ref="analyticsRateBody"
         :colors="colors" />
       <analytics-percentage-chart
         v-else-if="chartType === 'percentage'"
+        v-show="!loading"
         ref="analyticsRateBody"
         :settings="chartSettings" />
     </v-card>

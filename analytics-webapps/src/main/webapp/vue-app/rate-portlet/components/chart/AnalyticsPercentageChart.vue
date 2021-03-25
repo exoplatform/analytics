@@ -53,14 +53,16 @@ export default {
       return this.settings && this.settings.colors && this.settings.colors.length && this.settings.colors[0] || '#319ab3';
     },
     currentPeriodPercentage() {
-      return this.currentPeriodThreshold
+      const currentPeriodPercentage = this.currentPeriodThreshold
              && (Math.round((this.currentPeriodValue / this.currentPeriodThreshold) * 10000) / 100)
               || 0;
+      return this.$analyticsUtils.toFixed(currentPeriodPercentage);
     },
     lastPeriodPercentage() {
-      return this.lastPeriodThreshold
+      const lastPeriodPercentage = this.lastPeriodThreshold
             && (Math.round((this.lastPeriodValue / this.lastPeriodThreshold) * 10000) / 100)
             || 0;
+      return this.$analyticsUtils.toFixed(lastPeriodPercentage);
     },
     diffSign() {
       if (this.currentPeriodPercentage === this.lastPeriodPercentage) {
@@ -72,7 +74,8 @@ export default {
       }
     },
     diffWithLastPeriod() {
-      return Math.abs(this.currentPeriodPercentage - this.lastPeriodPercentage);
+      const diffWithLastPeriod = Math.abs(this.currentPeriodPercentage - this.lastPeriodPercentage);
+      return this.$analyticsUtils.toFixed(diffWithLastPeriod);
     },
     lastPeriodComparaisonClass() {
       if (this.currentPeriodPercentage === this.lastPeriodPercentage) {
@@ -101,7 +104,7 @@ export default {
         this.lastPeriodThreshold = chartsData.previousPeriodThreshold;
       }
       this.$nextTick().then(() => this.initialized = true);
-    }
+    },
   },
 };
 </script>

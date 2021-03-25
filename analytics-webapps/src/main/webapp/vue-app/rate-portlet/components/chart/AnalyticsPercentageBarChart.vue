@@ -47,13 +47,13 @@ export default {
       const currentPeriodPercentage = this.currentPeriodThreshold
               && (Math.round((this.currentPeriodValue / this.currentPeriodThreshold) * 10000) / 100)
               || 0;
-      return this.toFixed(currentPeriodPercentage);
+      return this.$analyticsUtils.toFixed(currentPeriodPercentage);
     },
     lastPeriodPercentage() {
       const lastPeriodPercentage = this.lastPeriodThreshold
             && (Math.round((this.lastPeriodValue / this.lastPeriodThreshold) * 10000) / 100)
             || 0;
-      return this.toFixed(lastPeriodPercentage);
+      return this.$analyticsUtils.toFixed(lastPeriodPercentage);
     },
     diffSign() {
       if (this.currentPeriodPercentage === this.lastPeriodPercentage) {
@@ -65,7 +65,8 @@ export default {
       }
     },
     diffWithLastPeriod() {
-      return Math.abs(this.currentPeriodPercentage - this.lastPeriodPercentage);
+      const diffWithLastPeriod = Math.abs(this.currentPeriodPercentage - this.lastPeriodPercentage);
+      return this.$analyticsUtils.toFixed(diffWithLastPeriod);
     },
     lastPeriodComparaisonClass() {
       if (this.currentPeriodPercentage === this.lastPeriodPercentage) {
@@ -95,9 +96,6 @@ export default {
       }
       this.$nextTick().then(() => this.initialized = true);
     },
-    toFixed(value, decimals) {
-      return Number.parseFloat(value).toFixed(2).replace(/(\..*[1-9])0+$/, '$1').replace(/\.0*$/, '');
-    }
   },
 };
 </script>

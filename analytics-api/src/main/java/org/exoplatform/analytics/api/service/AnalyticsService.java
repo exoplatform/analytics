@@ -5,10 +5,8 @@ import java.util.Set;
 
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticFieldMapping;
-import org.exoplatform.analytics.model.chart.ChartDataList;
-import org.exoplatform.analytics.model.chart.PercentageChartResult;
-import org.exoplatform.analytics.model.filter.AnalyticsFilter;
-import org.exoplatform.analytics.model.filter.AnalyticsPercentageFilter;
+import org.exoplatform.analytics.model.chart.*;
+import org.exoplatform.analytics.model.filter.*;
 
 public interface AnalyticsService {
 
@@ -27,6 +25,21 @@ public interface AnalyticsService {
    * @return computed analytics chart data
    */
   PercentageChartResult computeChartData(AnalyticsPercentageFilter filter);
+
+  /**
+   * Retrieve analytics percentage chart data
+   * 
+   * @param filter used search filters and aggregations to compute data
+   * @param currentPeriod current period of time
+   * @param previousPeriod previous period of time to compare with
+   * @param hasLimitAggregation whether aggregations has limit aggregation or not
+   * @return {@link PercentageChartValue} containing current and previous values
+   *         and thresholds
+   */
+  PercentageChartValue computePercentageChartData(AnalyticsFilter filter,
+                                                  AnalyticsPeriod currentPeriod,
+                                                  AnalyticsPeriod previousPeriod,
+                                                  boolean hasLimitAggregation);
 
   /**
    * Retrieve data using search filters
