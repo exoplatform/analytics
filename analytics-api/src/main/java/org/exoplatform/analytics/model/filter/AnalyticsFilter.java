@@ -160,10 +160,10 @@ public class AnalyticsFilter implements Serializable, Cloneable {
   @Override
   public AnalyticsFilter clone() { // NOSONAR
     List<AnalyticsFieldFilter> cloneFilters = new ArrayList<>(filters).stream()
-                                                                      .map(filter -> filter.clone())
+                                                                      .map(AnalyticsFieldFilter::clone)
                                                                       .collect(Collectors.toList());
     List<AnalyticsAggregation> cloneXAggs = new ArrayList<>(xAxisAggregations).stream()
-                                                                              .map(aggr -> aggr.clone())
+                                                                              .map(AnalyticsAggregation::clone)
                                                                               .collect(Collectors.toList());
     AnalyticsAggregation cloneyAggregation = yAxisAggregation == null ? null : yAxisAggregation.clone();
     return new AnalyticsFilter(title,

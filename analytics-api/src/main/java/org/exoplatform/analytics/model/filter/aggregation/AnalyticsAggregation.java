@@ -67,10 +67,13 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
   private long                          limit;
 
   @Exclude
-  private Long                          minBound;
+  private boolean                       useBounds;
 
   @Exclude
-  private Long                          maxBound;
+  private long                          minBound;
+
+  @Exclude
+  private long                          maxBound;
 
   public AnalyticsAggregation(AnalyticsAggregationType type, String field, String sortDirection, String interval, long limit) {
     super();
@@ -132,7 +135,7 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
 
   @Override
   public AnalyticsAggregation clone() { // NOSONAR
-    return new AnalyticsAggregation(type, field, sortDirection, interval, offset, limit, minBound, maxBound);
+    return new AnalyticsAggregation(type, field, sortDirection, interval, offset, limit, useBounds, minBound, maxBound);
   }
 
 }

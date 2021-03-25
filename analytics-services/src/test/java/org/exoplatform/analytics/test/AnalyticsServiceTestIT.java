@@ -29,8 +29,6 @@ import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.chart.*;
 import org.exoplatform.analytics.model.filter.*;
 import org.exoplatform.analytics.model.filter.aggregation.*;
-import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
-import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilterType;
 
 public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
 
@@ -289,7 +287,6 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
   public void testGetAnalyticsPercentage() {
     AnalyticsPercentageFilter filter = new AnalyticsPercentageFilter();
     filter.setChartType("percentageBar");
-    filter.setScopeFilter(null);
     AnalyticsPercentageItemFilter valueFilter = new AnalyticsPercentageItemFilter();
     filter.setValue(valueFilter);
     AnalyticsPercentageItemFilter thresholdFilter = new AnalyticsPercentageItemFilter();
@@ -338,43 +335,15 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     percentageChartDataList = analyticsService.computeChartData(filter);
     assertNotNull(percentageChartDataList);
     assertEquals(0, percentageChartDataList.getCurrentPeriodValue(), 0);
-    assertEquals(103d, percentageChartDataList.getPreviousPeriodValue(), 0);
+    assertEquals(120d, percentageChartDataList.getPreviousPeriodValue(), 0);
     assertEquals(0, percentageChartDataList.getCurrentPeriodThreshold(), 0);
-    assertEquals(3483d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
-
-    AnalyticsFieldFilter spaceScopeFilter = new AnalyticsFieldFilter("spaceId", AnalyticsFieldFilterType.EQUAL, "2");
-    filter.setScopeFilter(spaceScopeFilter);
-    percentageChartDataList = analyticsService.computeChartData(filter);
-    assertNotNull(percentageChartDataList);
-    assertEquals(0, percentageChartDataList.getCurrentPeriodValue(), 0);
-    assertEquals(0, percentageChartDataList.getPreviousPeriodValue(), 0);
-    assertEquals(0, percentageChartDataList.getCurrentPeriodThreshold(), 0);
-    assertEquals(0, percentageChartDataList.getPreviousPeriodThreshold(), 0);
-
-    AnalyticsFieldFilter userScopeFilter = new AnalyticsFieldFilter("userId", AnalyticsFieldFilterType.EQUAL, "18");
-    filter.setScopeFilter(userScopeFilter);
-    percentageChartDataList = analyticsService.computeChartData(filter);
-    assertNotNull(percentageChartDataList);
-    assertEquals(0, percentageChartDataList.getCurrentPeriodValue(), 0);
-    assertEquals(0, percentageChartDataList.getPreviousPeriodValue(), 0);
-    assertEquals(0, percentageChartDataList.getCurrentPeriodThreshold(), 0);
-    assertEquals(102d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
-
-    userScopeFilter = new AnalyticsFieldFilter("userId", AnalyticsFieldFilterType.EQUAL, "19");
-    filter.setScopeFilter(userScopeFilter);
-    percentageChartDataList = analyticsService.computeChartData(filter);
-    assertNotNull(percentageChartDataList);
-    assertEquals(0, percentageChartDataList.getCurrentPeriodValue(), 0);
-    assertEquals(103d, percentageChartDataList.getPreviousPeriodValue(), 0);
-    assertEquals(0, percentageChartDataList.getCurrentPeriodThreshold(), 0);
-    assertEquals(103d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
+    assertEquals(3924d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
   }
 
   @Test
   public void testGetAnalyticsPercentageWithLimit() {
     AnalyticsPercentageFilter filter = new AnalyticsPercentageFilter();
     filter.setChartType("percentage");
-    filter.setScopeFilter(null);
 
     AnalyticsPercentageItemFilter valueFilter = new AnalyticsPercentageItemFilter();
     valueFilter.addEqualFilter("subModule", "login");

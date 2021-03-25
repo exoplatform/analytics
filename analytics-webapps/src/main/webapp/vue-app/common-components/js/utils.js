@@ -90,6 +90,10 @@ export function getPage(siteType, siteName, pageName) {
   });
 }
 
+export function toFixed(value) {
+  return Number.parseFloat(value).toFixed(2).replace(/(\..*[1-9])0+$/, '$1').replace(/\.0*$/, '');
+}
+
 function getPageRecursively(navigations, pageName) {
   // Search in first level first
   for (const index in navigations) {
