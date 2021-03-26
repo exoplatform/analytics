@@ -90,8 +90,8 @@ export function getPage(siteType, siteName, pageName) {
   });
 }
 
-export function toFixed(value) {
-  return Number.parseFloat(value).toFixed(2).replace(/(\..*[1-9])0+$/, '$1').replace(/\.0*$/, '');
+export function toFixed(value, decimals = 2) {
+  return Number.parseFloat(value).toFixed(decimals).replace(/(\..*[1-9])0+$/, '$1').replace(/\.0*$/, '');
 }
 
 function getPageRecursively(navigations, pageName) {

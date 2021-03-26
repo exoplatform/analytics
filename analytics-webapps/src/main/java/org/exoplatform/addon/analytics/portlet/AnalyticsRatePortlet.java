@@ -96,7 +96,7 @@ public class AnalyticsRatePortlet extends GenericPortlet {
       AnalyticsPercentageFilter filter = getFilterFromPreferences(windowId, preferences, true);
       addLanguageFilter(request, filter);
       addPeriodFilter(request, filter);
-      Object result = getAnalyticsService().computeChartData(filter);
+      Object result = getAnalyticsService().computePercentageChartData(filter);
       response.setContentType(MediaType.APPLICATION_JSON);
       response.getWriter().write(AnalyticsUtils.toJsonString(result));
     }

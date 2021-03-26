@@ -3,99 +3,51 @@
     :id="appId"
     class="analytics-application"
     flat>
-    <template v-if="canEdit">
-      <analytics-chart-setting
-        ref="chartSettingDialog"
-        :retrieve-mappings-url="retrieveMappingsUrl"
-        :settings="chartSettings"
-        :users="userObjects"
-        :spaces="spaceObjects"
-        class="mt-0"
-        @save="saveSettings" />
-      <analytics-json-panel-dialog
-        ref="jsonPanelDialog"
-        :settings="chartSettings"
-        class="mt-0" />
-      <analytics-view-samples-drawer
-        ref="viewSamplesDrawer"
-        :title="title"
-        :selected-period="selectedPeriod"
-        :users="userObjects"
-        :spaces="spaceObjects"
-        :retrieve-samples-url="retrieveChartSamplesUrl"
-        class="mt-0" />
-    </template>
-    <v-card class="ma-auto analytics-chart-parent white" flat>
-      <div class="d-flex pa-3 analytics-chart-header" flat>
-        <v-toolbar-title class="d-flex">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                height="20"
-                width="20"
-                icon
-                small
-                class="my-auto mr-2 primary"
-                outlined
-                v-bind="attrs"
-                v-on="on">
-                <v-icon size="12">fa-info</v-icon>
-              </v-btn>
-            </template>
-            <span>
-              <div>- {{ $t('analytics.dataRestriction') }}: {{ scopeTooltip }}</div>
-              <div>- {{ $t('analytics.totalSamplesCount') }}: {{ chartsData.dataCount }}</div>
-              <div>- {{ $t('analytics.computingTime') }}: {{ chartsData.computingTime }} ms</div>
-            </span>
-          </v-tooltip>
-          <div
-            :title="title"
-            class="my-auto text-truncate analytics-chart-title">
-            {{ $t(title) }}
-          </div>
-        </v-toolbar-title>
-        <v-spacer />
-        <analytics-select-period v-model="selectedPeriod" />
-        <v-menu
+    <div class="d-flex pa-3 white analytics-table-header" flat>
+      <analytics-select-period
+        v-model="selectedPeriod"
+        right />
+      <v-spacer />
+      <exo-identity-suggester
+        v-if="canUseSuggester"
+        v-model="selectedIdentity"
+        :search-options="searchOptions"
+        :labels="suggesterLabels"
+        :include-users="useUsersInSearch"
+        :include-spaces="useSpacesInSearch"
+        name="selectedUser"
+        class="analytics-table-suggester mr-2" />
+      <template v-if="canEdit">
+        <v-btn
           v-if="canEdit"
-          v-model="showMenu"
-          offset-y>
-          <template v-slot:activator="{ on }">
-            <v-btn
-              icon
-              class="ml-2"
-              v-on="on"
-              @blur="closeMenu()">
-              <v-icon>mdi-dots-vertical</v-icon>
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item @mousedown="$event.preventDefault()" @click="$refs.viewSamplesDrawer.open()">
-              <v-list-item-title>{{ $t('analytics.samples') }}</v-list-item-title>
-            </v-list-item>
-            <v-list-item @mousedown="$event.preventDefault()" @click="$refs.chartSettingDialog.open()">
-              <v-list-item-title>{{ $t('analytics.settings') }}</v-list-item-title>
-            </v-list-item>
-            <v-list-item @mousedown="$event.preventDefault()" @click="$refs.jsonPanelDialog.open()">
-              <v-list-item-title>{{ $t('analytics.jsonSettings') }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </div>
-
-      <v-card-title
-        v-if="loading"
-        primary-title
-        class="ma-auto">
-        <v-spacer />
-        <v-progress-circular
-          color="primary"
-          indeterminate
-          size="20" />
-        <v-spacer />
-      </v-card-title>
-      <analytics-table />
-    </v-card>
+          outlined
+          class="btn primary"
+          @click="$refs.tableSettingDialog.open()">
+          <i class="uiIcon uiIcon24x24 settingsIcon mr-1 primary--text"></i>
+          {{ $t('analytics.settings') }}
+        </v-btn>
+        <analytics-table-setting
+          ref="tableSettingDialog"
+          :retrieve-mappings-url="retrieveMappingsUrl"
+          :settings="settings"
+          :users="userObjects"
+          :spaces="spaceObjects"
+          :user-fields="userFields"
+          :space-fields="spaceFields"
+          class="mt-0"
+          @save="saveSettings" />
+      </template>
+    </div>
+    <analytics-table
+      ref="table"
+      :retrieve-table-data-url="retrieveTableDataUrl"
+      :settings="settings"
+      :period="selectedPeriod"
+      :selected-identity="selectedIdentity"
+      :users="userObjects"
+      :spaces="spaceObjects"
+      :user-fields="userFields"
+      :space-fields="spaceFields" />
   </v-app>
 </template>
 
@@ -120,13 +72,7 @@ export default {
         return null;
       },
     },
-    retrieveChartDataUrl: {
-      type: String,
-      default: function() {
-        return null;
-      },
-    },
-    retrieveChartSamplesUrl: {
+    retrieveTableDataUrl: {
       type: String,
       default: function() {
         return null;
@@ -140,39 +86,41 @@ export default {
     },
   },
   data: () => ({
-    canEdit: false,
-    error: null,
-    scope: null,
-    title: null,
-    chartType: 'line',
-    initialized: false,
-    showMenu:false,
-    displaySamplesCount: false,
-    selectedPeriod: null,
-    userObjects: {},
-    spaceObjects: {},
-    loading: true,
+    settings: null,
     appId: `AnalyticsApplication${parseInt(Math.random() * 10000)
       .toString()
       .toString()}`,
-    chartsData: {},
-    chartSettings: null,
-    DEFAULT_COLORS: [
-      '#319ab3',
-      '#f97575',
-      '#98cc81',
-      '#4273c8',
-      '#cea6ac',
-      '#bc99e7',
-      '#9ee4f5',
-      '#774ea9',
-      '#ffa500',
-      '#bed67e',
-      '#bc99e7',
-      '#ffaacc',
-    ],
+    loading: true,
+    canEdit: false,
+    selectedIdentity: null,
+    error: null,
+    scope: null,
+    initialized: false,
+    selectedPeriod: null,
+    userObjects: {},
+    spaceObjects: {},
+    columnsData: {},
+    searchOptions: {
+      currentUser: '',
+    },
   }),
   computed: {
+    suggesterLabels() {
+      return {
+        searchPlaceholder: this.$t('analytics.searchPlaceholder'),
+        placeholder: this.$t('analytics.searchPlaceholder'),
+        noDataLabel: this.$t('analytics.noDataLabel'),
+      };
+    },
+    useUsersInSearch() {
+      return this.settings && this.settings.mainColumn && this.settings.mainColumn.aggregation.field === 'userId';
+    },
+    useSpacesInSearch() {
+      return this.settings && this.settings.mainColumn && this.settings.mainColumn.aggregation.field === 'spaceId';
+    },
+    canUseSuggester() {
+      return this.useUsersInSearch || this.useSpacesInSearch;
+    },
     scopeTooltip() {
       switch (this.scope) {
       case 'NONE': return this.$t('analytics.permissionDenied');
@@ -182,12 +130,86 @@ export default {
       }
       return this.error;
     },
-    colors() {
-      return this.chartSettings
-          && this.chartSettings.colors
-          && this.chartSettings.colors.length
-          && this.chartSettings.colors.slice()
-          || this.DEFAULT_COLORS;
+    userFields() {
+      return [{
+        name: 'profession',
+        label: this.$t('analytics.profession'),
+        sortable: false,
+        type: 'string',
+      }, {
+        name: 'team',
+        label: this.$t('analytics.team'),
+        sortable: false,
+        type: 'string',
+      }, {
+        name: 'enabled',
+        label: this.$t('analytics.enabled'),
+        sortable: true,
+        type: 'boolean',
+      }, {
+        name: 'spacesCount',
+        label: this.$t('analytics.spacesCount'),
+        sortable: false,
+        type: 'long',
+      }, {
+        name: 'createdDate',
+        label: this.$t('analytics.createdDate'),
+        sortable: true,
+        type: 'date',
+      }, {
+        name: 'enrollmentDate',
+        label: this.$t('analytics.enrollmentDate'),
+        sortable: true,
+        type: 'date',
+      }, {
+        name: 'lastUpdatedTime',
+        label: this.$t('analytics.lastUpdatedTime'),
+        sortable: true,
+        type: 'date',
+      }, {
+        name: 'lastLoginTime',
+        label: this.$t('analytics.lastLoginTime'),
+        sortable: true,
+        type: 'date',
+      }];
+    },
+    spaceFields() {
+      return [{
+        name: 'createdTime',
+        label: this.$t('analytics.createdDate'),
+        sortable: true,
+        type: 'date',
+      }, {
+        name: 'managersCount',
+        label: this.$t('analytics.managersCount'),
+        sortable: true,
+        type: 'long',
+      }, {
+        name: 'membersCount',
+        label: this.$t('analytics.membersCount'),
+        sortable: true,
+        type: 'long',
+      }, {
+        name: 'redactorsCount',
+        label: this.$t('analytics.redactorsCount'),
+        sortable: true,
+        type: 'long',
+      }, {
+        name: 'template',
+        label: this.$t('analytics.template'),
+        sortable: true,
+        type: 'string',
+      }, {
+        name: 'subscription',
+        label: this.$t('analytics.subscription'),
+        sortable: false,
+        type: 'string',
+      }, {
+        name: 'visibility',
+        label: this.$t('analytics.visibility'),
+        sortable: false,
+        type: 'string',
+      }];
     },
   },
   watch: {
@@ -195,8 +217,6 @@ export default {
       if (!oldValue && newValue && !this.initialized) {
         this.initialized = true;
         this.init();
-      } else if (newValue) {
-        this.updateChart();
       }
     },
   },
@@ -205,9 +225,9 @@ export default {
       this.loading = true;
       return this.getSettings()
         .then(this.$nextTick)
-        .then(this.updateChart)
-        .then(this.$nextTick)
         .then(this.getFilters)
+        .then(this.$nextTick)
+        .then(this.updateTable)
         .finally(() => {
           this.loading = false;
         });
@@ -221,27 +241,20 @@ export default {
           if (resp && resp.ok) {
             return resp.json();
           } else {
-            throw new Error(`Error getting analytics of chart '${this.title}'`);
+            throw new Error(`Error getting analytics of table '${this.title}'`);
           }
         })
         .then((settings) => {
-          if (!this.chartSettings) {
-            this.chartSettings = settings;
-          }
           this.scope = settings && settings.scope;
           this.canEdit = settings && settings.canEdit;
-          this.chartType = settings && settings.chartType;
-          this.title = settings && settings.title || this.$t('analytics.chartDataPlaceholder');
+          this.title = settings && settings.title || '';
         })
         .catch((e) => {
-          console.warn('Error retrieving chart filters', e);
-          this.error = 'Error retrieving chart filters';
+          console.warn('Error retrieving table settings', e);
+          this.error = 'Error retrieving table settings';
         });
     },
     getFilters() {
-      if (!this.canEdit) {
-        return;
-      }
       return fetch(this.retrieveFiltersUrl, {
         method: 'GET',
         credentials: 'include',
@@ -254,29 +267,29 @@ export default {
           }
         })
         .then((settings) => {
-          this.chartSettings = settings;
           if (!settings) {
-            this.chartSettings = {
-              filters: [],
-              aggregations: [],
+            settings = {};
+          }
+          if (!settings.mainColumn) {
+            settings.mainColumn = {
+              title: settings.mainColumn.title || '',
+              aggregation: {
+                field: settings.mainColumn.field || null,
+                type: settings.mainColumn.type || 'TERMS',
+              },
             };
           }
-          if (!this.chartSettings.filters) {
-            this.chartSettings.filters = [];
+          if (!settings.columns) {
+            settings.columns = [];
           }
-          if (!this.chartSettings.xAxisAggregations) {
-            this.chartSettings.xAxisAggregations = [];
-          }
-          if (!this.chartSettings.yAxisAggregation) {
-            this.chartSettings.yAxisAggregation = {};
-          }
+          this.settings = settings;
         })
         .catch((e) => {
-          console.warn('Error retrieving chart filters', e);
-          this.error = 'Error retrieving chart filters';
+          console.warn('Error retrieving table filters', e);
+          this.error = 'Error retrieving table filters';
         });
     },
-    saveSettings(chartSettings) {
+    saveSettings(settings) {
       this.loading = true;
 
       return fetch(this.saveSettingsUrl, {
@@ -286,63 +299,31 @@ export default {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: $.param({
-          settings : JSON.stringify(chartSettings)
+          settings : JSON.stringify(settings)
         }),
       })
         .then((resp) => {
           if (!resp || !resp.ok) {
-            throw new Error('Error saving chart settings', chartSettings);
+            throw new Error('Error saving table settings', settings);
           }
 
-          this.chartSettings = JSON.parse(JSON.stringify(chartSettings));
+          this.settings = JSON.parse(JSON.stringify(settings));
           return this.init();
         })
         .catch((e) => {
-          console.warn('Error saving chart settings', e);
-          this.error = 'Error saving chart settings';
+          console.warn('Error saving table settings', e);
+          this.error = 'Error saving table settings';
         })
         .finally(() => {
           this.loading = false;
         });
     },
-    updateChart() {
+    updateTable() {
       if (!this.selectedPeriod) {
         return;
       }
-
-      this.loading = true;
-      const params = {
-        lang: eXo.env.portal.language,
-        min: this.selectedPeriod.min,
-        max: this.selectedPeriod.max,
-      };
-      return fetch(this.retrieveChartDataUrl, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: $.param(params),
-      })
-        .then((resp) => {
-          if (resp && resp.ok) {
-            return resp.json();
-          } else {
-            throw new Error('Error getting analytics with settings:', this.chartSettings);
-          }
-        })
-        .then((chartsData) => {
-          this.chartsData = chartsData;
-        })
-        .catch((e) => {
-          console.debug('fetch analytics - error', e);
-          this.error = 'Error getting analytics';
-        })
-        .finally(() => this.loading = false);
+      this.$refs.table.refresh();
     },
-    closeMenu(){
-      this.showMenu=false;
-    }
   }
 };
 </script>

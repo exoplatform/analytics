@@ -9,7 +9,7 @@ const vuetify = new Vuetify({
 
 // getting language of user
 const lang = eXo && eXo.env && eXo.env.portal && eXo.env.portal.language || 'en';
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.addon.Analytics-${lang}.json`;
+const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Analytics-${lang}.json`;
 
 // Display loading first time the page is displayed
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
@@ -22,8 +22,7 @@ export function init(dataId) {
       const retrieveSettingsURL = element.attr('data-settings-url');
       const retrieveMappingsURL = element.attr('data-mappings-url');
       const retrieveFiltersURL = element.attr('data-filters-url');
-      const retrieveChartDataURL = element.attr('data-chart-data-url');
-      const retrieveChartSamplesURL = element.attr('data-chart-samples-url');
+      const retrieveTableDataUrl = element.attr('data-table-data-url');
       const saveSettingsURL = element.attr('data-save-settings-url');
 
       new Vue({
@@ -31,8 +30,7 @@ export function init(dataId) {
           retrieveSettingsURL : retrieveSettingsURL,
           retrieveMappingsURL : retrieveMappingsURL,
           retrieveFiltersURL : retrieveFiltersURL,
-          retrieveChartDataURL : retrieveChartDataURL,
-          retrieveChartSamplesURL : retrieveChartSamplesURL,
+          retrieveTableDataUrl : retrieveTableDataUrl,
           saveSettingsURL : saveSettingsURL,
         }),
         mounted() {
@@ -45,15 +43,13 @@ export function init(dataId) {
            :retrieve-settings-url="retrieveSettingsURL"
            :retrieve-mappings-url="retrieveMappingsURL"
            :retrieve-filters-url="retrieveFiltersURL"
-           :retrieve-chart-data-url="retrieveChartDataURL"
-           :retrieve-chart-samples-url="retrieveChartSamplesURL"
+           :retrieve-table-data-url="retrieveTableDataUrl"
            :save-settings-url="saveSettingsURL"
            data-id="${dataId}"
            data-settings-url="${retrieveSettingsURL}"
            data-mappings-url="${retrieveMappingsURL}"
            data-filters-url="${retrieveFiltersURL}"
-           data-chart-data-url="${retrieveChartDataURL}"
-           data-chart-samples-url="${retrieveChartSamplesURL}"
+           data-table-data-url="${retrieveTableDataUrl}"
            data-save-settings-url="${saveSettingsURL}" />`,
         vuetify,
         i18n
