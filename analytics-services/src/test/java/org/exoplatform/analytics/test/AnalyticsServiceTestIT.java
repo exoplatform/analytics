@@ -29,6 +29,8 @@ import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.chart.*;
 import org.exoplatform.analytics.model.filter.*;
 import org.exoplatform.analytics.model.filter.aggregation.*;
+import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
+import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilterType;
 
 public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
 
@@ -308,7 +310,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     valueFilter.setYAxisAggregation(yAxisAggregation);
     thresholdFilter.setYAxisAggregation(yAxisAggregation);
 
-    PercentageChartResult percentageChartDataList = analyticsService.computeChartData(filter);
+    PercentageChartResult percentageChartDataList = analyticsService.computePercentageChartData(filter);
     assertNotNull(percentageChartDataList);
     assertEquals(48d, percentageChartDataList.getCurrentPeriodValue(), 0);
     assertEquals(1691d, percentageChartDataList.getCurrentPeriodThreshold(), 0);
@@ -320,7 +322,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
                                       .atStartOfDay(ZoneOffset.UTC)
                                       .toInstant()
                                       .toEpochMilli());
-    percentageChartDataList = analyticsService.computeChartData(filter);
+    percentageChartDataList = analyticsService.computePercentageChartData(filter);
     assertNotNull(percentageChartDataList);
     assertEquals(80l, percentageChartDataList.getCurrentPeriodValue(), 0);
     assertEquals(0, percentageChartDataList.getPreviousPeriodValue(), 0);
@@ -332,7 +334,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
                                       .atStartOfDay(ZoneOffset.UTC)
                                       .toInstant()
                                       .toEpochMilli());
-    percentageChartDataList = analyticsService.computeChartData(filter);
+    percentageChartDataList = analyticsService.computePercentageChartData(filter);
     assertNotNull(percentageChartDataList);
     assertEquals(0, percentageChartDataList.getCurrentPeriodValue(), 0);
     assertEquals(120d, percentageChartDataList.getPreviousPeriodValue(), 0);
@@ -377,11 +379,91 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     thresholdFilter.setYAxisAggregation(yAxisAggregation);
     thresholdFilter.setYAxisAggregation(yAxisAggregation);
 
-    PercentageChartResult percentageChartDataList = analyticsService.computeChartData(filter);
+    PercentageChartResult percentageChartDataList = analyticsService.computePercentageChartData(filter);
     assertNotNull(percentageChartDataList);
     assertEquals(950d, percentageChartDataList.getCurrentPeriodValue(), 0);
     assertEquals(1691d, percentageChartDataList.getCurrentPeriodThreshold(), 0);
     assertEquals(580d, percentageChartDataList.getPreviousPeriodValue(), 0);
     assertEquals(985d, percentageChartDataList.getPreviousPeriodThreshold(), 0);
+  }
+
+  @Test
+  public void testGetTableColumnItems() {
+    AnalyticsTableFilter filter = new AnalyticsTableFilter();
+    AnalyticsTableColumnFilter mainColumn = new AnalyticsTableColumnFilter();
+
+    mainColumn.setAggregation(new AnalyticsAggregation("userId"));
+    filter.setMainColumn(mainColumn);
+
+    AnalyticsTableColumnFilter column1 = new AnalyticsTableColumnFilter();
+    column1.setAggregation(new AnalyticsAggregation(AnalyticsAggregationType.COUNT, "userId", null, null, 0));
+    column1.getFilters().add(new AnalyticsFieldFilter("module", AnalyticsFieldFilterType.EQUAL, "portal"));
+    column1.getFilters().add(new AnalyticsFieldFilter("operation", AnalyticsFieldFilterType.EQUAL, "login"));
+    column1.setPreviousPeriod(true);
+
+    AnalyticsTableColumnFilter column2 = new AnalyticsTableColumnFilter();
+    column2.setAggregation(new AnalyticsAggregation(AnalyticsAggregationType.TERMS, "operation", "desc", null, 0));
+    column2.getFilters().add(new AnalyticsFieldFilter("module", AnalyticsFieldFilterType.EQUAL, "portal"));
+    filter.setColumns(Arrays.asList(column1, column2));
+
+    AnalyticsPeriod period = AnalyticsPeriodType.THIS_YEAR.getCurrentPeriod(LocalDate.of(2019, 12, 01));
+    AnalyticsFilter userColumnFilter = filter.buildColumnFilter(period,
+                                                                AnalyticsPeriodType.THIS_YEAR,
+                                                                null,
+                                                                0,
+                                                                "desc",
+                                                                0);
+    TableColumnResult columnData = analyticsService.computeTableColumnData(filter,
+                                                                           userColumnFilter,
+                                                                           period,
+                                                                           AnalyticsPeriodType.THIS_YEAR,
+                                                                           0);
+    assertNotNull(columnData);
+    assertNotNull(columnData.getItems());
+    assertEquals(33, columnData.getItems().size());
+
+    userColumnFilter = filter.buildColumnFilter(period,
+                                                AnalyticsPeriodType.THIS_YEAR,
+                                                null,
+                                                0,
+                                                "desc",
+                                                1);
+    columnData = analyticsService.computeTableColumnData(filter,
+                                                         userColumnFilter,
+                                                         period,
+                                                         AnalyticsPeriodType.THIS_YEAR,
+                                                         1);
+    assertNotNull(columnData);
+    assertNotNull(columnData.getItems());
+    assertEquals(33, columnData.getItems().size());
+    TableColumnItemValue tableColumnItemValue = columnData.getItems().get(0);
+    assertNotNull(tableColumnItemValue);
+    assertEquals("41", tableColumnItemValue.getKey());
+    assertEquals("56", tableColumnItemValue.getValue());
+
+    tableColumnItemValue = columnData.getItems().get(32);
+    assertNotNull(tableColumnItemValue);
+    assertEquals("31", tableColumnItemValue.getKey());
+    assertEquals("27", tableColumnItemValue.getValue());
+
+    userColumnFilter = filter.buildColumnFilter(period,
+                                                AnalyticsPeriodType.THIS_YEAR,
+                                                null,
+                                                0,
+                                                "desc",
+                                                2);
+    columnData = analyticsService.computeTableColumnData(filter,
+                                                         userColumnFilter,
+                                                         period,
+                                                         AnalyticsPeriodType.THIS_YEAR,
+                                                         2);
+
+    tableColumnItemValue = columnData.getItems().get(0);
+    assertNotNull(tableColumnItemValue);
+    assertEquals("logout,login", tableColumnItemValue.getValue());
+
+    tableColumnItemValue = columnData.getItems().get(32);
+    assertNotNull(tableColumnItemValue);
+    assertEquals("logout,login", tableColumnItemValue.getValue());
   }
 }
