@@ -109,12 +109,5 @@ export default {
       this.aggregationType = 'COUNT';
     }
   },
-  methods: {
-    selectedValueComparator(item1, item2) {
-      const item1Value = (item1 && item1.value) || item1;
-      const item2Value = (item2 && item2.value) || item2;
-      return item1Value === item2Value;
-    },
-  },
 };
 </script>

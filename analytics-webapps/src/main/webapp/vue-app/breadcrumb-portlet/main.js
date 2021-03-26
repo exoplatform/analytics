@@ -12,7 +12,7 @@ const appId = 'analyticsDashboardBreadcrumb';
 
 // getting language of user
 const lang = eXo && eXo.env && eXo.env.portal && eXo.env.portal.language || 'en';
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.addon.Analytics-${lang}.json`;
+const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Analytics-${lang}.json`;
 
 export function init(cacheId) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
