@@ -78,7 +78,7 @@ public class StatisticData implements Serializable {
     if (value instanceof Collection) {
       Collection<?> collection = (Collection<?>) value;
       Collection<String> values = collection.stream()
-                                            .filter(val -> val != null)
+                                            .filter(Objects::nonNull)
                                             .map(this::getFieldValue)
                                             .collect(Collectors.toList());
       if (listParameters == null) {

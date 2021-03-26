@@ -87,6 +87,9 @@
   }
 }
 
+.content-box-sizing {
+  box-sizing: content-box;
+}
 .analytics-application {
   background: transparent !important;
   max-width: fit-content;
@@ -193,6 +196,12 @@
       border: 0 !important;
     }
   }
+  .analytics-selected-period-input {
+    max-width: 225px !important;
+  }
+  .analytics-selected-period-menu-content {
+    max-width: 400px !important;
+  }
   .v-picker__title{
     border-top-left-radius: 0px !important;
     border-top-right-radius: 0px !important;
@@ -221,6 +230,28 @@
   .v-text-field__slot{
     > input {
       padding: 0px;
+    }
+  }
+
+  .analytics-table {
+    .analytics-table-user p {
+      color: @primaryColor !important;
+    }
+  }
+
+  .analytics-table-suggester {
+    max-height: 38px;
+    max-width: 250px;
+
+    .identitySuggester {
+      margin: 0 !important;
+      max-height: 38px;
+    }
+
+    .v-select__selections {
+      white-space: nowrap;
+      overflow: hidden;
+      padding-top: 2px;
     }
   }
 }
@@ -289,15 +320,18 @@
         }
       }
     }
-    .analytics-selected-period-menu{
-      .v-menu__content.theme--light.menuable__content__active {
-        max-width: 100% !important;
-        left: 0px !important;
-        right: 0px !important;
-      }
+  }
+  .analytics-selected-period-menu {
+    .v-menu__content.theme--light.menuable__content__active {
+      max-width: 100% !important;
+      left: 0px !important;
+      right: 0px !important;
     }
-    .analytics-date-time-selection {
-      white-space: normal;
-    }
+  }
+  .analytics-date-time-selection {
+    white-space: normal;
+  }
+  .analytics-selected-period-menu-content {
+    max-width: 100vw !important;
   }
 }

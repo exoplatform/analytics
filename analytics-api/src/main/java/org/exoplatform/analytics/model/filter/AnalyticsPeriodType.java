@@ -1,11 +1,12 @@
 package org.exoplatform.analytics.model.filter;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
+import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
+
+import lombok.Getter;
 
 public enum AnalyticsPeriodType {
   TODAY("today", "day"),
@@ -17,6 +18,7 @@ public enum AnalyticsPeriodType {
 
   private String typeName;
 
+  @Getter
   private String interval;
 
   private AnalyticsPeriodType(String typeName, String interval) {
@@ -39,11 +41,12 @@ public enum AnalyticsPeriodType {
         end = start.plusMonths(1);
         return new AnalyticsPeriod(start, end, interval);
       case THIS_QUARTER:
-        start = date.withDayOfMonth(1).minusMonths(2);
+        start = Year.of(date.getYear()).atMonth(date.getMonth().firstMonthOfQuarter()).atDay(1);
         end = start.plusMonths(3);
         return new AnalyticsPeriod(start, end, interval);
       case THIS_SEMESTER:
-        start = date.withDayOfMonth(1).minusMonths(5);
+        start = date.getMonth().compareTo(Month.JUNE) > 0 ? Year.of(date.getYear()).atMonth(Month.JULY).atDay(1)
+                                                          : Year.of(date.getYear()).atMonth(Month.JANUARY).atDay(1);
         end = start.plusMonths(6);
         return new AnalyticsPeriod(start, end, interval);
       case THIS_YEAR:
@@ -53,6 +56,13 @@ public enum AnalyticsPeriodType {
       default:
         return null;
     }
+  }
+
+  public long getOffset(long timestamp) {
+    if (this == THIS_SEMESTER) {
+      return (timestamp / 86400000l) % 182;
+    }
+    return 0;
   }
 
   public AnalyticsPeriod getPreviousPeriod(LocalDate date) {
@@ -66,7 +76,10 @@ public enum AnalyticsPeriodType {
       case THIS_QUARTER:
         return getCurrentPeriod(date.minusMonths(3));
       case THIS_SEMESTER:
-        return getCurrentPeriod(date.minusMonths(6));
+        AnalyticsPeriod currentPeriod = getCurrentPeriod(date);
+        return new AnalyticsPeriod(currentPeriod.getFrom().minusDays(182), // NOSONAR
+                                   currentPeriod.getTo().minusDays(182),
+                                   interval);
       case THIS_YEAR:
         return getCurrentPeriod(date.minusYears(1));
       default:

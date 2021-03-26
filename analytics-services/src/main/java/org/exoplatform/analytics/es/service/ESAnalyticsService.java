@@ -181,7 +181,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   @Override
-  public PercentageChartResult computeChartData(AnalyticsPercentageFilter percentageFilter) {
+  public PercentageChartResult computePercentageChartData(AnalyticsPercentageFilter percentageFilter) {
     if (percentageFilter == null) {
       throw new IllegalArgumentException("Filter is mandatory");
     }
@@ -228,6 +228,38 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                                      false,
                                      false);
     return percentageChartResult;
+  }
+
+  @Override
+  public TableColumnResult computeTableColumnData(AnalyticsTableFilter tableFilter,
+                                                  AnalyticsFilter filter,
+                                                  AnalyticsPeriod period,
+                                                  AnalyticsPeriodType periodType,
+                                                  int columnIndex) {
+    if (filter == null) {
+      throw new IllegalArgumentException("Filter is mandatory");
+    }
+    if (filter.getAggregations() == null || filter.getAggregations().isEmpty()) {
+      throw new IllegalArgumentException("Filter aggregations is mandatory");
+    }
+
+    String esQueryString = buildAnalyticsQuery(filter.getAggregations(),
+                                               filter.getFilters(),
+                                               filter.getOffset(),
+                                               filter.getLimit());
+
+    String jsonResponse = this.esClient.sendRequest(esQueryString);
+    try {
+      return buildTableColumnDataFromESResponse(tableFilter,
+                                                period,
+                                                periodType,
+                                                columnIndex,
+                                                jsonResponse,
+                                                filter.getLimit());
+    } catch (JSONException e) {
+      throw new IllegalStateException("Error parsing results with - filter: " + filter + " - query: " + esQueryString
+          + " - response: " + jsonResponse, e);
+    }
   }
 
   @Override
@@ -549,9 +581,14 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
         if (aggregationType.isUseLimit() && limit > 0) {
           esQuery.append("           ,\"size\": ").append(limit);
         }
-        if (aggregationType.isUseSort() && (i + 1) < aggregationsSize) {
-          AnalyticsAggregation nextAggregation = aggregations.get(i + 1);
-          String sortField = getSortField(nextAggregation);
+        if (aggregationType.isUseSort()) {
+          String sortField = null;
+          if ((i + 1) < aggregationsSize) {
+            AnalyticsAggregation nextAggregation = aggregations.get(i + 1);
+            sortField = getSortField(nextAggregation);
+          } else if (aggregationType == AnalyticsAggregationType.TERMS) {
+            sortField = "_count";
+          }
           if (sortField != null) {
             esQuery.append(",           \"order\": {\"")
                    .append(sortField)
@@ -664,6 +701,105 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     }
     percentageResult.setComputingTime(percentageResult.getComputingTime() + chartValue.getComputingTime());
     percentageResult.setDataCount(percentageResult.getDataCount() + chartValue.getDataCount());
+  }
+
+  private TableColumnResult buildTableColumnDataFromESResponse(AnalyticsTableFilter tableFilter,
+                                                               AnalyticsPeriod period,
+                                                               AnalyticsPeriodType periodType,
+                                                               int columnIndex,
+                                                               String jsonResponse,
+                                                               long limit) throws JSONException {
+    TableColumnResult tableColumnResult = new TableColumnResult();
+    JSONObject json = new JSONObject(jsonResponse);
+    JSONObject aggregations = json.has("aggregations") ? json.getJSONObject("aggregations") : null;
+    if (aggregations == null) {
+      return tableColumnResult;
+    }
+    JSONObject result = aggregations.has(AGGREGATION_RESULT_PARAM) ? aggregations.getJSONObject(AGGREGATION_RESULT_PARAM) : null;
+    if (result == null) {
+      return tableColumnResult;
+    }
+    JSONArray buckets = result.has("buckets") ? result.getJSONArray("buckets") : null;
+    if (buckets == null) {
+      return tableColumnResult;
+    }
+    AnalyticsTableColumnFilter columnFilter = tableFilter.getColumnFilter(columnIndex);
+    LinkedHashMap<String, TableColumnItemValue> itemValues = new LinkedHashMap<>();
+    if (columnFilter.isPreviousPeriod()) {
+      AnalyticsPeriod currentPeriod = tableFilter.getCurrentPeriod(period, periodType);
+      AnalyticsPeriod previousPeriod = tableFilter.getPreviousPeriod(period, periodType);
+      for (int i = buckets.length() - 1; i >= 0; i--) {
+        JSONObject bucket = buckets.getJSONObject(i);
+        long timestamp = bucket.getLong("key");
+        boolean isCurrent = currentPeriod.isInPeriod(timestamp);
+        if (!isCurrent && !previousPeriod.isInPeriod(timestamp)) {
+          continue;
+        }
+        if (bucket.has(AGGREGATION_RESULT_PARAM) && bucket.getJSONObject(AGGREGATION_RESULT_PARAM).has("buckets")) {
+          JSONArray subBuckets = bucket.getJSONObject(AGGREGATION_RESULT_PARAM).getJSONArray("buckets");
+          for (int j = 0; j < subBuckets.length(); j++) {
+            JSONObject subBucket = subBuckets.getJSONObject(j);
+            String key = subBucket.getString("key");
+            TableColumnItemValue itemValue = itemValues.computeIfAbsent(key, mapKey -> new TableColumnItemValue());
+            computeColumnItemValue(itemValue, subBucket, isCurrent, true);
+          }
+        }
+      }
+    } else {
+      for (int i = 0; i < buckets.length(); i++) {
+        JSONObject bucket = buckets.getJSONObject(i);
+        TableColumnItemValue itemValue = new TableColumnItemValue();
+        computeColumnItemValue(itemValue, bucket, true, true);
+        itemValues.put(itemValue.getKey(), itemValue);
+      }
+    }
+    List<TableColumnItemValue> itemsList = null;
+    if (limit > 0) {
+      itemsList = itemValues.values().stream().limit(limit).collect(Collectors.toList());
+    } else {
+      itemsList = new ArrayList<>(itemValues.values());
+    }
+    tableColumnResult.setItems(itemsList);
+    return tableColumnResult;
+  }
+
+  private void computeColumnItemValue(TableColumnItemValue itemValue,
+                                      JSONObject bucket,
+                                      boolean isCurrent,
+                                      boolean isValue) throws JSONException {
+    itemValue.setKey(bucket.getString("key"));
+    String value;
+    if (bucket.has(AGGREGATION_RESULT_VALUE_PARAM)) {
+      value = bucket.getJSONObject(AGGREGATION_RESULT_VALUE_PARAM).getString("value");
+    } else if (bucket.has(AGGREGATION_RESULT_PARAM)) {
+      JSONObject subAggregationResult = bucket.getJSONObject(AGGREGATION_RESULT_PARAM);
+      List<String> values = new ArrayList<>();
+      if (subAggregationResult.has("buckets")) {
+        JSONArray subAggregationBuckets = subAggregationResult.getJSONArray("buckets");
+        for (int j = 0; j < subAggregationBuckets.length(); j++) {
+          JSONObject subAggregationBucket = subAggregationBuckets.getJSONObject(j);
+          values.add(subAggregationBucket.getString("key"));
+        }
+      }
+      value = StringUtils.join(values, ",");
+    } else if (bucket.has("value")) {
+      value = bucket.getString("value");
+    } else {
+      value = null;
+    }
+    if (isValue) {
+      if (isCurrent) {
+        itemValue.setValue(value);
+      } else {
+        itemValue.setPreviousValue(value);
+      }
+    } else {
+      if (isCurrent) {
+        itemValue.setThreshold(value);
+      } else {
+        itemValue.setPreviousThreshold(value);
+      }
+    }
   }
 
   private PercentageChartValue buildPercentageChartValuesFromESResponse(String jsonResponse,

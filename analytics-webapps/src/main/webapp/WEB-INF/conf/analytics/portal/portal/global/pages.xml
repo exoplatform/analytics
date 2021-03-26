@@ -431,32 +431,86 @@
               <preference>
                 <name>settings</name>
                 <value>{
-                  "title": "analytics.activeUsers",
-                  "chartType": "percentageBar",
-                  "colors": ["#4273C8"],
-                  "column": [{
-                  "filters": [
-                  {
-                  "range": null,
-                  "valueString": "usersCount",
-                  "field": "operation",
-                  "type": "EQUAL"
-                  },
-                  {
-                  "range": null,
-                  "valueString": "enabledUsers",
-                  "field": "countType",
-                  "type": "EQUAL"
-                  }
-                  ],
-                  "yAxisAggregation": {
-                  "interval": null,
-                  "sortDirection": null,
-                  "field": "count",
-                  "type": "MAX"
-                  }
-                  }]
-                  }</value>
+                   "title":"",
+                   "mainColumn":{
+                      "title":"Users",
+                      "aggregation":{
+                         "field":"userId",
+                         "type":"TERMS"
+                      },
+                      "dataType":"userIdentity",
+                      "sortable": false
+                   },
+                   "columns":[
+                      {
+                         "title":"Creation Date",
+                         "userField":"createdDate",
+                         "dataType":"date",
+                         "sortable": false
+                      },
+                      {
+                         "title":"Last connection",
+                         "userField":"lastLoginTime",
+                         "dataType":"date",
+                         "sortable": false
+                      },
+                      {
+                         "title":"Number of connections",
+                         "aggregation":{
+                            "type":"COUNT"
+                         },
+                         "filters":[
+                            {
+                               "field":"operation",
+                               "type":"EQUAL",
+                               "valueString":"login"
+                            }
+                         ],
+                         "dataType":"long",
+                         "sortable": true,
+                         "previousPeriod":false
+                      },
+                      {
+                         "title":"Number of activities",
+                         "aggregation":{
+                            "type":"COUNT"
+                         },
+                         "filters":[
+                            {
+                               "field":"operation",
+                               "type":"IN_SET",
+                               "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined"
+                            },
+                            {
+                               "field":"userId",
+                               "type":"GREATER",
+                               "valueString":"1"
+                            }
+                         ],
+                         "dataType":"long",
+                         "sortable": true,
+                         "previousPeriod":false
+                      },
+                      {
+                         "title":"Favorite module",
+                         "aggregation":{
+                            "type":"TERMS",
+                            "field":"module",
+                            "limit":1
+                         },
+                         "filters":[
+                            {
+                               "field":"operation",
+                               "type":"IN_SET",
+                               "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined"
+                            }
+                         ],
+                         "dataType":"text",
+                         "sortable": false,
+                         "previousPeriod":false
+                      }
+                   ]
+                }</value>
               </preference>
             </preferences>
           </portlet>

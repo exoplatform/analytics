@@ -54,7 +54,7 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
   public String getAnalyticsPeriodInterval() {
     AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
     if (analyticsPeriodType != null && periodDate != null) {
-      return analyticsPeriodType.getCurrentPeriod(periodDate).getInterval();
+      return analyticsPeriodType.getInterval();
     } else if (customPeriod != null) {
       return customPeriod.getInterval();
     }
@@ -185,6 +185,12 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
     if (customPeriod != null) {
       long offset = (xAxisAggregation.getMinBound() / 86400000l) % customPeriod.getDiffInDays();
       if (offset > 0) {
+        xAxisAggregation.setOffset(offset + "d");
+      }
+    } else {
+      AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
+      if (analyticsPeriodType != null && analyticsPeriodType.getOffset(xAxisAggregation.getMinBound()) > 0) {
+        long offset = analyticsPeriodType.getOffset(xAxisAggregation.getMinBound());
         xAxisAggregation.setOffset(offset + "d");
       }
     }

@@ -19,12 +19,28 @@ public interface AnalyticsService {
   ChartDataList computeChartData(AnalyticsFilter filter);
 
   /**
-   * Retrieve analytics chart data
+   * Retrieve analytics percentage chart data
    * 
    * @param filter used search filters and aggregations to compute data
    * @return computed analytics chart data
    */
-  PercentageChartResult computeChartData(AnalyticsPercentageFilter filter);
+  PercentageChartResult computePercentageChartData(AnalyticsPercentageFilter filter);
+
+  /**
+   * Retrieve analytics table data
+   * 
+   * @param tableFilter overall configured table filter
+   * @param filter used search filters and aggregations to compute data
+   * @param period selected {@link AnalyticsPeriod}
+   * @param periodType selected {@link AnalyticsPeriodType}
+   * @param columnIndex column index in the configured table filter
+   * @return computed analytics table column data
+   */
+  TableColumnResult computeTableColumnData(AnalyticsTableFilter tableFilter,
+                                           AnalyticsFilter filter,
+                                           AnalyticsPeriod period,
+                                           AnalyticsPeriodType periodType,
+                                           int columnIndex);
 
   /**
    * Retrieve analytics percentage chart data
@@ -32,7 +48,8 @@ public interface AnalyticsService {
    * @param filter used search filters and aggregations to compute data
    * @param currentPeriod current period of time
    * @param previousPeriod previous period of time to compare with
-   * @param hasLimitAggregation whether aggregations has limit aggregation or not
+   * @param hasLimitAggregation whether aggregations has limit aggregation or
+   *          not
    * @return {@link PercentageChartValue} containing current and previous values
    *         and thresholds
    */

@@ -16,7 +16,7 @@
                 :fields-mappings="fieldsMappings"
                 :placeholder="$t('analytics.fieldNamePlaceholder')" />
             </v-flex>
-            <v-flex xs3 class="d-flex my-auto px-2">
+            <v-flex xs3 class="d-flex my-auto px-2 content-box-sizing">
               <select
                 v-model="item.type"
                 :placeholder="$t('analytics.operatorPlaceholder')"
