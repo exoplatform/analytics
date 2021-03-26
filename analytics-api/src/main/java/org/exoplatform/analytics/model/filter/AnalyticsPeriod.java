@@ -46,12 +46,20 @@ public class AnalyticsPeriod implements Serializable, Cloneable {
   }
 
   public AnalyticsPeriod previousPeriod() {
-    long diffDasys = getDiffInDays();
-    return new AnalyticsPeriod(from.minusDays(diffDasys), to.minusDays(diffDasys));
+    long diffDays = getDiffInDays();
+    return new AnalyticsPeriod(from.minusDays(diffDays), to.minusDays(diffDays));
   }
 
   public long getDiffInDays() {
     return ChronoUnit.DAYS.between(from, to);
+  }
+
+  public boolean isInPeriod(long timestamp) {
+    return timestamp >= getFromInMS() && timestamp < getToInMS();
+  }
+
+  public boolean isInPeriod(LocalDate date) {
+    return (date.isAfter(from) || date.isEqual(from)) && date.isBefore(to);
   }
 
   @Override

@@ -112,6 +112,7 @@ export default {
   methods: {
     updateData(){
       this.$emit('input', this.value);
+      this.$emit('change', this.value);
       this.$forceUpdate();
     },
     selectedValueComparator(item1, item2){

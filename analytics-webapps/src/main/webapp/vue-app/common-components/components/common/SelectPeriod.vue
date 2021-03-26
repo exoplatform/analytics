@@ -1,10 +1,12 @@
 <template>
   <v-menu
     v-model="menu"
-    :content-class="`${menuId} white`"
-    class="analytics-selected-period-menu"
+    :content-class="`${menuId} white analytics-selected-period-menu-content`"
     :close-on-content-click="false"
+    class="analytics-selected-period-menu"
     transition="scale-transition"
+    :left="left"
+    :right="right"
     offset-y
     attach
     min-width="auto">
@@ -13,7 +15,7 @@
         :value="rangeDate"
         :title="rangeDateTimeTitle"
         prepend-inner-icon="mdi-calendar"
-        class="pt-0 mt-0"
+        class="analytics-selected-period-input pt-0 mt-0"
         rel="tooltip"
         readonly
         v-bind="attrs"
@@ -83,6 +85,14 @@ export default {
       },
     },
     hideTime: {
+      type: Boolean,
+      default: false,
+    },
+    right: {
+      type: Boolean,
+      default: false,
+    },
+    left: {
       type: Boolean,
       default: false,
     },
@@ -224,7 +234,7 @@ export default {
         case 'thisWeek': {
           const day = today.getDay();
           const diff = today.getDate() - day + (day === 0 && -6 || 1);
-          const startOfWeek = new Date(today.setDate(diff));
+          const startOfWeek = new Date(new Date().setDate(diff));
           let endOfWeek = new Date(new Date(startOfWeek).setDate(startOfWeek.getDate() + 6));
           if (endOfWeek > this.maxDateTime) {
             endOfWeek = this.maxDateTime;
@@ -236,8 +246,8 @@ export default {
           break;
         }
         case 'thisMonth': {
-          const startOfMonth = new Date(new Date(today).setDate(1));
-          let endOfMonth = new Date(new Date(new Date(today).setMonth(today.getMonth() + 1)).setDate(0));
+          const startOfMonth = new Date(new Date().setDate(1));
+          let endOfMonth = new Date(new Date(new Date().setMonth(today.getMonth() + 1)).setDate(0));
           if (endOfMonth > this.maxDateTime) {
             endOfMonth = this.maxDateTime;
           }
@@ -249,7 +259,7 @@ export default {
         }
         case 'thisQuarter': {
           const startOfQuarterMonth = today.getMonth() - (today.getMonth() -1) % 3 - 1;
-          const startOfQuarter = new Date(new Date(today.setMonth(startOfQuarterMonth)).setDate(1));
+          const startOfQuarter = new Date(new Date(new Date().setMonth(startOfQuarterMonth)).setDate(1));
           let endOfQuarter = new Date(new Date(new Date(startOfQuarter).setMonth(startOfQuarterMonth + 3)).setDate(0));
           if (endOfQuarter > this.maxDateTime) {
             endOfQuarter = this.maxDateTime;
@@ -261,8 +271,8 @@ export default {
           break;
         }
         case 'thisSemester': {
-          const startOfSemesterMonth = today.getMonth() - (today.getMonth() -1) % 6 - 1;
-          const startOfSemester = new Date(new Date(today.setMonth(startOfSemesterMonth)).setDate(1));
+          const startOfSemesterMonth = today.getMonth() - (today.getMonth() - 1) % 6 - 1;
+          const startOfSemester = new Date(new Date(new Date().setMonth(startOfSemesterMonth)).setDate(1));
           let endOfSemester = new Date(new Date(new Date(startOfSemester).setMonth(startOfSemesterMonth + 6)).setDate(0));
           if (endOfSemester > this.maxDateTime) {
             endOfSemester = this.maxDateTime;
