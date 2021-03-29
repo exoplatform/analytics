@@ -77,7 +77,7 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
     String subCommentId = activity.getParentCommentId() == null ? null : activity.getId();
 
     long modifierUserId = getCurrentUserIdentityId();
-    if (modifierUserId <= 0 && StringUtils.isNotBlank(activity.getPosterId())) {
+    if (modifierUserId == 0) {
       try {
         long identityId = Long.parseLong(activity.getPosterId());
         Identity identity = getIdentity(activity.getPosterId());
@@ -89,6 +89,10 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
       }
     }
 
+    if (modifierUserId == 0) {
+      modifierUserId = getCurrentUserIdentityId();
+    }
+
     ActivityStream activityStream = activity.getActivityStream();
     if ((activityStream == null || activityStream.getType() == null || activityStream.getPrettyId() == null)
         && StringUtils.isNotBlank(activity.getParentId())) {
@@ -97,8 +101,6 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
       activityStream = parentActivity.getActivityStream();
     }
 
-    long spaceId = 0;
-    String spaceTemplate = null;
     long streamIdentityId = 0;
     Identity streamIdentity = null;
     if (activityStream != null) {
@@ -117,25 +119,20 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
       }
     }
 
+    StatisticData statisticData = new StatisticData();
     if (streamIdentity != null) {
       streamIdentityId = Long.parseLong(streamIdentity.getId());
       if (StringUtils.equals(streamIdentity.getProviderId(), SpaceIdentityProvider.NAME)) {
         SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
         Space space = spaceService.getSpaceByPrettyName(streamIdentity.getRemoteId());
-        spaceId = space == null ? 0 : Long.parseLong(space.getId());
-        spaceTemplate = space == null ? null : space.getTemplate();
+        addSpaceStatistics(statisticData, space);
       }
     }
 
-    StatisticData statisticData = new StatisticData();
     statisticData.setModule("social");
     statisticData.setSubModule("activity");
     statisticData.setOperation(operation);
-    statisticData.setSpaceId(spaceId);
     statisticData.setUserId(modifierUserId);
-    if (spaceTemplate != null) {
-      statisticData.addParameter("spaceTemplate", spaceTemplate);
-    }
     statisticData.addParameter("streamIdentityId", streamIdentityId);
     statisticData.addParameter("activityType", activity.getType());
     if (StringUtils.isNotBlank(activityId)) {

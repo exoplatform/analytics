@@ -1,7 +1,6 @@
 package org.exoplatform.analytics.listener.webconferencing;
 
-import static org.exoplatform.analytics.utils.AnalyticsUtils.addStatisticData;
-import static org.exoplatform.analytics.utils.AnalyticsUtils.getUserIdentityId;
+import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
 import java.util.Collections;
 import java.util.Set;
@@ -64,19 +63,19 @@ public class WebConferencingListener extends Listener<CallInfo, String> {
       case WebConferencingService.EVENT_CALL_JOINDED:
         operation = "callJoined";
         if (callInfo.getLastDate() != null) {
-          callDuration = Math.round((System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000);
+          callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
         }
         break;
       case WebConferencingService.EVENT_CALL_LEFT:
         operation = "callLeft";
         if (callInfo.getLastDate() != null) {
-          callDuration = Math.round((System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000);
+          callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
         }
         break;
       case WebConferencingService.EVENT_CALL_RECORDED:
         operation = "callRecorded";
         if (callInfo.getLastDate() != null) {
-          callDuration = Math.round((System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000);
+          callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
         }
         break;
       case WebConferencingService.EVENT_CALL_STARTED:
@@ -85,7 +84,7 @@ public class WebConferencingListener extends Listener<CallInfo, String> {
       case WebConferencingService.EVENT_CALL_STOPPED:
         operation = "callStopped";
         if (callInfo.getLastDate() != null) {
-          callDuration = Math.round((System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000);
+          callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
         }
         break;
       default:
@@ -96,15 +95,11 @@ public class WebConferencingListener extends Listener<CallInfo, String> {
     String callType = null;
     if (callOwner instanceof SpaceInfo) {
       Space space = getSpaceService().getSpaceByGroupId(((SpaceInfo) callOwner).getGroupId());
-      if (space != null) {
-        statisticData.setSpaceId(Long.parseLong(space.getId()));
-      }
+      addSpaceStatistics(statisticData, space);
       callType = "space";
     } else if (callOwner instanceof SpaceEventInfo) {
       Space space = getSpaceService().getSpaceByGroupId(((SpaceEventInfo) callOwner).getGroupId());
-      if (space != null) {
-        statisticData.setSpaceId(Long.parseLong(space.getId()));
-      }
+      addSpaceStatistics(statisticData, space);
       callType = "space";
     } else if (callOwner instanceof GroupInfo) {
       callType = "group";
