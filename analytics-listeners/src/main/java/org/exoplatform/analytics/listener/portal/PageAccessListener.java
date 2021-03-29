@@ -1,7 +1,6 @@
 package org.exoplatform.analytics.listener.portal;
 
-import static org.exoplatform.analytics.utils.AnalyticsUtils.addStatisticData;
-import static org.exoplatform.analytics.utils.AnalyticsUtils.getUserIdentityId;
+import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -91,10 +90,7 @@ public class PageAccessListener extends BaseComponentPlugin implements Applicati
       statisticData.setUserId(userIdentityId);
 
       Space space = SpaceUtils.getSpaceByContext();
-      if (space != null) {
-        statisticData.setSpaceId(Long.parseLong(space.getId()));
-        statisticData.addParameter("spaceTemplate", space.getTemplate());
-      }
+      addSpaceStatistics(statisticData, space);
 
       statisticData.addParameter("httpRequestMethod", httpRequest.getMethod());
       statisticData.addParameter("httpRequestUri", httpRequest.getRequestURI());

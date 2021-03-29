@@ -15,6 +15,7 @@ import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.services.listener.*;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.space.model.Space;
 
 @Asynchronous
 public class WebSocketUIStatisticListener extends Listener<AnalyticsWebSocketService, AnalyticsWebSocketMessage> {
@@ -35,12 +36,13 @@ public class WebSocketUIStatisticListener extends Listener<AnalyticsWebSocketSer
       return;
     }
 
-    String spaceId = message.getSpaceId();
-    if (StringUtils.isBlank(spaceId) && StringUtils.isNotBlank(message.getSpacePrettyName())) {
-      long spaceIdLong = getSpaceId(message.getSpacePrettyName());
-      if (spaceIdLong > 0) {
-        spaceId = String.valueOf(spaceIdLong);
-      }
+    StatisticData statisticData = new StatisticData();
+    if (StringUtils.isNotBlank(message.getSpaceId())) {
+      Space space = getSpaceById(message.getSpaceId());
+      addSpaceStatistics(statisticData, space);
+    } else if (StringUtils.isNotBlank(message.getSpacePrettyName())) {
+      Space space = getSpaceByPrettyName(message.getSpacePrettyName());
+      addSpaceStatistics(statisticData, space);
     }
 
     String module = null;
@@ -79,14 +81,10 @@ public class WebSocketUIStatisticListener extends Listener<AnalyticsWebSocketSer
       operation = message.getOperation();
     }
 
-    StatisticData statisticData = new StatisticData();
     statisticData.setModule(module);
     statisticData.setSubModule(subModule);
     statisticData.setOperation(operation);
     statisticData.setUserId(userId);
-    if (StringUtils.isNotBlank(spaceId)) {
-      statisticData.setSpaceId(Long.parseLong(spaceId));
-    }
     if (StringUtils.isNotBlank(message.getPortalUri())) {
       data.put("portalUri", message.getPortalUri());
     }

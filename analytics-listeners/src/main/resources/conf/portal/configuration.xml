@@ -5,9 +5,9 @@
   <external-component-plugins>
     <target-component>org.exoplatform.social.core.space.spi.SpaceService</target-component>
     <component-plugin>
-      <name>SpaceAnalyticsListener</name>
+      <name>AnalyticsSpaceListener</name>
       <set-method>addSpaceListener</set-method>
-      <type>org.exoplatform.analytics.listener.social.SpaceAnalyticsListener</type>
+      <type>org.exoplatform.analytics.listener.social.AnalyticsSpaceListener</type>
     </component-plugin>
   </external-component-plugins>
 

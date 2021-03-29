@@ -1,5 +1,7 @@
 package org.exoplatform.analytics.listener.tasks;
 
+import static org.exoplatform.analytics.utils.AnalyticsUtils.addSpaceStatistics;
+
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -89,14 +91,7 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
     statisticData.setUserId(userIdentityId);
 
     Space space = getSpaceOfProject(newTask);
-    long spaceId = 0;
-    String spaceTemplate = null;
-    if (space != null) {
-      spaceId = Long.parseLong(space.getId());
-      spaceTemplate = space.getTemplate();
-    }
-    statisticData.setSpaceId(spaceId);
-    statisticData.addParameter("spaceTemplate", spaceTemplate);
+    addSpaceStatistics(statisticData, space);
     statisticData.addParameter("taskId", newTask.getId());
 
     List<Long> taskLabelIds = taskLabels.stream().map(LabelDto::getId).collect(Collectors.toList());
