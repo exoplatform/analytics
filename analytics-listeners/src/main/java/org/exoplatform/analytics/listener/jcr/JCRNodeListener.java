@@ -1,5 +1,7 @@
 package org.exoplatform.analytics.listener.jcr;
 
+import static org.exoplatform.analytics.utils.AnalyticsUtils.addSpaceStatistics;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
@@ -33,8 +35,6 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 public class JCRNodeListener implements Action {
-
-  private static final String                   SPACE_TEMPLATE_PARAM                 = "spaceTemplate";
 
   private static final String                   GROUPS_SPACES_PARENT_FOLDER          = "/Groups/spaces/";
 
@@ -92,7 +92,8 @@ public class JCRNodeListener implements Action {
     this.container = PortalContainer.getInstance();
   }
 
-  public boolean execute(Context context) throws Exception {
+  @Override
+  public boolean execute(Context context) throws Exception { // NOSONAR
     try {
       String username = AnalyticsUtils.getUsername(ConversationState.getCurrent());
       boolean unkownUser = AnalyticsUtils.isUnkownUser(username);
@@ -293,10 +294,7 @@ public class JCRNodeListener implements Action {
       if (nodePathParts.length > 3) {
         String groupId = "/spaces/" + nodePathParts[3];
         Space space = getSpaceService().getSpaceByGroupId(groupId);
-        if (space != null) {
-          statisticData.setSpaceId(Long.parseLong(space.getId()));
-          statisticData.addParameter(SPACE_TEMPLATE_PARAM, space.getTemplate());
-        }
+        addSpaceStatistics(statisticData, space);
       }
     }
   }

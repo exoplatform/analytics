@@ -1,5 +1,7 @@
 package org.exoplatform.analytics.listener.agenda;
 
+import static org.exoplatform.analytics.utils.AnalyticsUtils.addSpaceStatistics;
+
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.agenda.model.Calendar;
 import org.exoplatform.agenda.model.EventAttendee;
@@ -47,17 +49,15 @@ public class AgendaEventResponseListener  extends Listener<Long, Object> {
     org.exoplatform.agenda.model.Event agendaEvent = getAgendaEventService().getEventById(eventId);
     Calendar calendar = getAgendaCalendarService().getCalendarById(agendaEvent.getCalendarId());
     Identity spaceOwnerIdentity = getIdentityManager().getIdentity(String.valueOf(calendar.getOwnerId()));
-    long spaceId = 0;
+    StatisticData statisticData = new StatisticData();
     if (StringUtils.equals(spaceOwnerIdentity.getProviderId(), SpaceIdentityProvider.NAME)) {
       SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
       Space space = spaceService.getSpaceByPrettyName(spaceOwnerIdentity.getRemoteId());
-      spaceId = space == null ? 0 : Long.parseLong(space.getId());
+      addSpaceStatistics(statisticData, space);
     }
-    StatisticData statisticData = new StatisticData();
     statisticData.setModule("agenda");
     statisticData.setSubModule("event");
     statisticData.setOperation(operation);
-    statisticData.setSpaceId(spaceId);
     if (userId > 0) {
       statisticData.setUserId(userId);
     }

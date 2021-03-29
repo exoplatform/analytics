@@ -12,7 +12,7 @@
     -
   </div>
   <exo-user-avatar
-    v-else-if="header.dataType === 'userIdentity'"
+    v-else-if="header.dataType === 'userIdentity' && cellItem.username"
     :title="cellItem.fullname"
     :username="cellItem.username"
     :fullname="cellItem.fullname"
@@ -22,6 +22,13 @@
     :labels="labels"
     class="analytics-table-user"
     avatar-class="border-color" />
+  <exo-space-avatar
+    v-else-if="header.dataType === 'spaceIdentity' && cellItem.id"
+    :space="cellItem"
+    :labels="labels"
+    :size="32"
+    avatar-class="border-color"
+    class="analytics-table-space d-inline-block" />
   <date-format
     v-else-if="header.dataType === 'date' && dateCellItem"
     :value="dateCellItem"
@@ -73,6 +80,19 @@ export default {
     },
     previousPeriod() {
       return this.header.column && this.header.column.previousPeriod;
+    },
+    labels() {
+      return {
+        CancelRequest: this.$t('profile.CancelRequest'),
+        Confirm: this.$t('profile.Confirm'),
+        Connect: this.$t('profile.Connect'),
+        Ignore: this.$t('profile.Ignore'),
+        RemoveConnection: this.$t('profile.RemoveConnection'),
+        StatusTitle: this.$t('profile.StatusTitle'),
+        join: this.$t('space.join'),
+        leave: this.$t('space.leave'),
+        members: this.$t('space.members'),
+      };
     },
     cellItemValue() {
       const cellItemValue = this.item[this.header.value];

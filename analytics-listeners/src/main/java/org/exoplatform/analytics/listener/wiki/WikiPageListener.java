@@ -1,5 +1,7 @@
 package org.exoplatform.analytics.listener.wiki;
 
+import static org.exoplatform.analytics.utils.AnalyticsUtils.addSpaceStatistics;
+
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.lang3.StringUtils;
@@ -111,10 +113,7 @@ public class WikiPageListener extends PageWikiListener {
     if (StringUtils.isNotBlank(wikiOwner)
         && StringUtils.equalsIgnoreCase(WikiType.GROUP.name(), wikiType)) {
       Space space = getSpaceService().getSpaceByGroupId(wikiOwner);
-      if (space != null) {
-        statisticData.setSpaceId(Long.parseLong(space.getId()));
-        statisticData.addParameter("spaceTemplate", space.getTemplate());
-      }
+      addSpaceStatistics(statisticData, space);
     }
     statisticData.addParameter("wikiPageId", page.getId());
     statisticData.addParameter("wikiId", page.getWikiId());

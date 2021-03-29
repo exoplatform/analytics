@@ -276,10 +276,14 @@ public class AnalyticsUtils {
     return getIdentityId(OrganizationIdentityProvider.NAME, username);
   }
 
-  public static long getSpaceId(String prettyName) {
+  public static Space getSpaceByPrettyName(String prettyName) {
     SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-    Space space = spaceService.getSpaceByPrettyName(prettyName);
-    return space == null ? 0l : Long.parseLong(space.getId());
+    return spaceService.getSpaceByPrettyName(prettyName);
+  }
+
+  public static Space getSpaceById(String spaceId) {
+    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+    return spaceService.getSpaceById(spaceId);
   }
 
   public static Identity getIdentity(String identityId) {
@@ -338,5 +342,21 @@ public class AnalyticsUtils {
     LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(String.valueOf(timeInMilliseconds))),
                                                      TimeZone.getDefault().toZoneId());
     return dateTime.format(DATE_FORMATTER);
+  }
+
+  public static void addSpaceStatistics(StatisticData statisticData, Space space) {
+    if (space == null) {
+      return;
+    }
+    statisticData.setSpaceId(Long.parseLong(space.getId()));
+    statisticData.addParameter("spaceTemplate", space.getTemplate());
+    statisticData.addParameter("spaceVisibility", space.getVisibility());
+    statisticData.addParameter("spaceRegistration", space.getRegistration());
+    statisticData.addParameter("spaceCreatedTime", space.getCreatedTime());
+    statisticData.addParameter("spaceMembersCount", space.getMembers() == null ? 0 : space.getMembers().length);
+    statisticData.addParameter("spaceManagersCount", space.getManagers() == null ? 0 : space.getManagers().length);
+    statisticData.addParameter("spaceRedactorsCount", space.getRedactors() == null ? 0 : space.getRedactors().length);
+    statisticData.addParameter("spaceInviteesCount", space.getInvitedUsers() == null ? 0 : space.getInvitedUsers().length);
+    statisticData.addParameter("spacePendingCount", space.getPendingUsers() == null ? 0 : space.getPendingUsers().length);
   }
 }

@@ -1,5 +1,7 @@
 package org.exoplatform.analytics.listener.tasks;
 
+import static org.exoplatform.analytics.utils.AnalyticsUtils.addSpaceStatistics;
+
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -79,14 +81,7 @@ public class TaskCommentListener extends Listener<TaskService, CommentDto> {
     statisticData.setOperation("taskCommented");
 
     Space space = getSpaceOfProject(task);
-    long spaceId = 0;
-    String spaceTemplate = null;
-    if (space != null) {
-      spaceId = Long.parseLong(space.getId());
-      spaceTemplate = space.getTemplate();
-    }
-    statisticData.setSpaceId(spaceId);
-    statisticData.addParameter("spaceTemplate", spaceTemplate);
+    addSpaceStatistics(statisticData, space);
     statisticData.addParameter("taskId", task.getId());
     appendTaskProperties(statisticData, task, null);
     addCommentProperties(statisticData, comment);

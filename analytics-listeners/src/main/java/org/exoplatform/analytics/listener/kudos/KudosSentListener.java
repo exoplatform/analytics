@@ -1,5 +1,6 @@
 package org.exoplatform.analytics.listener.kudos;
 
+import static org.exoplatform.analytics.utils.AnalyticsUtils.addSpaceStatistics;
 import static org.exoplatform.analytics.utils.AnalyticsUtils.getIdentity;
 
 import org.apache.commons.lang.StringUtils;
@@ -46,14 +47,13 @@ public class KudosSentListener extends Listener<KudosService, Kudos> {
 
   private void addEventStatistic(Kudos kudos) {
     long activityId = kudos.getActivityId();
-    long spaceId = 0;
-    String spaceTemplate = null;
     long streamIdentityId = 0;
 
     if (activityId <= 0
         && (StringUtils.equals("ACTIVITY", kudos.getEntityType()) || StringUtils.equals("COMMENT", kudos.getEntityType()))) {
       activityId = Long.parseLong(kudos.getEntityId());
     }
+    StatisticData statisticData = new StatisticData();
 
     if (activityId > 0) {
       ExoSocialActivity activity = getActivityManager().getActivity(RDBMSActivityStorageImpl.COMMENT_PREFIX + activityId);
@@ -91,22 +91,15 @@ public class KudosSentListener extends Listener<KudosService, Kudos> {
         streamIdentityId = Long.parseLong(streamIdentity.getId());
         if (StringUtils.equals(streamIdentity.getProviderId(), SpaceIdentityProvider.NAME)) {
           Space space = getSpaceService().getSpaceByPrettyName(streamIdentity.getRemoteId());
-          spaceId = space == null ? 0 : Long.parseLong(space.getId());
-          spaceTemplate = space == null ? null : space.getTemplate();
+          addSpaceStatistics(statisticData, space);
         }
       }
     }
 
-    StatisticData statisticData =
-                                new StatisticData();
     statisticData.setModule("social");
     statisticData.setSubModule("kudos");
     statisticData.setOperation("sendKudos");
-    statisticData.setSpaceId(spaceId);
     statisticData.setUserId(Long.parseLong(kudos.getSenderIdentityId()));
-    if (spaceTemplate != null) {
-      statisticData.addParameter("spaceTemplate", spaceTemplate);
-    }
     statisticData.addParameter("activityId", activityId);
     statisticData.addParameter("streamIdentityId", streamIdentityId);
     statisticData.addParameter("kudosId", kudos.getTechnicalId());
