@@ -100,7 +100,7 @@ export default {
         }
         const fieldLabelI18NKey = `analytics.field.label.${label}`;
         const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
-        fieldMapping.label = fieldLabelI18NValue === fieldLabelI18NKey ? label : fieldLabelI18NValue;
+        fieldMapping.label = fieldLabelI18NValue === fieldLabelI18NKey ? `${this.$t('analytics.field.label.default') } ${ label}` : fieldLabelI18NValue;
       });
       return this.fieldsMappings;
     },
