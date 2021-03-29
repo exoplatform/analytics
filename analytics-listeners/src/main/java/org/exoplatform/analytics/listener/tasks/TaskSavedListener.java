@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
-import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -23,9 +22,7 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.task.dto.LabelDto;
-import org.exoplatform.task.dto.ProjectDto;
-import org.exoplatform.task.dto.TaskDto;
+import org.exoplatform.task.dto.*;
 import org.exoplatform.task.service.*;
 
 /**
@@ -41,9 +38,7 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
 
   private ProjectService   projectService;
 
-  private TaskService      taskService;
-
-  private LabelService      labelService;
+  private LabelService     labelService;
 
   private IdentityManager  identityManager;
 
@@ -73,8 +68,10 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
       RequestLifeCycle.begin(container);
       try {
         long userIdentityId = getUserIdentityId(modifierUsername);
-
-        List<LabelDto> taskLabels = getLabelService().findLabelsByTask(newTask.getId(), modifierUsername,0,-1);
+        List<LabelDto> taskLabels = new ArrayList<>();
+        if(newTask.getStatus()!=null && newTask.getStatus().getProject()!=null){
+          taskLabels = getLabelService().findLabelsByTask(newTask,newTask.getStatus().getProject().getId(), conversationstate.getIdentity(), 0, -1);
+        }
         createTaskStatistic(oldTask, newTask, taskLabels, userIdentityId);
       } catch (Exception e) {
         LOG.warn("Error computing task statistics", e);
@@ -279,12 +276,6 @@ public class TaskSavedListener extends Listener<TaskService, TaskPayload> {
     return projectService;
   }
 
-  private TaskService getTaskService() {
-    if (taskService == null) {
-      taskService = this.container.getComponentInstanceOfType(TaskService.class);
-    }
-    return taskService;
-  }
   private LabelService getLabelService() {
     if (labelService == null) {
       labelService = this.container.getComponentInstanceOfType(LabelService.class);

@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.portlet.*;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.util.StringUtil;
@@ -30,15 +31,15 @@ public class AnalyticsPortlet extends GenericPortlet {
 
   private static final String                       ANALYTICS_SEARCH_SCOPE       = "analyticsSearchScope";
 
-  private static final String                       READ_SETTINGS_OPERATOPN      = "GET_SETTINGS";
+  private static final String                       READ_SETTINGS_OPERATION      = "GET_SETTINGS";
 
-  private static final String                       READ_FILTERS_OPERATOPN       = "GET_FILTERS";
+  private static final String                       READ_FILTERS_OPERATION       = "GET_FILTERS";
 
-  private static final String                       READ_MAPPINGS_OPERATOPN      = "GET_MAPPINGS";
+  private static final String                       READ_MAPPINGS_OPERATION      = "GET_MAPPINGS";
 
-  private static final String                       READ_CHART_DATA_OPERATOPN    = "GET_CHART_DATA";
+  private static final String                       READ_CHART_DATA_OPERATION    = "GET_CHART_DATA";
 
-  private static final String                       READ_CHART_SAMPLES_OPERATOPN = "GET_CHART_SAMPLES_DATA";
+  private static final String                       READ_CHART_SAMPLES_OPERATION = "GET_CHART_SAMPLES_DATA";
 
   private static final Map<String, AnalyticsFilter> FILTERS                      = new HashMap<>();
 
@@ -80,7 +81,7 @@ public class AnalyticsPortlet extends GenericPortlet {
     String operation = request.getParameter("operation");
 
     String windowId = request.getWindowID();
-    if (StringUtils.equals(operation, READ_SETTINGS_OPERATOPN)) {
+    if (StringUtils.equals(operation, READ_SETTINGS_OPERATION)) {
       AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, false);
       JSONObject jsonResponse = new JSONObject();
       addJSONParam(jsonResponse, "title", filter.getTitle());
@@ -89,19 +90,19 @@ public class AnalyticsPortlet extends GenericPortlet {
       addJSONParam(jsonResponse, "colors", new JSONArray(colors));
       addJSONParam(jsonResponse, "canEdit", canModifyChartSettings(portletSession));
       addJSONParam(jsonResponse, "scope", getSearchScope(portletSession).name());
-      response.setContentType("application/json");
+      response.setContentType(MediaType.APPLICATION_JSON);
       response.getWriter().write(jsonResponse.toString());
-    } else if (StringUtils.equals(operation, READ_FILTERS_OPERATOPN)) {
+    } else if (StringUtils.equals(operation, READ_FILTERS_OPERATION)) {
       AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, false);
-      response.setContentType("application/json");
+      response.setContentType(MediaType.APPLICATION_JSON);
       response.getWriter().write(AnalyticsUtils.toJsonString(filter));
-    } else if (StringUtils.equals(operation, READ_MAPPINGS_OPERATOPN)) {
+    } else if (StringUtils.equals(operation, READ_MAPPINGS_OPERATION)) {
       Set<StatisticFieldMapping> mappings = getAnalyticsService().retrieveMapping(false);
-      List<JSONObject> objectMappings = mappings.stream().map(mapping -> new JSONObject(mapping)).collect(Collectors.toList());
+      List<JSONObject> objectMappings = mappings.stream().map(JSONObject::new).collect(Collectors.toList());
       JSONArray jsonArrayResponse = new JSONArray(objectMappings);
-      response.setContentType("application/json");
+      response.setContentType(MediaType.APPLICATION_JSON);
       response.getWriter().write(jsonArrayResponse.toString());
-    } else if (StringUtils.equals(operation, READ_CHART_SAMPLES_OPERATOPN)) {
+    } else if (StringUtils.equals(operation, READ_CHART_SAMPLES_OPERATION)) {
       if (!canModifyChartSettings(portletSession)) {
         throw new PortletException("Not allowed to access samples");
       }
@@ -121,16 +122,16 @@ public class AnalyticsPortlet extends GenericPortlet {
                                                       })
                                                       .collect(Collectors.toList());
       JSONArray jsonArrayResponse = new JSONArray(objectMappings);
-      response.setContentType("application/json");
+      response.setContentType(MediaType.APPLICATION_JSON);
       response.getWriter().write(jsonArrayResponse.toString());
-    } else if (StringUtils.equals(operation, READ_CHART_DATA_OPERATOPN)) {
+    } else if (StringUtils.equals(operation, READ_CHART_DATA_OPERATION)) {
       AnalyticsFilter filter = getFilterFromPreferences(windowId, preferences, true);
       addPeriodFilter(request, filter);
       addScopeFilter(portletSession, filter);
       addLanguageFilter(request, filter);
 
       Object result = getAnalyticsService().computeChartData(filter);
-      response.setContentType("application/json");
+      response.setContentType(MediaType.APPLICATION_JSON);
       response.getWriter().write(AnalyticsUtils.toJsonString(result));
     }
     super.serveResource(request, response);
@@ -200,7 +201,11 @@ public class AnalyticsPortlet extends GenericPortlet {
     return clone ? filter.clone() : filter;
   }
 
-  private SearchScope getSearchScope(PortletSession portletSession) {
+  private SearchScope getSearchScope(PortletSession portletSession) { // NOSONAR
+                                                                      // :
+                                                                      // reduce
+                                                                      // cognitive
+                                                                      // complexity
     SearchScope searchScopeFromCache = getSearchScopeFromCache(portletSession);
     if (searchScopeFromCache != null) {
       return searchScopeFromCache;

@@ -1,29 +1,31 @@
 package org.exoplatform.analytics.model.filter.aggregation;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 public enum AnalyticsAggregationType {
-  SUM("sum", false),
-  AVG("avg", false),
-  MAX("max", false),
-  MIN("min", false),
-  COUNT("terms", false),
-  DATE("date_histogram", true),
-  HISTOGRAM("histogram", true),
-  CARDINALITY("cardinality", false);
+
+  SUM("sum", false, false, false),
+  AVG("avg", false, false, false),
+  MAX("max", false, false, false),
+  MIN("min", false, false, false),
+  TERMS("terms", false, true, true),
+  COUNT("value_count", false, false, false),
+  DATE("date_histogram", true, false, false),
+  HISTOGRAM("histogram", true, false, false),
+  CARDINALITY("cardinality", false, false, false);
 
   @Getter
-  private String  name;
+  private String  aggName;
 
   @Getter
   private boolean useInterval;
 
-  private <T> AnalyticsAggregationType(String name, boolean useInterval) {
-    this.name = name;
-    this.useInterval = useInterval;
-  }
+  @Getter
+  private boolean useSort;
 
-  public boolean allowSort() {
-    return false;
-  }
+  @Getter
+  private boolean useLimit;
+
 }

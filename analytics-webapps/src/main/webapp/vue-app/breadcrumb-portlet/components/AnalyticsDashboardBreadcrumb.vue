@@ -100,7 +100,7 @@ export default {
             pageIndex = null;
             for (const index in children) {
               const subPageChild = children[index];
-              if (subPageChild.name && subPageChild.name.toLowerCase() === pageUri) {
+              if (subPageChild.name && subPageChild.name.toLowerCase() === pageUri.toLowerCase()) {
                 pageIndex = subPageChild;
                 break;
               }

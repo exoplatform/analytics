@@ -25,10 +25,16 @@
           color="primary">
           <v-tab>{{ $t('analytics.general') }}</v-tab>
           <v-tab>{{ $t('analytics.colors') }}</v-tab>
-          <v-tab>{{ $t('analytics.xAxis') }}</v-tab>
-          <v-tab>{{ $t('analytics.yAxis') }}</v-tab>
-          <v-tab>{{ $t('analytics.multipleCharts') }}</v-tab>
-          <v-tab>{{ $t('analytics.dataFilters') }}</v-tab>
+          <template v-if="isPercentageBar">
+            <v-tab>{{ $t('analytics.percentageValue') }}</v-tab>
+            <v-tab>{{ $t('analytics.percentageThreshold') }}</v-tab>
+          </template>
+          <template v-else>
+            <v-tab>{{ $t('analytics.xAxis') }}</v-tab>
+            <v-tab>{{ $t('analytics.yAxis') }}</v-tab>
+            <v-tab>{{ $t('analytics.multipleCharts') }}</v-tab>
+            <v-tab>{{ $t('analytics.dataFilters') }}</v-tab>
+          </template>
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-tab-item eager>
@@ -41,30 +47,64 @@
               ref="colorsForm"
               :settings="chartSettings" />
           </v-tab-item>
-          <v-tab-item eager>
-            <analytics-x-axis-form
-              ref="xAxis"
-              :fields-mappings="fieldsMappings"
-              :settings="chartSettings" />
-          </v-tab-item>
-          <v-tab-item eager>
-            <analytics-y-axis-form
-              ref="yAxis"
-              :fields-mappings="fieldsMappings"
-              :settings="chartSettings" />
-          </v-tab-item>
-          <v-tab-item eager>
-            <analytics-multiple-charts
-              ref="multipleCharts"
-              :fields-mappings="fieldsMappings"
-              :settings="chartSettings" />
-          </v-tab-item>
-          <v-tab-item eager>
-            <analytics-search-filter-form
-              ref="searchFilter"
-              :fields-mappings="fieldsMappings"
-              :filters="chartSettings.filters" />
-          </v-tab-item>
+          <template v-if="isPercentageBar">
+            <v-tab-item eager>
+              <h3>{{ $t('analytics.computingRule') }}</h3>
+              <analytics-y-axis-form
+                ref="yAxis"
+                :fields-mappings="fieldsMappings"
+                :y-axis-aggregation="chartSettings.value.yAxisAggregation" />
+              <v-divider class="my-4" />
+              <h3>{{ $t('analytics.dataFilters') }}</h3>
+              <analytics-search-filter-form
+                ref="searchFilter"
+                :fields-mappings="fieldsMappings"
+                :filters="chartSettings.value.filters" />
+              <analytics-limit-filter-form
+                ref="searchFilter"
+                :fields-mappings="fieldsMappings"
+                :settings="chartSettings" />
+            </v-tab-item>
+            <v-tab-item eager>
+              <h3>{{ $t('analytics.computingRule') }}</h3>
+              <analytics-y-axis-form
+                ref="yAxis"
+                :fields-mappings="fieldsMappings"
+                :y-axis-aggregation="chartSettings.threshold.yAxisAggregation" />
+              <v-divider class="my-4" />
+              <h3>{{ $t('analytics.dataFilters') }}</h3>
+              <analytics-search-filter-form
+                ref="searchFilter"
+                :fields-mappings="fieldsMappings"
+                :filters="chartSettings.threshold.filters" />
+            </v-tab-item>
+          </template>
+          <template v-else>
+            <v-tab-item eager>
+              <analytics-x-axis-form
+                ref="xAxis"
+                :fields-mappings="fieldsMappings"
+                :settings="chartSettings" />
+            </v-tab-item>
+            <v-tab-item eager>
+              <analytics-y-axis-form
+                ref="yAxis"
+                :fields-mappings="fieldsMappings"
+                :y-axis-aggregation="chartSettings.yAxisAggregation" />
+            </v-tab-item>
+            <v-tab-item eager>
+              <analytics-multiple-charts
+                ref="multipleCharts"
+                :fields-mappings="fieldsMappings"
+                :settings="chartSettings" />
+            </v-tab-item>
+            <v-tab-item eager>
+              <analytics-search-filter-form
+                ref="searchFilter"
+                :fields-mappings="fieldsMappings"
+                :filters="chartSettings.filters" />
+            </v-tab-item>
+          </template>
         </v-tabs-items>
       </v-card-text>
       <v-card-actions>
@@ -122,11 +162,24 @@ export default {
     settingJsonContent() {
       return this.settings && JSON.stringify(this.settings, null, 2);
     },
+    chartType() {
+      return this.chartSettings && this.chartSettings.chartType;
+    },
+    isPercentageBar() {
+      return this.chartType === 'percentageBar' || this.chartType=== 'percentage';
+    },
   },
   watch: {
     dialog() {
       if (this.dialog) {
         this.init();
+      }
+    },
+    isPercentageBar() {
+      if (this.isPercentageBar) {
+        this.chartSettings.multipleChartsField = null;
+      } else {
+        this.chartSettings.multipleChartsField = this.settings.multipleChartsField;
       }
     },
   },
@@ -175,7 +228,7 @@ export default {
     save() {
       this.$emit('save', this.chartSettings);
       this.dialog = false;
-    }
+    },
   },
 };
 </script>

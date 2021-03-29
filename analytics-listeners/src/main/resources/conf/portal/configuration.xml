@@ -11,6 +11,16 @@
     </component-plugin>
   </external-component-plugins>
 
+  <!--external-component-plugins>
+    <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
+    <component-plugin>
+      <name>new.user.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.analytics.listener.portal.UserAnalyticsEventListener</type>
+      <description>This listener will compute again users count each time a new user is added/deleted</description>
+    </component-plugin>
+  </external-component-plugins-->
+
   <external-component-plugins>
     <target-component>org.exoplatform.services.listener.ListenerService</target-component>
     <component-plugin>

@@ -60,9 +60,40 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
 
   private String                        interval;
 
+  @Exclude
+  private String                        offset;
+
+  @Exclude
+  private long                          limit;
+
+  @Exclude
+  private boolean                       useBounds;
+
+  @Exclude
+  private long                          minBound;
+
+  @Exclude
+  private long                          maxBound;
+
+  public AnalyticsAggregation(AnalyticsAggregationType type, String field, String sortDirection, String interval, long limit) {
+    super();
+    this.type = type;
+    this.field = field;
+    this.sortDirection = sortDirection;
+    this.interval = interval;
+    this.limit = limit;
+  }
+
   public AnalyticsAggregation(String field) {
     this.field = field;
-    this.type = AnalyticsAggregationType.COUNT;
+    this.type = AnalyticsAggregationType.TERMS;
+  }
+
+  public String getSortDirection() {
+    if (sortDirection == null) {
+      return type == AnalyticsAggregationType.DATE ? "asc" : "desc";
+    }
+    return sortDirection;
   }
 
   public String getLabel(String fieldValue, String lang) {
@@ -78,32 +109,33 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
     LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TimeZone.getDefault().toZoneId());
     DateTimeFormatter dateFormatter = null;
     switch (interval) {
-    case YEAR_INTERVAL:
-      dateFormatter = YEAR_DATE_FORMATTER;
-      break;
-    case QUARTER_INTERVAL:
-      dateFormatter = QUARTER_DATE_FORMATTER;
-      break;
-    case MONTH_INTERVAL:
-      dateFormatter = MONTH_DATE_FORMATTER;
-      break;
-    case WEEK_INTERVAL:
-      dateFormatter = WEEK_DATE_FORMATTER;
-      break;
-    case DAY_INTERVAL:
-      dateFormatter = DAY_DATE_FORMATTER;
-      break;
-    case HOUR_INTERVAL:
-      dateFormatter = HOUR_DATE_FORMATTER;
-      break;
-    default:
-      dateFormatter = DAY_DATE_FORMATTER;
+      case YEAR_INTERVAL:
+        dateFormatter = YEAR_DATE_FORMATTER;
+        break;
+      case QUARTER_INTERVAL:
+        dateFormatter = QUARTER_DATE_FORMATTER;
+        break;
+      case MONTH_INTERVAL:
+        dateFormatter = MONTH_DATE_FORMATTER;
+        break;
+      case WEEK_INTERVAL:
+        dateFormatter = WEEK_DATE_FORMATTER;
+        break;
+      case DAY_INTERVAL:
+        dateFormatter = DAY_DATE_FORMATTER;
+        break;
+      case HOUR_INTERVAL:
+        dateFormatter = HOUR_DATE_FORMATTER;
+        break;
+      default:
+        dateFormatter = DAY_DATE_FORMATTER;
     }
     return dateTime.format(dateFormatter.withLocale(userLocale));
   }
 
   @Override
   public AnalyticsAggregation clone() { // NOSONAR
-    return new AnalyticsAggregation(type, field, sortDirection, interval);
+    return new AnalyticsAggregation(type, field, sortDirection, interval, offset, limit, useBounds, minBound, maxBound);
   }
+
 }

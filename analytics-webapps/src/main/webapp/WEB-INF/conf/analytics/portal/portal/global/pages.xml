@@ -25,270 +25,376 @@
     <title>Analytics</title>
     <access-permissions>*:/platform/analytics;*:/platform/administrators</access-permissions>
     <edit-permission>manager:/platform/analytics</edit-permission>
-    <container id="breadcrumbAnalytics" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
-      <portlet-application>
-        <portlet>
-          <application-ref>analytics</application-ref>
-          <portlet-ref>AnalyticsDashboardBreadcrumb</portlet-ref>
-        </portlet>
-        <title>Breadcrumb Analytics</title>
-        <access-permissions>Everyone</access-permissions>
-        <show-info-bar>false</show-info-bar>
-      </portlet-application>
-    </container>
     <container
       id="topAnalyticsPage"
       template="system:/groovy/portal/webui/container/UIContainer.gtmpl"
       cssClass="singlePageApplication border-box-sizing">
-      <container id="parentSocialPage" template="system:/groovy/portal/webui/container/UIMobileSwipeContainer.gtmpl">
+      <access-permissions>Everyone</access-permissions>
+      <container id="breadcrumbAnalytics" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
         <access-permissions>Everyone</access-permissions>
-        <container id="leftSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <portlet-application>
+          <portlet>
+            <application-ref>analytics</application-ref>
+            <portlet-ref>AnalyticsDashboardBreadcrumb</portlet-ref>
+          </portlet>
+          <title>Breadcrumb Analytics</title>
           <access-permissions>Everyone</access-permissions>
-          <portlet-application>
-            <portlet>
-              <application-ref>analytics</application-ref>
-              <portlet-ref>AnalyticsPortlet</portlet-ref>
-              <preferences>
-                <preference>
-                  <name>settings</name>
-                  <value>{
-                    "offset": 0,
-                    "filters": [
-                      {
-                        "field": "operation",
-                        "type": "EQUAL",
-                        "valueString": "login"
-                      }
-                    ],
-                    "title": "Distinct logins",
-                    "aggregations": [
-                      {
-                        "field": "timestamp",
-                        "type": "DATE",
-                        "interval": "day",
-                        "sortDirection": "asc"
-                      },
-                      {
-                        "field": "userId",
-                        "type": "CARDINALITY"
-                      }
-                    ],
-                    "xAxisAggregations": [
-                      {
-                        "field": "timestamp",
-                        "type": "DATE",
-                        "interval": "day",
-                        "sortDirection": "asc"
-                      }
-                    ],
-                    "multipleCharts": false,
-                    "yAxisAggregation": {
+          <show-info-bar>false</show-info-bar>
+        </portlet-application>
+      </container>
+      <container cssClass="analyticsPageRow" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <access-permissions>Everyone</access-permissions>
+        <portlet-application>
+          <portlet>
+            <application-ref>analytics</application-ref>
+            <portlet-ref>AnalyticsPortlet</portlet-ref>
+            <preferences>
+              <preference>
+                <name>settings</name>
+                <value>{
+                  "offset": 0,
+                  "filters": [
+                    {
+                      "field": "operation",
+                      "type": "EQUAL",
+                      "valueString": "login"
+                    }
+                  ],
+                  "title": "Distinct logins",
+                  "aggregations": [
+                    {
+                      "field": "timestamp",
+                      "type": "DATE",
+                      "interval": "day",
+                      "sortDirection": "asc"
+                    },
+                    {
                       "field": "userId",
                       "type": "CARDINALITY"
-                    },
-                    "chartType": "bar",
-                    "limit": 0
-                  }</value>
-                </preference>
-              </preferences>
-            </portlet>
-            <title>Distinct logins</title>
-            <access-permissions>Everyone</access-permissions>
-            <show-info-bar>false</show-info-bar>
-          </portlet-application>
-          <portlet-application>
-            <portlet>
-              <application-ref>analytics</application-ref>
-              <portlet-ref>AnalyticsPortlet</portlet-ref>
-              <preferences>
-                <preference>
-                  <name>settings</name>
-                  <value>{
-                    "offset": 0,
-                    "title": "Spaces count",
-                    "aggregations": [
-                      {
-                        "field": "timestamp",
-                        "type": "DATE",
-                        "interval": "day",
-                        "sortDirection": "asc"
-                      },
-                      {
-                        "field": "count",
-                        "type": "MAX"
-                      }
-                    ],
-                    "filters": [
-                      {
-                        "field": "operation",
-                        "type": "EQUAL",
-                        "valueString": "spacesCount"
-                      },
-                      {
-                        "field": "countType",
-                        "type": "EQUAL",
-                        "valueString": "allSpaces"
-                      }
-                    ],
-                    "xAxisAggregations": [
-                      {
-                        "field": "timestamp",
-                        "type": "DATE",
-                        "interval": "day",
-                        "sortDirection": "asc"
-                      }
-                    ],
-                    "multipleCharts": false,
-                    "yAxisAggregation": {
-                      "field": "count",
-                      "type": "MAX"
-                    },
-                    "chartType": "line",
-                    "limit": 0
-                  }</value>
-                </preference>
-              </preferences>
-            </portlet>
-            <title>Users count Portlet</title>
-            <access-permissions>Everyone</access-permissions>
-            <show-info-bar>false</show-info-bar>
-          </portlet-application>
-          <container id="leftbottom-analytics-container" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
-            <name>leftbottom-analytics-container</name>
-            <access-permissions>Everyone</access-permissions>
-            <factory-id>addonContainer</factory-id>
-          </container>
-        </container>
-        <container id="rightSocialPage" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+                    }
+                  ],
+                  "xAxisAggregations": [
+                    {
+                      "field": "timestamp",
+                      "type": "DATE",
+                      "interval": "day",
+                      "sortDirection": "asc"
+                    }
+                  ],
+                  "multipleCharts": false,
+                  "yAxisAggregation": {
+                    "field": "userId",
+                    "type": "CARDINALITY"
+                  },
+                  "chartType": "bar",
+                  "limit": 0
+                }</value>
+              </preference>
+            </preferences>
+          </portlet>
+          <title>Distinct logins</title>
           <access-permissions>Everyone</access-permissions>
-          <portlet-application>
-            <portlet>
-              <application-ref>analytics</application-ref>
-              <portlet-ref>AnalyticsPortlet</portlet-ref>
-              <preferences>
-                <preference>
-                  <name>settings</name>
-                  <value>{
-                    "offset": 0,
+          <show-info-bar>false</show-info-bar>
+        </portlet-application>
+        <portlet-application>
+          <portlet>
+            <application-ref>analytics</application-ref>
+            <portlet-ref>AnalyticsPortlet</portlet-ref>
+            <preferences>
+              <preference>
+                <name>settings</name>
+                <value>{
+                 "title":"Users count",
+                 "chartType":"line",
+                 "multipleChartsField":"countType.keyword",
+                 "filters":[
+                    {
+                       "field":"operation",
+                       "type":"EQUAL",
+                       "valueString":"usersCount"
+                    },
+                    {
+                       "valueString":"enabledInternalUsers,enabledExternalUsers",
+                       "field":"countType",
+                       "type":"IN_SET"
+                    }
+                 ],
+                 "aggregations":[
+                    {
+                       "field":"countType.keyword",
+                       "type":"COUNT"
+                    },
+                    {
+                       "field":"timestamp",
+                       "type":"DATE",
+                       "interval":"day",
+                       "sortDirection":"asc"
+                    },
+                    {
+                       "field":"count",
+                       "type":"MAX"
+                    }
+                 ],
+                 "xAxisAggregations":[
+                    {
+                       "field":"timestamp",
+                       "type":"DATE",
+                       "interval":"day",
+                       "sortDirection":"asc"
+                    }
+                 ],
+                 "multipleCharts":true,
+                 "multipleChartsAggregation":{
+                    "field":"countType.keyword",
+                    "type":"COUNT"
+                 },
+                 "yAxisAggregation":{
+                    "field":"count",
+                    "type":"MAX"
+                 }
+              }</value>
+              </preference>
+            </preferences>
+          </portlet>
+          <title>Users count Analytics</title>
+          <access-permissions>Everyone</access-permissions>
+          <show-info-bar>false</show-info-bar>
+        </portlet-application>
+      </container>
+      <container cssClass="analyticsPageRow analyticsPageActiveUsersRow" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <access-permissions>Everyone</access-permissions>
+        <portlet-application>
+          <portlet>
+            <application-ref>analytics</application-ref>
+            <portlet-ref>AnalyticsRatePortlet</portlet-ref>
+            <preferences>
+              <preference>
+                <name>settings</name>
+                <value>{
+                  "title": "analytics.activeUsers",
+                  "chartType": "percentageBar",
+                  "colors": ["#4273C8"],
+                  "threshold": {
                     "filters": [
                       {
+                        "range": null,
+                        "valueString": "usersCount",
                         "field": "operation",
-                        "type": "EQUAL",
-                        "valueString": "usersCount"
+                        "type": "EQUAL"
                       },
                       {
-                        "valueString": "enabledInternalUsers,enabledExternalUsers",
                         "range": null,
+                        "valueString": "enabledUsers",
                         "field": "countType",
-                        "type": "IN_SET"
+                        "type": "EQUAL"
                       }
                     ],
-                    "title": "Users count",
-                    "aggregations": [
+                    "yAxisAggregation": {
+                      "interval": null,
+                      "sortDirection": null,
+                      "field": "count",
+                      "type": "MAX"
+                    }
+                  },
+                  "value": {
+                    "filters": [
                       {
-                        "field": "countType.keyword",
-                        "type": "COUNT"
-                      },
+                        "range": null,
+                        "valueString": "login",
+                        "field": "operation",
+                        "type": "EQUAL"
+                      }
+                    ],
+                    "yAxisAggregation": {
+                      "interval": null,
+                      "sortDirection": null,
+                      "field": "userId",
+                      "type": "CARDINALITY"
+                    }
+                  }
+                }</value>
+              </preference>
+            </preferences>
+          </portlet>
+          <title>Connected Users</title>
+          <access-permissions>Everyone</access-permissions>
+          <show-info-bar>false</show-info-bar>
+        </portlet-application>
+        <portlet-application>
+          <portlet>
+            <application-ref>analytics</application-ref>
+            <portlet-ref>AnalyticsRatePortlet</portlet-ref>
+            <preferences>
+              <preference>
+                <name>settings</name>
+                <value>{
+                  "title": "",
+                  "chartType": "percentage",
+                  "colors": ["#4d5466"],
+                  "value": {
+                    "filters": [
                       {
-                        "field": "timestamp",
-                        "type": "DATE",
-                        "interval": "day",
-                        "sortDirection": "asc"
-                      },
-                      {
+                        "field": "userId",
+                        "type": "GREATER",
+                        "valueString": "1"
+                      }
+                    ],
+                    "yAxisAggregation": {
+                      "type": "COUNT"
+                    }
+                  },
+                  "percentageLimit": {
+                    "aggregation": {
+                      "filters": [
+                        {
+                          "valueString": "enabledUsers",
+                          "field": "countType",
+                          "type": "EQUAL"
+                        }
+                      ],
+                      "yAxisAggregation": {
                         "field": "count",
                         "type": "MAX"
                       }
-                    ],
-                    "xAxisAggregations": [
-                      {
-                        "field": "timestamp",
-                        "type": "DATE",
-                        "interval": "day",
-                        "sortDirection": "asc"
-                      }
-                    ],
-                    "multipleCharts": true,
-                    "multipleChartsAggregation": {
-                      "field": "countType.keyword",
-                      "type": "COUNT"
                     },
-                    "yAxisAggregation": {
-                      "field": "count",
-                      "type": "MAX"
-                    },
-                    "chartType": "line",
-                    "multipleChartsField": "countType.keyword",
-                    "limit": 0
-                  }</value>
-                </preference>
-              </preferences>
-            </portlet>
-            <title>Spaces count Analytics</title>
-            <access-permissions>Everyone</access-permissions>
-            <show-info-bar>false</show-info-bar>
-          </portlet-application>
-          <portlet-application>
-            <portlet>
-              <application-ref>analytics</application-ref>
-              <portlet-ref>AnalyticsPortlet</portlet-ref>
-              <preferences>
-                <preference>
-                  <name>settings</name>
-                  <value>{
-                    "offset": 0,
-                    "title": "Activities",
-                    "lang": null,
-                    "aggregations": [
-                      {
-                        "field": "module",
-                        "type": "COUNT",
-                        "interval": null,
-                        "sortDirection": "asc"
-                      }
-                    ],
+                    "percentage": 10,
+                    "field": "userId"
+                  },
+                  "threshold": {
                     "filters": [
                       {
-                        "field": "operation",
-                        "type": "IN_SET",
-                        "valueString": "fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined",
-                        "range": null
+                        "field": "userId",
+                        "type": "GREATER",
+                        "valueString": "1"
                       }
                     ],
-                    "xAxisAggregations": [
-                      {
-                        "field": "module",
-                        "type": "COUNT",
-                        "interval": null,
-                        "sortDirection": "asc"
-                      }
-                    ],
-                    "multipleCharts": false,
-                    "multipleChartsAggregation": null,
                     "yAxisAggregation": {
-                      "field": null,
+                      "type": "COUNT"
+                    }
+                  }
+                }</value>
+              </preference>
+            </preferences>
+          </portlet>
+          <title>Active Users</title>
+          <access-permissions>Everyone</access-permissions>
+          <show-info-bar>false</show-info-bar>
+        </portlet-application>
+      </container>
+      <container cssClass="analyticsPageRow" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <access-permissions>Everyone</access-permissions>
+        <portlet-application>
+          <portlet>
+            <application-ref>analytics</application-ref>
+            <portlet-ref>AnalyticsPortlet</portlet-ref>
+            <preferences>
+              <preference>
+                <name>settings</name>
+                <value>{
+                  "offset": 0,
+                  "title": "Spaces count",
+                  "aggregations": [
+                    {
+                      "field": "timestamp",
+                      "type": "DATE",
+                      "interval": "day",
+                      "sortDirection": "asc"
+                    },
+                    {
+                      "field": "count",
+                      "type": "MAX"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "field": "operation",
+                      "type": "EQUAL",
+                      "valueString": "spacesCount"
+                    },
+                    {
+                      "field": "countType",
+                      "type": "EQUAL",
+                      "valueString": "allSpaces"
+                    }
+                  ],
+                  "xAxisAggregations": [
+                    {
+                      "field": "timestamp",
+                      "type": "DATE",
+                      "interval": "day",
+                      "sortDirection": "asc"
+                    }
+                  ],
+                  "multipleCharts": false,
+                  "yAxisAggregation": {
+                    "field": "count",
+                    "type": "MAX"
+                  },
+                  "chartType": "line",
+                  "limit": 0
+                }</value>
+              </preference>
+            </preferences>
+          </portlet>
+          <title>Users count Portlet</title>
+          <access-permissions>Everyone</access-permissions>
+          <show-info-bar>false</show-info-bar>
+        </portlet-application>
+        <portlet-application>
+          <portlet>
+            <application-ref>analytics</application-ref>
+            <portlet-ref>AnalyticsPortlet</portlet-ref>
+            <preferences>
+              <preference>
+                <name>settings</name>
+                <value>{
+                  "offset": 0,
+                  "title": "Activities",
+                  "lang": null,
+                  "aggregations": [
+                    {
+                      "field": "module",
                       "type": "COUNT",
                       "interval": null,
-                      "sortDirection": null
-                    },
-                    "multipleChartsField": null,
-                    "chartType": "pie",
-                    "colors": null,
-                    "limit": 0
-                  }</value>
-                </preference>
-              </preferences>
-            </portlet>
-            <title>Platform Activities</title>
-            <access-permissions>Everyone</access-permissions>
-            <show-info-bar>false</show-info-bar>
-          </portlet-application>
-          <container id="rightbottom-analytics-container" template="system:/groovy/portal/webui/container/UIAddOnColumnContainer.gtmpl">
-            <name>rightbottom-analytics-container</name>
-            <access-permissions>Everyone</access-permissions>
-            <factory-id>addonContainer</factory-id>
-          </container>
-        </container>
+                      "sortDirection": "asc"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "field": "operation",
+                      "type": "IN_SET",
+                      "valueString": "fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined",
+                      "range": null
+                    }
+                  ],
+                  "xAxisAggregations": [
+                    {
+                      "field": "module",
+                      "type": "COUNT",
+                      "interval": null,
+                      "sortDirection": "asc"
+                    }
+                  ],
+                  "multipleCharts": false,
+                  "multipleChartsAggregation": null,
+                  "yAxisAggregation": {
+                    "field": null,
+                    "type": "COUNT",
+                    "interval": null,
+                    "sortDirection": null
+                  },
+                  "multipleChartsField": null,
+                  "chartType": "pie",
+                  "colors": null,
+                  "limit": 0
+                }</value>
+              </preference>
+            </preferences>
+          </portlet>
+          <title>Platform Activities</title>
+          <access-permissions>Everyone</access-permissions>
+          <show-info-bar>false</show-info-bar>
+        </portlet-application>
       </container>
     </container>
   </page>

@@ -8,13 +8,13 @@
     ">
     <v-layout wrap xs12>
       <v-flex
-        v-for="(color, index) in colors"
+        v-for="(color, index) in chartColors"
         :key="index"
         class="mx-auto px-3 my-3"
         xs4>
         <analytics-setting-color-picker
           v-model="colors[index]"
-          @updated="setColor($event, index)" />
+          @input="setColor($event, index)" />
       </v-flex>
     </v-layout>
   </v-form>
@@ -42,11 +42,23 @@ export default {
       '#774ea9',
       '#ffa500',
       '#bed67e',
-      '#bc99e7',
+      '#0E100F',
       '#ffaacc',
     ],
     colors: [],
   }),
+  computed: {
+    multipleCharts() {
+      return this.settings && this.settings.multipleChartsField;
+    },
+    chartColors() {
+      if (this.multipleCharts) {
+        return this.colors  || [];
+      } else {
+        return this.colors && this.colors.slice(0, 1)  || [];
+      }
+    },
+  },
   methods: {
     init() {
       this.colors = this.settings

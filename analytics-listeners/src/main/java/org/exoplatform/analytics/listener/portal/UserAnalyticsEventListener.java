@@ -10,11 +10,11 @@ import org.exoplatform.services.organization.impl.NewUserEventListener;
 public class UserAnalyticsEventListener extends NewUserEventListener {
 
   private ThreadLocal<Long> operationStartTime = new ThreadLocal<>();
-
+  
   public UserAnalyticsEventListener(InitParams params) throws Exception {
     super(params);
   }
-
+  
   @Override
   public void preSave(User user, boolean isNew) throws Exception {
     operationStartTime.set(System.currentTimeMillis());
