@@ -101,8 +101,6 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
       activityStream = parentActivity.getActivityStream();
     }
 
-    long spaceId = 0;
-    String spaceTemplate = null;
     long userId = modifierUserId;
     long streamIdentityId = 0;
     Identity streamIdentity = null;
@@ -122,29 +120,24 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
       }
     }
 
+    StatisticData statisticData = new StatisticData();
     if (streamIdentity != null) {
       streamIdentityId = Long.parseLong(streamIdentity.getId());
       if (StringUtils.equals(streamIdentity.getProviderId(), SpaceIdentityProvider.NAME)) {
         SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
         Space space = spaceService.getSpaceByPrettyName(streamIdentity.getRemoteId());
-        spaceId = space == null ? 0 : Long.parseLong(space.getId());
-        spaceTemplate = space == null ? null : space.getTemplate();
+        addSpaceStatistics(statisticData, space);
       } else {
         userId = streamIdentityId;
       }
     }
 
-    StatisticData statisticData = new StatisticData();
     statisticData.setModule("social");
     statisticData.setSubModule("activity");
     statisticData.setOperation(operation);
-    statisticData.setSpaceId(spaceId);
     statisticData.setUserId(userId);
     if (modifierUserId > 0) {
       statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, modifierUserId);
-    }
-    if (spaceTemplate != null) {
-      statisticData.addParameter("spaceTemplate", spaceTemplate);
     }
     statisticData.addParameter("streamIdentityId", streamIdentityId);
     statisticData.addParameter("activityType", activity.getType());

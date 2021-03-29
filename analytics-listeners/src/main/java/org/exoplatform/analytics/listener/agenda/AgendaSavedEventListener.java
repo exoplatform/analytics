@@ -1,5 +1,7 @@
 package org.exoplatform.analytics.listener.agenda;
 
+import static org.exoplatform.analytics.utils.AnalyticsUtils.addSpaceStatistics;
+
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.agenda.model.AgendaEventModification;
@@ -52,29 +54,22 @@ public class AgendaSavedEventListener extends Listener<AgendaEventModification, 
     long calendarOwnerId = calendar.getOwnerId();
 
     Identity spaceOwnerIdentity = getIdentityManager().getIdentity(String.valueOf(calendar.getOwnerId()));
-    long spaceId = 0;
-    String spaceTemplate = null;
+    StatisticData statisticData = new StatisticData();
     if (StringUtils.equals(spaceOwnerIdentity.getProviderId(), SpaceIdentityProvider.NAME)) {
       SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
       Space space = spaceService.getSpaceByPrettyName(spaceOwnerIdentity.getRemoteId());
-      spaceId = space == null ? 0 : Long.parseLong(space.getId());
-      spaceTemplate = space == null ? null : space.getTemplate();
+      addSpaceStatistics(statisticData, space);
     } else {
       userId = calendarOwnerId;
     }
 
-    StatisticData statisticData = new StatisticData();
     statisticData.setModule("agenda");
     statisticData.setSubModule("event");
     statisticData.setOperation(operation);
-    statisticData.setSpaceId(spaceId);
     statisticData.setUserId(userId);
     statisticData.addParameter("eventId", event.getId());
     statisticData.addParameter("parentId", event.getParentId());
     statisticData.addParameter("calendarOwnerIdentityId", calendarOwnerId);
-    if (spaceTemplate != null) {
-      statisticData.addParameter("spaceTemplate", spaceTemplate);
-    }
     statisticData.addParameter("creatorId", event.getCreatorId());
     statisticData.addParameter("modifierId", event.getModifierId());
     statisticData.addParameter("eventStatus", event.getStatus());

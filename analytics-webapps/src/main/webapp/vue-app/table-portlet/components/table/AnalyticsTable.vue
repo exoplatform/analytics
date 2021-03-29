@@ -237,6 +237,29 @@ export default {
               }
             }
           });
+      } else if (columnIndex === 0 && column.aggregation && column.aggregation.field === 'spaceId') {
+        const retrieveIdentitiesPromise = this.selectedIdentity && this.$identityService.getIdentityByProviderIdAndRemoteId(this.selectedIdentity.providerId, this.selectedIdentity.remoteId).then(identity => identity && identity.space)
+          || this.$spaceService.getSpaces('', 0, limit, 'all');
+        return retrieveIdentitiesPromise
+          .then(data => {
+            if (data) {
+              if (this.selectedIdentity) {
+                const item = Object.assign({}, templateItem);
+                item[`column${columnIndex}`] = data;
+                this.items.push(item);
+              } else {
+                data.spaces.forEach((space, index) => {
+                  if (this.items.length <= index) {
+                    const item = Object.assign({}, templateItem);
+                    item[`column${columnIndex}`] = space;
+                    this.items.push(item);
+                  } else {
+                    this.items[index][`column${columnIndex}`] = space;
+                  }
+                });
+              }
+            }
+          });
       } else if (column.userField) {
         this.items.forEach(item => {
           item[`column${columnIndex}`] = item.column0 && item.column0[column.userField];
@@ -277,9 +300,22 @@ export default {
           })
           .then((data) => {
             if (!limit) {
+              const promises = [];
               this.items.forEach((item, index) => {
-                item[`column${columnIndex}`] = data && data.items && data.items.find(item => item.key === this.mainFieldValues[index]);
+                const columnItem = data && data.items && data.items.find(item => item.key === this.mainFieldValues[index]);
+                if (columnItem && columnItem.value && column && column.aggregation && column.aggregation.field === 'userId') {
+                  promises.push(this.$identityService.getIdentityById(columnItem.value)
+                    .then(identity => item[`column${columnIndex}`] = identity && identity.profile)
+                    .catch(() => item[`column${columnIndex}`] = null));
+                } else if (columnItem && columnItem.value && column && column.aggregation && column.aggregation.field === 'spaceId') {
+                  promises.push(this.$spaceService.getSpaceById(columnItem.value)
+                    .then(space => item[`column${columnIndex}`] = space)
+                    .catch(() => item[`column${columnIndex}`] = null));
+                } else {
+                  item[`column${columnIndex}`] = columnItem;
+                }
               });
+              return Promise.all(promises);
             } else if (data && data.items && data.items.length) {
               const promises = [];
               data.items.forEach((columnItem, index) => {
@@ -294,12 +330,15 @@ export default {
                     item['column0'] = null;
                   }
                 } else if (this.mainFieldName === 'spaceId') {
-                  // TODO for spaces retrieve spaces identities
-                  item['column0'] = {
-                    id: columnItem.key,
-                  };
+                  if (columnItem.key && columnItem.key !== '0') {
+                    promises.push(this.$spaceService.getSpaceById(columnItem.key)
+                      .then(space => item['column0'] = space)
+                      .catch(() => item['column0'] = null));
+                  } else {
+                    item['column0'] = null;
+                  }
                 } else {
-                  item['column0'] = columnItem;
+                  item['column0'] = columnItem && columnItem.value || columnItem.id || columnItem;
                 }
                 if (this.items.length <= index) {
                   this.items.push(item);

@@ -7,7 +7,7 @@ import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 
-public class SpaceAnalyticsListener extends SpaceListenerPlugin {
+public class AnalyticsSpaceListener extends SpaceListenerPlugin {
 
   @Override
   public void spaceAccessEdited(SpaceLifeCycleEvent event) {
@@ -140,27 +140,17 @@ public class SpaceAnalyticsListener extends SpaceListenerPlugin {
   }
 
   private StatisticData buildStatisticData(String operation, Space space, long userId) {
-    long spaceId = Long.parseLong(space.getId());
     long modifierUserId = getUserId(space.getEditor());
 
     StatisticData statisticData = new StatisticData();
     statisticData.setModule("social");
     statisticData.setSubModule("space");
     statisticData.setOperation(operation);
-    statisticData.setSpaceId(spaceId);
     statisticData.setUserId(userId);
     if (modifierUserId > 0) {
       statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, modifierUserId);
     }
-    statisticData.addParameter("spaceTemplate", space.getTemplate());
-    statisticData.addParameter("spaceVisibility", space.getVisibility());
-    statisticData.addParameter("spaceRegistration", space.getRegistration());
-    statisticData.addParameter("spaceCreatedTime", space.getCreatedTime());
-    statisticData.addParameter("spaceMembersCount", space.getMembers() == null ? 0 : space.getMembers().length);
-    statisticData.addParameter("spaceManagersCount", space.getManagers() == null ? 0 : space.getManagers().length);
-    statisticData.addParameter("spaceRedactorsCount", space.getRedactors() == null ? 0 : space.getRedactors().length);
-    statisticData.addParameter("spaceInviteesCount", space.getInvitedUsers() == null ? 0 : space.getInvitedUsers().length);
-    statisticData.addParameter("spacePendingCount", space.getPendingUsers() == null ? 0 : space.getPendingUsers().length);
+    addSpaceStatistics(statisticData, space);
     return statisticData;
   }
 
