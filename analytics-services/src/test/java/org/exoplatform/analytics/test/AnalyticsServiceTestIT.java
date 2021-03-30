@@ -392,18 +392,25 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     AnalyticsTableFilter filter = new AnalyticsTableFilter();
     AnalyticsTableColumnFilter mainColumn = new AnalyticsTableColumnFilter();
 
-    mainColumn.setAggregation(new AnalyticsAggregation("userId"));
+    mainColumn.setValueAggregation(new AnalyticsTableColumnAggregation());
+    mainColumn.getValueAggregation().setAggregation(new AnalyticsAggregation("userId"));
     filter.setMainColumn(mainColumn);
 
     AnalyticsTableColumnFilter column1 = new AnalyticsTableColumnFilter();
-    column1.setAggregation(new AnalyticsAggregation(AnalyticsAggregationType.COUNT, "userId", null, null, 0));
-    column1.getFilters().add(new AnalyticsFieldFilter("module", AnalyticsFieldFilterType.EQUAL, "portal"));
-    column1.getFilters().add(new AnalyticsFieldFilter("operation", AnalyticsFieldFilterType.EQUAL, "login"));
+    column1.setValueAggregation(new AnalyticsTableColumnAggregation());
+    column1.getValueAggregation()
+           .setAggregation(new AnalyticsAggregation(AnalyticsAggregationType.COUNT, "userId", null, null, 0));
+    column1.getValueAggregation().getFilters().add(new AnalyticsFieldFilter("module", AnalyticsFieldFilterType.EQUAL, "portal"));
+    column1.getValueAggregation()
+           .getFilters()
+           .add(new AnalyticsFieldFilter("operation", AnalyticsFieldFilterType.EQUAL, "login"));
     column1.setPreviousPeriod(true);
 
     AnalyticsTableColumnFilter column2 = new AnalyticsTableColumnFilter();
-    column2.setAggregation(new AnalyticsAggregation(AnalyticsAggregationType.TERMS, "operation", "desc", null, 0));
-    column2.getFilters().add(new AnalyticsFieldFilter("module", AnalyticsFieldFilterType.EQUAL, "portal"));
+    column2.setValueAggregation(new AnalyticsTableColumnAggregation());
+    column2.getValueAggregation()
+           .setAggregation(new AnalyticsAggregation(AnalyticsAggregationType.TERMS, "operation", "desc", null, 0));
+    column2.getValueAggregation().getFilters().add(new AnalyticsFieldFilter("module", AnalyticsFieldFilterType.EQUAL, "portal"));
     filter.setColumns(Arrays.asList(column1, column2));
 
     AnalyticsPeriod period = AnalyticsPeriodType.THIS_YEAR.getCurrentPeriod(LocalDate.of(2019, 12, 01));
@@ -412,12 +419,15 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
                                                                 null,
                                                                 0,
                                                                 "desc",
-                                                                0);
-    TableColumnResult columnData = analyticsService.computeTableColumnData(filter,
+                                                                0,
+                                                                true);
+    TableColumnResult columnData = analyticsService.computeTableColumnData(null,
+                                                                           filter,
                                                                            userColumnFilter,
                                                                            period,
                                                                            AnalyticsPeriodType.THIS_YEAR,
-                                                                           0);
+                                                                           0,
+                                                                           true);
     assertNotNull(columnData);
     assertNotNull(columnData.getItems());
     assertEquals(33, columnData.getItems().size());
@@ -427,12 +437,15 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
                                                 null,
                                                 0,
                                                 "desc",
-                                                1);
-    columnData = analyticsService.computeTableColumnData(filter,
+                                                1,
+                                                true);
+    columnData = analyticsService.computeTableColumnData(null,
+                                                         filter,
                                                          userColumnFilter,
                                                          period,
                                                          AnalyticsPeriodType.THIS_YEAR,
-                                                         1);
+                                                         1,
+                                                         true);
     assertNotNull(columnData);
     assertNotNull(columnData.getItems());
     assertEquals(33, columnData.getItems().size());
@@ -451,12 +464,15 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
                                                 null,
                                                 0,
                                                 "desc",
-                                                2);
-    columnData = analyticsService.computeTableColumnData(filter,
+                                                2,
+                                                true);
+    columnData = analyticsService.computeTableColumnData(null,
+                                                         filter,
                                                          userColumnFilter,
                                                          period,
                                                          AnalyticsPeriodType.THIS_YEAR,
-                                                         2);
+                                                         2,
+                                                         true);
 
     tableColumnItemValue = columnData.getItems().get(0);
     assertNotNull(tableColumnItemValue);

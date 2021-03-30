@@ -56,30 +56,42 @@ public class AnalyticsTableFilter implements Serializable, Cloneable {
                                            AnalyticsFieldFilter fieldFilter,
                                            int limit,
                                            String sortDirection,
-                                           int columnIndex) {
+                                           int columnIndex,
+                                           boolean isValue) {
     AnalyticsTableColumnFilter column = null;
     if (columnIndex == 0) {
       column = this.mainColumn == null ? null : this.mainColumn.clone();
     } else if (columnIndex <= this.columns.size()) {
       column = this.columns.get(columnIndex - 1).clone();
     }
+    if (mainColumn == null) {
+      throw new IllegalStateException("Main Column is not set");
+    }
+    if (mainColumn.getValueAggregation() == null
+        || mainColumn.getValueAggregation().getAggregation() == null
+        || mainColumn.getValueAggregation().getAggregation().getField() == null) {
+      throw new IllegalStateException("Main Column aggregation is not set");
+    }
     if (column == null) {
       throw new IllegalStateException("Column with index " + columnIndex + " doesn't exist");
     }
+    AnalyticsTableColumnAggregation columnAggregation = isValue ? column.getValueAggregation()
+                                                                : column.getThresholdAggregation();
 
     List<AnalyticsAggregation> xAxisAggregations = new ArrayList<>();
-    xAxisAggregations.add(mainColumn.getAggregation());
+    xAxisAggregations.add(mainColumn.getValueAggregation().getAggregation());
     AnalyticsAggregation yAxisAggregation = null;
     if (columnIndex > 0) {
-      yAxisAggregation = column.getAggregation();
+      yAxisAggregation = columnAggregation.getAggregation();
     }
 
-    List<AnalyticsFieldFilter> filters = column.getFilters();
+    List<AnalyticsFieldFilter> filters = columnAggregation.getFilters();
     if (fieldFilter != null) {
       filters.add(fieldFilter);
     }
-    if (period != null) {
-      addPeriodFilter(period, periodType, xAxisAggregations, filters, column);
+
+    if (period != null && !columnAggregation.isPeriodIndependent()) {
+      addPeriodFilter(period, periodType, xAxisAggregations, filters, column.isPreviousPeriod());
     }
 
     AnalyticsAggregation lastAggregation = xAxisAggregations.get(xAxisAggregations.size() - 1);
@@ -124,11 +136,11 @@ public class AnalyticsTableFilter implements Serializable, Cloneable {
                                AnalyticsPeriodType periodType,
                                List<AnalyticsAggregation> xAxisAggregations,
                                List<AnalyticsFieldFilter> filters,
-                               AnalyticsTableColumnFilter column) {
+                               boolean compareWithPreviousPeriod) {
     long fromInMS = period.getFromInMS();
     long toInMS = period.getToInMS();
 
-    if (column.isPreviousPeriod()) {
+    if (compareWithPreviousPeriod) {
       AnalyticsPeriod previousPeriod;
       String interval;
       String offset = null;

@@ -19,15 +19,14 @@
         class="analytics-table-suggester mr-2" />
       <template v-if="canEdit">
         <v-btn
-          v-if="canEdit"
-          outlined
-          class="btn primary"
-          @click="$refs.tableSettingDialog.open()">
-          <i class="uiIcon uiIcon24x24 settingsIcon mr-1 primary--text"></i>
-          {{ $t('analytics.settings') }}
+          icon
+          :title="$t('analytics.settings')"
+          class="d-none d-sm-inline text-header-title"
+          @click="$refs.tableSettingDrawer.open()">
+          <v-icon>mdi-settings</v-icon>
         </v-btn>
         <analytics-table-setting
-          ref="tableSettingDialog"
+          ref="tableSettingDrawer"
           :retrieve-mappings-url="retrieveMappingsUrl"
           :settings="settings"
           :users="userObjects"
@@ -112,11 +111,17 @@ export default {
         noDataLabel: this.$t('analytics.noDataLabel'),
       };
     },
+    mainColumnAggregation() {
+      return this.settings && this.settings.mainColumn && this.settings.mainColumn.valueAggregation && this.settings.mainColumn.valueAggregation.aggregation;
+    },
+    mainColumnAggregationField() {
+      return this.mainColumnAggregation && this.mainColumnAggregation.field;
+    },
     useUsersInSearch() {
-      return this.settings && this.settings.mainColumn && this.settings.mainColumn.aggregation.field === 'userId';
+      return this.mainColumnAggregationField === 'userId';
     },
     useSpacesInSearch() {
-      return this.settings && this.settings.mainColumn && this.settings.mainColumn.aggregation.field === 'spaceId';
+      return this.mainColumnAggregationField === 'spaceId';
     },
     canUseSuggester() {
       return this.useUsersInSearch || this.useSpacesInSearch;
@@ -273,6 +278,12 @@ export default {
           if (!settings.mainColumn) {
             settings.mainColumn = {
               title: settings.mainColumn.title || '',
+              valueAggregation: {
+                
+              },
+              thresholdAggregation: {
+                
+              },
               aggregation: {
                 field: settings.mainColumn.field || null,
                 type: settings.mainColumn.type || 'TERMS',
@@ -292,6 +303,20 @@ export default {
     saveSettings(settings) {
       this.loading = true;
 
+      const settingsToSave = JSON.parse(JSON.stringify(settings));
+      // Cleanup saved settings
+      settingsToSave.columns.forEach(column => {
+        if (!column.valueAggregation || !column.valueAggregation.aggregation || !column.valueAggregation.aggregation.type) {
+          delete column.valueAggregation;
+        }
+        if (!column.thresholdAggregation || !column.thresholdAggregation.aggregation || !column.thresholdAggregation.aggregation.type) {
+          delete column.thresholdAggregation;
+        }
+      });
+      if (!settingsToSave.mainColumn.valueAggregation || !settingsToSave.mainColumn.valueAggregation.aggregation || !settingsToSave.mainColumn.valueAggregation.aggregation.type) {
+        delete settingsToSave.mainColumn.valueAggregation;
+      }
+
       return fetch(this.saveSettingsUrl, {
         method: 'POST',
         credentials: 'include',
@@ -299,15 +324,14 @@ export default {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: $.param({
-          settings : JSON.stringify(settings)
+          settings : JSON.stringify(settingsToSave)
         }),
       })
         .then((resp) => {
           if (!resp || !resp.ok) {
-            throw new Error('Error saving table settings', settings);
+            throw new Error('Error saving table settings', settingsToSave);
           }
 
-          this.settings = JSON.parse(JSON.stringify(settings));
           return this.init();
         })
         .catch((e) => {

@@ -13,6 +13,7 @@ import org.json.*;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
 import org.exoplatform.analytics.model.StatisticFieldMapping;
+import org.exoplatform.analytics.model.chart.TableColumnResult;
 import org.exoplatform.analytics.model.filter.*;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilterType;
@@ -99,6 +100,14 @@ public class AnalyticsTablePortlet extends GenericPortlet {
       response.getWriter().write(jsonArrayResponse.toString());
     } else if (StringUtils.equals(operation, READ_TABLE_DATA_OPERATION)) {
       AnalyticsTableFilter tableFilter = getFilterFromPreferences(windowId, preferences, true);
+      if (tableFilter == null || tableFilter.getMainColumn() == null
+          || tableFilter.getMainColumn().getValueAggregation() == null
+          || tableFilter.getMainColumn().getValueAggregation().getAggregation() == null
+          || tableFilter.getMainColumn().getValueAggregation().getAggregation().getField() == null) {
+        response.setContentType(MediaType.APPLICATION_JSON);
+        response.getWriter().write("{}");
+        return;
+      }
       String column = request.getParameter("column");
       int columnIndex = 0;
       if (StringUtils.isNotBlank(column)) {
@@ -134,11 +143,42 @@ public class AnalyticsTablePortlet extends GenericPortlet {
                                                              fieldFilter,
                                                              limit,
                                                              sort,
-                                                             columnIndex);
+                                                             columnIndex,
+                                                             true);
       addScopeFilter(portletSession, filter);
       addLanguageFilter(request, filter);
 
-      Object result = getAnalyticsService().computeTableColumnData(tableFilter, filter, period, periodType, columnIndex);
+      TableColumnResult result = getAnalyticsService().computeTableColumnData(null,
+                                                                              tableFilter,
+                                                                              filter,
+                                                                              period,
+                                                                              periodType,
+                                                                              columnIndex,
+                                                                              true);
+      AnalyticsTableColumnFilter columnFilter = tableFilter.getColumnFilter(columnIndex);
+      if (columnFilter.getThresholdAggregation() != null
+          && columnFilter.getThresholdAggregation().getAggregation() != null
+          && columnFilter.getThresholdAggregation().getAggregation().getType() != null
+          && columnFilter.getThresholdAggregation().getAggregation().getField() != null) {
+        filter = tableFilter.buildColumnFilter(period,
+                                               periodType,
+                                               fieldFilter,
+                                               limit,
+                                               sort,
+                                               columnIndex,
+                                               false);
+        addScopeFilter(portletSession, filter);
+        addLanguageFilter(request, filter);
+
+        getAnalyticsService().computeTableColumnData(result,
+                                                     tableFilter,
+                                                     filter,
+                                                     period,
+                                                     periodType,
+                                                     columnIndex,
+                                                     false);
+      }
+
       response.setContentType(MediaType.APPLICATION_JSON);
       response.getWriter().write(AnalyticsUtils.toJsonString(result));
     }

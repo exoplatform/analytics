@@ -198,9 +198,13 @@
   }
   .analytics-selected-period-input {
     max-width: 225px !important;
+    .v-input__slot {
+      margin: 4px 0 0;
+    }
   }
   .analytics-selected-period-menu-content {
     max-width: 400px !important;
+    width: 400px !important;
   }
   .v-picker__title{
     border-top-left-radius: 0px !important;
@@ -266,6 +270,15 @@
 
   .analytics-progress-bar {
     border-radius: 45px;
+  }
+}
+.analytics-table-settings {
+  width: 650px !important;
+
+  .v-list-group .white--text{
+    .v-list-item__title, .v-list-group__header__append-icon .v-icon {
+      color: @lightWhite;
+    }
   }
 }
 .analyticsDrawerContent {

@@ -24,6 +24,15 @@ public class StatisticFieldMapping {
   @Exclude
   private boolean                   hasKeywordSubField;
 
+  @Exclude
+  private boolean                   scriptedField;
+
+  public StatisticFieldMapping(String name, String type, boolean hasKeywordSubField) {
+    this.name = name;
+    this.type = type;
+    this.hasKeywordSubField = hasKeywordSubField;
+  }
+
   public static final String computeESQueryValue(String value) {
     if (NumberUtils.isDigits(value)) {
       return value;
@@ -70,4 +79,5 @@ public class StatisticFieldMapping {
       return "\"" + value + "\"";
     }
   }
+
 }
