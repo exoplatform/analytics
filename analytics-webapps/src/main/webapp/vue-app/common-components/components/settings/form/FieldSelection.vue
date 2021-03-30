@@ -1,31 +1,36 @@
 <template>
-  <v-autocomplete
-    v-model="value"
-    :items="fields"
-    :label="label"
-    :placeholder="placeholder"
-    :value-comparator="selectedValueComparator"
-    :return-object="false"
-    :item-value="aggregation ? 'aggregationFieldName' : 'searchFieldName'"
-    item-text="label"
-    class="operatorInput pa-0"
-    filled
-    persistent-hint
-    chips
-    dense
-    @change="updateData">
-    <template v-slot:selection="data">
-      <v-chip
-        v-bind="data.attrs"
-        :input-value="data.selected"
-        @click="data.select">
-        {{ data.item && data.item.label || data.item }}
-      </v-chip>
-    </template>
-    <template v-slot:item="data">
-      <v-list-item-content v-text="data.item.label" />
-    </template>
-  </v-autocomplete>
+  <div :id="id">
+    <v-autocomplete
+      ref="fieldSelectAutoComplete"
+      v-model="value"
+      :items="fields"
+      :label="label"
+      :placeholder="placeholder"
+      :value-comparator="selectedValueComparator"
+      :return-object="false"
+      :item-value="aggregation ? 'aggregationFieldName' : 'searchFieldName'"
+      :attach="attach"
+      :menu-props="menuProps"
+      item-text="label"
+      class="operatorInput pa-0"
+      filled
+      persistent-hint
+      chips
+      dense
+      @change="updateData">
+      <template v-slot:selection="data">
+        <v-chip
+          v-bind="data.attrs"
+          :input-value="data.selected"
+          @click="data.select">
+          {{ data.item && data.item.label || data.item }}
+        </v-chip>
+      </template>
+      <template v-slot:item="data">
+        <v-list-item-content v-text="data.item.label" />
+      </template>
+    </v-autocomplete>
+  </div>
 </template>
 
 <script>
@@ -67,47 +72,47 @@ export default {
         return null;
       },
     },
+    attach: {
+      type: Boolean,
+      default: false,
+    },
   },
   data () {
     return {
-      fieldLabels: {
-        module: 'Module',
-        subModule: 'Sub-module',
-        operation: 'Operation',
-        status: 'Status code',
-        errorCode: 'Error code',
-        errorMessage: 'Error message',
-        year: 'Year',
-        month: 'Month',
-        week: 'Week',
-        dayOfMonth: 'Day of month',
-        dayOfWeek: 'Day of week',
-        dayOfYear: 'Day of year',
-        hour: 'Hour of day',
-        userId: 'User',
-        spaceId: 'Space',
-      },
+      id: `FieldSelection${parseInt(Math.random() * 10000)
+        .toString()
+        .toString()}`,
     };
   },
   computed: {
+    menuProps() {
+      return this.attach && 'closeOnClick, maxHeight = 100' || '';
+    },
     fieldNames() {
       this.fieldsMappings.forEach(fieldMapping => {
-        let label = null;
-        if (!fieldMapping.label && this.fieldsMappings[fieldMapping.name]) {
-          label = this.fieldLabels[fieldMapping.name];
-        } else {
-          label = fieldMapping.name;
+        if (!fieldMapping.label) {
+          const label = fieldMapping.name;
+          const labelPart = label.indexOf('.') >= 0 ? label.substring(label.lastIndexOf('.') + 1) : label;
+          const fieldLabelI18NKey = `analytics.field.label.${labelPart}`;
+          const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
+          fieldMapping.label = fieldLabelI18NValue === fieldLabelI18NKey ? `${this.$t('analytics.field.label.default')} ${label}` : fieldLabelI18NValue;
         }
-        const fieldLabelI18NKey = `analytics.field.label.${label}`;
-        const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
-        fieldMapping.label = fieldLabelI18NValue === fieldLabelI18NKey ? `${this.$t('analytics.field.label.default') } ${ label}` : fieldLabelI18NValue;
       });
       return this.fieldsMappings;
     },
     fields() {
-      return this.fieldNames.filter(field => (!this.aggregation || field.aggregation) && (!this.numeric || field.numeric))
+      return this.fieldNames.filter(field => (!this.aggregation || field.aggregation) && (!this.numeric || field.numeric || field.date))
         .sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()));
     },
+  },
+  mounted() {
+    if (this.attach) {
+      $(`#${this.id} input`).on('blur', () => {
+        // A hack to close on select
+        // See https://www.reddit.com/r/vuetifyjs/comments/819h8u/how_to_close_a_multiple_autocomplete_vselect/
+        this.$refs.fieldSelectAutoComplete.isFocused = false;
+      });
+    }
   },
   methods: {
     updateData(){

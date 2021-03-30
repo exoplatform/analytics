@@ -433,86 +433,114 @@
                 <value>{
                    "title":"",
                    "mainColumn":{
-                      "title":"Users",
-                      "aggregation":{
-                         "field":"userId",
-                         "type":"TERMS"
-                      },
-                      "dataType":"userIdentity",
-                      "sortable":false
+                      "title":"analytics.users",
+                      "valueAggregation":{
+                         "aggregation":{
+                            "field":"userId",
+                            "type":"TERMS",
+                            "dataType":"text"
+                         }
+                      }
                    },
                    "columns":[
                       {
-                         "title":"Creation Date",
+                         "title":"analytics.creationDate",
                          "userField":"createdDate",
-                         "dataType":"date",
-                         "sortable":false
+                         "dataType":"date"
                       },
                       {
-                         "title":"Last connection",
-                         "userField":"lastLoginTime",
-                         "dataType":"date",
-                         "sortable":false
-                      },
-                      {
-                         "title":"Number of connections",
-                         "aggregation":{
-                            "type":"COUNT"
-                         },
-                         "filters":[
-                            {
-                               "field":"operation",
-                               "type":"EQUAL",
-                               "valueString":"login"
+                         "title":"analytics.lastConnection",
+                         "valueAggregation":{
+                            "aggregation":{
+                               "field":"timestamp",
+                               "type":"MAX",
+                               "sortDirection":"desc"
                             },
-                            {
-                               "field":"userId",
-                               "type":"GREATER",
-                               "valueString":"1"
-                            }
-                         ],
-                         "dataType":"long",
+                            "filters":[
+                               {
+                                  "field":"operation",
+                                  "type":"EQUAL",
+                                  "valueString":"login"
+                               },
+                               {
+                                  "field":"userId",
+                                  "type":"GREATER",
+                                  "valueString":"1"
+                               }
+                            ],
+                            "periodIndependent":true
+                         },
                          "sortable":true,
-                         "previousPeriod":false
+                         "dataType":"date"
                       },
                       {
-                         "title":"Number of activities",
-                         "aggregation":{
-                            "type":"COUNT"
-                         },
-                         "filters":[
-                            {
-                               "field":"operation",
-                               "type":"IN_SET",
-                               "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined"
+                         "title":"analytics.connectionsCount",
+                         "valueAggregation":{
+                            "aggregation":{
+                               "sortDirection":"desc",
+                               "type":"CARDINALITY",
+                               "field":"doc['timestamp'].date.dayOfYear"
                             },
-                            {
-                               "field":"userId",
-                               "type":"GREATER",
-                               "valueString":"1"
-                            }
-                         ],
-                         "dataType":"long",
+                            "filters":[
+                               {
+                                  "field":"operation",
+                                  "type":"EQUAL",
+                                  "valueString":"login"
+                               },
+                               {
+                                  "field":"userId",
+                                  "type":"GREATER",
+                                  "valueString":"1"
+                               }
+                            ]
+                         },
                          "sortable":true,
-                         "previousPeriod":false
+                         "dataType":"long"
                       },
                       {
-                         "title":"Favorite module",
-                         "aggregation":{
-                            "type":"TERMS",
-                            "field":"module",
-                            "limit":1
+                         "title":"analytics.activitiesCount",
+                         "previousPeriod":false,
+                         "userField":"",
+                         "spaceField":"",
+                         "valueAggregation":{
+                            "aggregation":{
+                               "sortDirection":"desc",
+                               "type":"COUNT"
+                            },
+                            "filters":[
+                               {
+                                  "field":"operation",
+                                  "type":"IN_SET",
+                                  "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined"
+                               },
+                               {
+                                  "field":"userId",
+                                  "type":"GREATER",
+                                  "valueString":"1"
+                               }
+                            ]
                          },
-                         "filters":[
-                            {
-                               "field":"operation",
-                               "type":"IN_SET",
-                               "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined"
-                            }
-                         ],
-                         "dataType":"text",
-                         "sortable":false,
-                         "previousPeriod":false
+                         "sortable":true,
+                         "dataType":"long"
+                      },
+                      {
+                         "title":"analytics.favoriteModule",
+                         "valueAggregation":{
+                            "aggregation":{
+                               "sortDirection":"desc",
+                               "field":"module",
+                               "type":"TERMS",
+                               "limit":1
+                            },
+                            "filters":[
+                               {
+                                  "field":"operation",
+                                  "type":"IN_SET",
+                                  "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined"
+                               }
+                            ]
+                         },
+                         "dataType":"text"
                       }
                    ]
                 }</value>
@@ -561,94 +589,98 @@
                 <value>{
                    "title":"",
                    "mainColumn":{
-                      "title":"Spaces",
-                      "aggregation":{
-                         "field":"spaceId",
-                         "type":"TERMS"
-                      },
-                      "dataType":"spaceIdentity",
-                      "sortable": false
+                      "title":"analytics.spaces",
+                      "valueAggregation":{
+                         "aggregation":{
+                            "field":"spaceId",
+                            "type":"TERMS",
+                            "dataType":"long"
+                         }
+                      }
                    },
                    "columns":[
                       {
-                         "title":"Creation Date",
+                         "title":"analytics.creationDate",
                          "spaceField":"createdTime",
-                         "dataType":"date",
-                         "sortable": false
+                         "dataType":"date"
                       },
                       {
-                         "title":"Members count",
-                         "aggregation":{
-                            "type":"MAX",
-                            "field":"spaceMembersCount"
-                         },
-                         "filters":[
-                            {
-                               "field":"spaceId",
-                               "type":"GREATER",
-                               "valueString":"1"
+                         "title":"analytics.membersCount",
+                         "previousPeriod":true,
+                         "valueAggregation":{
+                            "aggregation":{
+                               "sortDirection":"desc",
+                               "field":"spaceMembersCount",
+                               "type":"MAX"
                             }
-                         ],
-                         "dataType":"long",
-                         "sortable": true,
-                         "previousPeriod":true
+                         },
+                         "sortable":true,
+                         "dataType":"long"
                       },
                       {
-                         "title":"% of active users",
-                         "aggregation": {
-                            "type":"TERMS",
-                            "field": "userId",
-                            "limit": 1
-                         },
-                         "filters":[
-                            {
-                               "field":"spaceId",
-                               "type":"GREATER",
-                               "valueString":"1"
-                            }
-                         ],
-                         "dataType":"long",
-                         "sortable": true,
-                         "previousPeriod": true
-                      },
-                      {
-                         "title":"Number of activities",
-                         "aggregation":{
-                            "type":"COUNT"
-                         },
-                         "filters":[
-                            {
-                               "field":"operation",
-                               "type":"IN_SET",
-                               "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined"
+                         "title":"analytics.activeUsersPercent",
+                         "previousPeriod":true,
+                         "valueAggregation":{
+                            "aggregation":{
+                               "sortDirection":"desc",
+                               "field":"userId",
+                               "type":"CARDINALITY"
                             },
-                            {
-                               "field":"spaceId",
-                               "type":"GREATER",
-                               "valueString":"1"
-                            }
-                         ],
-                         "dataType":"long",
-                         "sortable": true,
-                         "previousPeriod": true
+                            "filters":[{
+                                  "range":null,
+                                  "valueString":"1",
+                                  "field":"spaceId",
+                                  "type":"GREATER"
+                            }],
+                            "periodIndependent":false
+                         },
+                         "sortable":true,
+                         "dataType":"long"
                       },
                       {
-                         "title":"Main module",
-                         "aggregation":{
-                            "type":"TERMS",
-                            "field":"module",
-                            "limit":1
+                         "title":"analytics.activitiesCount",
+                         "previousPeriod":true,
+                         "userField":"",
+                         "spaceField":"",
+                         "valueAggregation":{
+                            "aggregation":{
+                               "sortDirection":"desc",
+                               "type":"COUNT"
+                            },
+                            "filters":[
+                               {
+                                  "field":"operation",
+                                  "type":"IN_SET",
+                                  "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined"
+                               },
+                               {
+                                  "field":"spaceId",
+                                  "type":"GREATER",
+                                  "valueString":"1"
+                               }
+                            ]
                          },
-                         "filters":[
-                            {
-                               "field":"operation",
-                               "type":"IN_SET",
-                               "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined"
-                            }
-                         ],
-                         "dataType":"text",
-                         "sortable": false,
-                         "previousPeriod":false
+                         "sortable":true,
+                         "dataType":"long"
+                      },
+                      {
+                         "title":"analytics.mainModule",
+                         "valueAggregation":{
+                            "aggregation":{
+                               "sortDirection":"desc",
+                               "limit":1,
+                               "field":"module",
+                               "type":"TERMS"
+                            },
+                            "filters":[
+                               {
+                                  "field":"operation",
+                                  "type":"IN_SET",
+                                  "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined"
+                               }
+                            ]
+                         },
+                         "dataType":"text"
                       }
                    ]
                 }</value>

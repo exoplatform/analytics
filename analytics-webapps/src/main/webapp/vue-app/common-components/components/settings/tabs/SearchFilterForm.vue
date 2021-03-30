@@ -14,7 +14,8 @@
               <analytics-field-selection
                 v-model="item.field"
                 :fields-mappings="fieldsMappings"
-                :placeholder="$t('analytics.fieldNamePlaceholder')" />
+                :placeholder="$t('analytics.fieldNamePlaceholder')"
+                :attach="attach" />
             </v-flex>
             <v-flex xs3 class="d-flex my-auto px-2 content-box-sizing">
               <select
@@ -108,6 +109,10 @@ export default {
       default: function() {
         return [];
       },
+    },
+    attach: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {

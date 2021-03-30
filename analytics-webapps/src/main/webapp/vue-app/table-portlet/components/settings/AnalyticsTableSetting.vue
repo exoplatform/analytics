@@ -1,45 +1,30 @@
 <template>
-  <v-dialog
-    id="analyticsTableSettingsModal"
-    v-model="dialog"
-    content-class="uiPopup with-overflow"
-    class="editChatSettings"
-    width="750px"
-    max-width="100vw"
-    @keydown.esc="dialog = false">
-    <v-card v-if="dialog" class="elevation-12">
-      <div class="ignore-vuetify-classes popupHeader ClearFix">
-        <a
-          class="uiIconClose pull-right"
-          aria-hidden="true"
-          @click="dialog = false">
-        </a>
-        <span class="ignore-vuetify-classes PopupTitle popupTitle">
-          {{ $t('analytics.settings') }}
-        </span>
-      </div>
+  <exo-drawer
+    ref="tableSettingDrawer"
+    class="analytics-table-settings"
+    right>
+    <template slot="title">
+      {{ $t('analytics.settings') }}
+    </template>
+    <template slot="content">
       <v-card-text v-if="tableSettings">
-        <v-text-field
-          v-model="tableSettings.title"
-          :label="$t('analytics.tableTitle')"
-          :placeholder="$t('analytics.tableTitlePlaceholder')"
-          outlined
-          class="mt-0 pt-2" />
-        <h3>{{ $t('analytics.mainColumn') }}</h3>
+        <h4 class="mt-0">{{ $t('analytics.mainColumn') }}</h4>
         <v-text-field
           v-model="tableSettings.mainColumn.title"
           :label="$t('analytics.tableMainColumnTitle')"
           :placeholder="$t('analytics.tableMainColumnTitlePlaceholder')"
+          class="pt-2"
           outlined
           required />
         <analytics-field-selection
-          v-model="tableSettings.mainColumn.aggregation.field"
+          v-model="tableSettings.mainColumn.valueAggregation.aggregation.field"
           :fields-mappings="fieldsMappings"
           :label="$t('analytics.fieldName')"
+          attach
           aggregation />
-        <v-list>
+        <v-list nav>
           <v-subheader class="px-0">
-            <h3>{{ $t('analytics.tableColumns') }}</h3>
+            <h4>{{ $t('analytics.tableColumns') }}</h4>
             <v-btn
               color="primary"
               icon
@@ -47,29 +32,33 @@
               <v-icon>fa-plus-circle</v-icon>
             </v-btn>
           </v-subheader>
-          <analytics-table-column-setting
-            v-for="(column, index) in columns"
-            :key="index"
-            :fields-mappings="fieldsMappings"
-            :main-column="mainColumn"
-            :column="column"
-            :user-fields="userFields"
-            :space-fields="spaceFields"
-            @delete="deleteColumn(index)" />
+          <v-list-item-group v-model="selectedColumn">
+            <analytics-table-column-setting
+              v-for="(column, index) in columns"
+              :key="index"
+              :fields-mappings="fieldsMappings"
+              :main-column="mainColumn"
+              :column="column"
+              :user-fields="userFields"
+              :space-fields="spaceFields"
+              class="mb-0"
+              @delete="deleteColumn(index)" />
+          </v-list-item-group>
         </v-list>
       </v-card-text>
-      <v-card-actions>
+    </template>
+    <template slot="footer">
+      <div class="d-flex">
         <v-spacer />
-        <button class="btn btn-primary ignore-vuetify-classes mr-1" @click="save">
-          {{ $t('analytics.save') }}
-        </button>
-        <button class="btn ignore-vuetify-classes ml-1" @click="dialog = false">
+        <button class="btn ignore-vuetify-classes mr-1" @click="$refs.tableSettingDrawer.close()">
           {{ $t('analytics.close') }}
         </button>
-        <v-spacer />
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        <button class="btn btn-primary ignore-vuetify-classes  ml-1" @click="save">
+          {{ $t('analytics.save') }}
+        </button>
+      </div>
+    </template>
+  </exo-drawer>
 </template>
 
 <script>
@@ -117,6 +106,7 @@ export default {
       tableSettings: null,
       fieldsMappings: [],
       dialog: false,
+      selectedColumn: 1,
       tab: 0,
     };
   },
@@ -128,12 +118,8 @@ export default {
       return this.tableSettings && this.tableSettings.mainColumn;
     },
   },
-  watch: {
-    dialog() {
-      if (this.dialog) {
-        this.init();
-      }
-    },
+  mounted() {
+    this.init();
   },
   methods: {
     init() {
@@ -183,6 +169,7 @@ export default {
     },
     deleteColumn(index) {
       this.columns.splice(index, 1);
+      this.selectedColumn = 0;
     },
     open() {
       const settings = this.settings || {};
@@ -190,7 +177,9 @@ export default {
         title: settings.title || '',
         mainColumn: {
           title: '',
-          aggregation: {},
+          valueAggregation: {
+            aggregation: {},
+          },
         },
         columns: [],
       };
@@ -198,9 +187,9 @@ export default {
         if (settings.mainColumn.title) {
           tableSettings.mainColumn.title = settings.mainColumn.title;
         }
-        if (settings.mainColumn.aggregation) {
-          tableSettings.mainColumn.aggregation = {
-            field: settings.mainColumn.aggregation.field || null,
+        if (settings.mainColumn.valueAggregation && settings.mainColumn.valueAggregation.aggregation) {
+          tableSettings.mainColumn.valueAggregation.aggregation = {
+            field: settings.mainColumn.valueAggregation.aggregation.field || null,
             type: settings.mainColumn.type || 'TERMS',
             dataType: settings.mainColumn.dataType || 'text',
           };
@@ -208,24 +197,37 @@ export default {
       }
       if (settings.columns && settings.columns.length) {
         settings.columns.forEach(column => {
-          tableSettings.columns.push({
+          const columnSettings = {
             title: column.title || '',
             previousPeriod: column.previousPeriod || false,
             userField: column.userField || '',
             spaceField: column.spaceField || '',
-            aggregation: column.aggregation || {},
-            filters: column.filters || [],
+            valueAggregation: {
+              aggregation: column && column.valueAggregation && column.valueAggregation.aggregation || {},
+              filters: column && column.valueAggregation && column.valueAggregation.filters || [],
+              periodIndependent: column && column.valueAggregation && column.valueAggregation.periodIndependent || false,
+            },
             sortable: column.sortable || false,
             dataType: column.dataType || 'text',
-          });
+          };
+          if (!columnSettings.userField && !columnSettings.spaceField) {
+            if (column.valueAggregation) {
+              columnSettings.valueAggregation = column.valueAggregation;
+            }
+            if (column.thresholdAggregation) {
+              columnSettings.thresholdAggregation = column.thresholdAggregation;
+            }
+          }
+          tableSettings.columns.push(columnSettings);
         });
       }
       this.tableSettings = tableSettings;
-      this.dialog = true;
+      this.selectedColumn = 0;
+      this.$refs.tableSettingDrawer.open();
     },
     save() {
       this.$emit('save', this.tableSettings);
-      this.dialog = false;
+      this.$refs.tableSettingDrawer.close();
     },
   },
 };

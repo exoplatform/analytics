@@ -1,3 +1,5 @@
+export const TIMEZONE_OFFSET_MS = new Date().getTimezoneOffset() * 60 * 1000;
+
 export function loadUser(users, userId) {
   if (!userId) {
     return Promise.resolve(null);

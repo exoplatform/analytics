@@ -16,6 +16,7 @@
       <analytics-table-cell
         :key="header.value"
         :header="header"
+        :labels="labels"
         :item="item" />
     </template>
     <template v-if="hasMore" slot="footer">
@@ -25,7 +26,7 @@
           :disabled="loading"
           class="btn mx-auto"
           @click="limit += pageSize">
-          {{ $t('agenda.button.loadMore') }}
+          {{ $t('analytics.loadMore') }}
         </v-btn>
       </v-flex>
     </template>
@@ -85,8 +86,8 @@ export default {
     },
   },
   data: () => ({
-    limit: 20,
-    pageSize: 20,
+    limit: 10,
+    pageSize: 10,
     options: {},
     items: [],
     loading: false,
@@ -98,7 +99,9 @@ export default {
       return this.limit === this.items.length;
     },
     mainFieldName() {
-      return this.settings && this.settings.mainColumn && this.settings.mainColumn.aggregation && this.settings.mainColumn.aggregation.field;
+      return this.settings && this.settings.mainColumn && this.settings.mainColumn.valueAggregation
+        && this.settings.mainColumn.valueAggregation.aggregation
+        && this.settings.mainColumn.valueAggregation.aggregation.field;
     },
     mainFieldValues() {
       if (this.mainFieldName === 'userId') {
@@ -125,17 +128,17 @@ export default {
     },
     labels() {
       return {
-        CancelRequest: this.$t('profile.CancelRequest'),
-        Confirm: this.$t('profile.Confirm'),
-        Connect: this.$t('profile.Connect'),
-        Ignore: this.$t('profile.Ignore'),
-        RemoveConnection: this.$t('profile.RemoveConnection'),
-        StatusTitle: this.$t('profile.StatusTitle'),
-        join: this.$t('space.join'),
-        leave: this.$t('space.leave'),
-        External: this.$t('agenda.label.external'),
-        Disabled: this.$t('agenda.label.disabled'),
-        members: this.$t('space.members'),
+        CancelRequest: this.$t('spacesList.label.profile.CancelRequest'),
+        Confirm: this.$t('spacesList.label.profile.Confirm'),
+        Connect: this.$t('spacesList.label.profile.Connect'),
+        Ignore: this.$t('spacesList.label.profile.Ignore'),
+        RemoveConnection: this.$t('spacesList.label.profile.RemoveConnection'),
+        StatusTitle: this.$t('spacesList.label.profile.StatusTitle'),
+        External: this.$t('UsersManagement.type.external'),
+        Disabled: this.$t('UsersManagement.status.disabled'),
+        join: this.$t('spacesList.button.join'),
+        leave: this.$t('spacesList.button.leave'),
+        members: this.$t('spacesList.label.members'),
       };
     },
   },
@@ -161,15 +164,19 @@ export default {
   },
   methods: {
     addHeader(headers, column, index) {
-      const dataType = column.aggregation && column.aggregation.field === 'userId' && 'userIdentity'
-                      || column.aggregation && column.aggregation.field === 'spaceId' && 'spaceIdentity'
-                      || column.dataType || 'text';
+      const columnAggregationField = column.valueAggregation && column.valueAggregation.aggregation && column.valueAggregation.aggregation.field;
+      const columnAggregationType = column.valueAggregation && column.valueAggregation.aggregation && column.valueAggregation.aggregation.type;
+      const dataType = (columnAggregationField === 'userId' && columnAggregationType === 'TERMS' && 'userIdentity')
+                      || (columnAggregationField === 'spaceId' && columnAggregationType === 'TERMS' && 'spaceIdentity')
+                      || column.dataType
+                      || 'text';
       headers.push({
-        text: column.title || '',
+        text: column.title && this.$t(column.title) || '',
         align: 'center',
         sortable: column.sortable,
         value: `column${index}`,
         class: 'text-no-wrap',
+        width: 'auto',
         dataType,
         column
       });
@@ -214,9 +221,11 @@ export default {
         templateItem[header.value] = 'loading';
       });
 
-      if (columnIndex === 0 && column.aggregation && column.aggregation.field === 'userId') {
-        const retrieveIdentitiesPromise = this.selectedIdentity && this.$identityService.getIdentityByProviderIdAndRemoteId(this.selectedIdentity.providerId, this.selectedIdentity.remoteId).then(identity => identity && identity.profile)
-          || this.$userService.getUsers('', 0, limit, 'all');
+      const columnAggregationField = column.valueAggregation && column.valueAggregation.aggregation && column.valueAggregation.aggregation.field;
+      const columnAggregationType = column.valueAggregation && column.valueAggregation.aggregation && column.valueAggregation.aggregation.type;
+      if (columnIndex === 0 && columnAggregationField === 'userId' && columnAggregationType === 'TERMS') {
+        const retrieveIdentitiesPromise = this.selectedIdentity && this.$identityService.getIdentityByProviderIdAndRemoteId(this.selectedIdentity.providerId, this.selectedIdentity.remoteId, 'all').then(identity => identity && identity.profile)
+          || this.$userService.getUsers('', 0, limit, 'all', true);
         return retrieveIdentitiesPromise
           .then(data => {
             if (data) {
@@ -237,7 +246,7 @@ export default {
               }
             }
           });
-      } else if (columnIndex === 0 && column.aggregation && column.aggregation.field === 'spaceId') {
+      } else if (columnIndex === 0 && columnAggregationField === 'spaceId' && columnAggregationType === 'TERMS') {
         const retrieveIdentitiesPromise = this.selectedIdentity && this.$identityService.getIdentityByProviderIdAndRemoteId(this.selectedIdentity.providerId, this.selectedIdentity.remoteId).then(identity => identity && identity.space)
           || this.$spaceService.getSpaces('', 0, limit, 'all');
         return retrieveIdentitiesPromise
@@ -274,8 +283,8 @@ export default {
           column: columnIndex,
           limit: String(limit || 0),
           periodType: this.period.period || '',
-          min: this.period.min,
-          max: this.period.max,
+          min: this.period.min - this.$analyticsUtils.TIMEZONE_OFFSET_MS,
+          max: this.period.max - this.$analyticsUtils.TIMEZONE_OFFSET_MS,
         };
         if (sort) {
           params.sort = sort;
@@ -303,11 +312,11 @@ export default {
               const promises = [];
               this.items.forEach((item, index) => {
                 const columnItem = data && data.items && data.items.find(item => item.key === this.mainFieldValues[index]);
-                if (columnItem && columnItem.value && column && column.aggregation && column.aggregation.field === 'userId') {
+                if (columnItem && columnItem.value && columnAggregationField === 'userId' && columnAggregationType === 'TERMS') {
                   promises.push(this.$identityService.getIdentityById(columnItem.value)
                     .then(identity => item[`column${columnIndex}`] = identity && identity.profile)
                     .catch(() => item[`column${columnIndex}`] = null));
-                } else if (columnItem && columnItem.value && column && column.aggregation && column.aggregation.field === 'spaceId') {
+                } else if (columnItem && columnItem.value && columnAggregationField === 'spaceId' && columnAggregationType === 'TERMS') {
                   promises.push(this.$spaceService.getSpaceById(columnItem.value)
                     .then(space => item[`column${columnIndex}`] = space)
                     .catch(() => item[`column${columnIndex}`] = null));

@@ -59,14 +59,16 @@
         <input
           v-if="!hideTime"
           v-model="fromTime"
+          name="fromTime"
           type="time"
           class="ignore-vuetify-classes analytics-time-picker"
           @change="updatePeriodTime">
-        <span class="text-capitalize">{{ $t('analytics.to') }}</span>
+        <span class="text-capitalize">{{ $t('analytics.toDate') }}</span>
         <span class="primary--text">{{ toDateTitle }}</span>
         <input
           v-if="!hideTime"
           v-model="toTime"
+          name="toTime"
           type="time"
           class="ignore-vuetify-classes analytics-time-picker"
           @change="updatePeriodTime">
@@ -197,8 +199,8 @@ export default {
             this.fromDate.toLocaleDateString('sv-SV'),
             this.toDate.toLocaleDateString('sv-SV'),
           ];
-          this.fromTime = this.fromDate.toLocaleTimeString('sv-SV');
-          this.toTime = this.toDate.toLocaleTimeString('sv-SV');
+          this.fromTime = this.fromDate.toLocaleTimeString('sv-SV').substring(0, 5);
+          this.toTime = this.toDate.toLocaleTimeString('sv-SV').substring(0, 5);
         }
       }
     },
@@ -299,8 +301,8 @@ export default {
           this.dates[0] = this.dates[1];
           this.dates[1] = value;
         }
-        selectedPeriod.min = new Date(`${this.dates[0]}T${this.fromTime}`).getTime();
-        selectedPeriod.max = new Date(`${this.dates[1]}T${this.toTime}`).getTime();
+        selectedPeriod.min = new Date(`${this.dates[0]}T${this.fromTime || '00:00'}`).getTime();
+        selectedPeriod.max = new Date(`${this.dates[1]}T${this.toTime || '23:59'}`).getTime();
         this.$emit('input', selectedPeriod);
         return true;
       }

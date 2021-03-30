@@ -1,12 +1,6 @@
 package org.exoplatform.analytics.model.filter;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
-import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
 
 import lombok.*;
 
@@ -15,35 +9,34 @@ import lombok.*;
 @AllArgsConstructor
 public class AnalyticsTableColumnFilter implements Serializable, Cloneable {
 
-  private static final long          serialVersionUID = 1650453023117737022L;
+  private static final long               serialVersionUID = 1650453023117737022L;
 
-  private String                     title;
+  private String                          title;
 
-  private String                     userField;
+  private String                          userField;
 
-  private String                     spaceField;
+  private String                          spaceField;
 
-  private AnalyticsAggregation       aggregation;
+  private AnalyticsTableColumnAggregation valueAggregation;
 
-  private List<AnalyticsFieldFilter> filters          = new ArrayList<>();
+  private AnalyticsTableColumnAggregation thresholdAggregation;
 
-  private String                     dataType;
+  private String                          dataType;
 
-  private boolean                    sortable;
+  private boolean                         sortable;
 
-  private boolean                    previousPeriod;
+  private boolean                         previousPeriod;
 
   @Override
   public AnalyticsTableColumnFilter clone() { // NOSONAR
-    AnalyticsAggregation clonedAggregation = aggregation == null ? null : aggregation.clone();
-    List<AnalyticsFieldFilter> clonedFilters = filters.stream()
-                                                      .map(AnalyticsFieldFilter::clone)
-                                                      .collect(Collectors.toList());
+    AnalyticsTableColumnAggregation clonedAggregation = valueAggregation == null ? null : valueAggregation.clone();
+    AnalyticsTableColumnAggregation clonedThresholdAggregation =
+                                                               thresholdAggregation == null ? null : thresholdAggregation.clone();
     return new AnalyticsTableColumnFilter(title,
                                           userField,
                                           spaceField,
                                           clonedAggregation,
-                                          clonedFilters,
+                                          clonedThresholdAggregation,
                                           dataType,
                                           sortable,
                                           previousPeriod);

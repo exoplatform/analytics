@@ -173,11 +173,24 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
         }
       }
 
+      // Add other timestamp fields
+      addESDateSubField("hourOfDay");
+      addESDateSubField("dayOfMonth");
+      addESDateSubField("dayOfWeek");
+      addESDateSubField("dayOfYear");
+      addESDateSubField("monthOfYear");
+      addESDateSubField("year");
+
       storeFieldsMappings();
     } catch (Exception e) {
       LOG.error("Error getting mapping of analytics", e);
     }
     return new HashSet<>(esMappings.values());
+  }
+
+  private void addESDateSubField(String dateFieldName) {
+    StatisticFieldMapping fieldMapping = new StatisticFieldMapping("doc['timestamp'].date." + dateFieldName, "long", false, true);
+    esMappings.put(fieldMapping.getName(), fieldMapping);
   }
 
   @Override
@@ -231,11 +244,13 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   @Override
-  public TableColumnResult computeTableColumnData(AnalyticsTableFilter tableFilter,
+  public TableColumnResult computeTableColumnData(TableColumnResult columnResult,
+                                                  AnalyticsTableFilter tableFilter,
                                                   AnalyticsFilter filter,
                                                   AnalyticsPeriod period,
                                                   AnalyticsPeriodType periodType,
-                                                  int columnIndex) {
+                                                  int columnIndex,
+                                                  boolean isValue) {
     if (filter == null) {
       throw new IllegalArgumentException("Filter is mandatory");
     }
@@ -250,10 +265,12 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
     String jsonResponse = this.esClient.sendRequest(esQueryString);
     try {
-      return buildTableColumnDataFromESResponse(tableFilter,
+      return buildTableColumnDataFromESResponse(columnResult,
+                                                tableFilter,
                                                 period,
                                                 periodType,
                                                 columnIndex,
+                                                isValue,
                                                 jsonResponse,
                                                 filter.getLimit());
     } catch (JSONException e) {
@@ -549,9 +566,20 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
         esQuery.append("         \"")
                .append(aggregationType.getAggName())
                .append("\": {");
-        esQuery.append("           \"field\": \"")
-               .append(aggregation.getField())
-               .append("\"");
+        String aggregationFieldName = aggregation.getField();
+        StatisticFieldMapping aggregationField = getFieldMapping(aggregationFieldName);
+        if (aggregationField == null || !aggregationField.isScriptedField()) {
+          esQuery.append("           \"field\": \"")
+                 .append(aggregationFieldName)
+                 .append("\"");
+        } else {
+          esQuery.append("           \"script\": {")
+                 .append("             \"lang\": \"painless\",")
+                 .append("             \"source\": \"")
+                 .append(aggregationFieldName)
+                 .append("\"")
+                 .append("}");
+        }
 
         if (aggregationType.isUseInterval()) {
           esQuery.append(",")
@@ -703,13 +731,17 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     percentageResult.setDataCount(percentageResult.getDataCount() + chartValue.getDataCount());
   }
 
-  private TableColumnResult buildTableColumnDataFromESResponse(AnalyticsTableFilter tableFilter,
+  private TableColumnResult buildTableColumnDataFromESResponse(TableColumnResult tableColumnResult, // NOSONAR
+                                                               AnalyticsTableFilter tableFilter,
                                                                AnalyticsPeriod period,
                                                                AnalyticsPeriodType periodType,
                                                                int columnIndex,
+                                                               boolean isValue,
                                                                String jsonResponse,
                                                                long limit) throws JSONException {
-    TableColumnResult tableColumnResult = new TableColumnResult();
+    if (tableColumnResult == null) {
+      tableColumnResult = new TableColumnResult();
+    }
     JSONObject json = new JSONObject(jsonResponse);
     JSONObject aggregations = json.has("aggregations") ? json.getJSONObject("aggregations") : null;
     if (aggregations == null) {
@@ -725,6 +757,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     }
     AnalyticsTableColumnFilter columnFilter = tableFilter.getColumnFilter(columnIndex);
     LinkedHashMap<String, TableColumnItemValue> itemValues = new LinkedHashMap<>();
+    tableColumnResult.getItems().forEach(item -> itemValues.put(item.getKey(), item));
     if (columnFilter.isPreviousPeriod()) {
       AnalyticsPeriod currentPeriod = tableFilter.getCurrentPeriod(period, periodType);
       AnalyticsPeriod previousPeriod = tableFilter.getPreviousPeriod(period, periodType);
@@ -741,7 +774,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
             JSONObject subBucket = subBuckets.getJSONObject(j);
             String key = subBucket.getString("key");
             TableColumnItemValue itemValue = itemValues.computeIfAbsent(key, mapKey -> new TableColumnItemValue());
-            computeColumnItemValue(itemValue, subBucket, isCurrent, true);
+            computeColumnItemValue(itemValue, subBucket, isCurrent, isValue);
           }
         }
       }
@@ -749,7 +782,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       for (int i = 0; i < buckets.length(); i++) {
         JSONObject bucket = buckets.getJSONObject(i);
         TableColumnItemValue itemValue = new TableColumnItemValue();
-        computeColumnItemValue(itemValue, bucket, true, true);
+        computeColumnItemValue(itemValue, bucket, true, isValue);
         itemValues.put(itemValue.getKey(), itemValue);
       }
     }
@@ -1016,6 +1049,10 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       results.add(statisticData);
     }
     return results;
+  }
+
+  private StatisticFieldMapping getFieldMapping(String fieldName) {
+    return esMappings.get(fieldName);
   }
 
   private void readFieldsMapping() {

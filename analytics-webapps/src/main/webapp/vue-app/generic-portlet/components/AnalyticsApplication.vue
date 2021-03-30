@@ -157,7 +157,6 @@ export default {
     userObjects: {},
     spaceObjects: {},
     loading: true,
-    timeZoneOffset: new Date().getTimezoneOffset() * 60 * 1000,
     appId: `AnalyticsApplication${parseInt(Math.random() * 10000)
       .toString()
       .toString()}`,
@@ -319,8 +318,8 @@ export default {
       this.loading = true;
       const params = {
         lang: eXo.env.portal.language,
-        min: this.selectedPeriod.min - this.timeZoneOffset,
-        max: this.selectedPeriod.max + 60000 - this.timeZoneOffset,
+        min: this.selectedPeriod.min - this.$analyticsUtils.TIMEZONE_OFFSET_MS,
+        max: this.selectedPeriod.max + 60000 - this.$analyticsUtils.TIMEZONE_OFFSET_MS,
       };
       return fetch(this.retrieveChartDataUrl, {
         method: 'POST',

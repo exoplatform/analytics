@@ -29,18 +29,22 @@ public interface AnalyticsService {
   /**
    * Retrieve analytics table data
    * 
+   * @param columnResult existing column result to use for result comptuing
    * @param tableFilter overall configured table filter
    * @param filter used search filters and aggregations to compute data
    * @param period selected {@link AnalyticsPeriod}
    * @param periodType selected {@link AnalyticsPeriodType}
    * @param columnIndex column index in the configured table filter
+   * @param isValue whether the filter to compute is for value or threshold
    * @return computed analytics table column data
    */
-  TableColumnResult computeTableColumnData(AnalyticsTableFilter tableFilter,
+  TableColumnResult computeTableColumnData(TableColumnResult columnResult,
+                                           AnalyticsTableFilter tableFilter,
                                            AnalyticsFilter filter,
                                            AnalyticsPeriod period,
                                            AnalyticsPeriodType periodType,
-                                           int columnIndex);
+                                           int columnIndex,
+                                           boolean isValue);
 
   /**
    * Retrieve analytics percentage chart data

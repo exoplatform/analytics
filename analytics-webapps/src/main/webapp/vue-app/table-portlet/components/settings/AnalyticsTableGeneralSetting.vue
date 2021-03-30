@@ -22,7 +22,7 @@
         :label="$t('analytics.tableMainColumnTitle')"
         required />
       <analytics-field-selection
-        v-model="settings.mainColumn.aggregation.field"
+        v-model="settings.mainColumn.valueAggregation.aggregation.field"
         :fields-mappings="fieldsMappings"
         :label="$t('analytics.fieldName')"
         aggregation />
