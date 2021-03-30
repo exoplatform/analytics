@@ -170,9 +170,13 @@ export default {
     },
     getI18N(label){
       const field = label.split('=')[1];
-      const fieldLabelI18NKey = `analytics.${field}`;
-      const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
-      return  fieldLabelI18NValue === fieldLabelI18NKey ? field : fieldLabelI18NValue;
+      if (field) {
+        const fieldLabelI18NKey = `analytics.${field}`;
+        const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
+        return  fieldLabelI18NValue === fieldLabelI18NKey ? field : fieldLabelI18NValue;
+      } else {
+        return label;
+      }
     }
   }
 };
