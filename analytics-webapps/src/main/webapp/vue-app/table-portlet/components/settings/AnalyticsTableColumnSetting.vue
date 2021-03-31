@@ -15,14 +15,12 @@
             v-if="useUserField"
             v-model="column.userField"
             :items="userFields"
-            :label="$t('analytics.userField')"
-            @change="updateColumnDataType('user')" />
+            :label="$t('analytics.userField')" />
           <analytics-identity-field-selection
             v-else-if="useSpaceField"
             v-model="column.spaceField"
             :items="spaceFields"
-            :label="$t('analytics.userField')"
-            @change="updateColumnDataType('space')" />
+            :label="$t('analytics.spaceField')" />
         </template>
       </template>
       <template v-if="!canEnableIdentityFields || !useIdentityField">
@@ -192,7 +190,7 @@ export default {
       }
     },
     canEnableIdentityFields() {
-      if(!this.canEnableIdentityFields) {
+      if(!this.canEnableIdentityFields && !this.useIdentityField) {
         this.column.userField = null;
         this.column.spaceField = null;
       }
@@ -210,7 +208,9 @@ export default {
     spaceField() {
       if (this.spaceField) {
         this.column.valueAggregation = null;
+        this.userField = null;
         this.computeThreshold = false;
+        this.updateColumnDataType('space');
       } else if (!this.column.valueAggregation) {
         this.column.valueAggregation = {
           aggregation: {},
@@ -221,7 +221,9 @@ export default {
     userField() {
       if (this.userField) {
         this.column.valueAggregation = null;
+        this.spaceField = null;
         this.computeThreshold = false;
+        this.updateColumnDataType('user');
       } else if (!this.column.valueAggregation) {
         this.column.valueAggregation = {
           aggregation: {},
@@ -242,13 +244,17 @@ export default {
     updateColumnDataType(field) {
       if (field === 'user' && this.column.userField) {
         this.column.spaceField = null;
-        this.column.valueAggregation.aggregation.field = null;
+        if (this.column.valueAggregation && this.column.valueAggregation.aggregation) {
+          this.column.valueAggregation.aggregation.field = null;
+        }
         const columnMaping = this.userFields.find(mapping => mapping && mapping.name === this.column.userField);
         this.column.dataType = columnMaping && columnMaping.type;
         this.column.sortable = false;
       } if (field === 'space' && this.column.spaceField) {
         this.column.userField = null;
-        this.column.valueAggregation.aggregation.field = null;
+        if (this.column.valueAggregation && this.column.valueAggregation.aggregation) {
+          this.column.valueAggregation.aggregation.field = null;
+        }
         const columnMaping = this.spaceFields.find(mapping => mapping && mapping.name === this.column.spaceField);
         this.column.dataType = columnMaping && columnMaping.type;
         this.column.sortable = false;

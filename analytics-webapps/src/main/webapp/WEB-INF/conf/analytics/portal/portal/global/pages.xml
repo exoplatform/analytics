@@ -451,6 +451,7 @@
                    "columns":[
                       {
                          "title":"analytics.creationDate",
+                         "userField":"createdDate",
                          "dataType":"date"
                       },
                       {
@@ -600,9 +601,7 @@
                    "columns":[
                       {
                          "title":"analytics.creationDate",
-                         "previousPeriod":false,
                          "spaceField":"createdTime",
-                         "sortable":false,
                          "dataType":"date"
                       },
                       {
