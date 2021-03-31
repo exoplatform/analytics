@@ -17,7 +17,7 @@
       persistent-hint
       dense
       chips
-      @change="updateData" />
+      @input="updateData" />
   </div>
 </template>
 
