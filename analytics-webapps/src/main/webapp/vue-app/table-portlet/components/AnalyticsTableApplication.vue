@@ -304,6 +304,7 @@ export default {
       this.loading = true;
 
       const settingsToSave = JSON.parse(JSON.stringify(settings));
+
       // Cleanup saved settings
       settingsToSave.columns.forEach(column => {
         if (!column.valueAggregation || !column.valueAggregation.aggregation || !column.valueAggregation.aggregation.type) {

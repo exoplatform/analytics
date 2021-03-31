@@ -90,6 +90,12 @@ public class AnalyticsTableFilter implements Serializable, Cloneable {
       filters.add(fieldFilter);
     }
 
+    if (this.mainColumn.getValueAggregation() != null
+        && this.mainColumn.getValueAggregation().getFilters() != null
+        && !this.mainColumn.getValueAggregation().getFilters().isEmpty()) {
+      filters.addAll(this.mainColumn.getValueAggregation().getFilters());
+    }
+
     if (period != null && !columnAggregation.isPeriodIndependent()) {
       addPeriodFilter(period, periodType, xAxisAggregations, filters, column.isPreviousPeriod());
     }
@@ -147,10 +153,15 @@ public class AnalyticsTableFilter implements Serializable, Cloneable {
       if (periodType == null) {
         previousPeriod = period.previousPeriod();
         fromInMS = previousPeriod.getFromInMS();
-        interval = period.getInterval();
-        long offsetLong = (fromInMS / 86400000l) % period.getDiffInDays();
-        if (offsetLong > 0) {
-          offset = offsetLong + "d";
+        long diffInDays = period.getDiffInDays();
+        if (diffInDays > 0) {
+          interval = period.getInterval();
+          long offsetLong = (fromInMS / 86400000l) % diffInDays;
+          if (offsetLong > 0) {
+            offset = offsetLong + "d";
+          }
+        } else {
+          interval = "1d";
         }
       } else {
         previousPeriod = periodType.getPreviousPeriod(period.getFrom());

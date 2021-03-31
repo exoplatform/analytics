@@ -476,10 +476,10 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
 
     tableColumnItemValue = columnData.getItems().get(0);
     assertNotNull(tableColumnItemValue);
-    assertEquals("logout,login", tableColumnItemValue.getValue());
+    assertEquals(Arrays.asList("logout", "login"), tableColumnItemValue.getValue());
 
     tableColumnItemValue = columnData.getItems().get(32);
     assertNotNull(tableColumnItemValue);
-    assertEquals("logout,login", tableColumnItemValue.getValue());
+    assertEquals(Arrays.asList("logout","login"), tableColumnItemValue.getValue());
   }
 }

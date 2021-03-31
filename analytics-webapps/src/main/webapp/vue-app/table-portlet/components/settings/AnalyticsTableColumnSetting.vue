@@ -38,7 +38,8 @@
           class="my-2 text-no-wrap" />
         <analytics-table-column-aggregation-setting
           :column-aggregation="column.valueAggregation"
-          :fields-mappings="fieldsMappings" />
+          :fields-mappings="fieldsMappings"
+          @change="updateColumnDataType('aggregation')" />
         <template v-if="!isTermsAggregation">
           <v-switch
             v-model="computeThreshold"
@@ -251,12 +252,21 @@ export default {
         const columnMaping = this.spaceFields.find(mapping => mapping && mapping.name === this.column.spaceField);
         this.column.dataType = columnMaping && columnMaping.type;
         this.column.sortable = false;
-      } else if (this.column.valueAggregation && this.column.valueAggregation.aggregation.field) {
-        this.column.userField = null;
-        this.column.spaceField = null;
-        const columnMaping = this.fieldsMappings.find(mapping => mapping && mapping.name === this.column.valueAggregation.aggregation.field);
-        this.column.dataType = columnMaping && columnMaping.type;
+      } else if (this.column.valueAggregation && this.column.valueAggregation.aggregation && this.column.valueAggregation.aggregation.type) {
         this.column.sortable = this.column.valueAggregation.aggregation.type !== 'TERMS';
+        this.column.dataType = null;
+
+        if (this.column.valueAggregation.aggregation.field) {
+          const columnMaping = this.fieldsMappings.find(mapping => mapping && mapping.name === this.column.valueAggregation.aggregation.field);
+          this.column.dataType = columnMaping && columnMaping.type;
+        } else if (this.column.valueAggregation.aggregation.type === 'COUNT') {
+          this.column.dataType = 'long';
+        }
+
+        if (this.column.dataType) {
+          this.column.userField = null;
+          this.column.spaceField = null;
+        }
       }
     },
   },

@@ -9,12 +9,12 @@ public class TableColumnItemValue {
 
   private String key;
 
-  private String value;
+  private Object value;
 
-  private String threshold;
+  private Object threshold;
 
-  private String previousValue;
+  private Object previousValue;
 
-  private String previousThreshold;
+  private Object previousThreshold;
 
 }
