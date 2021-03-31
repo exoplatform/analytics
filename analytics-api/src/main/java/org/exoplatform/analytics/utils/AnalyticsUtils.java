@@ -353,10 +353,14 @@ public class AnalyticsUtils {
     statisticData.addParameter("spaceVisibility", space.getVisibility());
     statisticData.addParameter("spaceRegistration", space.getRegistration());
     statisticData.addParameter("spaceCreatedTime", space.getCreatedTime());
-    statisticData.addParameter("spaceMembersCount", space.getMembers() == null ? 0 : space.getMembers().length);
-    statisticData.addParameter("spaceManagersCount", space.getManagers() == null ? 0 : space.getManagers().length);
-    statisticData.addParameter("spaceRedactorsCount", space.getRedactors() == null ? 0 : space.getRedactors().length);
-    statisticData.addParameter("spaceInviteesCount", space.getInvitedUsers() == null ? 0 : space.getInvitedUsers().length);
-    statisticData.addParameter("spacePendingCount", space.getPendingUsers() == null ? 0 : space.getPendingUsers().length);
+    statisticData.addParameter("spaceMembersCount", getSize(space.getMembers()));
+    statisticData.addParameter("spaceManagersCount", getSize(space.getManagers()));
+    statisticData.addParameter("spaceRedactorsCount", getSize(space.getRedactors()));
+    statisticData.addParameter("spaceInviteesCount", getSize(space.getInvitedUsers()));
+    statisticData.addParameter("spacePendingCount", getSize(space.getPendingUsers()));
+  }
+
+  private static int getSize(String[] array) {
+    return array == null ? 0 : new HashSet<>(Arrays.asList(array)).size();
   }
 }
