@@ -774,15 +774,26 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
             JSONObject subBucket = subBuckets.getJSONObject(j);
             String key = subBucket.getString("key");
             TableColumnItemValue itemValue = itemValues.computeIfAbsent(key, mapKey -> new TableColumnItemValue());
-            computeColumnItemValue(itemValue, subBucket, isCurrent, isValue);
+            itemValue.setKey(key);
+            if (columnIndex == 0) {
+              itemValue.setValue(key);
+            } else {
+              computeColumnItemValue(itemValue, subBucket, isCurrent, isValue);
+            }
           }
         }
       }
     } else {
       for (int i = 0; i < buckets.length(); i++) {
         JSONObject bucket = buckets.getJSONObject(i);
+        String key = bucket.getString("key");
         TableColumnItemValue itemValue = new TableColumnItemValue();
-        computeColumnItemValue(itemValue, bucket, true, isValue);
+        itemValue.setKey(key);
+        if (columnIndex == 0) {
+          itemValue.setValue(key);
+        } else {
+          computeColumnItemValue(itemValue, bucket, true, isValue);
+        }
         itemValues.put(itemValue.getKey(), itemValue);
       }
     }
@@ -800,8 +811,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                                       JSONObject bucket,
                                       boolean isCurrent,
                                       boolean isValue) throws JSONException {
-    itemValue.setKey(bucket.getString("key"));
-    String value;
+    Object value;
     if (bucket.has(AGGREGATION_RESULT_VALUE_PARAM)) {
       value = bucket.getJSONObject(AGGREGATION_RESULT_VALUE_PARAM).getString("value");
     } else if (bucket.has(AGGREGATION_RESULT_PARAM)) {
@@ -814,7 +824,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
           values.add(subAggregationBucket.getString("key"));
         }
       }
-      value = StringUtils.join(values, ",");
+      value = values;
     } else if (bucket.has("value")) {
       value = bucket.getString("value");
     } else {

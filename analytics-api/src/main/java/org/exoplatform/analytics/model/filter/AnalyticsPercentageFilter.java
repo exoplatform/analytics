@@ -183,9 +183,12 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
     xAxisAggregation.setMaxBound(getCurrentAnalyticsPeriod().getToInMS() - 1000);
     xAxisAggregation.setUseBounds(true);
     if (customPeriod != null) {
-      long offset = (xAxisAggregation.getMinBound() / 86400000l) % customPeriod.getDiffInDays();
-      if (offset > 0) {
-        xAxisAggregation.setOffset(offset + "d");
+      long diffInDays = customPeriod.getDiffInDays();
+      if (diffInDays > 0) {
+        long offset = (xAxisAggregation.getMinBound() / 86400000l) % diffInDays;
+        if (offset > 0) {
+          xAxisAggregation.setOffset(offset + "d");
+        }
       }
     } else {
       AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();

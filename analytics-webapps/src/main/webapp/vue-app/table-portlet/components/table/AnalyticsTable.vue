@@ -1,15 +1,16 @@
 <template>
   <v-data-table
+    ref="dataTable"
     :headers="headers"
     :items="items"
     :items-per-page="pageSize"
     :loading="loading"
     :options.sync="options"
+    :locale="lang"
     hide-default-footer
     disable-pagination
     disable-filtering
-    sort-desc
-    class="analytics-table">
+    class="analytics-table px-2">
     <template
       v-for="header in headers"
       v-slot:[`item.${header.value}`]="{item}">
@@ -88,6 +89,7 @@ export default {
   data: () => ({
     limit: 10,
     pageSize: 10,
+    lang: eXo.env.portal.language,
     options: {},
     items: [],
     loading: false,
@@ -96,7 +98,7 @@ export default {
   }),
   computed: {
     hasMore() {
-      return this.limit === this.items.length;
+      return (this.loading && this.limit > this.pageSize) || this.limit === this.items.length;
     },
     mainFieldName() {
       return this.settings && this.settings.mainColumn && this.settings.mainColumn.valueAggregation
@@ -104,12 +106,7 @@ export default {
         && this.settings.mainColumn.valueAggregation.aggregation.field;
     },
     mainFieldValues() {
-      if (this.mainFieldName === 'userId') {
-        return this.items.filter(item => item.column0 && item.column0.id).map(item => item.column0.id);
-      } else if (this.mainFieldName === 'spaceId') {
-        return this.items.filter(item => item.column0 && item.column0.id).map(item => item.column0.id);
-      }
-      return this.items.map(item => item.column0);
+      return this.items.map(item => item.column0 && item.column0.key);
     },
     headers() {
       if (!this.settings) {
@@ -138,7 +135,7 @@ export default {
         Disabled: this.$t('UsersManagement.status.disabled'),
         join: this.$t('spacesList.button.join'),
         leave: this.$t('spacesList.button.leave'),
-        members: this.$t('spacesList.label.members'),
+        members: this.$t('peopleList.label.filter.member'),
       };
     },
   },
@@ -164,12 +161,6 @@ export default {
   },
   methods: {
     addHeader(headers, column, index) {
-      const columnAggregationField = column.valueAggregation && column.valueAggregation.aggregation && column.valueAggregation.aggregation.field;
-      const columnAggregationType = column.valueAggregation && column.valueAggregation.aggregation && column.valueAggregation.aggregation.type;
-      const dataType = (columnAggregationField === 'userId' && columnAggregationType === 'TERMS' && 'userIdentity')
-                      || (columnAggregationField === 'spaceId' && columnAggregationType === 'TERMS' && 'spaceIdentity')
-                      || column.dataType
-                      || 'text';
       headers.push({
         text: column.title && this.$t(column.title) || '',
         align: 'center',
@@ -177,7 +168,7 @@ export default {
         value: `column${index}`,
         class: 'text-no-wrap',
         width: 'auto',
-        dataType,
+        dataType: column.dataType || 'text',
         column
       });
     },
@@ -218,73 +209,47 @@ export default {
       column.loading = true;
       const templateItem = {};
       this.headers.forEach(header => {
-        templateItem[header.value] = 'loading';
+        templateItem[header.value] = {value: 'loadingData'};
       });
 
       const columnAggregationField = column.valueAggregation && column.valueAggregation.aggregation && column.valueAggregation.aggregation.field;
       const columnAggregationType = column.valueAggregation && column.valueAggregation.aggregation && column.valueAggregation.aggregation.type;
-      if (columnIndex === 0 && columnAggregationField === 'userId' && columnAggregationType === 'TERMS') {
-        const retrieveIdentitiesPromise = this.selectedIdentity && this.$identityService.getIdentityByProviderIdAndRemoteId(this.selectedIdentity.providerId, this.selectedIdentity.remoteId, 'all').then(identity => identity && identity.profile)
-          || this.$userService.getUsers('', 0, limit, 'all', true);
-        return retrieveIdentitiesPromise
-          .then(data => {
-            if (data) {
-              if (this.selectedIdentity) {
-                const item = Object.assign({}, templateItem);
-                item[`column${columnIndex}`] = data;
-                this.items.push(item);
-              } else {
-                data.users.forEach((user, index) => {
-                  if (this.items.length <= index) {
-                    const item = Object.assign({}, templateItem);
-                    item[`column${columnIndex}`] = user;
-                    this.items.push(item);
-                  } else {
-                    this.items[index][`column${columnIndex}`] = user;
-                  }
-                });
-              }
+      if (this.selectedIdentity && columnIndex === 0 && columnAggregationField === 'userId' && columnAggregationType === 'TERMS') {
+        return this.$identityService.getIdentityByProviderIdAndRemoteId(this.selectedIdentity.providerId, this.selectedIdentity.remoteId, 'all')
+          .then(identity => {
+            const user = identity.profile;
+            if (user) {
+              const item = Object.assign({}, templateItem);
+              item[`column${columnIndex}`] = {
+                key: user && user.id,
+                value: user && user.id,
+                identity: user && user.profile,
+              };
+              this.items.push(item);
             }
           });
-      } else if (columnIndex === 0 && columnAggregationField === 'spaceId' && columnAggregationType === 'TERMS') {
-        const retrieveIdentitiesPromise = this.selectedIdentity && this.$identityService.getIdentityByProviderIdAndRemoteId(this.selectedIdentity.providerId, this.selectedIdentity.remoteId).then(identity => identity && identity.space)
-          || this.$spaceService.getSpaces('', 0, limit, 'all');
-        return retrieveIdentitiesPromise
-          .then(data => {
-            if (data) {
-              if (this.selectedIdentity) {
-                const item = Object.assign({}, templateItem);
-                item[`column${columnIndex}`] = data;
-                this.items.push(item);
-              } else {
-                data.spaces.forEach((space, index) => {
-                  if (this.items.length <= index) {
-                    const item = Object.assign({}, templateItem);
-                    item[`column${columnIndex}`] = space;
-                    this.items.push(item);
-                  } else {
-                    this.items[index][`column${columnIndex}`] = space;
-                  }
-                });
-              }
+      } else if (this.selectedIdentity && columnIndex === 0 && columnAggregationField === 'spaceId' && columnAggregationType === 'TERMS') {
+        return this.$identityService.getIdentityByProviderIdAndRemoteId(this.selectedIdentity.providerId, this.selectedIdentity.remoteId)
+          .then(identity => {
+            const space = identity && identity.space;
+            if (space) {
+              const item = Object.assign({}, templateItem);
+              item[`column${columnIndex}`] = {
+                key: space && space.id,
+                value: space && space.id,
+                identity: space,
+              };
+              this.items.push(item);
             }
           });
-      } else if (column.userField) {
-        this.items.forEach(item => {
-          item[`column${columnIndex}`] = item.column0 && item.column0[column.userField];
-        });
-      } else if (column.spaceField) {
-        this.items.forEach(item => {
-          item[`column${columnIndex}`] = item.column0 && item.column0[column.spaceField];
-        });
-      } else {
+      } else if (!column.userField && !column.spaceField && column.valueAggregation && column.valueAggregation.aggregation) {
         const params = {
           lang: eXo.env.portal.language,
           column: columnIndex,
           limit: String(limit || 0),
           periodType: this.period.period || '',
           min: this.period.min - this.$analyticsUtils.TIMEZONE_OFFSET_MS,
-          max: this.period.max - this.$analyticsUtils.TIMEZONE_OFFSET_MS,
+          max: this.period.max + 60000 - this.$analyticsUtils.TIMEZONE_OFFSET_MS,
         };
         if (sort) {
           params.sort = sort;
@@ -308,62 +273,47 @@ export default {
             }
           })
           .then((data) => {
-            if (!limit) {
-              const promises = [];
+            if (limit) { // First retrieved column, coul be main or sorted column
+              if (data && data.items && data.items.length) {
+                data.items.forEach((columnItem, index) => {
+                  const item = (this.items.length <= index || !this.items.length) && Object.assign({}, templateItem) || this.items[index][`column${columnIndex}`];
+                  item[`column${columnIndex}`] = columnItem;
+                  // Set list of main column values
+                  item['column0'] = {
+                    key: columnItem.key,
+                    value: columnItem.key,
+                    identity: null, // will be retrieved from corresponding component
+                  };
+                  if (this.items.length <= index) {
+                    this.items.push(item);
+                  }
+                });
+              }
+            } else {
               this.items.forEach((item, index) => {
                 const columnItem = data && data.items && data.items.find(item => item.key === this.mainFieldValues[index]);
-                if (columnItem && columnItem.value && columnAggregationField === 'userId' && columnAggregationType === 'TERMS') {
-                  promises.push(this.$identityService.getIdentityById(columnItem.value)
-                    .then(identity => item[`column${columnIndex}`] = identity && identity.profile)
-                    .catch(() => item[`column${columnIndex}`] = null));
-                } else if (columnItem && columnItem.value && columnAggregationField === 'spaceId' && columnAggregationType === 'TERMS') {
-                  promises.push(this.$spaceService.getSpaceById(columnItem.value)
-                    .then(space => item[`column${columnIndex}`] = space)
-                    .catch(() => item[`column${columnIndex}`] = null));
-                } else {
-                  item[`column${columnIndex}`] = columnItem;
-                }
-              });
-              return Promise.all(promises);
-            } else if (data && data.items && data.items.length) {
-              const promises = [];
-              data.items.forEach((columnItem, index) => {
-                const item = this.items.length <= index && Object.assign({}, templateItem) || this.items[index][`column${columnIndex}`];
                 item[`column${columnIndex}`] = columnItem;
-                if (this.mainFieldName === 'userId') {
-                  if (columnItem.key && columnItem.key !== '0') {
-                    promises.push(this.$identityService.getIdentityById(columnItem.key)
-                      .then(identity => item['column0'] = identity && identity.profile)
-                      .catch(() => item['column0'] = null));
-                  } else {
-                    item['column0'] = null;
-                  }
-                } else if (this.mainFieldName === 'spaceId') {
-                  if (columnItem.key && columnItem.key !== '0') {
-                    promises.push(this.$spaceService.getSpaceById(columnItem.key)
-                      .then(space => item['column0'] = space)
-                      .catch(() => item['column0'] = null));
-                  } else {
-                    item['column0'] = null;
-                  }
-                } else {
-                  item['column0'] = columnItem && columnItem.value || columnItem.id || columnItem;
-                }
-                if (this.items.length <= index) {
-                  this.items.push(item);
-                }
               });
-              return Promise.all(promises);
             }
           })
           .catch((e) => {
             console.debug('fetch analytics - error', e);
             this.error = 'Error getting analytics';
             this.items.forEach(item => {
-              item[`column${columnIndex}`] = 'error';
+              item[`column${columnIndex}`] = {value: 'errorRetrievingData'};
             });
           })
           .finally(() => column.loading = false);
+      } else {
+        this.items.forEach(item => {
+          if (!item[`column${columnIndex}`]) {
+            item[`column${columnIndex}`] = {
+              key: item['column0'] && item['column0'].key,
+            };
+          } else if (item[`column${columnIndex}`].value === 'loadingData') {
+            item[`column${columnIndex}`].value = null;
+          }
+        });
       }
     },
   },

@@ -120,7 +120,7 @@ public class AnalyticsTablePortlet extends GenericPortlet {
       String analyticsPeriodType = request.getParameter("periodType");
       if (StringUtils.isNotBlank(analyticsPeriodType)) {
         periodType = AnalyticsPeriodType.periodTypeByName(analyticsPeriodType);
-        period = periodType.getCurrentPeriod(period.getTo());
+        period = tableFilter.getCurrentPeriod(period, periodType);
       }
       AnalyticsFieldFilter fieldFilter = null;
 

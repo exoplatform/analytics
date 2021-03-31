@@ -21,7 +21,8 @@
           :fields-mappings="fieldsMappings"
           :label="$t('analytics.fieldName')"
           attach
-          aggregation />
+          aggregation
+          @change="updateMainColumnDataType()" />
         <v-list nav>
           <v-subheader class="px-0">
             <h4>{{ $t('analytics.tableColumns') }}</h4>
@@ -161,8 +162,10 @@ export default {
     },
     addColumn() {
       this.columns.push({
-        aggregation: {
-          type: 'COUNT',
+        valueAggregation: {
+          aggregation: {
+            type: 'COUNT',
+          },
         },
         filter: [],
       });
@@ -194,6 +197,9 @@ export default {
             dataType: settings.mainColumn.dataType || 'text',
           };
         }
+        if (settings.mainColumn.valueAggregation && settings.mainColumn.valueAggregation.filters && settings.mainColumn.valueAggregation.filters.length) {
+          tableSettings.mainColumn.valueAggregation.filters = settings.mainColumn.valueAggregation.filters;
+        }
       }
       if (settings.columns && settings.columns.length) {
         settings.columns.forEach(column => {
@@ -224,6 +230,31 @@ export default {
       this.tableSettings = tableSettings;
       this.selectedColumn = 0;
       this.$refs.tableSettingDrawer.open();
+    },
+    updateMainColumnDataType() {
+      const mainColumn = this.tableSettings.mainColumn;
+      const mainColumnValueAggregation = mainColumn && mainColumn.valueAggregation;
+      const mainColumnAggregation = mainColumnValueAggregation && mainColumnValueAggregation.aggregation;
+      if (mainColumnAggregation) {
+        mainColumnAggregation.type = 'TERMS';
+        mainColumn.dataType = 'text';
+        if (mainColumnAggregation.field) {
+          const columnMaping = this.fieldsMappings.find(mapping => mapping && mapping.name === mainColumnAggregation.field);
+          mainColumn.dataType = columnMaping && columnMaping.type;
+        }
+
+        mainColumn.sortable = false;
+        mainColumn.userField = null;
+        mainColumn.spaceField = null;
+
+        if (mainColumn.dataType === 'long' || mainColumnAggregation.field === 'userId' || mainColumnAggregation.field === 'spaceId') {
+          mainColumnValueAggregation.filters = [{
+            field: mainColumnAggregation.field,
+            type: 'GREATER',
+            valueString: '1'
+          }];
+        }
+      }
     },
     save() {
       this.$emit('save', this.tableSettings);

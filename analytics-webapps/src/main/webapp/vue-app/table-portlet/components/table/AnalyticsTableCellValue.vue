@@ -1,0 +1,174 @@
+<template>
+  <span v-if="!value" :class="signClass">
+    -
+  </span>
+  <analytics-table-cell-user-value
+    v-else-if="isUserAggregation"
+    :value="value"
+    :item="item"
+    :labels="labels" />
+  <analytics-table-cell-space-value
+    v-else-if="isSpaceAggregation"
+    :value="value"
+    :item="item"
+    :labels="labels" />
+  <date-format
+    v-else-if="dataType === 'date'"
+    :value="dateValue"
+    :format="fullDateFormat" />
+  <span
+    v-else-if="percentage"
+    :class="signClass"
+    class="text-wrap">
+    <v-tooltip v-if="previousValue" bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <span
+          v-bind="attrs"
+          v-on="on">
+          {{ sign || '' }}{{ valueNumberAbs || '' }}%
+        </span>
+      </template>
+      <span>{{ $t('analytics.previousPeriodValue', {0: previousValue}) }}</span>
+    </v-tooltip>
+    <v-tooltip v-else-if="threshold" bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <span
+          :class="signClass"
+          v-bind="attrs"
+          v-on="on">
+          {{ sign || '' }}{{ valueNumberAbs || '' }}%
+        </span>
+      </template>
+      <span>{{ $t('analytics.percentOfValue', {0: originalValue, 1: threshold}) }}</span>
+    </v-tooltip>
+    <span v-else :class="signClass">{{ sign || '' }}{{ valueNumberAbs || '' }}%</span>
+  </span>
+  <span v-else-if="dataType === 'long' || dataType === 'double'" class="text-no-wrap">
+    {{ valueNumber }}
+  </span>
+  <span v-else class="text-no-wrap">
+    {{ i18NValue }}
+  </span>
+</template>
+
+<script>
+export default {
+  props: {
+    value: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+    previousValue: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+    originalValue: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+    threshold: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+    field: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+    aggregationType: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+    dataType: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+    percentage: {
+      type: Boolean,
+      default: false,
+    },
+    compare: {
+      type: Boolean,
+      default: false,
+    },
+    item: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+    labels: {
+      type: Object,
+      default: function() {
+        return null;
+      },
+    },
+  },
+  data: () => ({
+    fullDateFormat: {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    },
+  }),
+  computed: {
+    i18NValue() {
+      const key = `analytics.${this.value}`;
+      const i18NValue = this.$t(key);
+      return i18NValue === key ? this.value : i18NValue;
+    },
+    dateValue() {
+      if (this.value && !Number.isNaN(Number(this.value))) {
+        return new Date(Number(this.value));
+      }
+      return null;
+    },
+    valueNumber() {
+      const cellItemValueNumber = this.value && Number(this.value) || 0;
+      return cellItemValueNumber && this.$analyticsUtils.toFixed(cellItemValueNumber) || 0;
+    },
+    valueNumberAbs() {
+      return Math.abs(this.valueNumber);
+    },
+    isUserAggregation() {
+      return this.field === 'userId' && this.aggregationType === 'TERMS';
+    },
+    isSpaceAggregation() {
+      return this.field === 'spaceId' && this.aggregationType === 'TERMS';
+    },
+    sign() {
+      if (!this.compare) {
+        return '';
+      } else if(this.valueNumber > 0) {
+        return '+';
+      } else {
+        return '-';
+      }
+    },
+    signClass() {
+      if (!this.compare) {
+        return '';
+      } else if (this.valueNumber >= 0) {
+        return 'success--text';
+      } else {
+        return 'error--text';
+      }
+    },
+  },
+};
+</script>

@@ -13,45 +13,44 @@ public class AnalyticsPeriod implements Serializable, Cloneable {
 
   private static final long serialVersionUID = 2730342636949170231L;
 
-  private LocalDate         from;
+  private long              fromInMS;
 
-  private LocalDate         to;
+  private long              toInMS;
 
   private String            interval;
 
   public AnalyticsPeriod(long fromInMS, long toInMS) {
-    this.from = Instant.ofEpochMilli(fromInMS).atZone(ZoneOffset.UTC).toLocalDate();
-    this.to = Instant.ofEpochMilli(toInMS).atZone(ZoneOffset.UTC).toLocalDate();
+    this.fromInMS = fromInMS;
+    this.toInMS = toInMS;
     this.interval = getDiffInDays() + "d";
   }
 
   public AnalyticsPeriod(LocalDate from, LocalDate to) {
-    this.from = from;
-    this.to = to;
+    this.fromInMS = from.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    this.toInMS = to.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
     this.interval = getDiffInDays() + "d";
   }
 
-  public long getToInMS() {
-    if (to == null) {
-      return 0;
-    }
-    return to.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+  public AnalyticsPeriod(LocalDate from, LocalDate to, String interval) {
+    this.fromInMS = from.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    this.toInMS = to.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    this.interval = interval;
   }
 
-  public long getFromInMS() {
-    if (from == null) {
-      return 0;
-    }
-    return from.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+  public LocalDate getFrom() {
+    return Instant.ofEpochMilli(fromInMS).atZone(ZoneOffset.UTC).toLocalDate();
+  }
+
+  public LocalDate getTo() {
+    return Instant.ofEpochMilli(toInMS).atZone(ZoneOffset.UTC).toLocalDate();
   }
 
   public AnalyticsPeriod previousPeriod() {
-    long diffDays = getDiffInDays();
-    return new AnalyticsPeriod(from.minusDays(diffDays), to.minusDays(diffDays));
+    return new AnalyticsPeriod(fromInMS - (toInMS - fromInMS), fromInMS);
   }
 
   public long getDiffInDays() {
-    return ChronoUnit.DAYS.between(from, to);
+    return ChronoUnit.DAYS.between(getFrom(), getTo());
   }
 
   public boolean isInPeriod(long timestamp) {
@@ -59,12 +58,13 @@ public class AnalyticsPeriod implements Serializable, Cloneable {
   }
 
   public boolean isInPeriod(LocalDate date) {
-    return (date.isAfter(from) || date.isEqual(from)) && date.isBefore(to);
+    long dateInMS = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    return dateInMS >= fromInMS && dateInMS < toInMS;
   }
 
   @Override
   protected AnalyticsPeriod clone() {// NOSONAR
-    return new AnalyticsPeriod(from, to);
+    return new AnalyticsPeriod(fromInMS, toInMS);
   }
 
 }

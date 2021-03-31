@@ -21,7 +21,7 @@
           :numeric="numericAggregationField"
           attach
           aggregation
-          @change="$emit('fieldUpdated', columnAggregation, 'aggregation')" />
+          @change="$emit('change')" />
         <v-flex v-if="isTermsAggregation" class="px-2 mt-2 d-flex flex-row">
           <v-switch
             v-model="limitResults"
@@ -133,9 +133,10 @@ export default {
         this.columnAggregation.aggregation.type = this.aggregationType;
       } else {
         this.columnAggregation.aggregation = {
-          type: this.columnAggregation.aggregation,
+          type: this.aggregationType,
         };
       }
+      this.$emit('change');
     },
   },
   created() {
