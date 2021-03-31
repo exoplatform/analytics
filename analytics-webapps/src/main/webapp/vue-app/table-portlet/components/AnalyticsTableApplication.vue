@@ -137,43 +137,8 @@ export default {
     },
     userFields() {
       return [{
-        name: 'profession',
-        label: this.$t('analytics.profession'),
-        sortable: false,
-        type: 'string',
-      }, {
-        name: 'team',
-        label: this.$t('analytics.team'),
-        sortable: false,
-        type: 'string',
-      }, {
-        name: 'enabled',
-        label: this.$t('analytics.enabled'),
-        sortable: true,
-        type: 'boolean',
-      }, {
-        name: 'spacesCount',
-        label: this.$t('analytics.spacesCount'),
-        sortable: false,
-        type: 'long',
-      }, {
         name: 'createdDate',
         label: this.$t('analytics.createdDate'),
-        sortable: true,
-        type: 'date',
-      }, {
-        name: 'enrollmentDate',
-        label: this.$t('analytics.enrollmentDate'),
-        sortable: true,
-        type: 'date',
-      }, {
-        name: 'lastUpdatedTime',
-        label: this.$t('analytics.lastUpdatedTime'),
-        sortable: true,
-        type: 'date',
-      }, {
-        name: 'lastLoginTime',
-        label: this.$t('analytics.lastLoginTime'),
         sortable: true,
         type: 'date',
       }];
