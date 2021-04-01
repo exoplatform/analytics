@@ -118,8 +118,8 @@ export default {
       let loadedChartData;
       const params = {
         lang: eXo.env.portal.language,
-        min: this.selectedPeriod.min - this.$analyticsUtils.TIMEZONE_OFFSET_MS,
-        max: this.selectedPeriod.max + 60000 - this.$analyticsUtils.TIMEZONE_OFFSET_MS,
+        min: this.selectedPeriod.min - this.$analyticsUtils.getTimeZoneOffset(this.selectedPeriod.min),
+        max: this.selectedPeriod.max + 60000 - this.$analyticsUtils.getTimeZoneOffset(this.selectedPeriod.max),
         limit: this.limit,
       };
 
