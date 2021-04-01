@@ -166,7 +166,7 @@ export default {
         align: 'center',
         sortable: column.sortable,
         value: `column${index}`,
-        class: 'text-no-wrap',
+        class: 'text-break',
         width: 'auto',
         dataType: column.dataType || 'text',
         column

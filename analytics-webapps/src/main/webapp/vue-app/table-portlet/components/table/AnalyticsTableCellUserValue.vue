@@ -25,7 +25,13 @@
     :external="user.external"
     :retrieve-extra-information="false"
     class="analytics-table-user my-1"
-    avatar-class="border-color" />
+    avatar-class="border-color">
+    <template v-if="user.deleted === 'true'" slot="subTitle">
+      <v-chip small disabled>
+        {{ $t('analytics.deletedUser') }}
+      </v-chip>
+    </template>
+  </exo-user-avatar>
   <v-tooltip v-else bottom>
     <template v-slot:activator="{ on, attrs }">
       <i
