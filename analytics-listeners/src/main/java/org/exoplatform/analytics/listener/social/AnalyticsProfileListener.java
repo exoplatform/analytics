@@ -49,11 +49,8 @@ public class AnalyticsProfileListener extends ProfileListenerPlugin {
     statisticData.setModule("social");
     statisticData.setSubModule("profile");
     statisticData.setOperation(operation);
-    statisticData.setUserId(getUserIdentityId(username));
-    long currentUserIdentityId = getCurrentUserIdentityId();
-    if (currentUserIdentityId > 0) {
-      statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, currentUserIdentityId);
-    }
+    statisticData.setUserId(getCurrentUserIdentityId());
+    statisticData.addParameter(FIELD_SOCIAL_IDENTITY_ID, getUserIdentityId(username));
     return statisticData;
   }
 

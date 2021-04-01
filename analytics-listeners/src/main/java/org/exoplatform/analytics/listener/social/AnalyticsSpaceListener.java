@@ -118,48 +118,31 @@ public class AnalyticsSpaceListener extends SpaceListenerPlugin {
   }
 
   private StatisticData addSpaceStatisticEvent(SpaceLifeCycleEvent event, String operation) {
-    Space space = event.getSpace();
-
-    return buildStatisticData(operation, space, 0);
+    return buildStatisticData(operation, event.getSpace());
   }
 
   private StatisticData addApplicationStatisticEvent(SpaceLifeCycleEvent event, String operation) {
     Space space = event.getSpace();
     String applicationId = event.getSource();
 
-    StatisticData statisticData = buildStatisticData(operation, space, 0);
+    StatisticData statisticData = buildStatisticData(operation, space);
     statisticData.addParameter("applicationId", applicationId);
     return statisticData;
   }
 
   private StatisticData addUserStatisticEvent(SpaceLifeCycleEvent event, String operation) {
     Space space = event.getSpace();
-    String username = event.getSource();
-
-    return buildStatisticData(operation, space, getUserIdentityId(username));
+    return buildStatisticData(operation, space);
   }
 
-  private StatisticData buildStatisticData(String operation, Space space, long userId) {
-    long modifierUserId = getUserId(space.getEditor());
-
+  private StatisticData buildStatisticData(String operation, Space space) {
     StatisticData statisticData = new StatisticData();
     statisticData.setModule("social");
     statisticData.setSubModule("space");
     statisticData.setOperation(operation);
-    statisticData.setUserId(userId);
-    if (modifierUserId > 0) {
-      statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, modifierUserId);
-    }
+    statisticData.setUserId(getCurrentUserIdentityId());
     addSpaceStatistics(statisticData, space);
     return statisticData;
-  }
-
-  private long getUserId(String username) {
-    long userId = getUserIdentityId(username);
-    if (userId == 0) {
-      userId = getCurrentUserIdentityId();
-    }
-    return userId;
   }
 
 }

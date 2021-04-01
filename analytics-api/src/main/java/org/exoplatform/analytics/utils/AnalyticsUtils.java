@@ -16,6 +16,7 @@ import org.json.*;
 import org.exoplatform.analytics.api.service.StatisticDataQueueService;
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.analytics.model.StatisticData.StatisticStatus;
+import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -59,6 +60,8 @@ public class AnalyticsUtils {
 
   public static final String            FIELD_MODIFIER_USER_SOCIAL_ID    = "modifierSocialId";
 
+  public static final String            FIELD_SOCIAL_IDENTITY_ID         = "identityId";
+
   public static final String            AVATAR                           = "avatar";
 
   public static final String            IMAGE_SIZE                       = "imageSize";
@@ -66,6 +69,7 @@ public class AnalyticsUtils {
   public static final String            IMAGE_TYPE                       = "imageType";
 
   public static final List<String>      COMPUTED_CHART_LABEL             = Arrays.asList(FIELD_MODIFIER_USER_SOCIAL_ID,                                 // NOSONAR
+                                                                                         FIELD_SOCIAL_IDENTITY_ID,
                                                                                          FIELD_USER_ID,
                                                                                          FIELD_SPACE_ID);
 
@@ -260,7 +264,11 @@ public class AnalyticsUtils {
     return null;
   }
 
+  @ExoTransactional
   public static final void addStatisticData(StatisticData statisticData) {
+    if (statisticData == null) {
+      return;
+    }
     if (statisticData.getTimestamp() <= 0) {
       statisticData.setTimestamp(System.currentTimeMillis());
     }
@@ -268,8 +276,12 @@ public class AnalyticsUtils {
       statisticData.setStatus(StatisticStatus.OK);
     }
 
-    StatisticDataQueueService analyticsQueueService = CommonsUtils.getService(StatisticDataQueueService.class);
-    analyticsQueueService.put(statisticData);
+    try {
+      StatisticDataQueueService analyticsQueueService = CommonsUtils.getService(StatisticDataQueueService.class);
+      analyticsQueueService.put(statisticData);
+    } catch (Exception e) {
+      LOG.warn("Error adding analytics Queue entry: {}", statisticData, e);
+    }
   }
 
   public static long getUserIdentityId(String username) {
@@ -299,6 +311,7 @@ public class AnalyticsUtils {
     return identity == null ? 0 : Long.parseLong(identity.getId());
   }
 
+  @ExoTransactional
   public static Identity getIdentity(String providerId, String remoteId) {
     if (StringUtils.isBlank(remoteId)) {
       return null;
@@ -312,6 +325,7 @@ public class AnalyticsUtils {
     return identity == null ? 0 : Long.parseLong(identity.getId());
   }
 
+  @ExoTransactional
   public static long getUserIdentityId(ConversationState currentState) {
     String username = getUsername(currentState);
     boolean unkownUser = isUnkownUser(username);

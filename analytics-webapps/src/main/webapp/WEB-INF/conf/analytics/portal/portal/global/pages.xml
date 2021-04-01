@@ -626,6 +626,11 @@
                                   "valueString":"1",
                                   "field":"spaceId",
                                   "type":"GREATER"
+                               },
+                               {
+                                  "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined",
+                                  "field":"operation",
+                                  "type":"IN_SET"
                                }
                             ],
                             "aggregation":{

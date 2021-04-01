@@ -59,13 +59,7 @@ public class AnalyticsRelationshipListener extends RelationshipListenerPlugin {
     statisticData.setModule("social");
     statisticData.setSubModule("relationship");
     statisticData.setOperation(operation);
-
-    long currentUserIdentityId = getCurrentUserIdentityId();
-    statisticData.setUserId(currentUserIdentityId);
-    if (currentUserIdentityId > 0) {
-      statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, currentUserIdentityId);
-    }
-
+    statisticData.setUserId(getCurrentUserIdentityId());
     statisticData.addParameter("from", from);
     statisticData.addParameter("to", to);
     return statisticData;
