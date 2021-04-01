@@ -4,10 +4,12 @@
     size="24"
     color="primary"
     indeterminate />
-  <i
-    v-else-if="error"
-    :title="$t('analytics.errorRetrievingDataForValue', {0: value})"
-    class="uiIconColorError"></i>
+  <div v-else-if="error" class="d-flex">
+    <i :title="$t('analytics.errorRetrievingDataForValue', {0: value})" class="uiIconColorError my-auto"></i>
+    <span class="text-sub-title my-auto ml-1">
+      {{ $t('analytics.deletedSpace') }}
+    </span>
+  </div>
   <exo-space-avatar
     v-else-if="space"
     :space="space"
