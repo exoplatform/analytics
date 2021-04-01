@@ -248,8 +248,8 @@ export default {
           column: columnIndex,
           limit: String(limit || 0),
           periodType: this.period.period || '',
-          min: this.period.min - this.$analyticsUtils.TIMEZONE_OFFSET_MS,
-          max: this.period.max + 60000 - this.$analyticsUtils.TIMEZONE_OFFSET_MS,
+          min: this.period.min - this.$analyticsUtils.getTimeZoneOffset(this.period.min),
+          max: this.period.max + 60000 - this.$analyticsUtils.getTimeZoneOffset(this.period.max),
         };
         if (sort) {
           params.sort = sort;
