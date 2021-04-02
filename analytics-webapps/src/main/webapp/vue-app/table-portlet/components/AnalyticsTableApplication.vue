@@ -6,6 +6,7 @@
     <div class="d-flex pa-3 white analytics-table-header" flat>
       <analytics-select-period
         v-model="selectedPeriod"
+        hide-time
         right />
       <v-spacer />
       <exo-identity-suggester
