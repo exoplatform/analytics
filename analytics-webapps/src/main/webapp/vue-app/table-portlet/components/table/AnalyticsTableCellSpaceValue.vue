@@ -6,7 +6,7 @@
     indeterminate />
   <div v-else-if="error" class="d-flex">
     <i :title="$t('analytics.errorRetrievingDataForValue', {0: value})" class="uiIconColorError my-auto"></i>
-    <span class="text-sub-title my-auto ml-1">
+    <span class="text-no-wrap text-sub-title my-auto ml-1">
       {{ $t('analytics.deletedSpace') }}
     </span>
   </div>

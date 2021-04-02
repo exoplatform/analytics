@@ -15,11 +15,12 @@
   <date-format
     v-else-if="dataType === 'date'"
     :value="dateValue"
-    :format="fullDateFormat" />
+    :format="fullDateFormat"
+    class="text-no-wrap" />
   <span
     v-else-if="percentage"
     :class="signClass"
-    class="text-wrap">
+    class="text-no-wrap">
     <v-tooltip v-if="previousValue" bottom>
       <template v-slot:activator="{ on, attrs }">
         <span
