@@ -91,7 +91,8 @@ export function getPage(siteType, siteName, pageName) {
 }
 
 export function toFixed(value, decimals = 2) {
-  return Number.parseFloat(value).toFixed(decimals).replace(/(\..*[1-9])0+$/, '$1').replace(/\.0*$/, '');
+  const fixedNumber = Number.parseFloat(value).toFixed(decimals).replace(/(\..*[1-9])0+$/, '$1').replace(/\.0*$/, '');
+  return Number(fixedNumber);
 }
 
 export function getTimeZoneOffset(timestamp) {
