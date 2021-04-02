@@ -20,6 +20,10 @@ public class PercentageChartResult implements Serializable {
 
   private double            previousPeriodThreshold;
 
+  private double            currentPeriodLimit;
+
+  private double            previousPeriodLimit;
+
   private long              computingTime;
 
   private long              dataCount;

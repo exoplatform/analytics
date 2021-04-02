@@ -204,7 +204,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     PercentageChartResult percentageChartResult = new PercentageChartResult();
     AnalyticsPercentageLimit percentageLimit = percentageFilter.getPercentageLimit();
     if (percentageLimit != null) {
-      computePercentageLimits(percentageFilter, currentPeriod, previousPeriod);
+      computePercentageLimits(percentageFilter, percentageChartResult, currentPeriod, previousPeriod);
 
       long currentPeriodLimit = percentageFilter.getCurrentPeriodLimit();
       if (currentPeriodLimit > 0) {
@@ -693,6 +693,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   private void computePercentageLimits(AnalyticsPercentageFilter percentageFilter,
+                                       PercentageChartResult percentageChartResult,
                                        AnalyticsPeriod currentPeriod,
                                        AnalyticsPeriod previousPeriod) {
     AnalyticsPercentageLimit percentageLimit = percentageFilter.getPercentageLimit();
@@ -700,9 +701,15 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                                                                  currentPeriod,
                                                                  previousPeriod,
                                                                  false);
-    percentageFilter.setCurrentPeriodLimit(Math.round(chartValue.getCurrentPeriodValue() * percentageLimit.getPercentage()
+
+    double currentPeriodLimit = chartValue.getCurrentPeriodValue();
+    double previousPeriodLimit = chartValue.getPreviousPeriodValue();
+    percentageChartResult.setCurrentPeriodLimit(currentPeriodLimit);
+    percentageChartResult.setPreviousPeriodLimit(previousPeriodLimit);
+
+    percentageFilter.setCurrentPeriodLimit(Math.round(currentPeriodLimit * percentageLimit.getPercentage()
         / 100));
-    percentageFilter.setPreviousPeriodLimit(Math.round(chartValue.getPreviousPeriodValue() * percentageLimit.getPercentage()
+    percentageFilter.setPreviousPeriodLimit(Math.round(previousPeriodLimit * percentageLimit.getPercentage()
         / 100));
   }
 
