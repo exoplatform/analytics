@@ -8,36 +8,43 @@
     v-else-if="cellItemValue === 'errorRetrievingData'"
     :title="$t('analytics.errorRetrievingData')"
     class="uiIconColorError"></i>
-  <div v-else-if="cellItemValues.length">
-    <analytics-table-cell-value
-      v-for="value in cellItemValues"
-      :key="value"
-      :item="cellItem"
-      :value="value"
-      :original-value="$analyticsUtils.toFixed(cellItem.value)"
-      :threshold="$analyticsUtils.toFixed(cellItem.threshold)"
-      :field="columnField"
-      :data-type="columnDataType"
-      :aggregation-type="columnAggregationType"
-      :percentage="percentage"
-      :labels="labels" />
-    <span v-if="previousPeriod" class="ml-2">
-      <analytics-table-cell-value
-        v-for="previousValue in cellItemPreviousValues"
-        :key="previousValue.value"
-        :item="cellItem"
-        :value="previousValue.percentage"
-        :previous-value="percentage && `${previousValue.value}%` || previousValue.value"
-        :field="columnField"
-        :aggregation-type="columnAggregationType"
-        :data-type="columnDataType"
-        :percentage="isValueNumber"
-        :labels="labels"
-        compare />
-    </span>
-  </div>
   <div v-else>
-    -
+    <template v-if="cellItemValues.length">
+      <analytics-table-cell-value
+        v-for="value in cellItemValues"
+        :key="value"
+        :item="cellItem"
+        :value="value"
+        :original-value="$analyticsUtils.toFixed(cellItem.value)"
+        :threshold="$analyticsUtils.toFixed(cellItem.threshold)"
+        :field="columnField"
+        :data-type="columnDataType"
+        :aggregation-type="columnAggregationType"
+        :percentage="percentage"
+        :labels="labels" />
+    </template>
+    <span v-else>
+      -
+    </span>
+    <template v-if="previousPeriod">
+      <span v-if="cellItemPreviousValues.length" class="ml-2">
+        <analytics-table-cell-value
+          v-for="previousValue in cellItemPreviousValues"
+          :key="previousValue.value"
+          :item="cellItem"
+          :value="previousValue.percentage"
+          :previous-value="percentage && `${previousValue.value}%` || previousValue.value"
+          :field="columnField"
+          :aggregation-type="columnAggregationType"
+          :data-type="columnDataType"
+          :percentage="isValueNumber"
+          :labels="labels"
+          compare />
+      </span>
+      <span v-else>
+        -
+      </span>
+    </template>
   </div>
 </template>
 
@@ -120,18 +127,22 @@ export default {
       }
     },
     cellItemPreviousValues() {
-      if (this.cellItem && this.cellItem.key) {
+      if (this.previousPeriod && this.cellItem && this.cellItem.key) {
         const previousValues = this.formatValues(this.cellItem.previousValue, this.cellItem.previousThreshold);
         if (this.isValueNumber) {
           if (previousValues.length < 1 || !previousValues[0]) {
-            previousValues[0] = {
-              value: 0,
-              percentage: 0,
-            };
+            if (this.cellItemValues.length && this.cellItemValues[0]) {
+              previousValues[0] = {
+                value: '0',
+                percentage: 100, // +100%
+              };
+            } else if (previousValues.length) {
+              previousValues.splice(0, previousValues.length);
+            }
           } else if (this.cellItemValues.length < 1 || !this.cellItemValues[0]) {
             previousValues[0] = {
               value: previousValues[0],
-              percentage: -100, // -100%
+              percentage: this.percentage && -previousValues[0] || -100, // -100%
             };
           } else if (this.percentage) {
             previousValues[0] = {
@@ -141,7 +152,7 @@ export default {
           } else {
             previousValues[0] = {
               value: previousValues[0],
-              percentage: (this.cellItemValues[0] - previousValues[0]) * 100 / this.cellItemValues[0],
+              percentage: (this.cellItemValues[0] - previousValues[0]) * 100 / previousValues[0],
             };
           }
         }
