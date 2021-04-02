@@ -106,10 +106,19 @@ export default {
         if (charts.length === 1 && (!charts[0].chartLabel || charts[0].chartLabel === 'null')) {
           chartOptions.tooltip.formatter = '{b}<br/><center>{c}</center>';
         }
+        charts.sort((chartData1, chartData2) => Math.max(...chartData2.values) - Math.max(...chartData1.values));
         charts.forEach(chartData => {
           const serie = {
             type: this.chartType,
             data: chartData.values,
+            smooth: true ,
+            showSymbol: false,
+            areaStyle : {
+              opacity: 0.8
+            },
+            lineStyle: {
+              width: 1
+            }
           };
 
           if (chartData.chartLabel){
@@ -121,6 +130,10 @@ export default {
         chartOptions.tooltip = {
           trigger: 'item',
           formatter: '{b} : {c} ({d}%)'
+        };
+        chartOptions.legend = {
+          orient: 'vertical',
+          left: '2%',
         };
 
         const chartsLength = charts.length;
@@ -144,20 +157,35 @@ export default {
             type: this.chartType,
             radius : `${chartsPercentagePart + 5}%`,
             center: [`${xPos}%`, `${yPos}%`],
+            label: {
+              show: false,
+              position: 'center'
+            },
             data: chartDataValues,
             itemStyle: {
               emphasis: {
                 shadowBlur: 10,
                 shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+                label: {
+                  show: true,
+                  fontSize: '15'
+                }
+              },
             }
           };
-
+          let yPiePos ;
+          if (chartDataValues && chartDataValues.length <= 10) {
+            yPiePos = '50%';
+          } else if (chartDataValues && chartDataValues.length > 10 && chartDataValues.length <= 20) {
+            yPiePos = '65%';
+          } else {
+            yPiePos = '80%';
+          }
           // margin legend
           if (chartsLength === 1) {
-            serie.radius = '70%';
-            serie.center = ['50%', '50%'];
+            serie.radius = ['40%', '70%'];
+            serie.center = [yPiePos, '45%'];
           }
 
           serie.name = chartData.chartLabel;
