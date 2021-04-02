@@ -13,9 +13,17 @@
       </h3>
     </v-progress-linear>
     <div class="text-no-wrap mt-2">
-      <span :class="lastPeriodComparaisonClass">
-        {{ $t('analytics.points', {0: diffSign, 1: diffWithLastPeriod}) }}
-      </span>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <span
+            :class="lastPeriodComparaisonClass"
+            v-bind="attrs"
+            v-on="on">
+            {{ $t('analytics.points', {0: diffSign, 1: diffWithLastPeriod}) }}
+          </span>
+        </template>
+        <span>{{ $t('analytics.previousPeriodValue', {0: `${lastPeriodPercentage}%`}) }}</span>
+      </v-tooltip>
       <span class="text-sub-title">
         {{ $t('analytics.vsLastPeriod') }}
       </span>

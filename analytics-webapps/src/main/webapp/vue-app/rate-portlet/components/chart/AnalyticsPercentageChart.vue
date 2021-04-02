@@ -7,19 +7,38 @@
       {{ currentPeriodPercentage }}%
     </h1>
     <template v-if="isUserLimit">
-      <div class="text-sub-title text-no-wrap mt-2">
-        {{ $t('analytics.ofActiveUsers') }}
-        <span class="primary--text">{{ $t('analytics.percentOfUsers', {0: percentage}) }}</span>
-      </div>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <div
+            class="text-sub-title text-no-wrap mt-2"
+            v-bind="attrs"
+            v-on="on">
+            {{ $t('analytics.ofActiveUsers') }}
+            <span class="primary--text">{{ $t('analytics.percentOfUsers', {0: percentage}) }}</span>
+          </div>
+        </template>
+        <ul class="pl-0">
+          <li>- {{ $t('analytics.currentPeriodUsers', {0: currentPeriodLimit}) }}</li>
+          <li>- {{ $t('analytics.previousPeriodUsers', {0: lastPeriodLimit}) }}</li>
+        </ul>
+      </v-tooltip>
     </template>
-    <div class="text-no-wrap mt-1">
-      <span :class="lastPeriodComparaisonClass">
-        {{ $t('analytics.points', {0: diffSign, 1: diffWithLastPeriod}) }}
-      </span>
-      <span class="text-sub-title">
-        {{ $t('analytics.vsLastPeriod') }}
-      </span>
-    </div>
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <div
+          class="text-no-wrap mt-1"
+          v-bind="attrs"
+          v-on="on">
+          <span :class="lastPeriodComparaisonClass">
+            {{ $t('analytics.points', {0: diffSign, 1: diffWithLastPeriod}) }}
+          </span>
+          <span class="text-sub-title">
+            {{ $t('analytics.vsLastPeriod') }}
+          </span>
+        </div>
+      </template>
+      <span>{{ $t('analytics.previousPeriodValue', {0: `${lastPeriodPercentage}%`}) }}</span>
+    </v-tooltip>
   </v-flex>
 </template>
 <script>
@@ -37,6 +56,8 @@ export default {
       currentPeriodValue: 0,
       lastPeriodThreshold: 0,
       currentPeriodThreshold: 0,
+      lastPeriodLimit: 0,
+      currentPeriodLimit: 0,
     };
   },
   computed: {
@@ -102,6 +123,8 @@ export default {
         this.currentPeriodThreshold = chartsData.currentPeriodThreshold;
         this.lastPeriodValue = chartsData.previousPeriodValue;
         this.lastPeriodThreshold = chartsData.previousPeriodThreshold;
+        this.currentPeriodLimit = chartsData.currentPeriodLimit || 0;
+        this.lastPeriodLimit = chartsData.previousPeriodLimit || 0;
       }
       this.$nextTick().then(() => this.initialized = true);
     },
