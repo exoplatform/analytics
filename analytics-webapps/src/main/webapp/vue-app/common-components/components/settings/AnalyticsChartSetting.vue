@@ -100,10 +100,10 @@
     <template slot="footer">
       <div class="d-flex">
         <v-spacer />
-        <button class="btn ignore-vuetify-classes mr-1" @click="close">
+        <button class="btn ignore-vuetify-classes me-1" @click="close">
           {{ $t('analytics.close') }}
         </button>
-        <button class="btn btn-primary ignore-vuetify-classes ml-1" @click="save">
+        <button class="btn btn-primary ignore-vuetify-classes ms-1" @click="save">
           {{ $t('analytics.save') }}
         </button>
       </div>

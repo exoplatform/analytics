@@ -34,11 +34,14 @@
         padding-left: 10px;
         padding-right: 10px;
       }
+
       > div:first-child {
-        padding-left: 0;
+        padding-left: 0 ~'; /** orientation=lt */ ';
+        padding-right: 0 ~'; /** orientation=rt */ ';
       }
       > div:last-child {
-        padding-right: 0;
+        padding-right: 0 ~'; /** orientation=lt */ ';
+        padding-left: 0 ~'; /** orientation=rt */ ';
       }
     }
   

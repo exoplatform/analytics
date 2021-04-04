@@ -17,7 +17,7 @@
             <span class="primary--text">{{ $t('analytics.percentOfUsers', {0: percentage}) }}</span>
           </div>
         </template>
-        <ul class="pl-0">
+        <ul class="ps-0">
           <li>- {{ $t('analytics.currentPeriodUsers', {0: currentPeriodLimit}) }}</li>
           <li>- {{ $t('analytics.previousPeriodUsers', {0: lastPeriodLimit}) }}</li>
         </ul>
