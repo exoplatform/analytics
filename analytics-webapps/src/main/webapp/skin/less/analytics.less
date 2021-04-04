@@ -34,12 +34,6 @@
         padding-left: 10px;
         padding-right: 10px;
       }
-      > div:first-child {
-        padding-left: 0;
-      }
-      > div:last-child {
-        padding-right: 0;
-      }
     }
   
     &.analyticsPageActiveUsersRow {
@@ -51,6 +45,28 @@
           width: 70%;
         }
       }
+    }
+  }
+}
+
+html[dir=rtl] {
+  #topAnalyticsPage .analyticsPageRow .UIRowContainer {
+    > div:first-child {
+      padding-right: 0;
+    }
+    > div:last-child {
+      padding-left: 0;
+    }
+  }
+}
+
+html[dir=ltr] {
+  #topAnalyticsPage .analyticsPageRow .UIRowContainer {
+    > div:first-child {
+      padding-left: 0;
+    }
+    > div:last-child {
+      padding-right: 0;
     }
   }
 }

@@ -109,7 +109,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <button class="btn btn-primary ignore-vuetify-classes mr-1" @click="save">
+        <button class="btn btn-primary ignore-vuetify-classes me-1" @click="save">
           {{ $t('analytics.save') }}
         </button>
         <button class="btn ignore-vuetify-classes ml-1" @click="dialog = false">
