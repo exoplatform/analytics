@@ -14,6 +14,9 @@
 <portlet:resourceURL var="retrieveTableDataURL">
     <portlet:param name="operation" value="GET_TABLE_DATA"/>
 </portlet:resourceURL>
+<portlet:resourceURL var="retrieveFieldValuesURL">
+    <portlet:param name="operation" value="GET_FIELD_VALUES"/>
+</portlet:resourceURL>
 <portlet:actionURL var="saveSettingsURL" />
 
 <div class="VuetifyApp">
@@ -25,6 +28,7 @@
          data-mappings-url="<%=retrieveMappingsURL%>"
          data-filters-url="<%=retrieveFiltersURL%>"
          data-table-data-url="<%=retrieveTableDataURL%>"
+         data-field-values-url="<%=retrieveFieldValuesURL%>"
          data-save-settings-url="<%=saveSettingsURL%>">
     </div>
     <script type="text/javascript">

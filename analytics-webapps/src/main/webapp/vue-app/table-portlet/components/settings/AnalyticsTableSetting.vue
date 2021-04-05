@@ -1,7 +1,9 @@
 <template>
   <exo-drawer
     ref="tableSettingDrawer"
+    :drawer-width="drawerWidth"
     class="analytics-table-settings"
+    allow-expand
     right>
     <template slot="title">
       {{ $t('analytics.settings') }}
@@ -121,6 +123,7 @@ export default {
       fieldsMappings: [],
       dialog: false,
       selectedColumn: 1,
+      drawerWidth: '650px',
       tab: 0,
     };
   },
@@ -179,8 +182,8 @@ export default {
           aggregation: {
             type: 'COUNT',
           },
+          filters: [],
         },
-        filter: [],
       });
     },
     deleteColumn(index) {
@@ -196,6 +199,7 @@ export default {
           title: '',
           valueAggregation: {
             aggregation: {},
+            filters: [],
           },
         },
         columns: [],

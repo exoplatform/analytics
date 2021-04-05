@@ -24,8 +24,7 @@ import java.util.*;
 
 import org.junit.Test;
 
-import org.exoplatform.analytics.model.StatisticData;
-import org.exoplatform.analytics.model.StatisticFieldMapping;
+import org.exoplatform.analytics.model.*;
 import org.exoplatform.analytics.model.chart.*;
 import org.exoplatform.analytics.model.filter.*;
 import org.exoplatform.analytics.model.filter.aggregation.*;
@@ -47,6 +46,17 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     assertNotNull("Returned fields mapping is null", fieldsMappings);
     assertFalse("Returned fields mapping is empty", fieldsMappings.isEmpty());
     assertTrue("Returned fields mapping count is wrong, should be at least 11 as configured", fieldsMappings.size() >= 11);
+  }
+
+  @Test
+  public void testRetrieveFieldValues() {
+    List<StatisticFieldValue> fieldValues = analyticsService.retrieveFieldValues("operation", 20);
+    assertNotNull(fieldValues);
+    assertEquals(2, fieldValues.size());
+    assertEquals("logout", fieldValues.get(0).getValue());
+    assertEquals(3350, fieldValues.get(0).getCount());
+    assertEquals("login", fieldValues.get(1).getValue());
+    assertEquals(3250, fieldValues.get(1).getCount());
   }
 
   @Test
@@ -480,6 +490,6 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
 
     tableColumnItemValue = columnData.getItems().get(32);
     assertNotNull(tableColumnItemValue);
-    assertEquals(Arrays.asList("logout","login"), tableColumnItemValue.getValue());
+    assertEquals(Arrays.asList("logout", "login"), tableColumnItemValue.getValue());
   }
 }

@@ -17,6 +17,9 @@
 <portlet:resourceURL var="retrieveChartSamplesURL">
   <portlet:param name="operation" value="GET_CHART_SAMPLES_DATA"/>
 </portlet:resourceURL>
+<portlet:resourceURL var="retrieveFieldValuesURL">
+    <portlet:param name="operation" value="GET_FIELD_VALUES"/>
+</portlet:resourceURL>
 <portlet:actionURL var="saveSettingsURL" />
 
 <div class="VuetifyApp">
@@ -29,6 +32,7 @@
     data-filters-url="<%=retrieveFiltersURL%>"
     data-chart-data-url="<%=retrieveChartDataURL%>"
     data-chart-samples-url="<%=retrieveChartSamplesURL%>"
+    data-field-values-url="<%=retrieveFieldValuesURL%>"
     data-save-settings-url="<%=saveSettingsURL%>">
   </div>
   <script type="text/javascript">

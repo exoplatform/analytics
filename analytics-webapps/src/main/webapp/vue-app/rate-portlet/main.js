@@ -24,6 +24,7 @@ export function init(dataId) {
       const retrieveFiltersURL = element.attr('data-filters-url');
       const retrieveChartDataURL = element.attr('data-chart-data-url');
       const retrieveChartSamplesURL = element.attr('data-chart-samples-url');
+      const retrieveFieldValuesUrl = element.attr('data-field-values-url');
       const saveSettingsURL = element.attr('data-save-settings-url');
 
       new Vue({
@@ -33,6 +34,7 @@ export function init(dataId) {
           retrieveFiltersURL : retrieveFiltersURL,
           retrieveChartDataURL : retrieveChartDataURL,
           retrieveChartSamplesURL : retrieveChartSamplesURL,
+          retrieveFieldValuesUrl : retrieveFieldValuesUrl,
           saveSettingsURL : saveSettingsURL,
         }),
         mounted() {
@@ -46,6 +48,7 @@ export function init(dataId) {
            :retrieve-mappings-url="retrieveMappingsURL"
            :retrieve-filters-url="retrieveFiltersURL"
            :retrieve-chart-data-url="retrieveChartDataURL"
+           :retrieve-field-values-url="retrieveFieldValuesUrl"
            :retrieve-chart-samples-url="retrieveChartSamplesURL"
            :save-settings-url="saveSettingsURL"
            data-id="${dataId}"
@@ -54,6 +57,7 @@ export function init(dataId) {
            data-filters-url="${retrieveFiltersURL}"
            data-chart-data-url="${retrieveChartDataURL}"
            data-chart-samples-url="${retrieveChartSamplesURL}"
+           data-field-values-url="${retrieveFieldValuesUrl}"
            data-save-settings-url="${saveSettingsURL}" />`,
         vuetify,
         i18n

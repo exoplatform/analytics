@@ -3,8 +3,7 @@ package org.exoplatform.analytics.api.service;
 import java.util.List;
 import java.util.Set;
 
-import org.exoplatform.analytics.model.StatisticData;
-import org.exoplatform.analytics.model.StatisticFieldMapping;
+import org.exoplatform.analytics.model.*;
 import org.exoplatform.analytics.model.chart.*;
 import org.exoplatform.analytics.model.filter.*;
 
@@ -75,6 +74,15 @@ public interface AnalyticsService {
    * @return a {@link Set} of ES mapping fields
    */
   Set<StatisticFieldMapping> retrieveMapping(boolean forceRefresh);
+
+  /**
+   * Retrieve values of a selected field
+   * 
+   * @param field name of esField
+   * @param limit limit of results to retrieve
+   * @return {@link List} of field values of type {@link StatisticFieldValue}
+   */
+  List<StatisticFieldValue> retrieveFieldValues(String field, int limit);
 
   /**
    * @return the analytics permission expression
