@@ -31,10 +31,13 @@
         :fields-mappings="fieldsMappings"
         :y-axis-aggregation="yAxisAggregation" />
       <v-divider class="my-4" />
-      <h3>{{ $t('analytics.limitComputingFilters') }}</h3>
       <analytics-search-filter-form
         :fields-mappings="fieldsMappings"
-        :filters="filters" />
+        :filters="filters">
+        <template v-slot="title">
+          <h3>{{ $t('analytics.limitComputingFilters') }}</h3>
+        </template>
+      </analytics-search-filter-form>
     </template>
   </div>
 </template>
@@ -56,6 +59,7 @@ export default {
     },
   },
   data: () => ({
+    initialized: false,
     limitResults: false,
     percentage: 0,
     field: null,
@@ -69,16 +73,25 @@ export default {
   },
   watch: {
     field() {
+      if (!this.initialized) {
+        return;
+      }
       if (this.percentageLimit) {
         this.percentageLimit.field = this.field;
       }
     },
     percentage() {
+      if (!this.initialized) {
+        return;
+      }
       if (this.percentageLimit) {
         this.percentageLimit.percentage = this.percentage;
       }
     },
     limitResults() {
+      if (!this.initialized) {
+        return;
+      }
       if (this.limitResults) {
         if (this.percentageLimit) {
           return;
@@ -112,6 +125,7 @@ export default {
       };
       this.limitResults = true;
     }
+    this.$nextTick().then(() => this.initialized = true);
   },
 };
 </script>
