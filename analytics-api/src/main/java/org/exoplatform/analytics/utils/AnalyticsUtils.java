@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.*;
 
@@ -247,8 +248,27 @@ public class AnalyticsUtils {
     if (keys == null || i >= keys.length) {
       return null;
     }
-    if (jsonObject.has(keys[i])) {
-      try {
+    try {
+      if (keys[i] == null) {
+        String[] names = JSONObject.getNames(jsonObject);
+        if (ArrayUtils.isNotEmpty(names)) {
+          i++;
+          JSONObject resultJsonObject = new JSONObject();
+          for (int j = 0; j < names.length; j++) {
+            String name = names[j];
+            JSONObject subJsonObject = jsonObject.getJSONObject(name);
+            JSONObject resultSubJsonObject = getJSONObject(subJsonObject, i, keys);
+            String[] attributes = JSONObject.getNames(resultSubJsonObject);
+            for (int k = 0; k < attributes.length; k++) {
+              String attribute = attributes[k];
+              resultJsonObject.put(attribute, resultSubJsonObject.get(attribute));
+            }
+          }
+          return resultJsonObject;
+        } else {
+          return null;
+        }
+      } else if (jsonObject.has(keys[i])) {
         jsonObject = jsonObject.getJSONObject(keys[i]);
         i++;
         if (i == keys.length) {
@@ -256,12 +276,13 @@ public class AnalyticsUtils {
         } else {
           return getJSONObject(jsonObject, i, keys);
         }
-      } catch (JSONException e) {
-        LOG.warn("Error getting key object with {}", keys[i], e);
+      } else {
         return null;
       }
+    } catch (JSONException e) {
+      LOG.warn("Error getting key object with {}", keys[i], e);
+      return null;
     }
-    return null;
   }
 
   @ExoTransactional

@@ -153,6 +153,10 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     }
   }
 
+  public String getIndexPrefix() {
+    return indexPrefix;
+  }
+
   public String replaceByIndexName(String esQuery, String index) {
     return esQuery.replace(ES_INDEX_PLACEHOLDER, index);
   }

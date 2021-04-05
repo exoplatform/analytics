@@ -9,7 +9,6 @@
       :value-comparator="selectedValueComparator"
       :return-object="false"
       :item-value="aggregation ? 'aggregationFieldName' : 'searchFieldName'"
-      :attach="attach"
       :menu-props="menuProps"
       item-text="label"
       class="operatorInput pa-0"
@@ -22,6 +21,7 @@
         <v-chip
           v-bind="data.attrs"
           :input-value="data.selected"
+          :title="data.item && data.item.label || data.item"
           @click="data.select">
           {{ data.item && data.item.label || data.item }}
         </v-chip>
@@ -106,16 +106,14 @@ export default {
     },
   },
   mounted() {
-    if (this.attach) {
-      $(`#${this.id} input`).on('blur', () => {
-        // A hack to close on select
-        // See https://www.reddit.com/r/vuetifyjs/comments/819h8u/how_to_close_a_multiple_autocomplete_vselect/
-        this.$refs.fieldSelectAutoComplete.isFocused = false;
-      });
-    }
+    $(`#${this.id} input[type="text"]`).on('blur', () => {
+      // A hack to close on select
+      // See https://www.reddit.com/r/vuetifyjs/comments/819h8u/how_to_close_a_multiple_autocomplete_vselect/
+      this.$refs.fieldSelectAutoComplete.isFocused = false;
+    });
   },
   methods: {
-    updateData(){
+    updateData() {
       this.$emit('input', this.value);
       this.$emit('change', this.value);
       this.$forceUpdate();
