@@ -3,6 +3,7 @@ import JsonPanelDialog from './components/settings/JsonPanelDialog.vue';
 
 import IdentityFieldSelection from './components/settings/form/IdentityFieldSelection.vue';
 import FieldSelection from './components/settings/form/FieldSelection.vue';
+import FieldFilter from './components/settings/form/FieldFilter.vue';
 import XAxisAggregationField from './components/settings/form/XAxisAggregationField.vue';
 import LimitFilterForm from './components/settings/form/LimitFilterForm.vue';
 
@@ -26,6 +27,7 @@ const components = {
   'analytics-setting-color-picker': SettingColorPicker,
   'analytics-identity-field-selection': IdentityFieldSelection,
   'analytics-field-selection': FieldSelection,
+  'analytics-field-filter': FieldFilter,
   'analytics-x-axis-aggregation-field': XAxisAggregationField,
   'analytics-limit-filter-form': LimitFilterForm,
   'analytics-general-setting-form': GeneralSettingForm,

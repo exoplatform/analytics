@@ -22,6 +22,7 @@
         <v-chip
           v-bind="data.attrs"
           :input-value="data.selected"
+          :title="data.item && data.item.label || data.item"
           @click="data.select">
           {{ data.item && data.item.label || data.item }}
         </v-chip>
