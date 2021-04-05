@@ -45,7 +45,6 @@
       v-model="columnAggregation.periodIndependent"
       :label="$t('analytics.periodIndependent')"
       class="my-2 text-no-wrap" />
-    <h4>{{ $t('analytics.dataFilters') }}</h4>
     <analytics-search-filter-form
       :fields-mappings="fieldsMappings"
       :filters="columnAggregation.filters"
@@ -71,6 +70,7 @@ export default {
   data: () => ({
     aggregationType: 'MAX',
     limitResults: false,
+    initialized: false,
   }),
   computed: {
     aggregationTypes() {
@@ -117,6 +117,9 @@ export default {
   },
   watch: {
     limitResults() {
+      if (!this.initialized) {
+        return;
+      }
       if (this.limitResults) {
         this.columnAggregation.aggregation.limit = 1;
       } else {
@@ -124,11 +127,17 @@ export default {
       }
     },
     isAggregationCount() {
+      if (!this.initialized) {
+        return;
+      }
       if (this.columnAggregation.aggregation) {
         this.columnAggregation.aggregation.field = null;
       }
     },
     aggregationType() {
+      if (!this.initialized) {
+        return;
+      }
       if (this.columnAggregation.aggregation) {
         this.columnAggregation.aggregation.type = this.aggregationType;
       } else {
@@ -146,6 +155,7 @@ export default {
       this.aggregationType = 'COUNT';
     }
     this.limitResults = this.columnAggregation.aggregation && this.columnAggregation.aggregation.limit || 0;
+    this.$nextTick().then(() => this.initialized = true);
   },
   methods: {
     selectedValueComparator(item1, item2){

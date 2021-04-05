@@ -146,7 +146,25 @@
   }
 
   .operatorInput {
-    width: auto;
+    width: 100%;
+    max-width: 100%;
+
+    .v-input__slot {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .v-menu__content {
+      max-width: none !important;
+
+      .v-list-item {
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .analytics-field-filter input {
+    width: 100% !important;
   }
 
   .jsonSetting {
@@ -254,18 +272,25 @@
   }
 
   .analytics-table-suggester {
-    max-height: 38px;
     max-width: 250px;
+  }
+  .analytics-table-suggester, .analytics-suggester {
+    max-height: 40px;
 
     .identitySuggester {
       margin: 0 !important;
-      max-height: 38px;
+      max-height: 40px;
     }
 
     .v-select__selections {
       white-space: nowrap;
       overflow: hidden;
       padding-top: 2px;
+    }
+
+    .v-input__slot {
+      padding: 0 !important;
+      margin: 0 !important;
     }
   }
 }
@@ -278,8 +303,6 @@
   }
 }
 .analytics-table-settings {
-  width: 650px !important;
-
   .v-list-group .white--text{
     .v-list-item__title, .v-list-group__header__append-icon .v-icon {
       color: @lightWhite;
