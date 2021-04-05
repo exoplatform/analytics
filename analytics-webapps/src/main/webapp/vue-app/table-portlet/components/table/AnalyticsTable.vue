@@ -10,7 +10,7 @@
     hide-default-footer
     disable-pagination
     disable-filtering
-    class="analytics-table px-2">
+    class="analytics-table border-box-sizing px-2">
     <template
       v-for="header in headers"
       v-slot:[`item.${header.value}`]="{item}">
