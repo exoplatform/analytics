@@ -1,23 +1,13 @@
 <template>
-  <v-dialog
-    id="analyticsChartSettingsModal"
-    v-model="dialog"
-    content-class="uiPopup with-overflow"
-    class="editChatSettings"
-    width="750px"
-    max-width="100vw"
-    @keydown.esc="dialog = false">
-    <v-card class="elevation-12">
-      <div class="ignore-vuetify-classes popupHeader ClearFix">
-        <a
-          class="uiIconClose pull-right"
-          aria-hidden="true"
-          @click="dialog = false">
-        </a>
-        <span class="ignore-vuetify-classes PopupTitle popupTitle">
-          {{ $t('analytics.editChart') }}
-        </span>
-      </div>
+  <exo-drawer
+    ref="chartSettingDrawer"
+    :drawer-width="drawerWidth"
+    allow-expand
+    right>
+    <template slot="title">
+      {{ $t('analytics.settings') }}
+    </template>
+    <template slot="content">
       <v-card-text>
         <v-tabs
           v-model="tab"
@@ -106,18 +96,19 @@
           </template>
         </v-tabs-items>
       </v-card-text>
-      <v-card-actions>
+    </template>
+    <template slot="footer">
+      <div class="d-flex">
         <v-spacer />
-        <button class="btn btn-primary ignore-vuetify-classes mr-1" @click="save">
-          {{ $t('analytics.save') }}
-        </button>
-        <button class="btn ignore-vuetify-classes ml-1" @click="dialog = false">
+        <button class="btn ignore-vuetify-classes mr-1" @click="close">
           {{ $t('analytics.close') }}
         </button>
-        <v-spacer />
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        <button class="btn btn-primary ignore-vuetify-classes ml-1" @click="save">
+          {{ $t('analytics.save') }}
+        </button>
+      </div>
+    </template>
+  </exo-drawer>
 </template>
 
 <script>
@@ -155,6 +146,7 @@ export default {
       fieldsMappings: [],
       dialog: false,
       tab: 0,
+      drawerWidth: '650px'
     };
   },
   computed: {
@@ -223,11 +215,17 @@ export default {
     open() {
       this.chartSettings = JSON.parse(JSON.stringify(this.settings));
       this.dialog = true;
+      this.$refs.chartSettingDrawer.open();
     },
     save() {
       this.$emit('save', this.chartSettings);
       this.dialog = false;
+      this.$refs.chartSettingDrawer.close();
     },
+    close() {
+      this.dialog = false;
+      this.$refs.chartSettingDrawer.close();
+    }
   },
 };
 </script>
