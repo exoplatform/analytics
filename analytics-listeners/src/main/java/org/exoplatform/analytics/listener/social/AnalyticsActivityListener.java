@@ -76,8 +76,8 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
     String commentId = activity.getParentCommentId() == null ? activity.getId() : activity.getParentCommentId();
     String subCommentId = activity.getParentCommentId() == null ? null : activity.getId();
 
-    long modifierUserId = 0;
-    if (StringUtils.isNotBlank(activity.getPosterId())) {
+    long modifierUserId = getCurrentUserIdentityId();
+    if (modifierUserId <= 0 && StringUtils.isNotBlank(activity.getPosterId())) {
       try {
         long identityId = Long.parseLong(activity.getPosterId());
         Identity identity = getIdentity(activity.getPosterId());
@@ -87,10 +87,6 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
       } catch (NumberFormatException e1) {
         modifierUserId = getUserIdentityId(activity.getPosterId());
       }
-    }
-
-    if (modifierUserId == 0) {
-      modifierUserId = getCurrentUserIdentityId();
     }
 
     ActivityStream activityStream = activity.getActivityStream();
@@ -103,7 +99,6 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
 
     long spaceId = 0;
     String spaceTemplate = null;
-    long userId = modifierUserId;
     long streamIdentityId = 0;
     Identity streamIdentity = null;
     if (activityStream != null) {
@@ -129,8 +124,6 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
         Space space = spaceService.getSpaceByPrettyName(streamIdentity.getRemoteId());
         spaceId = space == null ? 0 : Long.parseLong(space.getId());
         spaceTemplate = space == null ? null : space.getTemplate();
-      } else {
-        userId = streamIdentityId;
       }
     }
 
@@ -139,10 +132,7 @@ public class AnalyticsActivityListener extends ActivityListenerPlugin {
     statisticData.setSubModule("activity");
     statisticData.setOperation(operation);
     statisticData.setSpaceId(spaceId);
-    statisticData.setUserId(userId);
-    if (modifierUserId > 0) {
-      statisticData.addParameter(FIELD_MODIFIER_USER_SOCIAL_ID, modifierUserId);
-    }
+    statisticData.setUserId(modifierUserId);
     if (spaceTemplate != null) {
       statisticData.addParameter("spaceTemplate", spaceTemplate);
     }
