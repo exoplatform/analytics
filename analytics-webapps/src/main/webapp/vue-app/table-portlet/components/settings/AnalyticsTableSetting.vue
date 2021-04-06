@@ -11,7 +11,7 @@
     <template slot="content">
       <v-card-text v-if="tableSettings">
         <v-subheader class="px-0">
-        <h4 class="mt-0">{{ $t('analytics.limit') }}</h4>
+          <h4 class="mt-0">{{ $t('analytics.limit') }}</h4>
         </v-subheader>
         <v-text-field
           v-model="tableSettings.pageSize"
@@ -22,7 +22,7 @@
           outlined
           required />
         <v-subheader class="px-0">
-        <h4 class="mt-0">{{ $t('analytics.mainColumn') }}</h4>
+          <h4 class="mt-0">{{ $t('analytics.mainColumn') }}</h4>
         </v-subheader>
         <v-text-field
           v-model="tableSettings.mainColumn.title"
