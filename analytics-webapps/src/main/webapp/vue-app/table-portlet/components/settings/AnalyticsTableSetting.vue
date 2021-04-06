@@ -10,7 +10,20 @@
     </template>
     <template slot="content">
       <v-card-text v-if="tableSettings">
+        <v-subheader class="px-0">
+        <h4 class="mt-0">{{ $t('analytics.limit') }}</h4>
+        </v-subheader>
+        <v-text-field
+          v-model="tableSettings.pageSize"
+          :label="$t('analytics.limit')"
+          :placeholder="$t('analytics.limit')"
+          class="pt-2"
+          type="number"
+          outlined
+          required />
+        <v-subheader class="px-0">
         <h4 class="mt-0">{{ $t('analytics.mainColumn') }}</h4>
+        </v-subheader>
         <v-text-field
           v-model="tableSettings.mainColumn.title"
           :label="$t('analytics.tableMainColumnTitle')"
@@ -180,6 +193,7 @@ export default {
     open() {
       const settings = this.settings || {};
       const tableSettings = {
+        pageSize: settings.pageSize || 20,
         title: settings.title || '',
         mainColumn: {
           title: '',
