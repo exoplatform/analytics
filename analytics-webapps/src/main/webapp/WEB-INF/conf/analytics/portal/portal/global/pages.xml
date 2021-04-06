@@ -431,6 +431,7 @@
               <preference>
                 <name>settings</name>
                 <value>{
+                   "pageSize": 20,
                    "mainColumn":{
                       "title":"analytics.users",
                       "valueAggregation":{
@@ -580,6 +581,7 @@
               <preference>
                 <name>settings</name>
                 <value>{
+                   "pageSize": 20,
                    "mainColumn":{
                       "title":"analytics.spaces",
                       "valueAggregation":{

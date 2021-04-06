@@ -84,6 +84,7 @@ public class AnalyticsTablePortlet extends GenericPortlet {
       AnalyticsTableFilter filter = getFilterFromPreferences(windowId, preferences, false);
       JSONObject jsonResponse = new JSONObject();
       addJSONParam(jsonResponse, "title", filter.getTitle());
+      addJSONParam(jsonResponse, "pageSize", filter.getPageSize());
       addJSONParam(jsonResponse, "canEdit", canModifyTableSettings(portletSession));
       addJSONParam(jsonResponse, "scope", getSearchScope(portletSession).name());
       response.setContentType("application/json");
