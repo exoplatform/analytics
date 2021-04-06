@@ -61,6 +61,14 @@ export default {
         return null;
       },
     },
+    limit: {
+      type:Number,
+      default: 20
+    },
+    pageSize: {
+      type:Number,
+      default: 20
+    },
     spaces: {
       type: Object,
       default: function() {
@@ -87,8 +95,6 @@ export default {
     },
   },
   data: () => ({
-    limit: 10,
-    pageSize: 10,
     lang: eXo.env.portal.language,
     options: {},
     items: [],

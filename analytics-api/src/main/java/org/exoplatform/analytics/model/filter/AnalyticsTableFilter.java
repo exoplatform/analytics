@@ -31,6 +31,8 @@ public class AnalyticsTableFilter implements Serializable, Cloneable {
   private AnalyticsTableColumnFilter       mainColumn       = null;
 
   private List<AnalyticsTableColumnFilter> columns          = new ArrayList<>();
+  
+  private int                              pageSize;
 
   @Override
   public AnalyticsTableFilter clone() { // NOSONAR
@@ -39,7 +41,7 @@ public class AnalyticsTableFilter implements Serializable, Cloneable {
                                                                      : columns.stream()
                                                                               .map(AnalyticsTableColumnFilter::clone)
                                                                               .collect(Collectors.toList());
-    return new AnalyticsTableFilter(title, clonedMainColumn, clonedColumns);
+    return new AnalyticsTableFilter(title, clonedMainColumn, clonedColumns, pageSize);
   }
 
   public AnalyticsTableColumnFilter getColumnFilter(int columnIndex) {
