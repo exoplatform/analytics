@@ -10,7 +10,8 @@
       <v-flex
         class="my-auto px-2"
         md6
-        xs12>
+        xs12
+        pt-1>
         <v-text-field
           v-model="settings.title"
           :label="$t('analytics.chartTitle')"
@@ -19,7 +20,8 @@
       <v-flex
         class="my-auto px-2"
         md6
-        xs12>
+        xs12
+        pb-4>
         <v-select
           v-model="settings.chartType"
           :items="chartTypes"
