@@ -47,7 +47,9 @@
       :users="userObjects"
       :spaces="spaceObjects"
       :user-fields="userFields"
-      :space-fields="spaceFields" />
+      :space-fields="spaceFields"
+      :limit="settings && settings.pageSize"
+      :page-size="settings && settings.pageSize" />
   </v-app>
 </template>
 
