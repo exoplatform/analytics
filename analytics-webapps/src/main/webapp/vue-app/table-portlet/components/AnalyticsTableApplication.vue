@@ -16,7 +16,7 @@
         :labels="suggesterLabels"
         :include-users="useUsersInSearch"
         :include-spaces="useSpacesInSearch"
-        :inner-icon="true"
+        :filter-style="true"
         name="selectedUser"
         class="analytics-table-suggester mr-2" />
       <template v-if="canEdit">
