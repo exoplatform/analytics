@@ -182,8 +182,8 @@ export default {
           aggregation: {
             type: 'COUNT',
           },
+          filters: [],
         },
-        filter: [],
       });
     },
     deleteColumn(index) {
@@ -199,6 +199,7 @@ export default {
           title: '',
           valueAggregation: {
             aggregation: {},
+            filters: [],
           },
         },
         columns: [],

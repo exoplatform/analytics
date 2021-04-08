@@ -149,16 +149,14 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       return new HashSet<>(esMappings.values());
     }
     try {
-      long today = System.currentTimeMillis();
-      String index = analyticsIndexingServiceConnector.getIndex(today);
-      String mappingJsonString = esClient.getMapping(today);
+      String mappingJsonString = esClient.getMapping();
       if (StringUtils.isBlank(mappingJsonString)) {
         return new HashSet<>(esMappings.values());
       }
       JSONObject result = new JSONObject(mappingJsonString);
       JSONObject mappingObject = getJSONObject(result,
                                                0,
-                                               index,
+                                               null,
                                                "mappings",
                                                analyticsIndexingServiceConnector.getType(),
                                                "properties");

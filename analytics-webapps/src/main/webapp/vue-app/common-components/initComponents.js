@@ -4,6 +4,9 @@ import JsonPanelDialog from './components/settings/JsonPanelDialog.vue';
 import IdentityFieldSelection from './components/settings/form/IdentityFieldSelection.vue';
 import FieldSelection from './components/settings/form/FieldSelection.vue';
 import FieldFilter from './components/settings/form/FieldFilter.vue';
+import SpaceFieldFilter from './components/settings/form/SpaceFieldFilter.vue';
+import UserFieldFilter from './components/settings/form/UserFieldFilter.vue';
+import MultipleValuesSelection from './components/settings/form/MultipleValuesSelection.vue';
 import XAxisAggregationField from './components/settings/form/XAxisAggregationField.vue';
 import LimitFilterForm from './components/settings/form/LimitFilterForm.vue';
 
@@ -27,6 +30,9 @@ const components = {
   'analytics-setting-color-picker': SettingColorPicker,
   'analytics-identity-field-selection': IdentityFieldSelection,
   'analytics-field-selection': FieldSelection,
+  'analytics-multiple-values-selection': MultipleValuesSelection,
+  'analytics-space-field-filter': SpaceFieldFilter,
+  'analytics-user-field-filter': UserFieldFilter,
   'analytics-field-filter': FieldFilter,
   'analytics-x-axis-aggregation-field': XAxisAggregationField,
   'analytics-limit-filter-form': LimitFilterForm,

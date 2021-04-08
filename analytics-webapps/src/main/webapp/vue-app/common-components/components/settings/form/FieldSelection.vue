@@ -116,7 +116,7 @@ export default {
     }
   },
   methods: {
-    updateData(){
+    updateData() {
       this.$emit('input', this.value);
       this.$emit('change', this.value);
       this.$forceUpdate();

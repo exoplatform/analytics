@@ -90,7 +90,7 @@
 .content-box-sizing {
   box-sizing: content-box;
 }
-.analytics-application {
+.VuetifyApp .analytics-application {
   background: transparent !important;
   max-width: fit-content;
   margin: auto;
@@ -153,18 +153,16 @@
       padding: 0 !important;
       margin: 0 !important;
     }
-
-    .v-menu__content {
-      max-width: none !important;
-
-      .v-list-item {
-        white-space: nowrap;
-      }
-    }
   }
 
   .analytics-field-filter input {
     width: 100% !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    max-height: 40px;
+    height: 40px;
+    min-height: auto;
+    box-sizing: border-box;
   }
 
   .jsonSetting {
@@ -285,7 +283,6 @@
     .v-select__selections {
       white-space: nowrap;
       overflow: hidden;
-      padding-top: 2px;
     }
 
     .v-input__slot {

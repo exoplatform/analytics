@@ -1,13 +1,13 @@
 <template>
   <v-layout class="analytics-field-filter">
-    <v-flex xs3 class="my-auto">
+    <v-flex xs3 class="mb-auto">
       <analytics-field-selection
         v-model="filter.field"
         :fields-mappings="fieldsMappings"
         :placeholder="$t('analytics.fieldNamePlaceholder')"
         :attach="attach" />
     </v-flex>
-    <v-flex xs4 class="d-flex ma-auto content-box-sizing">
+    <v-flex xs4 class="d-flex mb-auto content-box-sizing">
       <select
         v-model="filter.type"
         :placeholder="$t('analytics.operatorPlaceholder')"
@@ -24,30 +24,23 @@
         </option>
       </select>
     </v-flex>
-    <v-flex xs4 class="my-auto">
-      <template v-if="isValuesComparatorType">
+    <v-flex xs4 class="mb-auto">
+      <template v-if="isMultipleValuesSelection">
+        <analytics-multiple-values-selection
+          :filter="filter"
+          :suggester-labels="suggesterLabels"
+          :field-label="selectedFieldLabel" />
+      </template>
+      <template v-else-if="isSingleValueSelection">
         <template v-if="isIdentitySuggester">
-          <exo-identity-suggester
-            v-show="filter.field === 'spaceId'"
-            ref="spaceSuggester"
-            v-model="filter.spaces"
-            :labels="suggesterLabels"
-            :spaces="spaces"
-            :multiple="multipleOperator"
-            include-spaces
-            class="analytics-suggester"
-            @input="selectIdentity" />
-          <exo-identity-suggester
-            v-show="filter.field === 'userId'"
-            ref="userSuggester"
-            v-model="filter.users"
-            :users="users"
-            :search-options="searchOptions"
-            :labels="suggesterLabels"
-            :multiple="multipleOperator"
-            include-users
-            class="analytics-suggester"
-            @input="selectIdentity" />
+          <analytics-space-field-filter
+            v-if="filter.field === 'spaceId'"
+            :filter="filter"
+            :suggester-labels="suggesterLabels" />
+          <analytics-user-field-filter
+            v-else-if="filter.field === 'userId'"
+            :filter="filter"
+            :suggester-labels="suggesterLabels" />
         </template>
         <input
           v-else
@@ -79,11 +72,11 @@
           required>
       </template>
     </v-flex>
-    <v-flex xs1 class="my-auto">
+    <div xs1 class="my-auto mx-auto">
       <v-btn icon @click="$emit('delete')">
         <v-icon>fa-minus-circle</v-icon>
       </v-btn>
-    </v-flex>
+    </div>
   </v-layout>
 </template>
 
@@ -121,6 +114,13 @@ export default {
         placeholder: this.$t('analytics.searchPlaceholder'),
         noDataLabel: this.$t('analytics.noDataLabel'),
       };
+    },
+    selectedFieldLabel() {
+      if (this.filter && this.filter.field) {
+        const selectedField = this.fieldsMappings.find(mapping => mapping.searchFieldName === this.filter.field);
+        return selectedField && selectedField.label;
+      }
+      return '';
     },
     searchFilterTypes() {
       return [
@@ -185,11 +185,13 @@ export default {
     operatorType() {
       return this.filter && this.filter.type;
     },
-    isValuesComparatorType() {
-      return this.operatorType === 'EQUAL'
-        || this.operatorType === 'NOT_EQUAL'
-        || this.operatorType === 'IN_SET'
+    isMultipleValuesSelection() {
+      return this.operatorType === 'IN_SET'
         || this.operatorType === 'NOT_IN_SET';
+    },
+    isSingleValueSelection() {
+      return this.operatorType === 'EQUAL'
+        || this.operatorType === 'NOT_EQUAL';
     },
     valuesComparatorPlaceholder() {
       return ((this.operatorType === 'EQUAL' || this.operatorType === 'NOT_EQUAL') && this.$t('analytics.valuePlaceholder'))
@@ -207,89 +209,7 @@ export default {
       this.filterTypeChanged();
     },
   },
-  created() {
-    if (this.isValuesComparatorType && this.isIdentitySuggester && this.filter && this.filter.valueString) {
-      if (this.filterField === 'userId') {
-        const identityIds = this.filter.valueString.split(',');
-        const promises = [];
-        const selectedUsers = [];
-        identityIds.forEach(identityId => {
-          const promise = this.$identityService.getIdentityById(identityId.trim())
-            .then(identity => {
-              if (identity && identity.profile) {
-                const selectedUser = {
-                  id: `${identity.providerId}:${identity.remoteId}`,
-                  providerId: identity.providerId,
-                  remoteId: identity.remoteId,
-                  identityId: identity.id,
-                  profile: {
-                    fullName: identity.profile.fullname,
-                    avatarUrl: identity.profile.avatar,
-                  }
-                };
-                selectedUsers.push(selectedUser);
-              }
-            });
-          promises.push(promise);
-        });
-        Promise.all(promises).then(() => {
-          this.filter.users = selectedUsers;
-          this.users = selectedUsers;
-          this.$nextTick().then(() => this.$refs.userSuggester.init());
-        });
-      } else if (this.filterField === 'spaceId') {
-        this.$spaceService.getSpaceById(this.filter.valueString)
-          .then(space => {
-            if (space) {
-              const selectedSpace = {
-                id: `space:${space.prettyName}`,
-                providerId: 'space',
-                remoteId: space.prettyName,
-                spaceId: space.id,
-                profile: {
-                  fullName: space.displayName,
-                  avatarUrl: space.avatarUrl,
-                }
-              };
-              if (this.multipleOperator) {
-                this.filter.spaces = [selectedSpace];
-              } else {
-                this.filter.spaces = selectedSpace;
-              }
-              this.spaces = [selectedSpace];
-              this.$nextTick().then(() => this.$refs.spaceSuggester.init());
-            }
-          });
-      }
-    }
-  },
   methods: {
-    selectIdentity(identity) {
-      this.filter.valueString = '';
-      if (identity) {
-        const identities = Array.isArray(identity) && identity || [identity];
-        const identityIds = [];
-        const promises = [];
-        identities.forEach(identity => {
-          if (identity.identityId) {
-            identityIds.push(identity.identityId);
-          } else if (identity.spaceId) {
-            identityIds.push(identity.spaceId);
-          } else {
-            const promise = this.$identityService.getIdentityByProviderIdAndRemoteId(identity.providerId, identity.remoteId)
-              .then(identity => {
-                if (identity.space) {
-                  identityIds.push(identity.space.id);
-                } else if (identity.profile) {
-                  identityIds.push(identity.id);
-                }
-              });
-            promises.push(promise);
-          }
-        });
-        Promise.all(promises).then(() => this.filter.valueString = identityIds.join(','));
-      }
-    },
     filterTypeChanged() {
       this.filter.valueString = '';
       this.filter.users = null;
@@ -300,14 +220,6 @@ export default {
         this.filter.range = {};
       } else {
         this.filter.range = null;
-      }
-      if (this.$refs && this.$refs.userSuggester) {
-        this.$refs.userSuggester.clear();
-        this.$refs.userSuggester.init();
-      }
-      if (this.$refs && this.$refs.spaceSuggester) {
-        this.$refs.spaceSuggester.clear();
-        this.$refs.spaceSuggester.init();
       }
     },
   },
