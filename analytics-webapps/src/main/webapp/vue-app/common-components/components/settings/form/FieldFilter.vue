@@ -29,19 +29,23 @@
         <analytics-multiple-values-selection
           :filter="filter"
           :suggester-labels="suggesterLabels"
-          :field-label="selectedFieldLabel" />
+          :field-label="selectedFieldLabel"
+          :aggregation="isSelectedFieldAggregation"
+          :placeholder="valuesComparatorPlaceholder" />
       </template>
       <template v-else-if="isSingleValueSelection">
-        <template v-if="isIdentitySuggester">
-          <analytics-space-field-filter
-            v-if="filter.field === 'spaceId'"
-            :filter="filter"
-            :suggester-labels="suggesterLabels" />
-          <analytics-user-field-filter
-            v-else-if="filter.field === 'userId'"
-            :filter="filter"
-            :suggester-labels="suggesterLabels" />
-        </template>
+        <analytics-space-field-filter
+          v-if="filter.field === 'spaceId'"
+          :filter="filter"
+          :suggester-labels="suggesterLabels" />
+        <analytics-user-field-filter
+          v-else-if="filter.field === 'userId'"
+          :filter="filter"
+          :suggester-labels="suggesterLabels" />
+        <analytics-text-value-filter
+          v-else-if="isSelectedFieldAggregation"
+          :filter="filter"
+          :suggester-labels="suggesterLabels" />
         <input
           v-else
           v-model="filter.valueString"
@@ -115,12 +119,17 @@ export default {
         noDataLabel: this.$t('analytics.noDataLabel'),
       };
     },
-    selectedFieldLabel() {
+    selectedFieldMapping() {
       if (this.filter && this.filter.field) {
-        const selectedField = this.fieldsMappings.find(mapping => mapping.searchFieldName === this.filter.field);
-        return selectedField && selectedField.label;
+        return this.fieldsMappings.find(mapping => mapping.searchFieldName === this.filter.field);
       }
-      return '';
+      return null;
+    },
+    isSelectedFieldAggregation() {
+      return this.selectedFieldMapping && this.selectedFieldMapping.aggregation;
+    },
+    selectedFieldLabel() {
+      return this.selectedFieldMapping && this.selectedFieldMapping.label || '';
     },
     searchFilterTypes() {
       return [

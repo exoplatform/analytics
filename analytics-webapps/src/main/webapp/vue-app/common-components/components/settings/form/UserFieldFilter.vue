@@ -155,7 +155,7 @@ export default {
     remove(user) {
       if (user && this.users.indexOf(user) >= 0) {
         this.users.splice(this.users.indexOf(user), 1);
-        this.filter.valueString = this.users.map(user => user.id).join(',');
+        this.filter.valueString = this.users.map(user => user.identityId || user.id).join(',');
       }
     },
   },

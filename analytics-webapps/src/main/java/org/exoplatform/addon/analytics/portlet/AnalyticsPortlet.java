@@ -12,8 +12,7 @@ import org.eclipse.jetty.util.StringUtil;
 import org.json.*;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
-import org.exoplatform.analytics.model.StatisticData;
-import org.exoplatform.analytics.model.StatisticFieldMapping;
+import org.exoplatform.analytics.model.*;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter;
 import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregation;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
@@ -40,6 +39,8 @@ public class AnalyticsPortlet extends GenericPortlet {
   private static final String                       READ_CHART_DATA_OPERATION    = "GET_CHART_DATA";
 
   private static final String                       READ_CHART_SAMPLES_OPERATION = "GET_CHART_SAMPLES_DATA";
+
+  private static final String                       READ_FIELD_VALUES_OPERATION  = "GET_FIELD_VALUES";
 
   private static final Map<String, AnalyticsFilter> FILTERS                      = new HashMap<>();
 
@@ -133,6 +134,18 @@ public class AnalyticsPortlet extends GenericPortlet {
       Object result = getAnalyticsService().computeChartData(filter);
       response.setContentType(MediaType.APPLICATION_JSON);
       response.getWriter().write(AnalyticsUtils.toJsonString(result));
+    } else if (StringUtils.equals(operation, READ_FIELD_VALUES_OPERATION)) {
+      String field = request.getParameter("field");
+      String limitString = request.getParameter("limit");
+      int limit = StringUtils.isBlank(limitString) ? 10 : Integer.parseInt(limitString);
+      if (StringUtils.isNotBlank(field)) {
+        List<StatisticFieldValue> fieldValues = getAnalyticsService().retrieveFieldValues(field, limit);
+        response.getWriter().write(AnalyticsUtils.toJsonString(fieldValues));
+        response.setContentType("application/json");
+      } else {
+        response.getWriter().write("[]");
+        response.setContentType("application/json");
+      }
     }
     super.serveResource(request, response);
   }

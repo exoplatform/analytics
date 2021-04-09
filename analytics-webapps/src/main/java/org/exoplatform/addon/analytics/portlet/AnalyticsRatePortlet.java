@@ -12,6 +12,7 @@ import org.json.*;
 
 import org.exoplatform.analytics.api.service.AnalyticsService;
 import org.exoplatform.analytics.model.StatisticFieldMapping;
+import org.exoplatform.analytics.model.StatisticFieldValue;
 import org.exoplatform.analytics.model.filter.*;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -23,17 +24,19 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 
 public class AnalyticsRatePortlet extends GenericPortlet {
 
-  private static final String                                 CAN_MODIFY_CHART_SETTINGS = "canModifyChartSettings";
+  private static final String                                 CAN_MODIFY_CHART_SETTINGS   = "canModifyChartSettings";
 
-  private static final String                                 READ_SETTINGS_OPERATION   = "GET_SETTINGS";
+  private static final String                                 READ_SETTINGS_OPERATION     = "GET_SETTINGS";
 
-  private static final String                                 READ_FILTERS_OPERATION    = "GET_FILTERS";
+  private static final String                                 READ_FILTERS_OPERATION      = "GET_FILTERS";
 
-  private static final String                                 READ_MAPPINGS_OPERATION   = "GET_MAPPINGS";
+  private static final String                                 READ_MAPPINGS_OPERATION     = "GET_MAPPINGS";
 
-  private static final String                                 READ_CHART_DATA_OPERATION = "GET_CHART_DATA";
+  private static final String                                 READ_CHART_DATA_OPERATION   = "GET_CHART_DATA";
 
-  private static final Map<String, AnalyticsPercentageFilter> FILTERS                   = new HashMap<>();
+  private static final String                                 READ_FIELD_VALUES_OPERATION = "GET_FIELD_VALUES";
+
+  private static final Map<String, AnalyticsPercentageFilter> FILTERS                     = new HashMap<>();
 
   private SpaceService                                        spaceService;
 
@@ -99,6 +102,18 @@ public class AnalyticsRatePortlet extends GenericPortlet {
       Object result = getAnalyticsService().computePercentageChartData(filter);
       response.setContentType(MediaType.APPLICATION_JSON);
       response.getWriter().write(AnalyticsUtils.toJsonString(result));
+    } else if (StringUtils.equals(operation, READ_FIELD_VALUES_OPERATION)) {
+      String field = request.getParameter("field");
+      String limitString = request.getParameter("limit");
+      int limit = StringUtils.isBlank(limitString) ? 10 : Integer.parseInt(limitString);
+      if (StringUtils.isNotBlank(field)) {
+        List<StatisticFieldValue> fieldValues = getAnalyticsService().retrieveFieldValues(field, limit);
+        response.getWriter().write(AnalyticsUtils.toJsonString(fieldValues));
+        response.setContentType("application/json");
+      } else {
+        response.getWriter().write("[]");
+        response.setContentType("application/json");
+      }
     }
     super.serveResource(request, response);
   }

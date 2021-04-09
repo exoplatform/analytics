@@ -13,9 +13,8 @@ import org.picocontainer.Startable;
 import org.exoplatform.analytics.api.service.*;
 import org.exoplatform.analytics.es.AnalyticsESClient;
 import org.exoplatform.analytics.es.AnalyticsIndexingServiceConnector;
-import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.analytics.model.*;
 import org.exoplatform.analytics.model.StatisticData.StatisticStatus;
-import org.exoplatform.analytics.model.StatisticFieldMapping;
 import org.exoplatform.analytics.model.chart.*;
 import org.exoplatform.analytics.model.filter.*;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter.Range;
@@ -186,9 +185,26 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     return new HashSet<>(esMappings.values());
   }
 
-  private void addESDateSubField(String dateFieldName) {
-    StatisticFieldMapping fieldMapping = new StatisticFieldMapping("doc['timestamp'].date." + dateFieldName, "long", false, true);
-    esMappings.put(fieldMapping.getName(), fieldMapping);
+  @Override
+  public List<StatisticFieldValue> retrieveFieldValues(String field, int limit) {
+    StatisticFieldMapping fieldMapping = getFieldMapping(field);
+    if (fieldMapping == null || !fieldMapping.isAggregation()) {
+      return Collections.emptyList();
+    }
+    String esQuery = buildAnalyticsQuery(Collections.singletonList(new AnalyticsAggregation(AnalyticsAggregationType.TERMS,
+                                                                                            fieldMapping.getAggregationFieldName(),
+                                                                                            "desc",
+                                                                                            null,
+                                                                                            limit)),
+                                         null,
+                                         0,
+                                         0);
+    String jsonResponse = this.esClient.sendRequest(esQuery);
+    try {
+      return buildFieldValuesResponse(jsonResponse);
+    } catch (JSONException e) {
+      throw new IllegalStateException("Error parsing results for field: " + field + ", response: " + jsonResponse, e);
+    }
   }
 
   @Override
@@ -375,6 +391,35 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   public void addUIWatcherPlugin(StatisticUIWatcherPlugin uiWatcherPlugin) {
     uiWatcherPlugins.add(uiWatcherPlugin);
     uiWatchers.add(uiWatcherPlugin.getStatisticWatcher());
+  }
+
+  private List<StatisticFieldValue> buildFieldValuesResponse(String jsonResponse) throws JSONException {
+    JSONObject json = new JSONObject(jsonResponse);
+    JSONObject aggregations = json.has("aggregations") ? json.getJSONObject("aggregations") : null;
+    if (aggregations == null) {
+      return Collections.emptyList();
+    }
+    JSONObject result = aggregations.has(AGGREGATION_RESULT_PARAM) ? aggregations.getJSONObject(AGGREGATION_RESULT_PARAM) : null;
+    if (result == null) {
+      return Collections.emptyList();
+    }
+    JSONArray buckets = result.has("buckets") ? result.getJSONArray("buckets") : null;
+    if (buckets == null) {
+      return Collections.emptyList();
+    }
+    List<StatisticFieldValue> results = new ArrayList<>();
+    for (int i = 0; i < buckets.length(); i++) {
+      JSONObject bucket = buckets.getJSONObject(i);
+      String value = bucket.getString("key");
+      long count = bucket.getLong("doc_count");
+      results.add(new StatisticFieldValue(value, count));
+    }
+    return results;
+  }
+
+  private void addESDateSubField(String dateFieldName) {
+    StatisticFieldMapping fieldMapping = new StatisticFieldMapping("doc['timestamp'].date." + dateFieldName, "long", false, true);
+    esMappings.put(fieldMapping.getName(), fieldMapping);
   }
 
   private String buildAnalyticsQuery(List<AnalyticsAggregation> aggregations,

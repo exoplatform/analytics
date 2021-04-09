@@ -6,6 +6,8 @@ import FieldSelection from './components/settings/form/FieldSelection.vue';
 import FieldFilter from './components/settings/form/FieldFilter.vue';
 import SpaceFieldFilter from './components/settings/form/SpaceFieldFilter.vue';
 import UserFieldFilter from './components/settings/form/UserFieldFilter.vue';
+import TextValuesFilter from './components/settings/form/TextValuesFilter.vue';
+import TextValueSuggester from './components/settings/form/TextValueSuggester.vue';
 import MultipleValuesSelection from './components/settings/form/MultipleValuesSelection.vue';
 import XAxisAggregationField from './components/settings/form/XAxisAggregationField.vue';
 import LimitFilterForm from './components/settings/form/LimitFilterForm.vue';
@@ -33,6 +35,8 @@ const components = {
   'analytics-multiple-values-selection': MultipleValuesSelection,
   'analytics-space-field-filter': SpaceFieldFilter,
   'analytics-user-field-filter': UserFieldFilter,
+  'analytics-text-value-filter': TextValuesFilter,
+  'analytics-text-value-suggester': TextValueSuggester,
   'analytics-field-filter': FieldFilter,
   'analytics-x-axis-aggregation-field': XAxisAggregationField,
   'analytics-limit-filter-form': LimitFilterForm,
