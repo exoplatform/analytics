@@ -12,10 +12,10 @@
   <portlet:param name="operation" value="GET_FILTERS"/>
 </portlet:resourceURL>
 <portlet:resourceURL var="retrieveChartDataURL">
-  <portlet:param name="operation" value="GET_CHART_DATA"/>
+  <portlet:param name="operation" value="GET_DATA"/>
 </portlet:resourceURL>
 <portlet:resourceURL var="retrieveChartSamplesURL">
-  <portlet:param name="operation" value="GET_CHART_SAMPLES_DATA"/>
+  <portlet:param name="operation" value="GET_SAMPLES"/>
 </portlet:resourceURL>
 <portlet:resourceURL var="retrieveFieldValuesURL">
     <portlet:param name="operation" value="GET_FIELD_VALUES"/>

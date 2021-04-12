@@ -18,8 +18,7 @@ package org.exoplatform.analytics.test;
 
 import static org.junit.Assert.*;
 
-import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.*;
 
 import org.junit.Test;
@@ -113,6 +112,45 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     assertEquals("Unexpected injected values (Y axis) data size",
                  chartDataList.getLabels().size(),
                  chartData.getValues().size());
+  }
+
+  @Test
+  public void testGetAnalyticsChartByUserTimeZone() {
+    AnalyticsFilter analyticsFilter = new AnalyticsFilter();
+
+    ZoneId timeZone = ZoneId.of("Europe/Paris");
+    analyticsFilter.setTimeZone(timeZone.getId());
+    ZonedDateTime start = ZonedDateTime.of(2020, 2, 28, 0, 0, 0, 0, timeZone);
+    ZonedDateTime end = ZonedDateTime.of(2020, 2, 29, 23, 59, 59, 0, timeZone);
+    analyticsFilter.addRangeFilter("timestamp",
+                                   String.valueOf(start.toInstant().toEpochMilli()),
+                                   String.valueOf(end.toInstant().toEpochMilli()));
+
+    AnalyticsAggregation timeAggregation = new AnalyticsAggregation();
+    timeAggregation.setField("timestamp");
+    timeAggregation.setType(AnalyticsAggregationType.DATE);
+    timeAggregation.setInterval("1d");
+    analyticsFilter.addXAxisAggregation(timeAggregation);
+
+    ChartDataList chartDataList = analyticsService.computeChartData(analyticsFilter);
+    assertNotNull("Unexpected empty charts data", chartDataList);
+    assertNotNull("Unexpected empty charts data size", chartDataList.getCharts());
+    assertEquals("Unexpected empty charts data size", 1, chartDataList.getCharts().size());
+
+    ChartData chartData = chartDataList.getCharts().iterator().next();
+    List<ChartAggregationResult> aggregationResults = chartData.getAggregationResults();
+    assertNotNull("Unexpected empty aggregationResults", aggregationResults);
+    assertEquals("Unexpected size of aggregationResults", 2, aggregationResults.size());
+
+    ChartAggregationResult chartAggregationResult = aggregationResults.get(0);
+    assertNotNull("Unexpected injected labels (X axis) data size", chartAggregationResult.getValue());
+    assertTrue("First date must correspond to 2020-02-28", chartAggregationResult.getLabel().contains("28"));
+    assertEquals("Unexpected injected labels (X axis) data size", 46, Long.parseLong(chartAggregationResult.getResult()));
+
+    chartAggregationResult = aggregationResults.get(1);
+    assertNotNull("Unexpected injected labels (X axis) data size", chartAggregationResult.getValue());
+    assertTrue("Second date must correspond to 2020-02-29", chartAggregationResult.getLabel().contains("29"));
+    assertEquals("Unexpected injected labels (X axis) data size", 62, Long.parseLong(chartAggregationResult.getResult()));
   }
 
   @Test
@@ -423,7 +461,7 @@ public class AnalyticsServiceTestIT extends BaseAnalyticsTest {
     column2.getValueAggregation().getFilters().add(new AnalyticsFieldFilter("module", AnalyticsFieldFilterType.EQUAL, "portal"));
     filter.setColumns(Arrays.asList(column1, column2));
 
-    AnalyticsPeriod period = AnalyticsPeriodType.THIS_YEAR.getCurrentPeriod(LocalDate.of(2019, 12, 01));
+    AnalyticsPeriod period = AnalyticsPeriodType.THIS_YEAR.getCurrentPeriod(LocalDate.of(2019, 12, 01), null);
     AnalyticsFilter userColumnFilter = filter.buildColumnFilter(period,
                                                                 AnalyticsPeriodType.THIS_YEAR,
                                                                 null,

@@ -1,8 +1,7 @@
 package org.exoplatform.analytics.model.filter;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.time.ZoneOffset;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,33 +14,31 @@ import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationTy
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilterType;
 
-import groovy.transform.ToString;
 import lombok.*;
 
 @Data
-@ToString
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnalyticsTableFilter implements Serializable, Cloneable {
+public class AnalyticsTableFilter extends AbstractAnalyticsFilter {
 
   static final long                        serialVersionUID = 8707611304110081607L;
-
-  private String                           title;
 
   private AnalyticsTableColumnFilter       mainColumn       = null;
 
   private List<AnalyticsTableColumnFilter> columns          = new ArrayList<>();
-  
+
   private int                              pageSize;
 
-  @Override
-  public AnalyticsTableFilter clone() { // NOSONAR
-    AnalyticsTableColumnFilter clonedMainColumn = mainColumn == null ? null : mainColumn.clone();
-    List<AnalyticsTableColumnFilter> clonedColumns = columns == null ? null
-                                                                     : columns.stream()
-                                                                              .map(AnalyticsTableColumnFilter::clone)
-                                                                              .collect(Collectors.toList());
-    return new AnalyticsTableFilter(title, clonedMainColumn, clonedColumns, pageSize);
+  public AnalyticsTableFilter(String title,
+                              String timeZone,
+                              AnalyticsTableColumnFilter clonedMainColumn,
+                              List<AnalyticsTableColumnFilter> clonedColumns,
+                              int pageSize) {
+    this(clonedMainColumn, clonedColumns, pageSize);
+    setTitle(title);
+    setTimeZone(timeZone);
   }
 
   public AnalyticsTableColumnFilter getColumnFilter(int columnIndex) {
@@ -126,18 +123,32 @@ public class AnalyticsTableFilter implements Serializable, Cloneable {
     if (periodType == null) {
       return period;
     } else {
-      return periodType.getCurrentPeriod(Instant.ofEpochMilli(period.getFromInMS()
-          + (period.getToInMS() - period.getFromInMS()) / 2).atZone(ZoneOffset.UTC).toLocalDate());
+      return periodType.getCurrentPeriod(middleOfPeriod(period), zoneId());
     }
+  }
+
+  private LocalDate middleOfPeriod(AnalyticsPeriod period) {
+    return Instant.ofEpochMilli(period.getFromInMS() + (period.getToInMS() - period.getFromInMS()) / 2)
+                  .atZone(zoneId())
+                  .toLocalDate();
   }
 
   public AnalyticsPeriod getPreviousPeriod(AnalyticsPeriod period, AnalyticsPeriodType periodType) {
     if (periodType == null) {
       return period.previousPeriod();
     } else {
-      return periodType.getPreviousPeriod(Instant.ofEpochMilli(period.getFromInMS()
-          + (period.getToInMS() - period.getFromInMS()) / 2).atZone(ZoneOffset.UTC).toLocalDate());
+      return periodType.getPreviousPeriod(middleOfPeriod(period), zoneId());
     }
+  }
+
+  @Override
+  public AnalyticsTableFilter clone() { // NOSONAR
+    AnalyticsTableColumnFilter clonedMainColumn = mainColumn == null ? null : mainColumn.clone();
+    List<AnalyticsTableColumnFilter> clonedColumns = columns == null ? null
+                                                                     : columns.stream()
+                                                                              .map(AnalyticsTableColumnFilter::clone)
+                                                                              .collect(Collectors.toList());
+    return new AnalyticsTableFilter(getTitle(), getTimeZone(), clonedMainColumn, clonedColumns, pageSize);
   }
 
   private void addPeriodFilter(AnalyticsPeriod period,
@@ -166,7 +177,7 @@ public class AnalyticsTableFilter implements Serializable, Cloneable {
           interval = "1d";
         }
       } else {
-        previousPeriod = periodType.getPreviousPeriod(period.getFrom());
+        previousPeriod = periodType.getPreviousPeriod(period.getFrom(), zoneId());
         fromInMS = previousPeriod.getFromInMS();
         interval = periodType.getInterval();
         if (periodType.getOffset(previousPeriod.getFromInMS()) > 0) {
@@ -189,4 +200,5 @@ public class AnalyticsTableFilter implements Serializable, Cloneable {
                                                                  new Range(fromInMS, toInMS));
     filters.add(periodFilter);
   }
+
 }
