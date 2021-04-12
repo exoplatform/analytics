@@ -28,12 +28,12 @@ export function init(dataId) {
 
       new Vue({
         data: () => ({
-          retrieveSettingsURL : retrieveSettingsURL,
-          retrieveMappingsURL : retrieveMappingsURL,
-          retrieveFiltersURL : retrieveFiltersURL,
-          retrieveTableDataUrl : retrieveTableDataUrl,
-          retrieveFieldValuesUrl : retrieveFieldValuesUrl,
-          saveSettingsURL : saveSettingsURL,
+          retrieveSettingsURL: retrieveSettingsURL,
+          retrieveMappingsURL: retrieveMappingsURL,
+          retrieveFiltersURL: retrieveFiltersURL,
+          retrieveTableDataUrl: retrieveTableDataUrl,
+          retrieveFieldValuesUrl: retrieveFieldValuesUrl,
+          saveSettingsURL: saveSettingsURL,
         }),
         mounted() {
           // Hide loading toolbar each time a portlet is mounted

@@ -62,11 +62,11 @@ export default {
       },
     },
     limit: {
-      type:Number,
+      type: Number,
       default: 20
     },
     pageSize: {
-      type:Number,
+      type: Number,
       default: 20
     },
     spaces: {
@@ -303,7 +303,7 @@ export default {
             }
           })
           .catch((e) => {
-            console.debug('fetch analytics - error', e);
+            console.error('fetch analytics - error', e);
             this.error = 'Error getting analytics';
             this.items.forEach(item => {
               item[`column${columnIndex}`] = {value: 'errorRetrievingData'};

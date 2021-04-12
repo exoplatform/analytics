@@ -78,7 +78,7 @@ export function getPage(siteType, siteName, pageName) {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
-    if(!resp || !resp.ok) {
+    if (!resp || !resp.ok) {
       throw new Error('Error retrieving pages of current site');
     }
     return resp.json();

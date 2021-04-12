@@ -151,7 +151,7 @@ export default {
     title: null,
     chartType: 'line',
     initialized: false,
-    showMenu:false,
+    showMenu: false,
     displaySamplesCount: false,
     selectedPeriod: null,
     userObjects: {},
@@ -239,7 +239,7 @@ export default {
           this.title = settings && settings.title || this.$t('analytics.chartDataPlaceholder');
         })
         .catch((e) => {
-          console.warn('Error retrieving chart filters', e);
+          console.error('Error retrieving chart filters', e);
           this.error = 'Error retrieving chart filters';
         });
     },
@@ -277,7 +277,7 @@ export default {
           }
         })
         .catch((e) => {
-          console.warn('Error retrieving chart filters', e);
+          console.error('Error retrieving chart filters', e);
           this.error = 'Error retrieving chart filters';
         });
     },
@@ -291,7 +291,7 @@ export default {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: $.param({
-          settings : JSON.stringify(chartSettings)
+          settings: JSON.stringify(chartSettings)
         }),
       })
         .then((resp) => {
@@ -303,7 +303,7 @@ export default {
           return this.init();
         })
         .catch((e) => {
-          console.warn('Error saving chart settings', e);
+          console.error('Error saving chart settings', e);
           this.error = 'Error saving chart settings';
         })
         .finally(() => {
@@ -341,7 +341,7 @@ export default {
           this.$refs.analyticsChartBody.init(this.chartsData);
         })
         .catch((e) => {
-          console.debug('fetch analytics - error', e);
+          console.error('fetch analytics - error', e);
           this.error = 'Error getting analytics';
         })
         .finally(() => this.loading = false);

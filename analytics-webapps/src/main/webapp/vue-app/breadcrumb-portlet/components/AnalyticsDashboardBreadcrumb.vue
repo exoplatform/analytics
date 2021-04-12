@@ -93,7 +93,7 @@ export default {
       const breadCrumbItems = [];
       if (this.parentAnalyticsPage && this.subPageParts.length) {
         let pageIndex = this.parentAnalyticsPage;
-        for(const level in this.subPageParts) {
+        for (const level in this.subPageParts) {
           const pageUri = this.subPageParts[level];
           if (pageIndex && pageIndex.children) {
             const children = pageIndex.children;
@@ -109,7 +109,7 @@ export default {
           if (pageIndex) {
             breadCrumbItems.push(pageIndex);
           } else {
-            console.warn(`Can't find page with uri '${pageUri}' in pages level ${level}`);
+            console.error(`Can't find page with uri '${pageUri}' in pages level ${level}`);
           }
         }
       }
@@ -126,7 +126,7 @@ export default {
         this.$nextTick().then(() => this.$root.$emit('application-loaded'));
       });
   },
-  methods:{
+  methods: {
     openDrawer(){
       this.$refs.analyticsPage.open();
     },

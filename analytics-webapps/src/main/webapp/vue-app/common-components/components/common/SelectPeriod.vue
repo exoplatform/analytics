@@ -28,7 +28,7 @@
         :max="maxDate"
         width="100%"
         show-current
-        show-week  
+        show-week
         first-day-of-week="1"
         class="analyticsDatePicker pb-2"
         range
@@ -122,7 +122,7 @@ export default {
       day: 'numeric',
     },
   }),
-  computed:{
+  computed: {
     periodOptions() {
       return [
         {
