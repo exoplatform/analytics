@@ -23,6 +23,7 @@ export function init(dataId) {
       const retrieveMappingsURL = element.attr('data-mappings-url');
       const retrieveFiltersURL = element.attr('data-filters-url');
       const retrieveTableDataUrl = element.attr('data-table-data-url');
+      const retrieveFieldValuesUrl = element.attr('data-field-values-url');
       const saveSettingsURL = element.attr('data-save-settings-url');
 
       new Vue({
@@ -31,6 +32,7 @@ export function init(dataId) {
           retrieveMappingsURL : retrieveMappingsURL,
           retrieveFiltersURL : retrieveFiltersURL,
           retrieveTableDataUrl : retrieveTableDataUrl,
+          retrieveFieldValuesUrl : retrieveFieldValuesUrl,
           saveSettingsURL : saveSettingsURL,
         }),
         mounted() {
@@ -44,12 +46,14 @@ export function init(dataId) {
            :retrieve-mappings-url="retrieveMappingsURL"
            :retrieve-filters-url="retrieveFiltersURL"
            :retrieve-table-data-url="retrieveTableDataUrl"
+           :retrieve-field-values-url="retrieveFieldValuesUrl"
            :save-settings-url="saveSettingsURL"
            data-id="${dataId}"
            data-settings-url="${retrieveSettingsURL}"
            data-mappings-url="${retrieveMappingsURL}"
            data-filters-url="${retrieveFiltersURL}"
            data-table-data-url="${retrieveTableDataUrl}"
+           data-field-values-url="${retrieveFieldValuesUrl}"
            data-save-settings-url="${saveSettingsURL}" />`,
         vuetify,
         i18n

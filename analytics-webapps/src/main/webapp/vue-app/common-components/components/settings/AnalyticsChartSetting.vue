@@ -45,7 +45,6 @@
                 :fields-mappings="fieldsMappings"
                 :y-axis-aggregation="chartSettings.value.yAxisAggregation" />
               <v-divider class="my-4" />
-              <h3>{{ $t('analytics.dataFilters') }}</h3>
               <analytics-search-filter-form
                 ref="searchFilter"
                 :fields-mappings="fieldsMappings"
@@ -62,7 +61,6 @@
                 :fields-mappings="fieldsMappings"
                 :y-axis-aggregation="chartSettings.threshold.yAxisAggregation" />
               <v-divider class="my-4" />
-              <h3>{{ $t('analytics.dataFilters') }}</h3>
               <analytics-search-filter-form
                 ref="searchFilter"
                 :fields-mappings="fieldsMappings"
@@ -92,7 +90,8 @@
               <analytics-search-filter-form
                 ref="searchFilter"
                 :fields-mappings="fieldsMappings"
-                :filters="chartSettings.filters" />
+                :filters="chartSettings.filters"
+                no-title />
             </v-tab-item>
           </template>
         </v-tabs-items>

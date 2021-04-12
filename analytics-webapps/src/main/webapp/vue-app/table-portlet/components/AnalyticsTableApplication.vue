@@ -3,7 +3,7 @@
     :id="appId"
     class="analytics-application"
     flat>
-    <div class="d-flex pa-3 white analytics-table-header" flat>
+    <div class="d-flex px-3 pb-2 pt-1 white analytics-table-header" flat>
       <analytics-select-period
         v-model="selectedPeriod"
         hide-time
@@ -23,7 +23,7 @@
         <v-btn
           icon
           :title="$t('analytics.settings')"
-          class="d-none d-sm-inline text-header-title"
+          class="d-none d-sm-inline text-header-title my-auto"
           @click="$refs.tableSettingDrawer.open()">
           <v-icon>mdi-settings</v-icon>
         </v-btn>
@@ -76,6 +76,12 @@ export default {
       },
     },
     retrieveTableDataUrl: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
+    retrieveFieldValuesUrl: {
       type: String,
       default: function() {
         return null;
@@ -193,6 +199,14 @@ export default {
         this.init();
       }
     },
+  },
+  created() {
+    this.$root.retrieveSettingsUrl = this.retrieveSettingsUrl;
+    this.$root.retrieveMappingsUrl = this.retrieveMappingsUrl;
+    this.$root.retrieveFiltersUrl = this.retrieveFiltersUrl;
+    this.$root.retrieveTableDataUrl = this.retrieveTableDataUrl;
+    this.$root.retrieveFieldValuesUrl = this.retrieveFieldValuesUrl;
+    this.$root.saveSettingsUrl = this.saveSettingsUrl;
   },
   methods: {
     init() {

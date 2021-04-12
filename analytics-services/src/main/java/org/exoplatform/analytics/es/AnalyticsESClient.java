@@ -182,12 +182,8 @@ public class AnalyticsESClient extends ElasticClient {
     return response;
   }
 
-  public String getMapping(long timestamp) {
-    String esIndex = analyticsIndexingConnector.getIndex(timestamp);
-    if (!sendIsIndexExistsRequest(esIndex)) {
-      return null;
-    }
-    String url = urlClient + "/" + esIndex + "/_mapping";
+  public String getMapping() {
+    String url = urlClient + "/" + analyticsIndexingConnector.getIndexPrefix() + "*/_mapping";
     ElasticResponse response = sendHttpGetRequest(url);
     if (ElasticIndexingAuditTrail.isError(response.getStatusCode())) {
       LOG.warn("Error getting mapping of analytics : - \t\tcode : {} - \t\tmessage: {}",
