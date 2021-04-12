@@ -238,7 +238,7 @@ export default {
           this.title = settings && settings.title || '';
         })
         .catch((e) => {
-          console.warn('Error retrieving table settings', e);
+          console.error('Error retrieving table settings', e);
           this.error = 'Error retrieving table settings';
         });
     },
@@ -279,7 +279,7 @@ export default {
           this.settings = settings;
         })
         .catch((e) => {
-          console.warn('Error retrieving table filters', e);
+          console.error('Error retrieving table filters', e);
           this.error = 'Error retrieving table filters';
         });
     },
@@ -308,7 +308,7 @@ export default {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: $.param({
-          settings : JSON.stringify(settingsToSave)
+          settings: JSON.stringify(settingsToSave)
         }),
       })
         .then((resp) => {
@@ -319,7 +319,7 @@ export default {
           return this.init();
         })
         .catch((e) => {
-          console.warn('Error saving table settings', e);
+          console.error('Error saving table settings', e);
           this.error = 'Error saving table settings';
         })
         .finally(() => {

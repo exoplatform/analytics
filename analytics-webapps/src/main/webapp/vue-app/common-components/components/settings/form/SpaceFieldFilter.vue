@@ -83,7 +83,7 @@ export default {
               selectedSpaces.push(selectedSpace);
             }
           })
-          .catch(e => console.warn('Error retrieving space with id', spaceId, e));
+          .catch(e => console.error('Error retrieving space with id', spaceId, e));
         promises.push(promise);
       });
       Promise.all(promises).finally(() => {
@@ -137,7 +137,7 @@ export default {
                   }
                 }
               })
-              .catch(e => console.warn('Error retrieving identity with id', identity.id, e));
+              .catch(e => console.error('Error retrieving identity with id', identity.id, e));
             promises.push(promise);
           }
         });

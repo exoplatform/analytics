@@ -65,7 +65,7 @@ export default {
             value: 'percentage',
           }
         ];
-      }else {
+      } else {
         return [
           {
             text: this.$t('analytics.bar'),

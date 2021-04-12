@@ -88,7 +88,7 @@ export default {
     diffSign() {
       if (this.currentPeriodPercentage === this.lastPeriodPercentage) {
         return '';
-      } else if(this.currentPeriodPercentage > this.lastPeriodPercentage) {
+      } else if (this.currentPeriodPercentage > this.lastPeriodPercentage) {
         return '+';
       } else {
         return '-';
@@ -101,7 +101,7 @@ export default {
     lastPeriodComparaisonClass() {
       if (this.currentPeriodPercentage === this.lastPeriodPercentage) {
         return '';
-      } else if(this.currentPeriodPercentage > this.lastPeriodPercentage) {
+      } else if (this.currentPeriodPercentage > this.lastPeriodPercentage) {
         return 'success--text';
       } else {
         return 'error--text';

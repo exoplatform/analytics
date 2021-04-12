@@ -86,7 +86,7 @@ export default {
               selectedUsers.push(selectedUser);
             }
           })
-          .catch(e => console.warn('Error retrieving user with identity id', identityId, e));
+          .catch(e => console.error('Error retrieving user with identity id', identityId, e));
         promises.push(promise);
       });
       Promise.all(promises).finally(() => {
@@ -140,7 +140,7 @@ export default {
                   }
                 }
               })
-              .catch(e => console.warn('Error retrieving identity with id', identity.id, e));
+              .catch(e => console.error('Error retrieving identity with id', identity.id, e));
             promises.push(promise);
           }
         });

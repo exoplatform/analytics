@@ -82,10 +82,7 @@ export default {
           this.item.identity = this.user = identity && identity.profile;
           this.$forceUpdate();
         })
-        .catch((e) => {
-          console.warn('Error retrieving user entity', e);
-          this.error = true;
-        })
+        .catch(() => this.error = true)
         .finally(() => this.loading = false);
     } else {
       this.loading = false;

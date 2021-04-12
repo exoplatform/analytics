@@ -147,7 +147,7 @@ export default {
         .then(() => this.$nextTick())
         .then(() => this.chartDatas = loadedChartData)
         .catch((e) => {
-          console.debug('fetch analytics - error', e);
+          console.error('fetch analytics - error', e);
           this.error = 'Error getting analytics';
         })
         .finally(() => this.loading = false);

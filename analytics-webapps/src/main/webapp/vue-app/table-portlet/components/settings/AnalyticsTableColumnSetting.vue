@@ -190,7 +190,7 @@ export default {
       }
     },
     canEnableIdentityFields() {
-      if(!this.canEnableIdentityFields && !this.useIdentityField) {
+      if (!this.canEnableIdentityFields && !this.useIdentityField) {
         this.column.userField = null;
         this.column.spaceField = null;
       }
@@ -234,7 +234,7 @@ export default {
   },
   created() {
     this.useIdentityField = (this.column.userField && this.useUserField) || (this.column.spaceField && this.useSpaceField);
-    if(!this.useIdentityField) {
+    if (!this.useIdentityField) {
       this.column.userField = null;
       this.column.spaceField = null;
     }

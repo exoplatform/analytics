@@ -48,7 +48,7 @@ export default {
         return [];
       },
     },
-    type:{
+    type: {
       type: String,
       default: function (){
         return null;

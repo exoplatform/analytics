@@ -38,7 +38,7 @@ export default {
       default: () => [],
     },
   },
-  methods:{
+  methods: {
     open(){
       this.$refs.analyticsPage.open();
     },

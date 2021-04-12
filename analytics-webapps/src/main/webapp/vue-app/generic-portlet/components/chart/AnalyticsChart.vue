@@ -55,13 +55,13 @@ export default {
 
       const $container = $(`#${this.id}`);
       if (!$container.length) {
-        console.debug('No chart container for selector', this.id);
+        console.error('No chart container for selector', this.id);
         return;
       }
 
       const series = [];
       const chartOptions = {
-        title : {
+        title: {
           x: 'center'
         },
         grid: {
@@ -70,7 +70,7 @@ export default {
           bottom: 30,
         },
         color: this.colors,
-        series : series,
+        series: series,
       };
 
       if (this.chartType === 'line' || this.chartType === 'bar') {
@@ -84,15 +84,15 @@ export default {
             },
           },
           xAxis: [{
-            type : 'category',
+            type: 'category',
             showGrid: false,
-            data : labels,
+            data: labels,
             splitLine: {
               show: false
             },
           }],
           yAxis: [{
-            type : 'value',
+            type: 'value',
             splitLine: {
               show: false
             },
@@ -113,7 +113,7 @@ export default {
             data: chartData.values,
             smooth: true ,
             showSymbol: false,
-            areaStyle : {
+            areaStyle: {
               opacity: 0.8
             },
             lineStyle: {
@@ -155,7 +155,7 @@ export default {
           const yPos = parseInt((parseInt(index % (chartsDividerLength - 1)) + 1) * chartsPercentagePart);
           const serie = {
             type: this.chartType,
-            radius : `${chartsPercentagePart + 5}%`,
+            radius: `${chartsPercentagePart + 5}%`,
             center: [`${xPos}%`, `${yPos}%`],
             label: {
               show: false,

@@ -155,7 +155,7 @@ export default {
     sign() {
       if (!this.compare) {
         return '';
-      } else if(this.valueNumber > 0) {
+      } else if (this.valueNumber > 0) {
         return '+';
       } else {
         return '-';

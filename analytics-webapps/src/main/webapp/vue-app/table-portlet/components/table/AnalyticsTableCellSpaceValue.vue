@@ -58,10 +58,7 @@ export default {
           this.item.identity = this.space = space;
           this.$forceUpdate();
         })
-        .catch((e) => {
-          console.warn('Error retrieving space entity', e);
-          this.error = true;
-        })
+        .catch(() => this.error = true)
         .finally(() => this.loading = false);
     }
   },

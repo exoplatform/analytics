@@ -176,9 +176,9 @@ export default {
   methods: {
     init() {
       const values = this.value && ((this.value.value && [this.value]) || (this.value.split && this.value.split(',')) || (this.value.length && this.value)) || [];
-      if(values && values.length) {
+      if (values && values.length) {
         values.forEach(value => {
-          if(value) {
+          if (value) {
             this.items.push({
               value: value.value || value,
               count: value.count || 0,
@@ -273,8 +273,8 @@ export default {
       this.$refs.selectAutoComplete.reset();
     },
     remove(item) {
-      if(this.value) {
-        if(this.value.splice) {
+      if (this.value) {
+        if (this.value.splice) {
           const index = this.value.findIndex(val => val.value === item.value);
           if (index >= 0){
             this.value.splice(index, 1);
