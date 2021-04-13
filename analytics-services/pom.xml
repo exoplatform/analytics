@@ -172,6 +172,7 @@
           <trimStackTrace>false</trimStackTrace>
           <systemPropertyVariables>
             <exo.profiles>hsqldb</exo.profiles>
+            <user.timezone>UTC</user.timezone>
             <com.arjuna.ats.arjuna.objectstore.objectStoreDir>${project.build.directory}</com.arjuna.ats.arjuna.objectstore.objectStoreDir>
             <ObjectStoreEnvironmentBean.objectStoreDir>${project.build.directory}</ObjectStoreEnvironmentBean.objectStoreDir>
             <exo.properties.url>classpath:/conf/configuration.properties</exo.properties.url>

@@ -26,33 +26,36 @@ public enum AnalyticsPeriodType {
     this.interval = interval;
   }
 
-  public AnalyticsPeriod getCurrentPeriod(LocalDate date) {
+  public AnalyticsPeriod getCurrentPeriod(LocalDate date, ZoneId timeZone) {
+    if (timeZone == null) {
+      timeZone = ZoneOffset.UTC;
+    }
     LocalDate start = null;
     LocalDate end = null;
     switch (this) {
       case TODAY:
-        return new AnalyticsPeriod(date, date.plusDays(1), interval);
+        return new AnalyticsPeriod(date, date.plusDays(1), interval, timeZone);
       case THIS_WEEK:
         start = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         end = start.plusDays(7);
-        return new AnalyticsPeriod(start, end, interval);
+        return new AnalyticsPeriod(start, end, interval, timeZone);
       case THIS_MONTH:
         start = date.withDayOfMonth(1);
         end = start.plusMonths(1);
-        return new AnalyticsPeriod(start, end, interval);
+        return new AnalyticsPeriod(start, end, interval, timeZone);
       case THIS_QUARTER:
         start = Year.of(date.getYear()).atMonth(date.getMonth().firstMonthOfQuarter()).atDay(1);
         end = start.plusMonths(3);
-        return new AnalyticsPeriod(start, end, interval);
+        return new AnalyticsPeriod(start, end, interval, timeZone);
       case THIS_SEMESTER:
         start = date.getMonth().compareTo(Month.JUNE) > 0 ? Year.of(date.getYear()).atMonth(Month.JULY).atDay(1)
                                                           : Year.of(date.getYear()).atMonth(Month.JANUARY).atDay(1);
         end = start.plusMonths(6);
-        return new AnalyticsPeriod(start, end, interval);
+        return new AnalyticsPeriod(start, end, interval, timeZone);
       case THIS_YEAR:
         start = date.withDayOfYear(1);
         end = start.plusYears(1);
-        return new AnalyticsPeriod(start, end, interval);
+        return new AnalyticsPeriod(start, end, interval, timeZone);
       default:
         return null;
     }
@@ -65,23 +68,23 @@ public enum AnalyticsPeriodType {
     return 0;
   }
 
-  public AnalyticsPeriod getPreviousPeriod(LocalDate date) {
+  public AnalyticsPeriod getPreviousPeriod(LocalDate date, ZoneId timeZone) {
     switch (this) {
       case TODAY:
-        return getCurrentPeriod(date.minusDays(1));
+        return getCurrentPeriod(date.minusDays(1), timeZone);
       case THIS_WEEK:
-        return getCurrentPeriod(date.minusWeeks(1));
+        return getCurrentPeriod(date.minusWeeks(1), timeZone);
       case THIS_MONTH:
-        return getCurrentPeriod(date.minusMonths(1));
+        return getCurrentPeriod(date.minusMonths(1), timeZone);
       case THIS_QUARTER:
-        return getCurrentPeriod(date.minusMonths(3));
+        return getCurrentPeriod(date.minusMonths(3), timeZone);
       case THIS_SEMESTER:
-        AnalyticsPeriod currentPeriod = getCurrentPeriod(date);
+        AnalyticsPeriod currentPeriod = getCurrentPeriod(date, timeZone);
         return new AnalyticsPeriod(currentPeriod.getFrom().minusDays(182), // NOSONAR
                                    currentPeriod.getTo().minusDays(182),
                                    interval);
       case THIS_YEAR:
-        return getCurrentPeriod(date.minusYears(1));
+        return getCurrentPeriod(date.minusYears(1), timeZone);
       default:
         return null;
     }
