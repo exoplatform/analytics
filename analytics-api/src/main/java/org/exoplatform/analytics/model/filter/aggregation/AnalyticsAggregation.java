@@ -1,11 +1,9 @@
 package org.exoplatform.analytics.model.filter.aggregation;
 
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -96,17 +94,18 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
     return sortDirection;
   }
 
-  public String getLabel(String fieldValue, String lang) {
-    if (type == AnalyticsAggregationType.DATE) {
-      long timestamp = Long.parseLong(fieldValue);
-      return formatTime(timestamp, lang);
-    }
+  public String getLabel(String fieldValue, ZoneId zoneId, String lang) {
+    long timestamp = Long.parseLong(fieldValue);
+    return formatTime(timestamp, zoneId, lang);
+  }
+
+  public String getLabel(String fieldValue) {
     return AnalyticsUtils.compueLabel(field, fieldValue);
   }
 
-  private String formatTime(long timestamp, String lang) {
+  private String formatTime(long timestamp, ZoneId zoneId, String lang) {
     Locale userLocale = StringUtils.isBlank(lang) ? Locale.getDefault() : new Locale(lang);
-    LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TimeZone.getDefault().toZoneId());
+    LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId);
     DateTimeFormatter dateFormatter = null;
     switch (interval) {
       case YEAR_INTERVAL:

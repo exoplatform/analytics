@@ -1,3 +1,5 @@
+export const USER_TIMEZONE_ID = new window.Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 export function loadUser(users, userId) {
   if (!userId) {
     return Promise.resolve(null);
@@ -93,10 +95,6 @@ export function getPage(siteType, siteName, pageName) {
 export function toFixed(value, decimals = 2) {
   const fixedNumber = Number.parseFloat(value).toFixed(decimals).replace(/(\..*[1-9])0+$/, '$1').replace(/\.0*$/, '');
   return Number(fixedNumber);
-}
-
-export function getTimeZoneOffset(timestamp) {
-  return new Date(timestamp).getTimezoneOffset() * 60 * 1000;
 }
 
 function getPageRecursively(navigations, pageName) {

@@ -22,7 +22,9 @@
             </v-row>
           </v-fade-transition>
         </v-col>
-        <v-col cols="4" class="text--secondary text-right">{{ chartDataTime }}</v-col>
+        <v-col cols="4" class="text--secondary text-right">
+          <date-format :value="chartDataTime" :format="dateFormat" />
+        </v-col>
       </v-row>
     </v-expansion-panel-header>
     <v-expansion-panel-content>
@@ -88,6 +90,16 @@ export default {
       },
     },
   },
+  data: () => ({
+    dateFormat: {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+    },
+  }),
   computed: {
     userIdentity() {
       if (this.chartData && this.chartData.userId && this.users) {
@@ -132,7 +144,7 @@ export default {
       }
     },
     chartDataTime() {
-      return (this.chartData && this.chartData.timestamp && this.formatDate(this.chartData.timestamp)) || '';
+      return this.chartData && this.chartData.timestamp && new Date(this.chartData.timestamp);
     },
     chartDataProps() {
       const chartDataProps = this.chartData && Object.keys(this.chartData).sort();
@@ -143,11 +155,6 @@ export default {
     },
   },
   methods: {
-    formatDate(timeInMilliseconds) {
-      const dateTime = new Date(timeInMilliseconds);
-      const lang = eXo.env.portal.language;
-      return dateTime.toLocaleString(lang);
-    },
     getI18N(label){
       const fieldLabelI18NKey = `analytics.field.label.${label}`;
       const fieldLabelI18NValue = this.$t(fieldLabelI18NKey);
