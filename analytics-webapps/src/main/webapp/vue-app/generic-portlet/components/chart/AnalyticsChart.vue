@@ -66,7 +66,8 @@ export default {
         },
         grid: {
           top: 0,
-          left: 30,
+          left: 0,
+          right: 0,
           bottom: 30,
         },
         color: this.colors,
@@ -91,12 +92,7 @@ export default {
               show: false
             },
           }],
-          yAxis: [{
-            type: 'value',
-            splitLine: {
-              show: false
-            },
-          }],
+          yAxis: [],
         });
         if (this.chartType === 'line') {
           chartOptions.xAxis[0].boundaryGap = false;
@@ -107,7 +103,7 @@ export default {
           chartOptions.tooltip.formatter = '{b}<br/><center>{c}</center>';
         }
         charts.sort((chartData1, chartData2) => Math.max(...chartData2.values) - Math.max(...chartData1.values));
-        charts.forEach(chartData => {
+        charts.forEach((chartData, index) => {
           const serie = {
             type: this.chartType,
             data: chartData.values,
@@ -125,6 +121,30 @@ export default {
             serie.name = this.getI18N(chartData.chartLabel);
           }
           series.push(serie);
+
+          const yAxisOptions = {
+            type: 'value',
+            yAxisIndex: index,
+            position: (index % 2) && 'right' || 'left',
+            hoverAnimation: true,
+            splitLine: {
+              show: false
+            },
+            axisLine: {
+              lineStyle: {
+                color: charts.length > 1 && this.colors[index % this.colors.length] || '#000',
+              },
+              onZero: 0,
+            },
+          };
+          if (chartData.values && chartData.values.length) {
+            yAxisOptions.min = Math.min(...chartData.values);
+            yAxisOptions.max = Math.max(...chartData.values);
+          }
+          if (index > 1) {
+            yAxisOptions.offset = 15 * (index / 2);
+          }
+          chartOptions.yAxis.push(yAxisOptions);
         });
       } else if (this.chartType === 'pie') {
         chartOptions.tooltip = {
@@ -194,15 +214,6 @@ export default {
       }
 
       const chart = echarts.init($container[0]);
-      const values = [];
-      chartOptions.series.forEach(chart => {
-        if (isNaN(Math.min( ...chart.data))) {
-          values.push(0);
-        } else {
-          values.push(Math.min( ...chart.data));
-        }
-      });
-      chartOptions.yAxis[0].min = Math.min(...values);
       chart.setOption(chartOptions, true);
     },
     getI18N(label){
