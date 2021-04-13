@@ -101,6 +101,7 @@ public class PageAccessListener extends BaseComponentPlugin implements Applicati
       statisticData.addParameter("userLocale", portalRequestContext.getLocale());
       statisticData.addParameter("portalOwner", portalRequestContext.getPortalOwner());
       statisticData.addParameter("portalUri", portalRequestContext.getPortalURI());
+      statisticData.addParameter("pageTitle", portalRequestContext.getTitle());
 
       UIPortal uiportal = Util.getUIPortal();
       if (uiportal != null) {
