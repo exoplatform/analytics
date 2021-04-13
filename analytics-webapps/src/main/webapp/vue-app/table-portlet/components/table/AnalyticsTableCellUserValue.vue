@@ -27,7 +27,7 @@
     class="analytics-table-user my-1"
     avatar-class="border-color">
     <template v-if="user.deleted === 'true'" slot="subTitle">
-      <v-chip small disabled>
+      <v-chip x-small disabled>
         {{ $t('analytics.deletedUser') }}
       </v-chip>
     </template>

@@ -47,7 +47,7 @@
             v-if="displayThresholdComuting"
             :column-aggregation="column.thresholdAggregation"
             :fields-mappings="fieldsMappings"
-            class="pl-10 ml-2" />
+            class="ps-10 ml-2" />
         </template>
       </template>
       <v-btn
@@ -55,7 +55,7 @@
         class="pa-0"
         outlined
         @click="$emit('delete')">
-        <i class="uiIconTrash pb-1 pr-2"></i>
+        <i class="uiIconTrash pb-1 pe-2"></i>
         {{ $t('analytics.removeColumnSetting') }}
       </v-btn>
     </div>

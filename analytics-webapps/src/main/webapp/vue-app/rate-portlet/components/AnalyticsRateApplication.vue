@@ -23,7 +23,7 @@
                 width="20"
                 icon
                 small
-                class="my-auto mr-2 primary"
+                class="my-auto me-2 primary"
                 outlined
                 v-bind="attrs"
                 v-on="on">

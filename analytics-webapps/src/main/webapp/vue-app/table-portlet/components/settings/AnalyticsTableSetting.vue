@@ -66,7 +66,7 @@
     <template slot="footer">
       <div class="d-flex">
         <v-spacer />
-        <button class="btn ignore-vuetify-classes mr-1" @click="$refs.tableSettingDrawer.close()">
+        <button class="btn ignore-vuetify-classes me-1" @click="$refs.tableSettingDrawer.close()">
           {{ $t('analytics.close') }}
         </button>
         <button class="btn btn-primary ignore-vuetify-classes  ml-1" @click="save">
