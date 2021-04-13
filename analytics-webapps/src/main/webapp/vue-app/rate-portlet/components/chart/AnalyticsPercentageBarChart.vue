@@ -5,12 +5,18 @@
       :color="chartColor"
       class="analytics-progress-bar"
       height="45">
-      <h3
-        v-if="initialized"
-        :style="`margin-left: calc(${progressBarValueClass}% - 24px); margin-right: auto;`"
-        class="font-weight-bold white--text">
-        {{ currentPeriodPercentage }}%
-      </h3>
+      <v-tooltip v-if="initialized" bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <h3
+            :style="`margin-left: calc(${progressBarValueClass}% - 24px); margin-right: auto;`"
+            class="font-weight-bold white--text"
+            v-bind="attrs"
+            v-on="on">
+            {{ currentPeriodPercentage }}%
+          </h3>
+        </template>
+        <span>{{ $t('analytics.percentOfValue', {0: currentPeriodValue, 1: currentPeriodThreshold}) }}</span>
+      </v-tooltip>
     </v-progress-linear>
     <div class="text-no-wrap mt-2">
       <v-tooltip bottom>

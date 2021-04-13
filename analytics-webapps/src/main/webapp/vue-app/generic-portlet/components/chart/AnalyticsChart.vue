@@ -74,6 +74,13 @@ export default {
       };
 
       if (this.chartType === 'line' || this.chartType === 'bar') {
+        const yAxisOptions = {
+          type: 'value',
+          splitLine: {
+            show: false
+          },
+        };
+
         Object.assign(chartOptions, {
           grid: {show: false},
           tooltip: {
@@ -91,12 +98,7 @@ export default {
               show: false
             },
           }],
-          yAxis: [{
-            type: 'value',
-            splitLine: {
-              show: false
-            },
-          }],
+          yAxis: [yAxisOptions],
         });
         if (this.chartType === 'line') {
           chartOptions.xAxis[0].boundaryGap = false;
@@ -106,26 +108,45 @@ export default {
         if (charts.length === 1 && (!charts[0].chartLabel || charts[0].chartLabel === 'null')) {
           chartOptions.tooltip.formatter = '{b}<br/><center>{c}</center>';
         }
-        charts.sort((chartData1, chartData2) => Math.max(...chartData2.values) - Math.max(...chartData1.values));
+        const isMultipleCharts = charts && charts.length > 1;
         charts.forEach(chartData => {
           const serie = {
             type: this.chartType,
             data: chartData.values,
-            smooth: true ,
+            smooth: 0.2,
             showSymbol: false,
-            areaStyle: {
-              opacity: 0.8
-            },
-            lineStyle: {
-              width: 1
-            }
           };
-
+          if (!isMultipleCharts) {
+            serie.areaStyle = { opacity: 0.8 };
+            serie.lineStyle = { width: 1 };
+          }
           if (chartData.chartLabel){
             serie.name = this.getI18N(chartData.chartLabel);
           }
           series.push(serie);
+
+          if (chartData.values && chartData.values.length) {
+            const chartDataMin = Math.min(...chartData.values);
+            if (!yAxisOptions.min || chartDataMin < yAxisOptions.min) {
+              yAxisOptions.min = chartDataMin || 0;
+            }
+            const chartDataMax = Math.max(...chartData.values);
+            if (!yAxisOptions.max || chartDataMax > yAxisOptions.max) {
+              yAxisOptions.max = chartDataMax || 0;
+            }
+          }
         });
+        if (!yAxisOptions.min) {
+          yAxisOptions.min = 0;
+        }
+        if (!yAxisOptions.max) {
+          yAxisOptions.max = 0;
+        }
+        yAxisOptions.max = yAxisOptions.max + parseInt((yAxisOptions.max - yAxisOptions.min) / 10) + 1;
+        yAxisOptions.min = yAxisOptions.min - parseInt((yAxisOptions.max - yAxisOptions.min) / 10);
+        if (yAxisOptions.min > 1) {
+          yAxisOptions.min -= 1;
+        }
       } else if (this.chartType === 'pie') {
         chartOptions.tooltip = {
           trigger: 'item',
@@ -149,7 +170,7 @@ export default {
               chartDataValues.name = this.getI18N(result.label);
             }
             return chartDataValues;
-          });
+          }).sort((v1, v2) => parseFloat(v2.value) - parseFloat(v1.value));
 
           const xPos = parseInt((parseInt(index / (chartsDividerLength - 1)) + 1) * chartsPercentagePart) * 1.25;
           const yPos = parseInt((parseInt(index % (chartsDividerLength - 1)) + 1) * chartsPercentagePart);
@@ -170,11 +191,11 @@ export default {
                 label: {
                   show: true,
                   fontSize: '15'
-                }
+                },
               },
-            }
+            },
           };
-          let yPiePos ;
+          let yPiePos;
           if (chartDataValues && chartDataValues.length <= 10) {
             yPiePos = '50%';
           } else if (chartDataValues && chartDataValues.length > 10 && chartDataValues.length <= 20) {
