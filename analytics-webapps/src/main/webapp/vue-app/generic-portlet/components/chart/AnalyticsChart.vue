@@ -194,6 +194,15 @@ export default {
       }
 
       const chart = echarts.init($container[0]);
+      const values = [];
+      chartOptions.series.forEach(chart => {
+        if (isNaN(Math.min( ...chart.data))) {
+          values.push(0);
+        } else {
+          values.push(Math.min( ...chart.data));
+        }
+      });
+      chartOptions.yAxis[0].min = Math.min(...values);
       chart.setOption(chartOptions, true);
     },
     getI18N(label){
