@@ -144,7 +144,6 @@ export default {
     userObjects: {},
     spaceObjects: {},
     loading: true,
-    timeZoneOffset: new Date().getTimezoneOffset() * 60 * 1000,
     appId: `AnalyticsApplication${parseInt(Math.random() * 10000)
       .toString()
       .toString()}`,
@@ -309,11 +308,12 @@ export default {
       }
 
       this.loading = true;
-      const period = this.selectedPeriod.period || `${this.selectedPeriod.min - this.timeZoneOffset}~${this.selectedPeriod.max + 60000 - this.timeZoneOffset}`;
+      const period = this.selectedPeriod.period || `${this.selectedPeriod.min}~${this.selectedPeriod.max + 60000}`;
       const params = {
         lang: eXo.env.portal.language,
         period
       };
+      params.timeZone = this.$analyticsUtils.USER_TIMEZONE_ID;
       if (this.selectedPeriod.period) {
         params.date = Date.now();
       }

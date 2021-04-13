@@ -2,26 +2,23 @@ package org.exoplatform.analytics.model.filter;
 
 import static org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilterType.RANGE;
 
-import java.io.Serializable;
 import java.time.*;
 import java.util.*;
 
 import org.exoplatform.analytics.model.filter.aggregation.*;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
 
-import groovy.transform.ToString;
 import lombok.*;
 import lombok.EqualsAndHashCode.Exclude;
 
 @Data
-@ToString
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnalyticsPercentageFilter implements Serializable, Cloneable {
+public class AnalyticsPercentageFilter extends AbstractAnalyticsFilter {
 
   private static final long             serialVersionUID    = 5699550622069979910L;
-
-  private String                        title;
 
   private String                        chartType;
 
@@ -47,6 +44,34 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
   private String                        lang                = null;
 
+  public AnalyticsPercentageFilter(String title, // NOSONAR
+                                   String timeZone,
+                                   String chartType,
+                                   List<String> colors,
+                                   String periodType,
+                                   AnalyticsPeriod clonedAnalyticsPeriod,
+                                   LocalDate clonedPeriodDate,
+                                   AnalyticsPercentageItemFilter cloneAnalyticsPercentageItemFilterValue,
+                                   AnalyticsPercentageItemFilter cloneAnalyticsPercentageItemFilterThreshold,
+                                   AnalyticsPercentageLimit clonedAnalyticsPercentageLimit,
+                                   long currentPeriodLimit,
+                                   long previousPeriodLimit,
+                                   String lang) {
+    this(chartType,
+         colors,
+         periodType,
+         clonedAnalyticsPeriod,
+         clonedPeriodDate,
+         cloneAnalyticsPercentageItemFilterValue,
+         cloneAnalyticsPercentageItemFilterThreshold,
+         clonedAnalyticsPercentageLimit,
+         currentPeriodLimit,
+         previousPeriodLimit,
+         lang);
+    setTitle(title);
+    setTimeZone(timeZone);
+  }
+
   public AnalyticsPeriodType getAnalyticsPeriodType() {
     return AnalyticsPeriodType.periodTypeByName(periodType);
   }
@@ -64,7 +89,7 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
   public AnalyticsPeriod getCurrentAnalyticsPeriod() {
     AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
     if (analyticsPeriodType != null && periodDate != null) {
-      return analyticsPeriodType.getCurrentPeriod(periodDate);
+      return analyticsPeriodType.getCurrentPeriod(periodDate, zoneId());
     } else if (customPeriod != null) {
       return customPeriod.clone();
     }
@@ -74,7 +99,7 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
   public AnalyticsPeriod getPreviousAnalyticsPeriod() {
     AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
     if (analyticsPeriodType != null && periodDate != null) {
-      return analyticsPeriodType.getPreviousPeriod(periodDate);
+      return analyticsPeriodType.getPreviousPeriod(periodDate, zoneId());
     } else if (customPeriod != null) {
       return customPeriod.previousPeriod();
     }
@@ -82,7 +107,7 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
   }
 
   public void setPeriodDateInMS(long timestampInMS) {
-    periodDate = Instant.ofEpochMilli(timestampInMS).atZone(ZoneOffset.UTC).toLocalDate();
+    periodDate = Instant.ofEpochMilli(timestampInMS).atZone(zoneId()).toLocalDate();
   }
 
   public AnalyticsFilter computeValueFilter() {
@@ -106,7 +131,8 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
       xAxisAggregations.add(limitAggregation);
     }
 
-    return new AnalyticsFilter(title,
+    return new AnalyticsFilter(getTitle(),
+                               getTimeZone(),
                                chartType,
                                colors,
                                getValueFilters(period),
@@ -120,12 +146,14 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
   public AnalyticsFilter computeThresholdFilter() {
     AnalyticsAggregation xAxisAggregation = getXAxisAggregation();
-    return new AnalyticsFilter(title,
+    return new AnalyticsFilter(getTitle(),
+                               getTimeZone(),
                                chartType,
                                colors,
                                getThresholdFilters(),
                                null,
-                               xAxisAggregation == null ? Collections.emptyList() : Collections.singletonList(xAxisAggregation),
+                               xAxisAggregation == null ? Collections.emptyList()
+                                                        : Collections.singletonList(xAxisAggregation),
                                getThresholdYAggregation(),
                                lang,
                                0l,
@@ -134,12 +162,14 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
 
   public AnalyticsFilter computeLimitFilter() {
     AnalyticsAggregation xAxisAggregation = getXAxisAggregation();
-    return new AnalyticsFilter(title,
+    return new AnalyticsFilter(getTitle(),
+                               getTimeZone(),
                                chartType,
                                colors,
                                getLimitFilters(),
                                null,
-                               xAxisAggregation == null ? Collections.emptyList() : Collections.singletonList(xAxisAggregation),
+                               xAxisAggregation == null ? Collections.emptyList()
+                                                        : Collections.singletonList(xAxisAggregation),
                                getLimitYAggregation(),
                                lang,
                                0l,
@@ -155,7 +185,8 @@ public class AnalyticsPercentageFilter implements Serializable, Cloneable {
                                                                                                   : threshold.clone();
     AnalyticsPercentageLimit clonedAnalyticsPercentageLimit = percentageLimit == null ? null
                                                                                       : percentageLimit.clone();
-    return new AnalyticsPercentageFilter(title,
+    return new AnalyticsPercentageFilter(getTitle(),
+                                         getTimeZone(),
                                          chartType,
                                          colors,
                                          periodType,

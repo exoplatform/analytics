@@ -254,8 +254,8 @@ export default {
           column: columnIndex,
           limit: String(limit || 0),
           periodType: this.period.period || '',
-          min: this.period.min - this.$analyticsUtils.getTimeZoneOffset(this.period.min),
-          max: this.period.max + 60000 - this.$analyticsUtils.getTimeZoneOffset(this.period.max),
+          min: this.period.min,
+          max: this.period.max + 60000,
         };
         if (sort) {
           params.sort = sort;
@@ -263,6 +263,7 @@ export default {
           params.fieldFilter = this.mainFieldName;
           params.fieldValues = this.mainFieldValues.join(',');
         }
+        params.timeZone = this.$analyticsUtils.USER_TIMEZONE_ID;
         return fetch(this.retrieveTableDataUrl, {
           method: 'POST',
           credentials: 'include',
