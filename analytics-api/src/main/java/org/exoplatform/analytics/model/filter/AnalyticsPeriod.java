@@ -19,10 +19,17 @@ public class AnalyticsPeriod implements Serializable, Cloneable {
 
   private String            interval;
 
+  private ZoneId            timeZone         = ZoneOffset.UTC;
+
   public AnalyticsPeriod(long fromInMS, long toInMS) {
     this.fromInMS = fromInMS;
     this.toInMS = toInMS;
     this.interval = getDiffInDays() + "d";
+  }
+
+  public AnalyticsPeriod(long fromInMS, long toInMS, ZoneId timeZone) {
+    this(fromInMS, toInMS);
+    this.timeZone = timeZone;
   }
 
   public AnalyticsPeriod(LocalDate from, LocalDate to) {
@@ -37,12 +44,19 @@ public class AnalyticsPeriod implements Serializable, Cloneable {
     this.interval = interval;
   }
 
+  public AnalyticsPeriod(LocalDate from, LocalDate to, String interval, ZoneId timeZone) {
+    this.fromInMS = from.atStartOfDay(timeZone).toInstant().toEpochMilli();
+    this.toInMS = to.atStartOfDay(timeZone).toInstant().toEpochMilli();
+    this.interval = interval;
+    this.timeZone = timeZone;
+  }
+
   public LocalDate getFrom() {
-    return Instant.ofEpochMilli(fromInMS).atZone(ZoneOffset.UTC).toLocalDate();
+    return Instant.ofEpochMilli(fromInMS).atZone(getTimeZone()).toLocalDate();
   }
 
   public LocalDate getTo() {
-    return Instant.ofEpochMilli(toInMS).atZone(ZoneOffset.UTC).toLocalDate();
+    return Instant.ofEpochMilli(toInMS).atZone(getTimeZone()).toLocalDate();
   }
 
   public AnalyticsPeriod previousPeriod() {
@@ -58,7 +72,7 @@ public class AnalyticsPeriod implements Serializable, Cloneable {
   }
 
   public boolean isInPeriod(LocalDate date) {
-    long dateInMS = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+    long dateInMS = date.atStartOfDay(getTimeZone()).toInstant().toEpochMilli();
     return dateInMS >= fromInMS && dateInMS < toInMS;
   }
 

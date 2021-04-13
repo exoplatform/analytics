@@ -12,10 +12,7 @@
   <portlet:param name="operation" value="GET_FILTERS"/>
 </portlet:resourceURL>
 <portlet:resourceURL var="retrieveChartDataURL">
-  <portlet:param name="operation" value="GET_CHART_DATA"/>
-</portlet:resourceURL>
-<portlet:resourceURL var="retrieveChartSamplesURL">
-  <portlet:param name="operation" value="GET_CHART_SAMPLES_DATA"/>
+  <portlet:param name="operation" value="GET_DATA"/>
 </portlet:resourceURL>
 <portlet:resourceURL var="retrieveFieldValuesURL">
     <portlet:param name="operation" value="GET_FIELD_VALUES"/>
@@ -31,7 +28,6 @@
     data-mappings-url="<%=retrieveMappingsURL%>"
     data-filters-url="<%=retrieveFiltersURL%>"
     data-chart-data-url="<%=retrieveChartDataURL%>"
-    data-chart-samples-url="<%=retrieveChartSamplesURL%>"
     data-field-values-url="<%=retrieveFieldValuesURL%>"
     data-save-settings-url="<%=saveSettingsURL%>">
   </div>

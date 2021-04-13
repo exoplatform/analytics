@@ -12,7 +12,7 @@
     <portlet:param name="operation" value="GET_FILTERS"/>
 </portlet:resourceURL>
 <portlet:resourceURL var="retrieveTableDataURL">
-    <portlet:param name="operation" value="GET_TABLE_DATA"/>
+    <portlet:param name="operation" value="GET_DATA"/>
 </portlet:resourceURL>
 <portlet:resourceURL var="retrieveFieldValuesURL">
     <portlet:param name="operation" value="GET_FIELD_VALUES"/>

@@ -13,18 +13,16 @@ import org.exoplatform.analytics.model.filter.aggregation.AnalyticsAggregationTy
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
 import org.exoplatform.analytics.utils.AnalyticsUtils;
 
-import groovy.transform.ToString;
 import lombok.*;
 
 @Data
-@ToString
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @AllArgsConstructor
-public class AnalyticsFilter implements Serializable, Cloneable {
+public class AnalyticsFilter extends AbstractAnalyticsFilter {
 
   private static final long          serialVersionUID    = 5699550622069979910L;
-
-  private String                     title;
 
   private String                     chartType;
 
@@ -43,6 +41,52 @@ public class AnalyticsFilter implements Serializable, Cloneable {
   private long                       offset              = 0;
 
   private long                       limit               = 0;
+
+  public AnalyticsFilter(String title, // NOSONAR
+                         String timeZone,
+                         String chartType,
+                         List<String> colors,
+                         List<AnalyticsFieldFilter> cloneFilters,
+                         String multipleChartsField,
+                         List<AnalyticsAggregation> cloneXAggs,
+                         AnalyticsAggregation cloneyAggregation,
+                         String lang,
+                         long offset,
+                         long limit) {
+    this(chartType,
+         colors,
+         cloneFilters,
+         multipleChartsField,
+         cloneXAggs,
+         cloneyAggregation,
+         lang,
+         offset,
+         limit);
+    setTitle(title);
+    setTimeZone(timeZone);
+  }
+
+  public AnalyticsFilter(String title, // NOSONAR
+                         String chartType,
+                         List<String> colors,
+                         List<AnalyticsFieldFilter> cloneFilters,
+                         String multipleChartsField,
+                         List<AnalyticsAggregation> cloneXAggs,
+                         AnalyticsAggregation cloneyAggregation,
+                         String lang,
+                         long offset,
+                         long limit) {
+    this(chartType,
+         colors,
+         cloneFilters,
+         multipleChartsField,
+         cloneXAggs,
+         cloneyAggregation,
+         lang,
+         offset,
+         limit);
+    setTitle(title);
+  }
 
   public List<AnalyticsAggregation> getAggregations() {
     List<AnalyticsAggregation> aggregations = new ArrayList<>();
@@ -166,7 +210,8 @@ public class AnalyticsFilter implements Serializable, Cloneable {
                                                                               .map(AnalyticsAggregation::clone)
                                                                               .collect(Collectors.toList());
     AnalyticsAggregation cloneyAggregation = yAxisAggregation == null ? null : yAxisAggregation.clone();
-    return new AnalyticsFilter(title,
+    return new AnalyticsFilter(getTitle(),
+                               getTimeZone(),
                                chartType,
                                colors,
                                cloneFilters,
@@ -177,4 +222,5 @@ public class AnalyticsFilter implements Serializable, Cloneable {
                                offset,
                                limit);
   }
+
 }

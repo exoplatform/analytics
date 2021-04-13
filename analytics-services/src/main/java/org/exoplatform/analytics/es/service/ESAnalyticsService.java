@@ -2,6 +2,8 @@ package org.exoplatform.analytics.es.service;
 
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -85,7 +87,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
   private List<String>                       viewPermissions;
 
-  private int                                aggregationReturnedDocumentsSize           = 200;
+  private int                                aggregationReturnedDocumentsSize           = 1000;
 
   public ESAnalyticsService(AnalyticsESClient esClient,
                             AnalyticsIndexingServiceConnector analyticsIndexingServiceConnector,
@@ -197,6 +199,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                                                                                             null,
                                                                                             limit)),
                                          null,
+                                         null,
                                          0,
                                          0);
     String jsonResponse = this.esClient.sendRequest(esQuery);
@@ -217,10 +220,13 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
     PercentageChartResult percentageChartResult = new PercentageChartResult();
     AnalyticsPercentageLimit percentageLimit = percentageFilter.getPercentageLimit();
+
     if (percentageLimit != null) {
+
       computePercentageLimits(percentageFilter, percentageChartResult, currentPeriod, previousPeriod);
 
       long currentPeriodLimit = percentageFilter.getCurrentPeriodLimit();
+
       if (currentPeriodLimit > 0) {
         computePercentageValuesPerPeriod(percentageChartResult,
                                          percentageFilter.computeValueFilter(currentPeriod, currentPeriodLimit),
@@ -274,6 +280,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
     String esQueryString = buildAnalyticsQuery(filter.getAggregations(),
                                                filter.getFilters(),
+                                               filter.zoneId(),
                                                filter.getOffset(),
                                                filter.getLimit());
 
@@ -304,6 +311,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
     String esQueryString = buildAnalyticsQuery(filter.getAggregations(),
                                                filter.getFilters(),
+                                               filter.zoneId(),
                                                filter.getOffset(),
                                                filter.getLimit());
 
@@ -334,6 +342,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                                                filter.getFilters(),
                                                aggregationType,
                                                hasLimitAggregation,
+                                               filter.zoneId(),
                                                filter.getOffset(),
                                                filter.getLimit());
 
@@ -351,9 +360,8 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     List<AnalyticsFieldFilter> filters = filter == null ? Collections.emptyList() : filter.getFilters();
     long offset = filter == null ? 0 : filter.getOffset();
     long limit = filter == null ? 10 : filter.getLimit();
-
-    String esQueryString = buildAnalyticsQuery(null, filters, offset, limit);
-
+    ZoneId timeZone = filter == null ? null : filter.zoneId();
+    String esQueryString = buildAnalyticsQuery(null, filters, timeZone, offset, limit);
     String jsonResponse = this.esClient.sendRequest(esQueryString);
     try {
       return buildSearchResultFromESResponse(jsonResponse);
@@ -424,15 +432,17 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
   private String buildAnalyticsQuery(List<AnalyticsAggregation> aggregations,
                                      List<AnalyticsFieldFilter> filters,
+                                     ZoneId timeZone,
                                      long offset,
                                      long limit) {
-    return buildAnalyticsQuery(aggregations, filters, null, false, offset, limit);
+    return buildAnalyticsQuery(aggregations, filters, null, false, timeZone, offset, limit);
   }
 
   private String buildAnalyticsQuery(List<AnalyticsAggregation> aggregations,
                                      List<AnalyticsFieldFilter> filters,
                                      AnalyticsAggregationType aggregationType,
                                      boolean hasLimitAggregation,
+                                     ZoneId timeZone,
                                      long offset,
                                      long limit) {
     boolean isCount = aggregations != null;
@@ -445,7 +455,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                            limit,
                            isCount);
     if (isCount) {
-      buildAggregationQuery(esQuery, aggregations, aggregationType, hasLimitAggregation);
+      buildAggregationQuery(esQuery, aggregations, aggregationType, timeZone, hasLimitAggregation);
     }
     esQuery.append("}");
     String esQueryString = esQuery.toString();
@@ -583,6 +593,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   private void buildAggregationQuery(StringBuilder esQuery,
                                      List<AnalyticsAggregation> aggregations,
                                      AnalyticsAggregationType percentageAggregationType,
+                                     ZoneId timeZone,
                                      boolean hasLimitAggregation) {
     if (aggregations != null && !aggregations.isEmpty()) {
       StringBuffer endOfQuery = new StringBuffer();
@@ -633,6 +644,14 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
             esQuery.append(",")
                    .append("           \"offset\": \"")
                    .append(aggregation.getOffset())
+                   .append("\"");
+          }
+          if (timeZone != null
+              && !ZoneOffset.UTC.equals(timeZone)
+              && aggregationFieldName.equals(FIELD_TIMESTAMP)) {
+            esQuery.append(",")
+                   .append("           \"time_zone\": \"")
+                   .append(timeZone.getId())
                    .append("\"");
           }
           if (aggregation.isUseBounds()) {
@@ -1039,7 +1058,12 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
           String key = bucketResult.getString("key");
           ChartAggregationValue parentAggregationToUse = parentAggregation;
           if (multipleChartsAggregation != null && level == -1) {
-            String fieldLabel = multipleChartsAggregation.getLabel(key, filter.getLang());
+            String fieldLabel;
+            if (multipleChartsAggregation.getType() == AnalyticsAggregationType.DATE) {
+              fieldLabel = multipleChartsAggregation.getLabel(key, filter.zoneId(), filter.getLang());
+            } else {
+              fieldLabel = multipleChartsAggregation.getLabel(key);
+            }
             parentAggregationToUse = new ChartAggregationValue(multipleChartsAggregation, key, fieldLabel);
           } else {
             addAggregationValue(key, filter, childAggregationValues, level);
@@ -1074,8 +1098,10 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     String fieldLabel = null;
     if (aggregation == null) {
       fieldLabel = key;
+    } else if (aggregation.getType() == AnalyticsAggregationType.DATE) {
+      fieldLabel = aggregation.getLabel(key, filter.zoneId(), filter.getLang());
     } else {
-      fieldLabel = aggregation.getLabel(key, filter.getLang());
+      fieldLabel = aggregation.getLabel(key);
     }
 
     ChartAggregationValue aggregationValue = new ChartAggregationValue(aggregation, key, fieldLabel);
