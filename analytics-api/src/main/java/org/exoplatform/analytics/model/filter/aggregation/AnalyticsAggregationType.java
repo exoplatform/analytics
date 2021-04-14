@@ -6,18 +6,21 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum AnalyticsAggregationType {
 
-  SUM("sum", false, false, false),
-  AVG("avg", false, false, false),
-  MAX("max", false, false, false),
-  MIN("min", false, false, false),
-  TERMS("terms", false, true, true),
-  COUNT("value_count", false, false, false),
-  DATE("date_histogram", true, false, false),
-  HISTOGRAM("histogram", true, false, false),
-  CARDINALITY("cardinality", false, false, false);
+  SUM("sum", true, false, false, false),
+  AVG("avg", true, false, false, false),
+  MAX("max", true, false, false, false),
+  MIN("min", true, false, false, false),
+  COUNT("value_count", true, false, false, false),
+  CARDINALITY("cardinality", true, false, false, false),
+  TERMS("terms", false, false, true, true),
+  DATE("date_histogram", false, true, false, false),
+  HISTOGRAM("histogram", false, true, false, false);
 
   @Getter
   private String  aggName;
+
+  @Getter
+  private boolean numericResult;
 
   @Getter
   private boolean useInterval;
@@ -27,5 +30,4 @@ public enum AnalyticsAggregationType {
 
   @Getter
   private boolean useLimit;
-
 }

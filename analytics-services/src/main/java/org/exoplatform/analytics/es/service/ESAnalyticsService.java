@@ -743,13 +743,8 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       return null;
     }
 
-    AnalyticsAggregationType aggType = nextAggregation.getType();
-    if (aggType == AnalyticsAggregationType.COUNT
-        || aggType == AnalyticsAggregationType.MAX
-        || aggType == AnalyticsAggregationType.MIN
-        || aggType == AnalyticsAggregationType.AVG
-        || aggType == AnalyticsAggregationType.SUM) {
-      return getAggregationFieldName(aggType) + ".value";
+    if (nextAggregation.getType().isNumericResult()) {
+      return getAggregationFieldName(nextAggregation.getType()) + ".value";
     }
     return "_count";
   }
