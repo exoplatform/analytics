@@ -1,6 +1,8 @@
 package org.exoplatform.addon.analytics.portlet;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
 
 import javax.portlet.*;
 import javax.ws.rs.core.MediaType;
@@ -45,8 +47,8 @@ public class AnalyticsRatePortlet extends AbstractAnalyticsPortlet<AnalyticsPerc
   protected void readData(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
     AnalyticsPercentageFilter filter = getFilterFromPreferences(request);
     addLanguageFilter(request, filter);
-    addPeriodFilter(request, filter);
     addTimeZoneFilter(request, filter);
+    addPeriodFilter(request, filter);
     Object result = getAnalyticsService().computePercentageChartData(filter);
     response.setContentType(MediaType.APPLICATION_JSON);
     response.getWriter().write(AnalyticsUtils.toJsonString(result));
@@ -58,17 +60,21 @@ public class AnalyticsRatePortlet extends AbstractAnalyticsPortlet<AnalyticsPerc
   }
 
   private void addPeriodFilter(ResourceRequest request, AnalyticsPercentageFilter filter) {
-    String period = request.getParameter("period");
-    if (AnalyticsPeriodType.periodTypeByName(period) == null) {
-      if (StringUtils.contains(period, "~")) {
-        String[] periodDates = period.split("~");
-        filter.setCustomPeriod(new AnalyticsPeriod(Long.parseLong(periodDates[0].trim()),
-                                                   Long.parseLong(periodDates[1].trim())));
-      }
+    String fromDateString = request.getParameter("min");
+    String toDateString = request.getParameter("max");
+    String periodType = request.getParameter("periodType");
+
+    AnalyticsPeriod period = new AnalyticsPeriod(Long.parseLong(fromDateString), Long.parseLong(toDateString), filter.zoneId());
+    if (StringUtils.isNotBlank(periodType)) {
+      AnalyticsPeriodType analyticsPeriodType = AnalyticsPeriodType.periodTypeByName(periodType);
+      long middleOfPeriod = (period.getFromInMS() + period.getToInMS()) / 2;
+      LocalDate middlePeriodDate = Instant.ofEpochMilli(middleOfPeriod).atZone(filter.zoneId()).toLocalDate();
+      period = analyticsPeriodType.getCurrentPeriod(middlePeriodDate, filter.zoneId());
+      middleOfPeriod = (period.getFromInMS() + period.getToInMS()) / 2;
+      filter.setPeriodDateInMS(middleOfPeriod);
+      filter.setPeriodType(periodType);
     } else {
-      String periodDateString = request.getParameter("date");
-      filter.setPeriodDateInMS(Long.parseLong(periodDateString));
-      filter.setPeriodType(period);
+      filter.setCustomPeriod(period);
     }
   }
 }

@@ -256,6 +256,7 @@ export default {
           periodType: this.period.period || '',
           min: this.period.min,
           max: this.period.max + 60000,
+          timeZone: this.$analyticsUtils.USER_TIMEZONE_ID,
         };
         if (sort) {
           params.sort = sort;

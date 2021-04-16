@@ -120,9 +120,9 @@ export default {
         lang: eXo.env.portal.language,
         min: this.selectedPeriod.min,
         max: this.selectedPeriod.max + 60000,
+        timeZone: this.$analyticsUtils.USER_TIMEZONE_ID,
         limit: this.limit,
       };
-      params.timeZone = this.$analyticsUtils.USER_TIMEZONE_ID;
 
       this.loading = true;
       return fetch(this.retrieveSamplesUrl, {

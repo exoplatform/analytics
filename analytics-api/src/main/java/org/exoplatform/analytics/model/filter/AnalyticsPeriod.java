@@ -78,7 +78,7 @@ public class AnalyticsPeriod implements Serializable, Cloneable {
 
   @Override
   protected AnalyticsPeriod clone() {// NOSONAR
-    return new AnalyticsPeriod(fromInMS, toInMS);
+    return new AnalyticsPeriod(fromInMS, toInMS, interval, timeZone);
   }
 
 }
