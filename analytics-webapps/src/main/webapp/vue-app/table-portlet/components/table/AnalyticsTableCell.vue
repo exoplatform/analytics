@@ -1,27 +1,29 @@
 <template>
   <v-progress-circular
-    v-if="cellItemValue === 'loadingData'"
+    v-if="loadingValue"
     size="24"
     color="primary"
     indeterminate />
   <i
-    v-else-if="cellItemValue === 'errorRetrievingData'"
+    v-else-if="errorLoadingValue"
     :title="$t('analytics.errorRetrievingData')"
     class="uiIconColorError"></i>
   <div v-else>
-    <template v-if="cellItemValues.length">
-      <analytics-table-cell-value
-        v-for="value in cellItemValues"
-        :key="value"
-        :item="cellItem"
-        :value="value"
-        :original-value="$analyticsUtils.toFixed(cellItem.value)"
-        :threshold="$analyticsUtils.toFixed(cellItem.threshold)"
-        :field="columnField"
-        :data-type="columnDataType"
-        :aggregation-type="columnAggregationType"
-        :percentage="percentage"
-        :labels="labels" />
+    <template v-if="cellItems.length">
+      <div
+        v-for="cellItemSingleValue in cellItems"
+        :key="cellItemSingleValue.id">
+        <analytics-table-cell-value
+          :value="cellItemSingleValue.value"
+          :item="cellItem"
+          :original-value="$analyticsUtils.toFixed(cellItem.value)"
+          :threshold="$analyticsUtils.toFixed(cellItem.threshold)"
+          :field="columnField"
+          :data-type="columnDataType"
+          :aggregation-type="columnAggregationType"
+          :percentage="percentage"
+          :labels="labels" />
+      </div>
     </template>
     <span v-else>
       -
@@ -78,6 +80,7 @@ export default {
       hour: '2-digit',
       minute: '2-digit',
     },
+    cellItems: [],
   }),
   computed: {
     column() {
@@ -113,6 +116,12 @@ export default {
     cellItemValue() {
       return this.cellItem && this.cellItem.value;
     },
+    loadingValue() {
+      return this.cellItemValue === 'loadingData';
+    },
+    errorLoadingValue() {
+      return this.cellItemValue === 'errorRetrievingData';
+    },
     cellItemValues() {
       if (this.column.userField) {
         return this.mainColumnIdentity && [this.mainColumnIdentity[this.column.userField]] || [];
@@ -120,7 +129,7 @@ export default {
         return this.mainColumnIdentity && [this.mainColumnIdentity[this.column.spaceField]] || [];
       } else if (this.columnAggregationType === 'TERMS' && (this.columnField === 'userId' || this.columnField === 'spaceId')) {
         return this.cellItem && (this.cellItem.identity && [this.cellItem.identity] || (this.cellItemValue && this.formatValues(this.cellItemValue))) || [];
-      } else if (!this.cellItemValue || this.cellItemValue === 'loadingData' || this.cellItemValue === 'errorRetrievingData') {
+      } else if (!this.cellItemValue || this.loadingValue || this.errorLoadingValue) {
         return [];
       } else {
         return this.formatValues(this.cellItem.value, this.cellItem.threshold);
@@ -162,7 +171,25 @@ export default {
       }
     },
   },
+  watch: {
+    cellItemValue(oldValue, newValue) {
+      if (oldValue !== newValue) {
+        this.computeCellItemValues();
+      }
+    },
+  },
+  mounted() {
+    this.computeCellItemValues();
+  },
   methods: {
+    computeCellItemValues() {
+      if (this.cellItemValue && !this.loadingValue && !this.errorLoadingValue) {
+        this.cellItems = this.cellItemValues && this.cellItemValues.map(cellItemValue => ({
+          id: cellItemValue && (cellItemValue.id || cellItemValue.value) || cellItemValue,
+          value: cellItemValue,
+        })) || [];
+      }
+    },
     formatValues(itemValue, itemThreshold) {
       if (this.percentage) {
         const value = itemValue && Number(itemValue) || 0;
