@@ -308,10 +308,12 @@ export default {
       }
 
       this.loading = true;
-      const period = this.selectedPeriod.period || `${this.selectedPeriod.min}~${this.selectedPeriod.max + 60000}`;
       const params = {
         lang: eXo.env.portal.language,
-        period
+        periodType: this.selectedPeriod.period || '',
+        min: this.selectedPeriod.min,
+        max: this.selectedPeriod.max + 60000,
+        timeZone: this.$analyticsUtils.USER_TIMEZONE_ID,
       };
       params.timeZone = this.$analyticsUtils.USER_TIMEZONE_ID;
       if (this.selectedPeriod.period) {

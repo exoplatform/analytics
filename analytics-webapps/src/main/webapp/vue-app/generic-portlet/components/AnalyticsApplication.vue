@@ -320,6 +320,7 @@ export default {
         lang: eXo.env.portal.language,
         min: this.selectedPeriod.min,
         max: this.selectedPeriod.max + 60000,
+        timeZone: this.$analyticsUtils.USER_TIMEZONE_ID,
       };
       return fetch(this.retrieveChartDataUrl, {
         method: 'POST',
