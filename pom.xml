@@ -29,24 +29,24 @@
   </scm>
   <properties>
     <!-- 3rd party libraries versions -->
-    <org.exoplatform.social.version>6.2.x-SNAPSHOT</org.exoplatform.social.version>
-    <org.exoplatform.platform-ui.version>6.2.x-SNAPSHOT</org.exoplatform.platform-ui.version>
-    <addon.exo.jcr.version>6.2.x-SNAPSHOT</addon.exo.jcr.version>
-    <addon.exo.ecms.version>6.2.x-SNAPSHOT</addon.exo.ecms.version>
-    <addon.exo.tasks.version>3.2.x-SNAPSHOT</addon.exo.tasks.version>
-    <addon.exo.web-conferencing.version>2.2.x-SNAPSHOT</addon.exo.web-conferencing.version>
-    <addon.exo.layout-management.version>1.2.x-SNAPSHOT</addon.exo.layout-management.version>
-    <addon.exo.digital-workplace.version>1.2.x-SNAPSHOT</addon.exo.digital-workplace.version>
-    <addon.exo.news.version>2.2.x-SNAPSHOT</addon.exo.news.version>
-    <addon.exo.onlyoffice.version>2.2.x-SNAPSHOT</addon.exo.onlyoffice.version>
-    <addon.exo.chat.version>3.2.x-SNAPSHOT</addon.exo.chat.version>
-    <addon.exo.agenda.version>1.1.x-SNAPSHOT</addon.exo.agenda.version>
-    <addon.exo.kudos.version>2.2.x-SNAPSHOT</addon.exo.kudos.version>
-    <addon.exo.perk-store.version>2.2.x-SNAPSHOT</addon.exo.perk-store.version>
-    <addon.exo.wallet.version>2.2.x-SNAPSHOT</addon.exo.wallet.version>
-    <addon.exo.gamification.version>2.2.x-SNAPSHOT</addon.exo.gamification.version>
-    <addon.exo.push-notifications.version>2.2.x-SNAPSHOT</addon.exo.push-notifications.version>
-    <addon.exo.app-center.version>2.2.x-SNAPSHOT</addon.exo.app-center.version>
+    <org.exoplatform.social.version>6.2.0-M18</org.exoplatform.social.version>
+    <org.exoplatform.platform-ui.version>6.2.0-M18</org.exoplatform.platform-ui.version>
+    <addon.exo.jcr.version>6.2.0-M18</addon.exo.jcr.version>
+    <addon.exo.ecms.version>6.2.0-M18</addon.exo.ecms.version>
+    <addon.exo.tasks.version>3.2.0-M18</addon.exo.tasks.version>
+    <addon.exo.web-conferencing.version>2.2.0-M18</addon.exo.web-conferencing.version>
+    <addon.exo.layout-management.version>1.2.0-M18</addon.exo.layout-management.version>
+    <addon.exo.digital-workplace.version>1.2.0-M18</addon.exo.digital-workplace.version>
+    <addon.exo.news.version>2.2.0-M18</addon.exo.news.version>
+    <addon.exo.onlyoffice.version>2.2.0-M18</addon.exo.onlyoffice.version>
+    <addon.exo.chat.version>3.2.0-M18</addon.exo.chat.version>
+    <addon.exo.agenda.version>1.1.0-M18</addon.exo.agenda.version>
+    <addon.exo.kudos.version>2.2.0-M18</addon.exo.kudos.version>
+    <addon.exo.perk-store.version>2.2.0-M18</addon.exo.perk-store.version>
+    <addon.exo.wallet.version>2.2.0-M18</addon.exo.wallet.version>
+    <addon.exo.gamification.version>2.2.0-M18</addon.exo.gamification.version>
+    <addon.exo.push-notifications.version>2.2.0-M18</addon.exo.push-notifications.version>
+    <addon.exo.app-center.version>2.2.0-M18</addon.exo.app-center.version>
 
     <!-- Used to generate default methods for POJO -->
     <org.lombok.version>1.18.2</org.lombok.version>
