@@ -9,7 +9,6 @@
   "scripts": {
     "watch": "webpack --config webpack.watch.js --progress --colors --watch -d",
     "lint": "eslint --fix \"./src/main/webapp/vue-app/**\"",
-    "eslint-check": "eslint  \"./src/main/webapp/vue-app/**\"",
     "build": "webpack --config webpack.prod.js --mode production"
   },
   "author": "eXo",
@@ -18,27 +17,15 @@
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
     "babel-preset-es2015": "^6.24.1",
-    "eslint": "^5.10.0",
+    "eslint": "^4.19.1",
     "eslint-config-meedsio": "^1.0.1",
-    "eslint-config-prettier": "^3.3.0",
-    "eslint-loader": "^2.1.1",
-    "eslint-plugin-jest": "^22.1.2",
-    "eslint-plugin-prettier": "^3.0.0",
-    "eslint-plugin-standard": "^4.0.0",
+    "eslint-loader": "^2.0.0",
     "eslint-plugin-vue": "^5.0.0",
-    "extract-text-webpack-plugin": "^4.0.0-beta.0",
-    "file-loader": "^1.1.11",
-    "npm": "^6.14.6",
-    "prettier": "1.15.3",
     "vue": "^2.6.10",
-    "vue-i18n": "^8.15.0",
     "vue-loader": "^14.2.3",
     "vue-template-compiler": "^2.6.10",
-    "vuetify": "^2.1.7",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.1",
-    "webpack-dev-server": "^3.1.10",
     "webpack-merge": "^4.1.3"
-  },
-  "dependencies": {}
+  }
 }
