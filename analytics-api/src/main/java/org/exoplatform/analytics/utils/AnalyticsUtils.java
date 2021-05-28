@@ -229,7 +229,8 @@ public class AnalyticsUtils {
 
   public static final String fixJSONStringFormat(String jsonString) {
     do {
-      jsonString = jsonString.replace(" ", "")
+      jsonString = jsonString.replaceAll("([,\\]}][ \\t]+)", "$1")
+                             .replaceAll(" +([,\\]}])", "$1")
                              .replace("\n", "")
                              .replaceAll(",+", VALUES_SEPARATOR)
                              .replaceAll("([\\]}]+),([\\]}]+)", "$1$2");
