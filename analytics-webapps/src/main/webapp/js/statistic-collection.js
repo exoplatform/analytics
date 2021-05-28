@@ -7,6 +7,10 @@ function() {
 
         this.initCometd();
         this.installWatchers();
+        const _self = this;
+        document.addEventListener("analytics-install-watchers", function() {
+          _self.installWatchers();
+        });
       }
     },
     initCometd : function() {
