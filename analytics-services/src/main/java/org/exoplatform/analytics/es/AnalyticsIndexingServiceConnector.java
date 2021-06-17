@@ -19,32 +19,28 @@ import org.exoplatform.services.log.Log;
 
 public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  private static final long                   serialVersionUID                = -3143010828698498081L;
+  private static final Log          LOG                             =
+                                        ExoLogger.getLogger(AnalyticsIndexingServiceConnector.class);
 
-  private static final Log                    LOG                             =
-                                                  ExoLogger.getLogger(AnalyticsIndexingServiceConnector.class);
+  private static final String       MAPPING_FILE_PATH_PARAM         = "mapping.file.path";
 
-  private static final String                 MAPPING_FILE_PATH_PARAM         = "mapping.file.path";
+  private static final String       ES_INDEX_PLACEHOLDER            = "@ES_INDEX_PLACEHOLDER@";
 
-  private static final String                 ES_INDEX_PLACEHOLDER            = "@ES_INDEX_PLACEHOLDER@";
+  private static final String       DEFAULT_ES_ANALYTICS_INDEX_NAME = "analytics";
 
-  private static final String                 DEFAULT_ES_ANALYTICS_INDEX_NAME = "analytics";
+  private static final String       ES_ANALYTICS_INDEX_PER_DAYS     = "exo.es.analytics.index.per.days";
 
-  private static final String                 ES_ANALYTICS_TYPE               = "analytics";
+  private static final String       ES_ANALYTICS_INDEX_PREFIX       = "exo.es.analytics.index.prefix";
 
-  private static final String                 ES_ANALYTICS_INDEX_PER_DAYS     = "exo.es.analytics.index.per.days";
+  private static final long         DAY_IN_MS                       = 86400000L;
 
-  private static final String                 ES_ANALYTICS_INDEX_PREFIX       = "exo.es.analytics.index.prefix";
+  private StatisticDataQueueService analyticsQueueService;
 
-  private static final long                   DAY_IN_MS                       = 86400000L;
+  private String                    esInitialMapping;
 
-  private transient StatisticDataQueueService analyticsQueueService;
+  private String                    indexPrefix;
 
-  private String                              esInitialMapping;
-
-  private String                              indexPrefix;
-
-  private int                                 indexPerDays;
+  private int                       indexPerDays;
 
   public AnalyticsIndexingServiceConnector(ConfigurationManager configurationManager,
                                            StatisticDataQueueService analyticsQueueService,
@@ -79,13 +75,13 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
   }
 
   @Override
-  public String getIndex() {
+  public String getIndexAlias() {
     return ES_INDEX_PLACEHOLDER;
   }
 
   @Override
-  public String getType() {
-    return ES_ANALYTICS_TYPE;
+  public String getConnectorName() {
+    return getIndexAlias();
   }
 
   @Override
@@ -122,8 +118,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     if (data.getParameters() != null && !data.getParameters().isEmpty()) {
       fields.putAll(data.getParameters());
     }
-    Document esDocument = new Document(DEFAULT_ES_ANALYTICS_INDEX_NAME,
-                                       String.valueOf(id),
+    Document esDocument = new Document(String.valueOf(id),
                                        null,
                                        null,
                                        (Set<String>) null,

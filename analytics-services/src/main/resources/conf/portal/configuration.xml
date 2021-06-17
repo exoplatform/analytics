@@ -81,7 +81,7 @@
       </value-param>
       <properties-param>
         <name>constructor.params</name>
-        <property name="type" value="analytics" />
+        <property name="index_current" value="analytics" />
       </properties-param>
     </init-params>
   </component>

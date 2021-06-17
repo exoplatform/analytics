@@ -14,7 +14,6 @@ import org.picocontainer.Startable;
 
 import org.exoplatform.analytics.api.service.*;
 import org.exoplatform.analytics.es.AnalyticsESClient;
-import org.exoplatform.analytics.es.AnalyticsIndexingServiceConnector;
 import org.exoplatform.analytics.model.*;
 import org.exoplatform.analytics.model.StatisticData.StatisticStatus;
 import org.exoplatform.analytics.model.chart.*;
@@ -73,8 +72,6 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
 
   private AnalyticsESClient                  esClient;
 
-  private AnalyticsIndexingServiceConnector  analyticsIndexingServiceConnector;
-
   private SettingService                     settingService;
 
   private Map<String, StatisticFieldMapping> esMappings                                 = new HashMap<>();
@@ -90,11 +87,9 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   private int                                aggregationReturnedDocumentsSize           = 1000;
 
   public ESAnalyticsService(AnalyticsESClient esClient,
-                            AnalyticsIndexingServiceConnector analyticsIndexingServiceConnector,
                             SettingService settingService,
                             InitParams params) {
     this.esClient = esClient;
-    this.analyticsIndexingServiceConnector = analyticsIndexingServiceConnector;
     this.settingService = settingService;
 
     if (params != null && params.containsKey(ANALYTICS_ADMIN_PERMISSION_PARAM_NAME)) {
@@ -159,7 +154,6 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                                                0,
                                                null,
                                                "mappings",
-                                               analyticsIndexingServiceConnector.getType(),
                                                "properties");
       if (mappingObject != null) {
         String[] fieldNames = JSONObject.getNames(mappingObject);
@@ -921,7 +915,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     percentageChartValue.setComputingTime(json.getLong("took"));
 
     JSONObject hitsResult = json.getJSONObject("hits");
-    percentageChartValue.setDataCount(hitsResult.getLong("total"));
+    percentageChartValue.setDataCount(hitsResult.getJSONObject("total").getLong("value"));
 
     if (aggregations.has(AGGREGATION_BUCKETS_VALUE_PARAM)) {
       String value = aggregations.getJSONObject(AGGREGATION_BUCKETS_VALUE_PARAM).getString("value");
@@ -998,7 +992,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     JSONObject hitsResult = (JSONObject) json.get("hits");
 
     chartsData.setComputingTime(json.getLong("took"));
-    chartsData.setDataCount(hitsResult.getLong("total"));
+    chartsData.setDataCount(hitsResult.getJSONObject("total").getLong("value"));
 
     int level = multipleChartsAggregation == null ? 0 : -1;
     computeAggregatedResultEntry(filter, aggregations, chartsData, multipleChartsAggregation, null, null, level);

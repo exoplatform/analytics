@@ -97,9 +97,8 @@ public class AnalyticsESClient extends ElasticClient {
     } else {
       String indexURL = urlClient + "/" + index;
       String esIndexSettings = elasticContentRequestBuilder.getCreateIndexRequestContent(analyticsIndexingConnector);
-      sendHttpPutRequest(indexURL, esIndexSettings);
-      String esTypeURL = urlClient + "/" + index + "/_mapping/" + analyticsIndexingConnector.getType();
-      sendHttpPutRequest(esTypeURL, analyticsIndexingConnector.getMapping());
+      String query = "{\"settings\": " + esIndexSettings + ", \"mappings\": " + analyticsIndexingConnector.getMapping() + "}";
+      sendHttpPutRequest(indexURL, query);
 
       if (sendIsIndexExistsRequest(index)) {
         LOG.info("Index {} created.", index);
@@ -139,8 +138,7 @@ public class AnalyticsESClient extends ElasticClient {
     Set<String> indexesToUpdate = new HashSet<>();
     for (StatisticDataQueueEntry statisticDataQueueEntry : dataQueueEntries) {
       String documentId = String.valueOf(statisticDataQueueEntry.getId());
-      String singleDocumentQuery = elasticContentRequestBuilder.getCreateDocumentRequestContent(analyticsIndexingConnector,
-                                                                                                documentId);
+      String singleDocumentQuery = elasticContentRequestBuilder.getCreateDocumentRequestContent(analyticsIndexingConnector, documentId);
       String index = analyticsIndexingConnector.getIndex(statisticDataQueueEntry.getStatisticData().getTimestamp());
       singleDocumentQuery = analyticsIndexingConnector.replaceByIndexName(singleDocumentQuery, index);
       request.append(singleDocumentQuery);
