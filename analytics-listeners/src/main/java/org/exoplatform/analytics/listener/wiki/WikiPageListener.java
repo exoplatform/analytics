@@ -34,6 +34,12 @@ public class WikiPageListener extends PageWikiListener {
 
   private static final String WIKI_DELETE_PAGE_OPERATION = "noteDeleted";
 
+  private static final String WIKI_OPEN_PAGE_TREE = "openNoteByTree";
+
+  private static final String WIKI_OPEN_PAGE_BREAD_CRUMB = "openNoteByBreadCrumb";
+
+  private static final String WIKI_OPEN_PAGE_TO_EDIT = "openNoteByToEdit";
+
   protected PortalContainer   container;
 
   protected IdentityManager   identityManager;
@@ -63,6 +69,21 @@ public class WikiPageListener extends PageWikiListener {
   @Override
   public void postDeletePage(String wikiType, String wikiOwner, String pageId, Page page) throws WikiException {
     computeWikiPageStatistics(page, wikiType, wikiOwner, WIKI_DELETE_PAGE_OPERATION, null);
+  }
+
+  @Override
+  public void postgetPagefromTree(String wikiType, String wikiOwner, String pageId, Page page) throws WikiException {
+    computeWikiPageStatistics(page, wikiType, wikiOwner, WIKI_OPEN_PAGE_TREE, null);
+  }
+
+  @Override
+  public void postgetPagefromBreadCrumb(String wikiType, String wikiOwner, String pageId, Page page) throws WikiException {
+    computeWikiPageStatistics(page, wikiType, wikiOwner, WIKI_OPEN_PAGE_BREAD_CRUMB, null);
+  }
+
+  @Override
+  public void postGetToEdit(String wikiType, String wikiOwner, String pageId, Page page) throws WikiException {
+    computeWikiPageStatistics(page, wikiType, wikiOwner, WIKI_OPEN_PAGE_TO_EDIT, null);
   }
 
   private void computeWikiPageStatistics(Page page,
