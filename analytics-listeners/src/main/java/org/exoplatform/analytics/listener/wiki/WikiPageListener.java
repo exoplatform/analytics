@@ -34,6 +34,16 @@ public class WikiPageListener extends PageWikiListener {
 
   private static final String WIKI_DELETE_PAGE_OPERATION = "noteDeleted";
 
+  private static final String WIKI_OPEN_PAGE_TREE = "openNoteByTree";
+
+  private static final String WIKI_OPEN_PAGE_BREAD_CRUMB = "openNoteByBreadCrumb";
+
+  private static final String WIKI_OPEN_PAGE_TO_EDIT = "openNoteByToEdit";
+
+  private static final String WIKI_SWITCH_TO_NEW_APP = "switchToNewNotesApp";
+
+  private static final String WIKI_SWITCH_TO_OLD_APP = "switchToOldNotesApp";
+
   protected PortalContainer   container;
 
   protected IdentityManager   identityManager;
@@ -63,6 +73,31 @@ public class WikiPageListener extends PageWikiListener {
   @Override
   public void postDeletePage(String wikiType, String wikiOwner, String pageId, Page page) throws WikiException {
     computeWikiPageStatistics(page, wikiType, wikiOwner, WIKI_DELETE_PAGE_OPERATION, null);
+  }
+
+  @Override
+  public void postgetPagefromTree(String wikiType, String wikiOwner, String pageId, Page page) throws WikiException {
+    computeWikiPageStatistics(page, wikiType, wikiOwner, WIKI_OPEN_PAGE_TREE, null);
+  }
+
+  @Override
+  public void postgetPagefromBreadCrumb(String wikiType, String wikiOwner, String pageId, Page page) throws WikiException {
+    computeWikiPageStatistics(page, wikiType, wikiOwner, WIKI_OPEN_PAGE_BREAD_CRUMB, null);
+  }
+
+  @Override
+  public void postGetToEdit(String wikiType, String wikiOwner, String pageId, Page page) throws WikiException {
+    computeWikiPageStatistics(page, wikiType, wikiOwner, WIKI_OPEN_PAGE_TO_EDIT, null);
+  }
+
+  @Override
+  public void postSwitchToOldApp() {
+    computeWikiPageStatistics(null, "", "", WIKI_SWITCH_TO_OLD_APP, null);
+  }
+
+  @Override
+  public void postSwitchToNewApp() {
+    computeWikiPageStatistics(null, "", "", WIKI_SWITCH_TO_NEW_APP, null);
   }
 
   private void computeWikiPageStatistics(Page page,
@@ -115,14 +150,16 @@ public class WikiPageListener extends PageWikiListener {
       Space space = getSpaceService().getSpaceByGroupId(wikiOwner);
       addSpaceStatistics(statisticData, space);
     }
-    statisticData.addParameter("wikiPageId", page.getId());
-    statisticData.addParameter("wikiId", page.getWikiId());
-    statisticData.addParameter("contentLength", page.getContent() == null ? 0 : page.getContent().length());
-    statisticData.addParameter("titleLength", page.getTitle() == null ? 0 : page.getTitle().length());
-    statisticData.addParameter("authorId", getUserIdentityId(page.getAuthor()));
-    statisticData.addParameter("ownerId", getUserIdentityId(page.getOwner()));
-    statisticData.addParameter("wikiType", page.getWikiType());
-    statisticData.addParameter("createdDate", page.getCreatedDate());
+    if (page != null) {
+      statisticData.addParameter("wikiPageId", page.getId());
+      statisticData.addParameter("wikiId", page.getWikiId());
+      statisticData.addParameter("contentLength", page.getContent() == null ? 0 : page.getContent().length());
+      statisticData.addParameter("titleLength", page.getTitle() == null ? 0 : page.getTitle().length());
+      statisticData.addParameter("authorId", getUserIdentityId(page.getAuthor()));
+      statisticData.addParameter("ownerId", getUserIdentityId(page.getOwner()));
+      statisticData.addParameter("wikiType", page.getWikiType());
+      statisticData.addParameter("createdDate", page.getCreatedDate());
+    }
     if (wikiUpdateType != null) {
       statisticData.addParameter("updateType", wikiUpdateType.name());
     }
