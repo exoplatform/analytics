@@ -20,6 +20,11 @@
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd" xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
   <component>
+    <key>org.exoplatform.analytics.es.AnalyticsElasticContentRequestBuilder</key>
+    <type>org.exoplatform.analytics.es.AnalyticsElasticContentRequestBuilder</type>
+  </component>
+
+  <component>
     <type>org.exoplatform.analytics.es.AnalyticsESClient</type>
     <init-params>
       <value-param>
@@ -33,6 +38,14 @@
       <value-param>
         <name>exo.es.analytics.index.server.password</name>
         <value>${exo.es.analytics.index.server.password:}</value>
+      </value-param>
+      <value-param>
+        <name>exo.es.analytics.index.per.days</name>
+        <value>${exo.es.analytics.index.per.days:7}</value>
+      </value-param>
+      <value-param>
+        <name>index.template.file.path</name>
+        <value>${exo.es.analytics.index.template.path:jar:/analytics-es-template.json}</value>
       </value-param>
     </init-params>
   </component>
@@ -68,20 +81,19 @@
     <type>org.exoplatform.analytics.es.AnalyticsIndexingServiceConnector</type>
     <init-params>
       <value-param>
-        <name>mapping.file.path</name>
-        <value>${exo.addon.analytics.es.mapping.path:jar:/analytics-es-mapping.json}</value>
-      </value-param>
-      <value-param>
-        <name>exo.es.analytics.index.per.days</name>
-        <value>${exo.es.analytics.index.per.days:7}</value>
-      </value-param>
-      <value-param>
         <name>exo.es.analytics.index.prefix</name>
         <value>${exo.es.analytics.index.prefix:analytics}</value>
+      </value-param>
+      <value-param>
+        <name>exo.es.analytics.index.template</name>
+        <value>${exo.es.analytics.index.template:analytics_template}</value>
       </value-param>
       <properties-param>
         <name>constructor.params</name>
         <property name="index_current" value="analytics" />
+        <property name="index_alias" value="${exo.es.analytics.index.alias:analytics_alias}" />
+        <property name="replica.number" value="${exo.es.analytics.replica.number:0}" />
+        <property name="shard.number" value="${exo.es.analytics.shard.number:1}" />
       </properties-param>
     </init-params>
   </component>
