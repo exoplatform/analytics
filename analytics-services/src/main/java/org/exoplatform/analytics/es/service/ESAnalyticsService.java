@@ -21,7 +21,6 @@ import org.exoplatform.analytics.model.filter.*;
 import org.exoplatform.analytics.model.filter.AnalyticsFilter.Range;
 import org.exoplatform.analytics.model.filter.aggregation.*;
 import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilter;
-import org.exoplatform.analytics.model.filter.search.AnalyticsFieldFilterType;
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
@@ -60,11 +59,6 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   private static final Scope                 ES_SCOPE                                   = Scope.GLOBAL.id("elasticsearch");
 
   private static final String                ES_AGGREGATED_MAPPING                      = "ES_AGGREGATED_MAPPING";
-
-  private static final AnalyticsFieldFilter  ES_TYPE_FILTER                             =
-                                                            new AnalyticsFieldFilter("isAnalytics",
-                                                                                     AnalyticsFieldFilterType.EQUAL,
-                                                                                     "true");
 
   private List<StatisticUIWatcherPlugin>     uiWatcherPlugins                           = new ArrayList<>();
 
@@ -145,7 +139,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       return new HashSet<>(esMappings.values());
     }
     try {
-      String mappingJsonString = esClient.getMapping();
+      String mappingJsonString = esClient.retrieveAllAnalyticsIndexesMapping();
       if (StringUtils.isBlank(mappingJsonString)) {
         return new HashSet<>(esMappings.values());
       }
@@ -492,7 +486,6 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     } else {
       filters = new ArrayList<>(filters);
     }
-    filters.add(ES_TYPE_FILTER);
 
     esQuery.append(",");
     esQuery.append("    \"query\": {");

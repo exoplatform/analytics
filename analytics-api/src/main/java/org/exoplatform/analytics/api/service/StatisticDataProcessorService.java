@@ -5,12 +5,15 @@ import static org.exoplatform.analytics.utils.AnalyticsUtils.MAX_BULK_DOCUMENTS;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.picocontainer.Startable;
+
 import org.exoplatform.analytics.api.processor.StatisticDataProcessorPlugin;
 import org.exoplatform.analytics.model.StatisticDataQueueEntry;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-public class StatisticDataProcessorService {
+public class StatisticDataProcessorService implements Startable {
 
   private static final Log                        LOG                        =
                                                       ExoLogger.getLogger(StatisticDataProcessorService.class);
@@ -19,12 +22,60 @@ public class StatisticDataProcessorService {
 
   private ArrayList<StatisticDataProcessorPlugin> dataProcessorPlugins       = new ArrayList<>();
 
+  @Override
+  public void start() {
+    for (StatisticDataProcessorPlugin statisticDataProcessorPlugin : dataProcessorPlugins) {
+      try {
+        statisticDataProcessorPlugin.init();
+      } catch (Exception e) {
+        LOG.error("Error initializing processor with id {}", statisticDataProcessorPlugin.getId(), e);
+      }
+    }
+  }
+
+  @Override
+  public void stop() {
+    // Nothing to stop
+  }
+
   public void addProcessor(StatisticDataProcessorPlugin dataProcessorPlugin) {
     this.dataProcessorPlugins.add(dataProcessorPlugin);
   }
 
+  public boolean pauseProcessor(String id) {
+    StatisticDataProcessorPlugin processor = getProcessor(id);
+    if (processor == null || processor.isPaused()) {
+      return false;
+    } else {
+      processor.setPaused(true);
+      return true;
+    }
+  }
+
+  public boolean unpauseProcessor(String id) {
+    StatisticDataProcessorPlugin processor = getProcessor(id);
+    if (processor == null || !processor.isPaused()) {
+      return false;
+    } else {
+      processor.setPaused(false);
+      return true;
+    }
+  }
+
+  public boolean isProcessorInitialized(String id) {
+    StatisticDataProcessorPlugin processor = getProcessor(id);
+    return processor != null && processor.isInitialized();
+  }
+
   public List<StatisticDataProcessorPlugin> getProcessors() {
     return this.dataProcessorPlugins;
+  }
+
+  public StatisticDataProcessorPlugin getProcessor(String id) {
+    return this.dataProcessorPlugins.stream()
+                                    .filter(processor -> StringUtils.equals(id, processor.getId()))
+                                    .findFirst()
+                                    .orElse(null);
   }
 
   public void process(List<? extends StatisticDataQueueEntry> queueEntries) {
@@ -55,7 +106,17 @@ public class StatisticDataProcessorService {
       return;
     }
 
-    for (StatisticDataProcessorPlugin statisticDataProcessorPlugin : dataProcessorPlugins) {
+    for (StatisticDataProcessorPlugin statisticDataProcessorPlugin : dataProcessorPlugins) {// NOSONAR need more than one continue statement
+      if (statisticDataProcessorPlugin.isPaused()) {
+        LOG.debug("Statistic Data Processor with id '{}' is paused, ignore processing queue items",
+                  statisticDataProcessorPlugin.getId());
+        continue;
+      }
+      if (!statisticDataProcessorPlugin.isInitialized()) {
+        LOG.info("Statistic Data Processor with id '{}' is not initialized yet, ignore processing queue items",
+                 statisticDataProcessorPlugin.getId());
+        continue;
+      }
       String processorId = statisticDataProcessorPlugin.getId();
       List<StatisticDataQueueEntry> processorQueueEntries = queueEntriesToProcess.stream()
                                                                                  .filter(queueEntry -> !isProcessorRun(queueEntry,

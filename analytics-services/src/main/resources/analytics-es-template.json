@@ -1,0 +1,56 @@
+{
+  "index_patterns": ["analytics*"],
+  "template": {
+    "aliases" : {
+      "analytics_alias" : {
+        "is_write_index" : true
+      }
+    },
+    "settings": {
+      "number_of_shards": shard.number,
+      "number_of_replicas": replica.number
+    },
+    "mappings": {
+      "numeric_detection": true,
+      "dynamic_date_formats": [
+        "yyyy/MM/dd",
+        "yyyy/MM/dd HH:mm:ss",
+        "yyyy/MM/dd HH:mm:ss Z"
+      ],
+      "properties": {
+        "timestamp": {
+          "type": "date",
+          "format": "epoch_millis"
+        },
+        "userId": {
+          "type": "long"
+        },
+        "spaceId": {
+          "type": "long"
+        },
+        "module": {
+          "type": "keyword"
+        },
+        "subModule": {
+          "type": "keyword"
+        },
+        "operation": {
+          "type": "keyword"
+        },
+        "status": {
+          "type": "short"
+        },
+        "duration": {
+          "type": "long"
+        },
+        "errorCode": {
+          "type": "long"
+        },
+        "errorMessage": {
+          "type": "text",
+          "index_options": "offsets"
+        }
+      }
+    }
+  }
+}
