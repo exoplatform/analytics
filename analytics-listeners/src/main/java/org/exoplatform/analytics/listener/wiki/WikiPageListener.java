@@ -91,13 +91,13 @@ public class WikiPageListener extends PageWikiListener {
   }
 
   @Override
-  public void postSwitchToOldApp() {
-    computeWikiPageStatistics(null, "", "", WIKI_SWITCH_TO_OLD_APP, null);
+  public void postSwitchToOldApp(Page page) {
+    computeWikiPageStatistics(page, "", "", WIKI_SWITCH_TO_OLD_APP, null);
   }
 
   @Override
-  public void postSwitchToNewApp() {
-    computeWikiPageStatistics(null, "", "", WIKI_SWITCH_TO_NEW_APP, null);
+  public void postSwitchToNewApp(Page page) {
+    computeWikiPageStatistics(page, "", "", WIKI_SWITCH_TO_NEW_APP, null);
   }
 
   private void computeWikiPageStatistics(Page page,
