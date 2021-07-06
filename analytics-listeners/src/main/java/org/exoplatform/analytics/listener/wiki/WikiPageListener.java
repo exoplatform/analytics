@@ -38,12 +38,6 @@ public class WikiPageListener extends PageWikiListener {
 
   private static final String WIKI_OPEN_PAGE_BREAD_CRUMB = "openNoteByBreadCrumb";
 
-  private static final String WIKI_OPEN_PAGE_TO_EDIT = "openNoteByToEdit";
-
-  private static final String WIKI_SWITCH_TO_NEW_APP = "switchToNewNotesApp";
-
-  private static final String WIKI_SWITCH_TO_OLD_APP = "switchToOldNotesApp";
-
   protected PortalContainer   container;
 
   protected IdentityManager   identityManager;
@@ -83,21 +77,6 @@ public class WikiPageListener extends PageWikiListener {
   @Override
   public void postgetPagefromBreadCrumb(String wikiType, String wikiOwner, String pageId, Page page) throws WikiException {
     computeWikiPageStatistics(page, wikiType, wikiOwner, WIKI_OPEN_PAGE_BREAD_CRUMB, null);
-  }
-
-  @Override
-  public void postGetToEdit(String wikiType, String wikiOwner, String pageId, Page page) throws WikiException {
-    computeWikiPageStatistics(page, wikiType, wikiOwner, WIKI_OPEN_PAGE_TO_EDIT, null);
-  }
-
-  @Override
-  public void postSwitchToOldApp(Page page) {
-    computeWikiPageStatistics(page, "", "", WIKI_SWITCH_TO_OLD_APP, null);
-  }
-
-  @Override
-  public void postSwitchToNewApp(Page page) {
-    computeWikiPageStatistics(page, "", "", WIKI_SWITCH_TO_NEW_APP, null);
   }
 
   private void computeWikiPageStatistics(Page page,
