@@ -842,7 +842,7 @@
     </component-plugin>
 
     <component-plugin>
-      <name>Open Add note</name>
+      <name>Click Add note</name>
       <set-method>addUIWatcherPlugin</set-method>
       <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
       <init-params>
@@ -851,11 +851,11 @@
           <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
             <!-- Statistic data: name field -->
             <field name="name">
-              <string>Open Add note</string>
+              <string>Click Add note</string>
             </field>
             <!-- Statistic data: operation field -->
             <field name="operation">
-              <string>Open Add note</string>
+              <string>clickAddNote</string>
             </field>
             <!-- Statistic data: additional embedded parameters -->
             <field name="parameters">
@@ -893,7 +893,7 @@
 
 
     <component-plugin>
-      <name>Open Edit note</name>
+      <name>Click Edit note</name>
       <set-method>addUIWatcherPlugin</set-method>
       <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
       <init-params>
@@ -902,11 +902,11 @@
           <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
             <!-- Statistic data: name field -->
             <field name="name">
-              <string>Open Edit note</string>
+              <string>Click Edit note</string>
             </field>
             <!-- Statistic data: operation field -->
             <field name="operation">
-              <string>Open Edit note</string>
+              <string>clickEditNote</string>
             </field>
             <!-- Statistic data: additional embedded parameters -->
             <field name="parameters">
@@ -941,9 +941,5 @@
         </object-param>
       </init-params>
     </component-plugin>
-
-
-
   </external-component-plugins>
-
 </configuration>
