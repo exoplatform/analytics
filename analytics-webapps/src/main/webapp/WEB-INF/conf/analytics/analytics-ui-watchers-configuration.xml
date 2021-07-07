@@ -801,7 +801,7 @@
           <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
             <!-- Statistic data: name field -->
             <field name="name">
-              <string>Switch to New Notes Appm</string>
+              <string>Switch to New Notes App</string>
             </field>
             <!-- Statistic data: operation field -->
             <field name="operation">
@@ -855,7 +855,7 @@
             </field>
             <!-- Statistic data: operation field -->
             <field name="operation">
-              <string>click</string>
+              <string>Open Add note</string>
             </field>
             <!-- Statistic data: additional embedded parameters -->
             <field name="parameters">
@@ -906,7 +906,7 @@
             </field>
             <!-- Statistic data: operation field -->
             <field name="operation">
-              <string>click</string>
+              <string>Open Edit note</string>
             </field>
             <!-- Statistic data: additional embedded parameters -->
             <field name="parameters">
@@ -941,5 +941,9 @@
         </object-param>
       </init-params>
     </component-plugin>
+
+
+
   </external-component-plugins>
+
 </configuration>
