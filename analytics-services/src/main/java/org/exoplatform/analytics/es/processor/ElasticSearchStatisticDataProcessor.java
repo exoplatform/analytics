@@ -9,6 +9,7 @@ import org.exoplatform.analytics.es.AnalyticsESClient;
 import org.exoplatform.analytics.model.StatisticDataQueueEntry;
 
 public class ElasticSearchStatisticDataProcessor extends StatisticDataProcessorPlugin {
+
   private AnalyticsESClient analyticsIndexingClient;
 
   public ElasticSearchStatisticDataProcessor(AnalyticsESClient analyticsIndexingClient) {
@@ -23,6 +24,12 @@ public class ElasticSearchStatisticDataProcessor extends StatisticDataProcessorP
   @Override
   public void process(List<StatisticDataQueueEntry> processorQueueEntries) {
     analyticsIndexingClient.sendCreateBulkDocumentsRequest(processorQueueEntries);
+  }
+
+  @Override
+  public void init() {
+    analyticsIndexingClient.init();
+    setInitialized(true);
   }
 
 }
