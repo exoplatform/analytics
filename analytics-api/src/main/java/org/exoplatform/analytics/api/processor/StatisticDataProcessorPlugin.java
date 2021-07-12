@@ -7,6 +7,10 @@ import org.exoplatform.container.component.BaseComponentPlugin;
 
 public abstract class StatisticDataProcessorPlugin extends BaseComponentPlugin {
 
+  protected boolean initialized;
+
+  protected boolean paused;
+
   /**
    * @return processor identifier
    */
@@ -19,5 +23,28 @@ public abstract class StatisticDataProcessorPlugin extends BaseComponentPlugin {
    *          {@link StatisticDataQueueEntry}
    */
   public abstract void process(List<StatisticDataQueueEntry> processorQueueEntries);
+
+  /**
+   * initializes the processor
+   */
+  public void init() {
+    this.initialized = true;
+  }
+
+  public boolean isInitialized() {
+    return this.initialized;
+  }
+
+  public void setInitialized(boolean initialized) {
+    this.initialized = initialized;
+  }
+
+  public boolean isPaused() {
+    return this.paused;
+  }
+
+  public void setPaused(boolean paused) {
+    this.paused = paused;
+  }
 
 }
