@@ -2,95 +2,97 @@ package org.exoplatform.analytics.es;
 
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
-import java.io.InputStream;
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
+import org.picocontainer.Startable;
 
 import org.exoplatform.analytics.api.service.StatisticDataQueueService;
 import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
+import org.exoplatform.commons.api.settings.data.Context;
+import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
-import org.exoplatform.commons.utils.IOUtil;
-import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceConnector {
+public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceConnector implements Startable {
 
-  private static final long                   serialVersionUID                = -3143010828698498081L;
+  private static final Log          LOG                             =
+                                        ExoLogger.getLogger(AnalyticsIndexingServiceConnector.class);
 
-  private static final Log                    LOG                             =
-                                                  ExoLogger.getLogger(AnalyticsIndexingServiceConnector.class);
+  public static final String        DEFAULT_ES_INDEX_TEMPLATE       = "analytics_template";
 
-  private static final String                 MAPPING_FILE_PATH_PARAM         = "mapping.file.path";
+  public static final String        DEFAULT_ES_ANALYTICS_INDEX_NAME = "analytics";
 
-  private static final String                 ES_INDEX_PLACEHOLDER            = "@ES_INDEX_PLACEHOLDER@";
+  public static final String        ES_ANALYTICS_INDEX_PREFIX       = "exo.es.analytics.index.prefix";
 
-  private static final String                 DEFAULT_ES_ANALYTICS_INDEX_NAME = "analytics";
+  public static final String        ES_ANALYTICS_INDEX_TEMPLATE     = "exo.es.analytics.index.template";
 
-  private static final String                 ES_ANALYTICS_TYPE               = "analytics";
+  public static final Context       ES_ANALYTICS_CONTEXT            = Context.GLOBAL.id("analytics");
 
-  private static final String                 ES_ANALYTICS_INDEX_PER_DAYS     = "exo.es.analytics.index.per.days";
+  public static final Scope         ES_ANALYTICS_SCOPE              = Scope.APPLICATION.id("analytics");
 
-  private static final String                 ES_ANALYTICS_INDEX_PREFIX       = "exo.es.analytics.index.prefix";
+  private SettingService            settingService;
 
-  private static final long                   DAY_IN_MS                       = 86400000L;
+  private StatisticDataQueueService analyticsQueueService;
 
-  private transient StatisticDataQueueService analyticsQueueService;
+  private String                    indexPrefix;
 
-  private String                              esInitialMapping;
+  private String                    indexTemplate;
 
-  private String                              indexPrefix;
-
-  private int                                 indexPerDays;
-
-  public AnalyticsIndexingServiceConnector(ConfigurationManager configurationManager,
-                                           StatisticDataQueueService analyticsQueueService,
+  public AnalyticsIndexingServiceConnector(StatisticDataQueueService analyticsQueueService,
+                                           SettingService settingService,
                                            InitParams initParams) {
     super(initParams);
-
+    this.settingService = settingService;
     this.analyticsQueueService = analyticsQueueService;
-
     if (initParams != null) {
-      if (initParams.containsKey(MAPPING_FILE_PATH_PARAM)) {
-        String mappingFilePath = initParams.getValueParam(MAPPING_FILE_PATH_PARAM).getValue();
-        try {
-          InputStream mappingFileIS = configurationManager.getInputStream(mappingFilePath);
-          this.esInitialMapping = IOUtil.getStreamContentAsString(mappingFileIS);
-        } catch (Exception e) {
-          LOG.error("Can't read elasticsearch index mapping from path {}", mappingFilePath, e);
-        }
-      }
-      if (initParams.containsKey(ES_ANALYTICS_INDEX_PER_DAYS)) {
-        this.indexPerDays = Integer.parseInt(initParams.getValueParam(ES_ANALYTICS_INDEX_PER_DAYS).getValue());
-      }
       if (initParams.containsKey(ES_ANALYTICS_INDEX_PREFIX)) {
         this.indexPrefix = initParams.getValueParam(ES_ANALYTICS_INDEX_PREFIX).getValue();
+      }
+      if (initParams.containsKey(ES_ANALYTICS_INDEX_TEMPLATE)) {
+        this.indexTemplate = initParams.getValueParam(ES_ANALYTICS_INDEX_TEMPLATE).getValue();
       }
     }
     if (StringUtils.isBlank(this.indexPrefix)) {
       this.indexPrefix = DEFAULT_ES_ANALYTICS_INDEX_NAME;
     }
-    if (StringUtils.isBlank(this.esInitialMapping)) {
-      LOG.error("Empty elasticsearch index mapping file path parameter");
+    if (StringUtils.isBlank(this.indexTemplate)) {
+      this.indexTemplate = DEFAULT_ES_INDEX_TEMPLATE;
     }
   }
 
   @Override
-  public String getIndex() {
-    return ES_INDEX_PLACEHOLDER;
+  public void start() {
+    SettingValue<?> indexTemplateValue = this.settingService.get(ES_ANALYTICS_CONTEXT,
+                                                                 ES_ANALYTICS_SCOPE,
+                                                                 ES_ANALYTICS_INDEX_TEMPLATE);
+    if (indexTemplateValue != null && indexTemplateValue.getValue() != null) {
+      String storedIndexTemplate = indexTemplateValue.getValue().toString();
+      if (!StringUtils.equals(storedIndexTemplate, indexTemplate)) {
+        LOG.warn("Can't change index template from {} to {}. New index will be ignored.", storedIndexTemplate, indexTemplate);
+        indexTemplate = storedIndexTemplate;
+      }
+    }
   }
 
   @Override
-  public String getType() {
-    return ES_ANALYTICS_TYPE;
+  public void stop() {
+    // Nothing to stop
+  }
+
+  @Override
+  public String getConnectorName() {
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public String getMapping() {
-    return esInitialMapping;
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -122,8 +124,7 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     if (data.getParameters() != null && !data.getParameters().isEmpty()) {
       fields.putAll(data.getParameters());
     }
-    Document esDocument = new Document(DEFAULT_ES_ANALYTICS_INDEX_NAME,
-                                       String.valueOf(id),
+    Document esDocument = new Document(String.valueOf(id),
                                        null,
                                        null,
                                        (Set<String>) null,
@@ -144,21 +145,18 @@ public class AnalyticsIndexingServiceConnector extends ElasticIndexingServiceCon
     throw new UnsupportedOperationException();
   }
 
-  public final String getIndex(long timestamp) {
-    if (indexPerDays > 0) {
-      long indexSuffix = timestamp / (DAY_IN_MS * indexPerDays);
-      return this.indexPrefix + "_" + indexSuffix;
-    } else {
-      return this.indexPrefix;
-    }
-  }
-
   public String getIndexPrefix() {
     return indexPrefix;
   }
 
-  public String replaceByIndexName(String esQuery, String index) {
-    return esQuery.replace(ES_INDEX_PLACEHOLDER, index);
+  public String getIndexTemplate() {
+    return indexTemplate;
   }
 
+  public void storeCreatedIndexTemplate() {
+    this.settingService.set(ES_ANALYTICS_CONTEXT,
+                            ES_ANALYTICS_SCOPE,
+                            ES_ANALYTICS_INDEX_TEMPLATE,
+                            SettingValue.create(indexTemplate));
+  }
 }

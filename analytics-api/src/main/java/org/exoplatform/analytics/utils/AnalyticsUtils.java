@@ -23,8 +23,8 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
+import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -307,7 +307,7 @@ public class AnalyticsUtils {
   }
 
   public static long getUserIdentityId(String username) {
-    return getIdentityId(OrganizationIdentityProvider.NAME, username);
+    return getIdentityId(ActivityStream.ORGANIZATION_PROVIDER_ID, username);
   }
 
   public static Space getSpaceByPrettyName(String prettyName) {
@@ -355,7 +355,7 @@ public class AnalyticsUtils {
       return 0;
     }
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+    Identity identity = identityManager.getOrCreateIdentity(ActivityStream.ORGANIZATION_PROVIDER_ID, username);
     return identity == null ? 0 : Long.parseLong(identity.getId());
   }
 
