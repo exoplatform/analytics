@@ -12,6 +12,9 @@
     :value="value"
     :item="item"
     :labels="labels" />
+  <analytics-table-cell-content-value
+    v-else-if="isContentAggregation"
+    :value="value" />
   <date-format
     v-else-if="dataType === 'date'"
     :value="dateValue"
@@ -151,6 +154,9 @@ export default {
     },
     isSpaceAggregation() {
       return this.field === 'spaceId' && this.aggregationType === 'TERMS';
+    },
+    isContentAggregation() {
+      return this.field === 'contentId.keyword' && this.aggregationType === 'TERMS';
     },
     sign() {
       if (!this.compare) {

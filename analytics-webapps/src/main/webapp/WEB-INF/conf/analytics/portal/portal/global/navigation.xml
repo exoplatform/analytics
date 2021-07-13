@@ -44,6 +44,12 @@
         <visibility>DISPLAYED</visibility>
         <page-reference>portal::global::analytics-spaces</page-reference>
       </node>
+      <node>
+        <name>analyticsContents</name>
+        <label>#{analytics.navigation.analyticsContents}</label>
+        <visibility>DISPLAYED</visibility>
+        <page-reference>portal::global::analytics-contents</page-reference>
+      </node>
     </node>
   </page-nodes>
 </node-navigation>

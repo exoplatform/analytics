@@ -8,6 +8,7 @@ import AnalyticsTableCell from './components/table/AnalyticsTableCell.vue';
 import AnalyticsTableCellValue from './components/table/AnalyticsTableCellValue.vue';
 import AnalyticsTableCellUserValue from './components/table/AnalyticsTableCellUserValue.vue';
 import AnalyticsTableCellSpaceValue from './components/table/AnalyticsTableCellSpaceValue.vue';
+import AnalyticsTableCellContentValue from './components/table/AnalyticsTableCellContentValue.vue';
 
 const components = {
   'analytics-table-application': AnalyticsTableApplication,
@@ -20,6 +21,7 @@ const components = {
   'analytics-table-cell-value': AnalyticsTableCellValue,
   'analytics-table-cell-user-value': AnalyticsTableCellUserValue,
   'analytics-table-cell-space-value': AnalyticsTableCellSpaceValue,
+  'analytics-table-cell-content-value': AnalyticsTableCellContentValue,
 };
 
 for (const key in components) {
