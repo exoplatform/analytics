@@ -125,6 +125,7 @@ public class AnalyticsESClient extends ElasticClient {
     if (StringUtils.isBlank(this.esIndexTemplateQuery)) {
       LOG.error("Empty elasticsearch index mapping file path parameter");
     }
+    initHttpClient();
   }
 
   public void init() {
