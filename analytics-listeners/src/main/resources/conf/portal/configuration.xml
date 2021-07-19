@@ -125,6 +125,16 @@
       <type>org.exoplatform.analytics.listener.news.AnalyticsNewsListener</type>
     </component-plugin>
     <component-plugin>
+      <name>exo.news.updateArticle</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.news.AnalyticsNewsListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.news.deleteArticle</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.news.AnalyticsNewsListener</type>
+    </component-plugin>
+    <component-plugin>
       <name>exo.news.viewArticle</name>
       <set-method>addListener</set-method>
       <type>org.exoplatform.analytics.listener.news.AnalyticsNewsListener</type>

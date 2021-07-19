@@ -774,22 +774,22 @@
                                           "dataType":"text"
                                        },
                                        {
-                                          "title":"analytics.lastUpdated",
-                                          "previousPeriod":false,
-                                          "valueAggregation":{
-                                             "periodIndependent":false,
-                                             "aggregation":{
-                                                "sortDirection":"desc",
-                                                "field":"updatedDate",
-                                                "type":"TERMS",
-                                            }
+                                         "title":"analytics.lastUpdated",
+                                         "previousPeriod":false,
+                                         "valueAggregation":{
+                                            "aggregation":{
+                                               "sortDirection":"desc",
+                                               "field":"updatedDate",
+                                               "type":"MAX",
+                                            },
+                                           "periodIndependent":false
                                          },
-                                         "sortable":false,
+                                         "sortable":true,
                                          "dataType":"date"
-                                       },
+                                        },
                                        {
                                          "title":"analytics.viewsPeriod",
-                                         "previousPeriod":false,
+                                         "previousPeriod":true,
                                          "valueAggregation":{
                                              "filters":[
                                                {
@@ -809,7 +809,7 @@
                                      },
                                      {
                                         "title":"analytics.reactionsPeriod",
-                                        "previousPeriod":false,
+                                        "previousPeriod":true,
                                         "valueAggregation":{
                                             "filters":[
                                               {
@@ -825,7 +825,7 @@
                                             }
                                         },
                                         "sortable":false,
-                                        "dataType":"text"
+                                        "dataType":"long"
                                       },
                                      {
                                         "title":"analytics.allViews",

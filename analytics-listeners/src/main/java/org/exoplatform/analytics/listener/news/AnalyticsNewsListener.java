@@ -16,7 +16,11 @@ import static org.exoplatform.analytics.utils.AnalyticsUtils.addSpaceStatistics;
 @Asynchronous
 public class AnalyticsNewsListener extends Listener<String, News> {
 
-  private static final String CREATE_CONTENT_OPERATION_NAME  = "CreateContent";
+  private static final String CREATE_CONTENT_OPERATION_NAME  = "createContent";
+
+  private static final String UPDATE_CONTENT_OPERATION_NAME  = "updateContent";
+
+  private static final String DELETE_CONTENT_OPERATION_NAME  = "deleteContent";
 
   private static final String VIEW_CONTENT_OPERATION_NAME    = "viewContent";
 
@@ -38,6 +42,12 @@ public class AnalyticsNewsListener extends Listener<String, News> {
     case "exo.news.postArticle":
       operation = CREATE_CONTENT_OPERATION_NAME;
       break;
+    case "exo.news.updateArticle":
+      operation = UPDATE_CONTENT_OPERATION_NAME;
+      break;
+    case "exo.news.deleteArticle":
+      operation = DELETE_CONTENT_OPERATION_NAME;
+      break;
     case "exo.news.viewArticle":
       operation = VIEW_CONTENT_OPERATION_NAME;
       break;
@@ -51,13 +61,8 @@ public class AnalyticsNewsListener extends Listener<String, News> {
       operation = LIKE_CONTENT_OPERATION_NAME;
       break;
     }
-    addEventStatistic(news, operation);
-  }
-
-  private void addEventStatistic(News news, String operation) {
-
     long userId = 0;
-    Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, news.getAuthor());
+    Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, event.getSource());
     if (identity != null) {
       userId = Long.parseLong(identity.getId());
     }
@@ -66,12 +71,14 @@ public class AnalyticsNewsListener extends Listener<String, News> {
     statisticData.setModule("contents");
     statisticData.setSubModule("contents");
     statisticData.setOperation(operation);
-    if (userId > 0) {
-      statisticData.setUserId(userId);
-    }
+    statisticData.setUserId(userId);
     statisticData.addParameter("contentId", news.getId());
+    statisticData.addParameter("contentAuthor", news.getAuthor());
+    statisticData.addParameter("contentLastModifier", news.getUpdater());
     statisticData.addParameter("contentType", "News");
-    statisticData.addParameter("updatedDate", news.getUpdateDate());
+    statisticData.addParameter("contentUpdatedDate", news.getUpdateDate());
+    statisticData.addParameter("contentCreationDate", news.getCreationDate());
+    statisticData.addParameter("contentCreationDate", news.getCreationDate());
     Space space = getSpaceService().getSpaceById(news.getSpaceId());
     if (space != null) {
       addSpaceStatistics(statisticData, space);

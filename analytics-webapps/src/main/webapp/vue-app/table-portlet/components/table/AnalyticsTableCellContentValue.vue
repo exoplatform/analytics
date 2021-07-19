@@ -4,7 +4,7 @@
     size="24"
     color="primary"
     indeterminate />
-  <div v-else-if="content">{{ this.content.title }}</div>
+  <div v-else-if="content"><a :href="contentUrl">{{ contentTitle }}</a></div>
 </template>
 
 <script>
@@ -22,6 +22,14 @@ export default {
     error: false,
     content: null,
   }),
+  computed: {
+    contentTitle() {
+      return this.content && this.content.title;
+    },
+    contentUrl() {
+      return this.content && this.content.url;
+    },
+  },
   created() {
     if (this.value) {
       this.loading = true;
