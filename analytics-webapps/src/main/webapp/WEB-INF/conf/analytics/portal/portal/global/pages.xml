@@ -779,7 +779,7 @@
                                          "valueAggregation":{
                                             "aggregation":{
                                                "sortDirection":"desc",
-                                               "field":"updatedDate",
+                                               "field":"contentUpdatedDate",
                                                "type":"MAX",
                                             },
                                            "periodIndependent":false

@@ -34,15 +34,7 @@ export default {
     if (this.value) {
       this.loading = true;
       this.error = false;
-      fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/news/${this.value}`, {
-        credentials: 'include',
-        method: 'GET',
-      }).then((resp) => {
-        if (resp && resp.ok) {
-          return resp.json();
-        }
-        return null;
-      }).then(content => {
+      this.$analyticsUtils.getContent(this.value).then(content => {
         this.content = content;
         this.$forceUpdate();
       })
