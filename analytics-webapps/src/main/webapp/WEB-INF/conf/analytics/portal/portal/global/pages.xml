@@ -742,7 +742,7 @@
                                     "pageSize":20,
                                     "title":"",
                                     "mainColumn":{
-                                       "title":"analytics.titre",
+                                       "title":"analytics.title",
                                        "valueAggregation":{
                                           "aggregation":{
                                             "field":"contentId.keyword",
