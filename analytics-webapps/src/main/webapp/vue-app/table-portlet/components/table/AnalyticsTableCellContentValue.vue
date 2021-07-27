@@ -5,6 +5,12 @@
     color="primary"
     indeterminate />
   <div v-else-if="content"><a :href="contentUrl">{{ contentTitle }}</a></div>
+  <div v-else class="d-flex">
+    <i :title="$t('analytics.errorRetrievingDataForValue', {0: value})" class="uiIconColorError my-auto"></i>
+    <span class="text-no-wrap text-sub-title my-auto ml-1">
+      {{ $t('analytics.deletedContent') }}
+    </span>
+  </div>
 </template>
 
 <script>
@@ -19,7 +25,6 @@ export default {
   },
   data: () => ({
     loading: true,
-    error: false,
     content: null,
   }),
   computed: {
@@ -33,12 +38,10 @@ export default {
   created() {
     if (this.value) {
       this.loading = true;
-      this.error = false;
       this.$analyticsUtils.getContent(this.value).then(content => {
         this.content = content;
         this.$forceUpdate();
       })
-        .catch(() => this.error = true)
         .finally(() => this.loading = false);
     }
   },
