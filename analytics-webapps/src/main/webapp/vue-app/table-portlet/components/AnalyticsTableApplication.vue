@@ -25,7 +25,7 @@
           :title="$t('analytics.settings')"
           class="d-none d-sm-inline text-header-title my-auto"
           @click="$refs.tableSettingDrawer.open()">
-          <v-icon>mdi-settings</v-icon>
+          <v-icon>fa-cog</v-icon>
         </v-btn>
         <analytics-table-setting
           ref="tableSettingDrawer"
