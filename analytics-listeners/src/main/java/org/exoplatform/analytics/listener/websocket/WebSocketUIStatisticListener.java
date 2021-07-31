@@ -2,8 +2,8 @@ package org.exoplatform.analytics.listener.websocket;
 
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -56,16 +56,16 @@ public class WebSocketUIStatisticListener extends Listener<AnalyticsWebSocketSer
     if (StringUtils.isNotBlank(message.getName())) {
       StatisticWatcher uiWatcher = analyticsService.getUIWatcher(message.getName());
       if (uiWatcher == null) {
-        LOG.warn("Can't find watcher with name '{}'", message.getName());
-        return;
-      }
+        module = "portal";
+        subModule = "ui";
+      } else {
+        module = uiWatcher.getModule() == null ? "portal" : uiWatcher.getModule();
+        subModule = uiWatcher.getSubModule() == null ? "ui" : uiWatcher.getSubModule();
+        operation = uiWatcher.getOperation();
 
-      module = uiWatcher.getModule() == null ? "portal" : uiWatcher.getModule();
-      subModule = uiWatcher.getSubModule() == null ? "ui" : uiWatcher.getSubModule();
-      operation = uiWatcher.getOperation();
-
-      if (uiWatcher.getParameters() != null && !uiWatcher.getParameters().isEmpty()) {
-        data.putAll(uiWatcher.getParameters());
+        if (uiWatcher.getParameters() != null && !uiWatcher.getParameters().isEmpty()) {
+          data.putAll(uiWatcher.getParameters());
+        }
       }
     }
 
@@ -91,7 +91,17 @@ public class WebSocketUIStatisticListener extends Listener<AnalyticsWebSocketSer
     if (StringUtils.isNotBlank(message.getName())) {
       data.put("watcher", message.getName());
     }
-    statisticData.setParameters(data);
+    Set<Entry<String, String>> dataParameters = data.entrySet();
+    for (Entry<String, String> dataParameter : dataParameters) {
+      String dataParameterName = dataParameter.getKey();
+      String dataParameterValue = dataParameter.getValue();
+      if (StringUtils.contains(dataParameterValue, ",")) {
+        List<String> dataParameterValues = Arrays.asList(StringUtils.split(dataParameterValue, ","));
+        statisticData.addParameter(dataParameterName, dataParameterValues);
+      } else {
+        statisticData.addParameter(dataParameterName, dataParameterValue);
+      }
+    }
     addStatisticData(statisticData);
   }
 
