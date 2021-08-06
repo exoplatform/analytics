@@ -2,38 +2,15 @@
   import org.exoplatform.commons.api.settings.ExoFeatureService;
   import org.exoplatform.commons.utils.HTMLEntityEncoder;
   import org.apache.commons.lang.StringUtils;
+  import org.exoplatform.commons.utils.PropertyManager;
 
   def rcontext = _ctx.getRequestContext() ;
   def featureService = uicomponent.getApplicationComponent(ExoFeatureService.class);
 %>
 <script type="text/javascript">
-<% if (featureService.isActiveFeature('ServerTimeTracking')) { %>
-  eXo.env.portal.onLoadCallbacks.push(() => {
-    const requestStartTime = <%=rcontext.getAttribute("requestStartTime")%>;
-    const nowDate = Date.now();
-    if (requestStartTime && nowDate > requestStartTime) {
-      if (eXo.developing) {
-        console.debug(`Page displayed within: \${(nowDate - requestStartTime)} milliseconds`);
-      }
-      const statisticMessage = {
-        name: 'pageUIDisplay',
-        operation: 'pageUIDisplay',
-        userName: eXo.env.portal.userName,
-        spaceId: eXo.env.portal.spaceId,
-        parameters: {
-          duration: (nowDate - requestStartTime),
-          portalName: eXo.env.portal.portalName,
-          portalUri: window.location.pathname,
-          pageUri: window.location.pathname,
-          pageTitle: `<%=HTMLEntityEncoder.getInstance().encode(rcontext.getTitle())%>`,
-          pageUri: `<%=HTMLEntityEncoder.getInstance().encode(rcontext.getNodePath())%>`,
-          applicationNames: `<%=StringUtils.join(uicomponent.getPortletNames(), ",")%>`,
-        },
-      };
-      window.setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('exo-statistic-message', {detail: statisticMessage}));
-      }, 500);
-    }
+<% if (featureService.isActiveFeature('FrontEndPerformancesTracking') || PropertyManager.isDevelopping()) { %>
+  eXo.env.portal.requestStartTime = <%=rcontext.getAttribute("requestStartTime")%>;
+  eXo.env.portal.pageTitle = `<%=HTMLEntityEncoder.getInstance().encode(rcontext.getTitle())%>`;
+  eXo.env.portal.applicationNames = `<%=StringUtils.join(uicomponent.getPortletNames(), ",")%>`;
 <% } %>
-  });
 </script>
