@@ -114,6 +114,7 @@ function() {
     if (eXo.env.portal.requestStartTime) {
       eXo.env.portal.loadingAppsStartTime = {};
       const fullyLoadedCallbackIdle = 1000;
+      const isMobile = navigator.userAgentData && navigator.userAgentData.mobile || (navigator.userAgent && /mobi/i.test(navigator.userAgent.toLowerCase())) || false;
   
       function pageFullyLoadedCallback() {
         if (document.readyState === 'complete'
@@ -144,20 +145,21 @@ function() {
               pageTitle: eXo.env.portal.pageTitle,
               pageUri: eXo.env.portal.selectedNodeUri,
               applicationNames: eXo.env.portal.applicationNames,
-              isMobile: navigator.userAgentData.mobile,
+              isMobile,
             },
           });
         }
       }
 
       document.addEventListener('vue-app-loading-start', event => {
-        const appName = event && event.detail;
+        const detail = event && event.detail;
+        const appName = detail.appName;
+        const time = detail.time;
         if (eXo.env.portal.requestStartTime && appName && !eXo.env.portal.loadingAppsStartTime[appName]) {
-          const now = Date.now();
           eXo.env.portal.loadingAppsStartTime[appName] = {
-            start: now,
+            start: time,
           };
-          const startLoadingTime = now - eXo.env.portal.requestStartTime;
+          const startLoadingTime = time - eXo.env.portal.requestStartTime;
           const startTimeStyle = startLoadingTime > 3000 && 'color:red;font-weight:bold;' || 'color:green;font-weight:bold;';
           if (eXo.developing) {
             // eslint-disable-next-line no-console
@@ -173,7 +175,6 @@ function() {
     
       function pageCompleteLoadedCallback (nowDate) {
         if (eXo.env.portal.requestStartTime && nowDate > eXo.env.portal.requestStartTime) {
-          const isMobile = navigator.userAgentData.mobile;
           const loadingTime = nowDate - eXo.env.portal.requestStartTime;
           const loadingTimeStyle = (loadingTime > (isMobile && 5000 || 3000)) && 'color:red;font-weight:bold;' || 'color:green;font-weight:bold;';
           if (eXo.developing) {
@@ -212,14 +213,16 @@ function() {
       }, false);
 
       document.addEventListener('vue-app-loading-end', event => {
-        const appName = event && event.detail;
+        const detail = event && event.detail;
+        const appName = detail.appName;
+        const time = detail.time;
         if (!appName) {
           // eslint-disable-next-line no-console
           console.warn('Missing Application name, please verify that "data" attribute near Vue.create is of type object');
         } else if (eXo.env.portal.requestStartTime && eXo.env.portal.loadingAppsStartTime[appName]) {
           const start = eXo.env.portal.loadingAppsStartTime[appName].start;
           delete eXo.env.portal.loadingAppsStartTime[appName];
-          const end = eXo.env.portal.lastAppLoadingFinished = Date.now();
+          const end = eXo.env.portal.lastAppLoadingFinished = time;
           const startLoadingTime = start - eXo.env.portal.requestStartTime;
           const endLoadingTime = end - eXo.env.portal.requestStartTime;
           const durationLoadingTime = end - start;
@@ -256,6 +259,7 @@ function() {
                 pageTitle: eXo.env.portal.pageTitle,
                 pageUri: eXo.env.portal.selectedNodeUri,
                 applicationName: appName,
+                isMobile,
                 startLoadingTime: startLoadingTime,
                 endLoadingTime: endLoadingTime,
               },
