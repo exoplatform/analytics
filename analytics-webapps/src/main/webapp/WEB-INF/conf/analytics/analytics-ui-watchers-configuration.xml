@@ -3,6 +3,18 @@
   for more details. You should have received a copy of the GNU Lesser General Public License along with this software; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site: http://www.fsf.org. -->
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd" xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
+  <component>
+    <key>FrontEndPerformancesTracking</key>
+    <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+    <init-params>
+      <properties-param>
+        <name>FrontEndPerformancesTracking</name>
+        <description>Front End Applications Performances Tracking Feature enablement flag</description>
+        <property name="exo.feature.FrontEndPerformancesTracking.enabled" value="${exo.feature.FrontEndPerformancesTracking.enabled:false}" />
+      </properties-param>
+    </init-params>
+  </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.analytics.api.service.AnalyticsService</target-component>
     <component-plugin>
@@ -846,6 +858,21 @@
 
 
 
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.groovyscript.text.TemplateService</target-component>
+    <component-plugin>
+      <name>UIPortalApplication-head</name>
+      <set-method>addTemplateExtension</set-method>
+      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
+      <init-params>
+        <values-param>
+          <name>templates</name>
+          <value>war:/groovy/UIPageDisplayStatisticCollection.gtmpl</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>

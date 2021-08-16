@@ -1,5 +1,5 @@
 function() {
-  return {
+  const api = {
     init : function (settings, watchers) {
       if (settings && watchers && !this.watchers) {
         this.watchers = watchers;
@@ -109,4 +109,170 @@ function() {
       }
     },
   };
+
+  require(['SHARED/vue'], () => {
+    if (eXo.env.portal.requestStartTime) {
+      eXo.env.portal.loadingAppsStartTime = {};
+      const fullyLoadedCallbackIdle = 1000;
+      const isMobile = navigator.userAgentData && navigator.userAgentData.mobile || (navigator.userAgent && /mobi/i.test(navigator.userAgent.toLowerCase())) || false;
+  
+      function pageFullyLoadedCallback() {
+        if (document.readyState === 'complete'
+            && !eXo.env.portal.loadingAppsFinished
+            && !Object.keys(eXo.env.portal.loadingAppsStartTime).length) {
+  
+          const endLoadingTime = eXo.env.portal.lastAppLoadingFinished - eXo.env.portal.requestStartTime;
+          const endTimeStyle = endLoadingTime > 3000 && 'color:red;font-weight:bold;' || 'color:green;font-weight:bold;';
+          eXo.env.portal.loadingAppsFinished = true;
+          if (eXo.developing) {
+            // eslint-disable-next-line no-console
+            console.warn(`Overall %cpage applications%c finished loading at : %c${endLoadingTime} %cms`, 
+              'font-weight:bold;',
+              '',
+              endTimeStyle,
+              '');
+          }
+          api.sendMessage({
+            name: 'pageUIDisplay',
+            operation: 'pageFullUIDisplay',
+            userName: eXo.env.portal.userName,
+            spaceId: eXo.env.portal.spaceId,
+            parameters: {
+              duration: endLoadingTime,
+              portalName: eXo.env.portal.portalName,
+              portalUri: eXo.env.server.portalBaseURL,
+              pageUri: window.location.pathname,
+              pageTitle: eXo.env.portal.pageTitle,
+              pageUri: eXo.env.portal.selectedNodeUri,
+              applicationNames: eXo.env.portal.applicationNames,
+              isMobile,
+            },
+          });
+        }
+      }
+
+      document.addEventListener('vue-app-loading-start', event => {
+        const detail = event && event.detail;
+        const appName = detail.appName;
+        const time = detail.time;
+        if (eXo.env.portal.requestStartTime && appName && !eXo.env.portal.loadingAppsStartTime[appName]) {
+          eXo.env.portal.loadingAppsStartTime[appName] = {
+            start: time,
+          };
+          const startLoadingTime = time - eXo.env.portal.requestStartTime;
+          const startTimeStyle = startLoadingTime > 3000 && 'color:red;font-weight:bold;' || 'color:green;font-weight:bold;';
+          if (eXo.developing) {
+            // eslint-disable-next-line no-console
+            console.debug(`App %c${appName}%c Start Loading at: %c${startLoadingTime} %cms`,
+              'font-weight:bold;',
+              '',
+              startTimeStyle,
+              '');
+          }
+          api.sendMessage();
+        }
+      });
+    
+      function pageCompleteLoadedCallback (nowDate) {
+        if (eXo.env.portal.requestStartTime && nowDate > eXo.env.portal.requestStartTime) {
+          const loadingTime = nowDate - eXo.env.portal.requestStartTime;
+          const loadingTimeStyle = (loadingTime > (isMobile && 5000 || 3000)) && 'color:red;font-weight:bold;' || 'color:green;font-weight:bold;';
+          if (eXo.developing) {
+            console.warn(`%cPage displayed within: %c${loadingTime} %cms`,
+              'font-weight:bold;',
+              loadingTimeStyle,
+              '');
+          }
+          window.setTimeout(() => {
+            api.sendMessage({
+              name: 'pageUIDisplay',
+              operation: 'pageUIDisplay',
+              userName: eXo.env.portal.userName,
+              spaceId: eXo.env.portal.spaceId,
+              parameters: {
+                duration: loadingTime,
+                portalName: eXo.env.portal.portalName,
+                portalUri: eXo.env.server.portalBaseURL,
+                pageUri: window.location.pathname,
+                pageTitle: eXo.env.portal.pageTitle,
+                pageUri: eXo.env.portal.selectedNodeUri,
+                applicationNames: eXo.env.portal.applicationNames,
+                isMobile,
+              },
+            });
+          }, 500);
+        }
+      }
+
+      document.addEventListener('readystatechange', function (event){
+        if (event.target.readyState === 'complete') {
+          const now = eXo.env.portal.lastAppLoadingFinished = Date.now();
+          window.setTimeout(pageFullyLoadedCallback, fullyLoadedCallbackIdle);
+          pageCompleteLoadedCallback(now);
+        }
+      }, false);
+
+      document.addEventListener('vue-app-loading-end', event => {
+        const detail = event && event.detail;
+        const appName = detail.appName;
+        const time = detail.time;
+        if (!appName) {
+          // eslint-disable-next-line no-console
+          console.warn('Missing Application name, please verify that "data" attribute near Vue.create is of type object');
+        } else if (eXo.env.portal.requestStartTime && eXo.env.portal.loadingAppsStartTime[appName]) {
+          const start = eXo.env.portal.loadingAppsStartTime[appName].start;
+          delete eXo.env.portal.loadingAppsStartTime[appName];
+          const end = eXo.env.portal.lastAppLoadingFinished = time;
+          const startLoadingTime = start - eXo.env.portal.requestStartTime;
+          const endLoadingTime = end - eXo.env.portal.requestStartTime;
+          const durationLoadingTime = end - start;
+          const startTimeStyle = startLoadingTime > 3000 && 'color:red;font-weight:bold;' || 'color:green;font-weight:bold;';
+          const endTimeStyle = endLoadingTime > 3000 && 'color:red;font-weight:bold;' || 'color:green;font-weight:bold;';
+          const durationTimeStyle = durationLoadingTime > 1000 && 'color:red;font-weight:bold;' || 'color:green;font-weight:bold;';
+          if (eXo.developing) {
+            // eslint-disable-next-line no-console
+            console.debug(`App %c${appName}%c
+               Started at: %c${startLoadingTime} %cms
+               End at: %c${endLoadingTime} %cms
+               Duration : %c${durationLoadingTime} %cms`, 
+            'font-weight:bold;',
+            '',
+            startTimeStyle,
+            '',
+            endTimeStyle,
+            '',
+            durationTimeStyle,
+            '');
+          }
+
+          window.setTimeout(() => {
+            api.sendMessage({
+              name: 'pageUIDisplay',
+              operation: 'applicationUIDisplay',
+              userName: eXo.env.portal.userName,
+              spaceId: eXo.env.portal.spaceId,
+              parameters: {
+                duration: durationLoadingTime,
+                portalName: eXo.env.portal.portalName,
+                portalUri: eXo.env.server.portalBaseURL,
+                pageUri: window.location.pathname,
+                pageTitle: eXo.env.portal.pageTitle,
+                pageUri: eXo.env.portal.selectedNodeUri,
+                applicationName: appName,
+                isMobile,
+                startLoadingTime: startLoadingTime,
+                endLoadingTime: endLoadingTime,
+              },
+            });
+          }, 500);
+
+          if (!Object.keys(eXo.env.portal.loadingAppsStartTime).length && document.readyState === 'complete') {
+            window.setTimeout(pageFullyLoadedCallback, fullyLoadedCallbackIdle);
+          }
+        }
+      });
+    }
+  });
+
+  return api;
 }();

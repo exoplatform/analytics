@@ -46,10 +46,6 @@ public class AnalyticsWebSocketService {
               LOG.warn("Empty analytics WebSocket session is received");
               return false;
             }
-            if (!from.isConnected() || !from.isHandshook()) {
-              LOG.warn("Wrong WebSocket session status, connected = {}, handshook = {}", from.isConnected(), from.isHandshook());
-              return false;
-            }
             if (channel == null || !StringUtils.equals(channel.getId(), COMETD_CHANNEL)) {
               LOG.warn("Empty WebSocket channel received");
               return false;
@@ -71,7 +67,7 @@ public class AnalyticsWebSocketService {
             }
             String userToken = getUserToken(wsMessage.getUserName());
             if (!StringUtils.equals(userToken, wsMessage.getToken())) {
-              LOG.warn("Wrong WebSocket token received");
+              LOG.warn("Wrong WebSocket token received for user {}", wsMessage.getUserName());
               return false;
             }
 
@@ -79,9 +75,9 @@ public class AnalyticsWebSocketService {
             return true;
           } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
-              LOG.warn("Error when parsing analytics ws message: {}", e.getMessage());
-            } else {
               LOG.warn("Error when parsing analytics ws message", e);
+            } else {
+              LOG.warn("Error when parsing analytics ws message: {}", e.getMessage());
             }
             return false;
           }
