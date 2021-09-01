@@ -170,7 +170,7 @@
     </component-plugin>
   </external-component-plugins>
 
-  <external-component-plugins profiles="wiki">
+  <external-component-plugins profiles="notes">
     <target-component>org.exoplatform.wiki.service.WikiService</target-component>
     <component-plugin>
       <name>WikiPageListener</name>
