@@ -76,6 +76,11 @@
       <artifactId>web-conferencing-services</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.exoplatform.addons.news</groupId>
+      <artifactId>news-services</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <finalName>analytics-listeners</finalName>

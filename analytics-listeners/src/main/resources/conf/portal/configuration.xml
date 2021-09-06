@@ -117,6 +117,45 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>exo.news.postArticle</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.news.AnalyticsNewsListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.news.updateArticle</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.news.AnalyticsNewsListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.news.deleteArticle</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.news.AnalyticsNewsListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.news.viewArticle</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.news.AnalyticsNewsListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.news.shareArticle</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.news.AnalyticsNewsListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.news.commentArticle</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.news.AnalyticsNewsListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.news.likeArticle</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.news.AnalyticsNewsListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
   <external-component-plugins profiles="task">
     <target-component>org.exoplatform.services.listener.ListenerService</target-component>
     <component-plugin>

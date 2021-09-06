@@ -21,6 +21,7 @@ import YAxisForm from './components/settings/tabs/YAxisAggregationForm.vue';
 import MultipleCharts from './components/settings/tabs/MultipleChartsAggregationForm.vue';
 
 import ViewSamplesDrawer from './components/samples/ViewSamplesDrawer.vue';
+import ContentChip from './components/samples/ContentChip.vue';
 import ProfileChip from './components/samples/ProfileChip.vue';
 import SampleItem from './components/samples/SampleItem.vue';
 
@@ -28,6 +29,7 @@ import SelectPeriod from './components/common/SelectPeriod.vue';
 
 const components = {
   'analytics-profile-chip': ProfileChip,
+  'analytics-content-chip': ContentChip,
   'analytics-sample-item': SampleItem,
   'analytics-setting-color-picker': SettingColorPicker,
   'analytics-identity-field-selection': IdentityFieldSelection,

@@ -59,6 +59,10 @@
             {{ chartData.parameters[chartDataParameter] }}
             (<analytics-profile-chip :identity="userModifierIdentity" />)
           </v-col>
+          <v-col v-if="chartDataParameter === 'contentId'" class="text--secondary block">
+            {{ chartData.parameters[chartDataParameter] }}
+            (<analytics-content-chip :content-id="chartData.parameters[chartDataParameter]" />)
+          </v-col>
           <v-col v-else class="text--secondary">
             {{ chartData.parameters[chartDataParameter] }}
           </v-col>
