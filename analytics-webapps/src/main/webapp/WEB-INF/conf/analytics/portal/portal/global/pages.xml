@@ -609,7 +609,7 @@
                                  "field":"spaceCreatedTime",
                                  "type":"MAX",
                                },
-                               "periodIndependent":false
+                               "periodIndependent":true
                          },
                          "sortable":true,
                          "dataType":"date"
