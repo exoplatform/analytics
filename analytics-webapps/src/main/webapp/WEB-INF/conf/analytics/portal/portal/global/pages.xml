@@ -488,8 +488,7 @@
                             "periodIndependent":false,
                             "aggregation":{
                                "sortDirection":"desc",
-                               "field":"doc['timestamp'].date.dayOfYear",
-                               "type":"CARDINALITY"
+                               "type":"COUNT"
                             }
                          },
                          "sortable":true,
