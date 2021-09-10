@@ -47,7 +47,7 @@
               <boolean>${exo.analytics.portalConfig.metadata.override:true}</boolean>
             </field>
             <field name="importMode">
-              <string>${exo.analytics.portalConfig.metadata.importmode:insert}</string>
+              <string>${exo.analytics.portalConfig.metadata.importmode:merge}</string>
             </field>
             <field name="predefinedOwner">
               <collection type="java.util.HashSet">
