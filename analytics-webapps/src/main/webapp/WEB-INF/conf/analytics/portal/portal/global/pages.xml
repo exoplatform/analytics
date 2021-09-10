@@ -603,7 +603,16 @@
                    "columns":[
                       {
                          "title":"analytics.creationDate",
-                         "spaceField":"createdTime",
+                         "previousPeriod":false,
+                         "valueAggregation":{
+                               "aggregation":{
+                                 "sortDirection":"desc",
+                                 "field":"spaceCreatedTime",
+                                 "type":"MAX",
+                               },
+                               "periodIndependent":false
+                         },
+                         "sortable":true,
                          "dataType":"date"
                       },
                       {
