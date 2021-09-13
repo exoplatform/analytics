@@ -107,7 +107,6 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
     Locale userLocale = StringUtils.isBlank(lang) ? Locale.getDefault() : new Locale(lang);
     LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId);
     DateTimeFormatter dateFormatter = null;
-    String dateFormated = "";
     switch (interval) {
       case YEAR_INTERVAL:
         dateFormatter = YEAR_DATE_FORMATTER;
@@ -130,14 +129,11 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
       default:
         dateFormatter = DAY_DATE_FORMATTER;
     }
+    String dateFormated =  dateTime.format(dateFormatter.withLocale(userLocale));
     if (interval.equals(WEEK_INTERVAL)){
-       dateFormated = dateTime.format(dateFormatter.withLocale(userLocale)) ;
        String[] date = dateFormated.split("-");
-       dateFormated = date[1]+"-"+date[0];
+       dateFormated = date[1] + "-" + date[0];
     }
-    else {
-      dateFormated =  dateTime.format(dateFormatter.withLocale(userLocale));
-      }
     return dateFormated;
   }
 
