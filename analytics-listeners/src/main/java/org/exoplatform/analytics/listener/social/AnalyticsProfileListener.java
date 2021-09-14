@@ -51,6 +51,7 @@ public class AnalyticsProfileListener extends ProfileListenerPlugin {
     statisticData.setOperation(operation);
     statisticData.setUserId(getCurrentUserIdentityId());
     statisticData.addParameter(FIELD_SOCIAL_IDENTITY_ID, getUserIdentityId(username));
+    statisticData.addParameter("userCreatedDate", getUserCreatedDate(username));
     return statisticData;
   }
 
