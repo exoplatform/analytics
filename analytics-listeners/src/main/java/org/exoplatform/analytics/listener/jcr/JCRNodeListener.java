@@ -5,11 +5,11 @@ import static org.exoplatform.analytics.utils.AnalyticsUtils.addSpaceStatistics;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 import javax.jcr.*;
+import javax.jcr.observation.Event;
 
 import org.apache.commons.chain.Context;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +27,7 @@ import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
@@ -80,6 +81,16 @@ public class JCRNodeListener implements Action {
 
   private static final Set<String>              CURRENTLY_PROCESSING_NODE_PATH_QUEUE = new HashSet<>();
 
+  private static final String                   EXO_USER_PREFERENCES                 = "exo:userPrefferences";
+
+  private static final String                   EXO_EDITORS_RUNTIME_ID               = "exo:editorsId";
+
+  private static final String                   EXO_CURRENT_PROVIDER                 = "exo:currentProvider";
+
+  private static final String                   EXO_PREFERRED_EDITOR                 = "exo:prefferedEditor";
+
+  private static final List<String>             excludedPropertyNames                = List.of(EXO_EDITORS_RUNTIME_ID, EXO_CURRENT_PROVIDER, EXO_PREFERRED_EDITOR);
+
   private PortalContainer                       container;
 
   private TemplateService                       templateService;
@@ -101,6 +112,14 @@ public class JCRNodeListener implements Action {
         return true;
       }
 
+      int eventType = (Integer) context.get(InvocationContext.EVENT);
+      if (eventType == Event.PROPERTY_ADDED || eventType == Event.PROPERTY_CHANGED) {
+        PropertyImpl property = (PropertyImpl) context.get(InvocationContext.CURRENT_ITEM);
+        if (property != null && excludedPropertyNames.contains(property.getName())) {
+          return true;
+        }
+      }
+
       Object item = context.get(InvocationContext.CURRENT_ITEM);
       Node node = (item instanceof Property) ? ((Property) item).getParent() : (Node) item;
       if (node == null) {
@@ -110,7 +129,9 @@ public class JCRNodeListener implements Action {
       if (managedNode == null) {
         return true;
       }
-
+      if (eventType == Event.NODE_ADDED && node.getPrimaryNodeType().getName().equals(EXO_USER_PREFERENCES)) {
+        return true;
+      }
       String nodePath = managedNode.getPath();
       String queueKey = username + SEPARATOR + nodePath;
 
