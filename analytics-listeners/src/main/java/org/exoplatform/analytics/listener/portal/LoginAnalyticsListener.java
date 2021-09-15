@@ -33,23 +33,15 @@ public class LoginAnalyticsListener extends Listener<ConversationRegistry, Conve
     String operation = isLogin ? LOGIN : "logout";
     UserImpl profile = (UserImpl) state.getAttribute("UserProfile");
     Date lastLoginTime = profile.getLastLoginTime();
-    if (operation.equals(LOGIN)){
-      if ((!DateUtils.isSameDay(new Date(),lastLoginTime)) || (profile.getCreatedDate().compareTo(lastLoginTime) == 0)){
-      StatisticData statisticData = new StatisticData();
-      statisticData.setModule("portal");
-      statisticData.setSubModule(LOGIN);
-      statisticData.setOperation(operation);
-      statisticData.setUserId(userId);
-      addStatisticData(statisticData);
-      }
-    } else {
-      StatisticData statisticData = new StatisticData();
-      statisticData.setModule("portal");
-      statisticData.setSubModule(LOGIN);
-      statisticData.setOperation(operation);
-      statisticData.setUserId(userId);
-      addStatisticData(statisticData);
+    if (operation.equals(LOGIN) && DateUtils.isSameDay(new Date(), lastLoginTime) && !profile.getCreatedDate().equals(lastLoginTime)){
+      return;
     }
+    StatisticData statisticData = new StatisticData();
+    statisticData.setModule("portal");
+    statisticData.setSubModule(LOGIN);
+    statisticData.setOperation(operation);
+    statisticData.setUserId(userId);
+    addStatisticData(statisticData);
   }
 
   private boolean isLogin(Event<ConversationRegistry, ConversationState> event) {
