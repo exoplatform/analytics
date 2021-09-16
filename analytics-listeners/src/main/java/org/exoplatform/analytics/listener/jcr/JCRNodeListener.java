@@ -83,13 +83,10 @@ public class JCRNodeListener implements Action {
 
   private static final String                   EXO_USER_PREFERENCES                 = "exo:userPrefferences";
 
-  private static final String                   EXO_EDITORS_RUNTIME_ID               = "exo:editorsId";
-
-  private static final String                   EXO_CURRENT_PROVIDER                 = "exo:currentProvider";
-
-  private static final String                   EXO_PREFERRED_EDITOR                 = "exo:prefferedEditor";
-
-  private static final List<String>             excludedPropertyNames                = List.of(EXO_EDITORS_RUNTIME_ID, EXO_CURRENT_PROVIDER, EXO_PREFERRED_EDITOR);
+  /**
+   * Exo property name used for exclude jcr property in analytics updates
+   */
+  private static final String                   EXCLUDED_PROPERTY_NAMES              = "exo.analytics.excluded-property.name";
 
   private PortalContainer                       container;
 
@@ -111,14 +108,19 @@ public class JCRNodeListener implements Action {
       if (unkownUser) {
         return true;
       }
-
       int eventType = (Integer) context.get(InvocationContext.EVENT);
-      if (eventType == Event.PROPERTY_ADDED || eventType == Event.PROPERTY_CHANGED) {
-        PropertyImpl property = (PropertyImpl) context.get(InvocationContext.CURRENT_ITEM);
-        if (property != null && excludedPropertyNames.contains(property.getName())) {
-          return true;
+
+      String excludedProperty = PropertyManager.getProperty(EXCLUDED_PROPERTY_NAMES);
+      if (StringUtils.isNotBlank(excludedProperty)) {
+        String[] excludedPropertyNames = excludedProperty.split(",");
+        if (eventType == Event.PROPERTY_ADDED || eventType == Event.PROPERTY_CHANGED) {
+          PropertyImpl property = (PropertyImpl) context.get(InvocationContext.CURRENT_ITEM);
+          if (property != null && Arrays.asList(excludedPropertyNames).contains(property.getName())) {
+            return true;
+          }
         }
       }
+
 
       Object item = context.get(InvocationContext.CURRENT_ITEM);
       Node node = (item instanceof Property) ? ((Property) item).getParent() : (Node) item;
