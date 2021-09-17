@@ -325,6 +325,9 @@
                     <field name="eventTypes">
                       <string>addNode,addProperty,changeProperty,removeProperty</string>
                     </field>
+                    <field name="ignoredProperties">
+                      <string>${exo.analytics.ignored-property.name:exo:editorsId,exo:currentProvider,exo:prefferedEditor}</string>
+                    </field>
                     <field name="actionClassName">
                       <string>org.exoplatform.analytics.listener.jcr.JCRNodeListener</string>
                     </field>

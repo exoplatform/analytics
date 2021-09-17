@@ -5,7 +5,8 @@ import static org.exoplatform.analytics.utils.AnalyticsUtils.addSpaceStatistics;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.*;
 
 import javax.jcr.*;
@@ -27,7 +28,6 @@ import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
-import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
@@ -83,11 +83,6 @@ public class JCRNodeListener implements Action {
 
   private static final String                   EXO_USER_PREFERENCES                 = "exo:userPrefferences";
 
-  /**
-   * Exo property name used for exclude jcr property in analytics updates
-   */
-  private static final String                   EXCLUDED_PROPERTY_NAMES              = "exo.analytics.excluded-property.name";
-
   private PortalContainer                       container;
 
   private TemplateService                       templateService;
@@ -108,19 +103,6 @@ public class JCRNodeListener implements Action {
       if (unkownUser) {
         return true;
       }
-      int eventType = (Integer) context.get(InvocationContext.EVENT);
-
-      String excludedProperty = PropertyManager.getProperty(EXCLUDED_PROPERTY_NAMES);
-      if (StringUtils.isNotBlank(excludedProperty)) {
-        String[] excludedPropertyNames = excludedProperty.split(",");
-        if (eventType == Event.PROPERTY_ADDED || eventType == Event.PROPERTY_CHANGED) {
-          PropertyImpl property = (PropertyImpl) context.get(InvocationContext.CURRENT_ITEM);
-          if (property != null && Arrays.asList(excludedPropertyNames).contains(property.getName())) {
-            return true;
-          }
-        }
-      }
-
 
       Object item = context.get(InvocationContext.CURRENT_ITEM);
       Node node = (item instanceof Property) ? ((Property) item).getParent() : (Node) item;
@@ -131,7 +113,9 @@ public class JCRNodeListener implements Action {
       if (managedNode == null) {
         return true;
       }
-      if (eventType == Event.NODE_ADDED && node.getPrimaryNodeType().getName().equals(EXO_USER_PREFERENCES)) {
+
+      int eventType = (Integer) context.get(InvocationContext.EVENT);
+      if (eventType == Event.NODE_ADDED && node.isNodeType(EXO_USER_PREFERENCES)) {
         return true;
       }
       String nodePath = managedNode.getPath();
