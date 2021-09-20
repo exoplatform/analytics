@@ -754,104 +754,6 @@
       </init-params>
     </component-plugin>
 
-    <component-plugin>
-      <name>Switch to Old Wik App</name>
-      <set-method>addUIWatcherPlugin</set-method>
-      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
-      <init-params>
-        <object-param>
-          <name>watcher</name>
-          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
-            <!-- Statistic data: name field -->
-            <field name="name">
-              <string>Switch to Old Wik App</string>
-            </field>
-            <!-- Statistic data: operation field -->
-            <field name="operation">
-              <string>click</string>
-            </field>
-            <!-- Statistic data: additional embedded parameters -->
-            <field name="parameters">
-              <map type="java.util.HashMap">
-                <entry>
-                  <key>
-                    <string>ui</string>
-                  </key>
-                  <value>
-                    <string>notes</string>
-                  </value>
-                </entry>
-                <entry>
-                  <key>
-                    <string>application</string>
-                  </key>
-                  <value>
-                    <string>notesHeader</string>
-                  </value>
-                </entry>
-              </map>
-            </field>
-            <!-- DOM jquery selector, used to search elements -->
-            <field name="domSelector">
-              <string>#switchToOldWikiApp</string>
-            </field>
-            <!-- DOM jquery event, used to trigger storing new statistic data -->
-            <field name="domEvent">
-              <string>mousedown</string>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
-      <name>Switch to New Notes App</name>
-      <set-method>addUIWatcherPlugin</set-method>
-      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
-      <init-params>
-        <object-param>
-          <name>watcher</name>
-          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
-            <!-- Statistic data: name field -->
-            <field name="name">
-              <string>Switch to New Notes App</string>
-            </field>
-            <!-- Statistic data: operation field -->
-            <field name="operation">
-              <string>click</string>
-            </field>
-            <!-- Statistic data: additional embedded parameters -->
-            <field name="parameters">
-              <map type="java.util.HashMap">
-                <entry>
-                  <key>
-                    <string>ui</string>
-                  </key>
-                  <value>
-                    <string>notes</string>
-                  </value>
-                </entry>
-                <entry>
-                  <key>
-                    <string>application</string>
-                  </key>
-                  <value>
-                    <string>notesHeader</string>
-                  </value>
-                </entry>
-              </map>
-            </field>
-            <!-- DOM jquery selector, used to search elements -->
-            <field name="domSelector">
-              <string>#switchToNewNotesApp</string>
-            </field>
-            <!-- DOM jquery event, used to trigger storing new statistic data -->
-            <field name="domEvent">
-              <string>mousedown</string>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
 
     <component-plugin>
       <name>Open Add note</name>
@@ -944,6 +846,56 @@
             <!-- DOM jquery selector, used to search elements -->
             <field name="domSelector">
               <string>.edit-note-click</string>
+            </field>
+            <!-- DOM jquery event, used to trigger storing new statistic data -->
+            <field name="domEvent">
+              <string>mousedown</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+
+    <component-plugin>
+      <name>Note Export to Pdf</name>
+      <set-method>addUIWatcherPlugin</set-method>
+      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
+      <init-params>
+        <object-param>
+          <name>watcher</name>
+          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
+            <!-- Statistic data: name field -->
+            <field name="name">
+              <string>Note Export to Pdf</string>
+            </field>
+            <!-- Statistic data: operation field -->
+            <field name="operation">
+              <string>click</string>
+            </field>
+            <!-- Statistic data: additional embedded parameters -->
+            <field name="parameters">
+              <map type="java.util.HashMap">
+                <entry>
+                  <key>
+                    <string>ui</string>
+                  </key>
+                  <value>
+                    <string>notes</string>
+                  </value>
+                </entry>
+                <entry>
+                  <key>
+                    <string>application</string>
+                  </key>
+                  <value>
+                    <string>notesActions</string>
+                  </value>
+                </entry>
+              </map>
+            </field>
+            <!-- DOM jquery selector, used to search elements -->
+            <field name="domSelector">
+              <string>.noteExportPdf</string>
             </field>
             <!-- DOM jquery event, used to trigger storing new statistic data -->
             <field name="domEvent">
