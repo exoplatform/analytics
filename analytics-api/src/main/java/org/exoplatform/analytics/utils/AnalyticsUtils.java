@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.social.core.identity.model.Profile;
 import org.json.*;
 
 import org.exoplatform.analytics.api.service.StatisticDataQueueService;
@@ -363,16 +362,6 @@ public class AnalyticsUtils {
   public static long getCurrentUserIdentityId() {
     ConversationState currentState = ConversationState.getCurrent();
     return getUserIdentityId(currentState);
-  }
-
-  public static long getUserCreatedDate(String username) {
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getOrCreateIdentity(ActivityStream.ORGANIZATION_PROVIDER_ID, username);
-    long userCreatedDate = 0;
-    if(identity != null && identity.getProfile() != null ) {
-      userCreatedDate = identity.getProfile().getCreatedTime();
-    }
-    return userCreatedDate;
   }
 
   public static boolean isUnkownUser(String username) {
