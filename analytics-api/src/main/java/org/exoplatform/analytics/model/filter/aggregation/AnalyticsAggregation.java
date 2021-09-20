@@ -45,7 +45,7 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
 
   public static final DateTimeFormatter DAY_DATE_FORMATTER     = DateTimeFormatter.ofPattern("d MMM uuuu");
 
-  public static final DateTimeFormatter WEEK_DATE_FORMATTER    = DateTimeFormatter.ofPattern("'W'w uuuu");
+  public static final DateTimeFormatter WEEK_DATE_FORMATTER    = DateTimeFormatter.ISO_WEEK_DATE;
 
   public static final DateTimeFormatter HOUR_DATE_FORMATTER    = DateTimeFormatter.ofPattern("hh a, d MMM uuuu");
 
@@ -129,7 +129,12 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
       default:
         dateFormatter = DAY_DATE_FORMATTER;
     }
-    return dateTime.format(dateFormatter.withLocale(userLocale));
+    String dateFormated =  dateTime.format(dateFormatter.withLocale(userLocale));
+    if (interval.equals(WEEK_INTERVAL)){
+       String[] date = dateFormated.split("-");
+       dateFormated = date[1] + "-" + date[0];
+    }
+    return dateFormated;
   }
 
   @Override
