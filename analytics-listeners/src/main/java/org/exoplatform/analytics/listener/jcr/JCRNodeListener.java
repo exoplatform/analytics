@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.*;
 
 import javax.jcr.*;
+import javax.jcr.observation.Event;
 
 import org.apache.commons.chain.Context;
 import org.apache.commons.lang3.StringUtils;
@@ -80,6 +81,8 @@ public class JCRNodeListener implements Action {
 
   private static final Set<String>              CURRENTLY_PROCESSING_NODE_PATH_QUEUE = new HashSet<>();
 
+  private static final String                   EXO_USER_PREFERENCES                 = "exo:userPrefferences";
+
   private PortalContainer                       container;
 
   private TemplateService                       templateService;
@@ -111,6 +114,10 @@ public class JCRNodeListener implements Action {
         return true;
       }
 
+      int eventType = (Integer) context.get(InvocationContext.EVENT);
+      if (eventType == Event.NODE_ADDED && node.isNodeType(EXO_USER_PREFERENCES)) {
+        return true;
+      }
       String nodePath = managedNode.getPath();
       String queueKey = username + SEPARATOR + nodePath;
 
