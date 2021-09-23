@@ -3,6 +3,7 @@ package org.exoplatform.analytics.listener.social;
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
 import org.exoplatform.analytics.model.StatisticData;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
 import org.exoplatform.social.core.profile.ProfileListenerPlugin;
@@ -45,12 +46,14 @@ public class AnalyticsProfileListener extends ProfileListenerPlugin {
   }
 
   private StatisticData buildStatisticData(String operation, String username) {
+    Identity identity = getIdentity(username);
     StatisticData statisticData = new StatisticData();
     statisticData.setModule("social");
     statisticData.setSubModule("profile");
     statisticData.setOperation(operation);
     statisticData.setUserId(getCurrentUserIdentityId());
-    statisticData.addParameter(FIELD_SOCIAL_IDENTITY_ID, getUserIdentityId(username));
+    statisticData.addParameter(FIELD_SOCIAL_IDENTITY_ID, identity == null ? 0 : Long.parseLong(identity.getId()));
+    statisticData.addParameter("userCreatedDate", identity != null && identity.getProfile() != null ? identity.getProfile().getCreatedTime() : 0);
     return statisticData;
   }
 
