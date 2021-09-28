@@ -452,7 +452,16 @@
                    "columns":[
                       {
                          "title":"analytics.creationDate",
-                         "userField":"createdDate",
+                         "previousPeriod":false,
+                         "valueAggregation":{
+                            "periodIndependent":true,
+                            "aggregation":{
+                               "sortDirection":"desc",
+                               "field":"userCreatedDate",
+                               "type":"MAX"
+                            }
+                         },
+                         "sortable":true,
                          "dataType":"date"
                       },
                       {
