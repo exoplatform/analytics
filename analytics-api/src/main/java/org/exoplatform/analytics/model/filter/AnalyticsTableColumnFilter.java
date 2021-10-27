@@ -27,6 +27,10 @@ public class AnalyticsTableColumnFilter implements Serializable, Cloneable {
 
   private boolean                         previousPeriod;
 
+  private String                          width;
+
+  private String                          align;
+
   @Override
   public AnalyticsTableColumnFilter clone() { // NOSONAR
     AnalyticsTableColumnAggregation clonedAggregation = valueAggregation == null ? null : valueAggregation.clone();
@@ -39,6 +43,8 @@ public class AnalyticsTableColumnFilter implements Serializable, Cloneable {
                                           clonedThresholdAggregation,
                                           dataType,
                                           sortable,
-                                          previousPeriod);
+                                          previousPeriod,
+                                          width,
+                                          align);
   }
 }
