@@ -65,6 +65,9 @@
         <module>commonAnalyticsVueComponents</module>
       </depends>
       <depends>
+        <module>documentPreview</module>
+      </depends>
+      <depends>
         <module>jquery</module>
         <as>$</as>
       </depends>

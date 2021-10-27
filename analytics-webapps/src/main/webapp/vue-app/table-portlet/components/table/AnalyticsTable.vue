@@ -180,11 +180,11 @@ export default {
     addHeader(headers, column, index) {
       headers.push({
         text: column.title && this.$t(column.title) || '',
-        align: 'center',
+        align: column.align || 'center',
         sortable: column.sortable,
         value: `column${index}`,
         class: 'text-no-wrap',
-        width: 'auto',
+        width: column.width || 'auto',
         dataType: column.dataType || 'text',
         column
       });
