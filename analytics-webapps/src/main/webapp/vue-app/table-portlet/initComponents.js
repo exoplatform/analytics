@@ -9,6 +9,9 @@ import AnalyticsTableCellValue from './components/table/AnalyticsTableCellValue.
 import AnalyticsTableCellUserValue from './components/table/AnalyticsTableCellUserValue.vue';
 import AnalyticsTableCellSpaceValue from './components/table/AnalyticsTableCellSpaceValue.vue';
 import AnalyticsTableCellContentValue from './components/table/AnalyticsTableCellContentValue.vue';
+import AnalyticsTableCellDocumentTitleValue from './components/table/AnalyticsTableCellDocumentTitleValue.vue';
+import AnalyticsTableCellDocumentSizeValue from './components/table/AnalyticsTableCellDocumentSizeValue.vue';
+import AnalyticsTableCellDocumentOriginValue from './components/table/AnalyticsTableCellDocumentOriginValue.vue';
 
 const components = {
   'analytics-table-application': AnalyticsTableApplication,
@@ -22,6 +25,9 @@ const components = {
   'analytics-table-cell-user-value': AnalyticsTableCellUserValue,
   'analytics-table-cell-space-value': AnalyticsTableCellSpaceValue,
   'analytics-table-cell-content-value': AnalyticsTableCellContentValue,
+  'analytics-table-cell-document-title-value': AnalyticsTableCellDocumentTitleValue,
+  'analytics-table-cell-document-size-value': AnalyticsTableCellDocumentSizeValue,
+  'analytics-table-cell-document-origin-value': AnalyticsTableCellDocumentOriginValue,
 };
 
 for (const key in components) {

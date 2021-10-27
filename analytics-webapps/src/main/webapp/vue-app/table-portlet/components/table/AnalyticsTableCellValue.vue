@@ -15,6 +15,16 @@
   <analytics-table-cell-content-value
     v-else-if="isContentAggregation"
     :value="value" />
+  <analytics-table-cell-document-title-value
+    v-else-if="isDocumentTitleAggregation"
+    :column="column"
+    :value="value" />
+  <analytics-table-cell-document-size-value
+    v-else-if="isDocumentSizeAggregation"
+    :value="value" />
+  <analytics-table-cell-document-origin-value
+    v-else-if="isDocumentOriginAggregation"
+    :value="value" />
   <date-format
     v-else-if="dataType === 'date'"
     :value="dateValue"
@@ -114,6 +124,10 @@ export default {
         return null;
       },
     },
+    column: {
+      type: Object,
+      default: () => null
+    },
     labels: {
       type: Object,
       default: function() {
@@ -157,6 +171,15 @@ export default {
     },
     isContentAggregation() {
       return this.field === 'contentId.keyword' && this.aggregationType === 'TERMS';
+    },
+    isDocumentTitleAggregation() {
+      return this.field === 'documentId.keyword' && this.aggregationType === 'TERMS';
+    },
+    isDocumentSizeAggregation() {
+      return this.field === 'documentSize' && this.aggregationType === 'TERMS';
+    },
+    isDocumentOriginAggregation() {
+      return this.field === 'origin.keyword' && this.aggregationType === 'TERMS';
     },
     sign() {
       if (!this.compare) {

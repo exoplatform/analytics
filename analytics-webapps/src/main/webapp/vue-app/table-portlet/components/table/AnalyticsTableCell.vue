@@ -22,7 +22,8 @@
           :data-type="columnDataType"
           :aggregation-type="columnAggregationType"
           :percentage="percentage"
-          :labels="labels" />
+          :labels="labels"
+          :column="column" />
       </div>
     </template>
     <span v-else>
@@ -41,6 +42,7 @@
           :data-type="columnDataType"
           :percentage="isValueNumber"
           :labels="labels"
+          :column="column"
           compare />
       </span>
       <span v-else>

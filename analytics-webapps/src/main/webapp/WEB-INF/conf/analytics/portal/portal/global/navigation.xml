@@ -50,6 +50,12 @@
         <visibility>DISPLAYED</visibility>
         <page-reference>portal::global::analytics-contents</page-reference>
       </node>
+      <node>
+        <name>FileManagementAnalytics</name>
+        <label>#{analytics.navigation.FileManagementAnalytics}</label>
+        <visibility>DISPLAYED</visibility>
+        <page-reference>portal::global::analytics-documents</page-reference>
+      </node>
     </node>
   </page-nodes>
 </node-navigation>
