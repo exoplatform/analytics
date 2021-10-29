@@ -2,7 +2,7 @@
   <v-data-table
     ref="dataTable"
     :headers="headers"
-    :items="itemsToDisplay"
+    :items="items"
     :items-per-page="pageSize"
     :loading="loading"
     :options.sync="options"
@@ -103,17 +103,6 @@ export default {
     sortDirection: 'desc',
   }),
   computed: {
-    itemsToDisplay() {
-      const lastConnectionColumn = this.headers.find(head => head.text === this.$t('analytics.lastConnection')) ? this.headers.find(head => head.text === this.$t('analytics.lastConnection')).value : null;
-      if (lastConnectionColumn && !this.loading && this.items && this.items.length > 0 ) {
-        this.items.forEach((itemColumn) => {
-          if (itemColumn.column0.identity !== null){
-            itemColumn[lastConnectionColumn].value = itemColumn.column0.identity.lastLoginTime ;
-          }
-        });
-      }
-      return this.items;
-    },
     hasMore() {
       return (this.loading && this.limit > this.pageSize) || this.limit === this.items.length;
     },
