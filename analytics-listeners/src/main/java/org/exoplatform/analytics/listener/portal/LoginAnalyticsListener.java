@@ -3,23 +3,18 @@ package org.exoplatform.analytics.listener.portal;
 import static org.exoplatform.analytics.utils.AnalyticsUtils.addStatisticData;
 import static org.exoplatform.analytics.utils.AnalyticsUtils.getUserIdentityId;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.analytics.model.StatisticData;
 import org.exoplatform.services.listener.*;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
-
-import java.util.Date;
 
 @Asynchronous
 public class LoginAnalyticsListener extends Listener<ConversationRegistry, ConversationState> {
   private static final Log LOG = ExoLogger.getLogger(LoginAnalyticsListener.class);
-  private static final String LOGIN = "login";
 
   @Override
   public void onEvent(Event<ConversationRegistry, ConversationState> event) throws Exception {
@@ -30,15 +25,11 @@ public class LoginAnalyticsListener extends Listener<ConversationRegistry, Conve
       return;
     }
     boolean isLogin = isLogin(event);
-    String operation = isLogin ? LOGIN : "logout";
-    UserImpl profile = (UserImpl) state.getAttribute("UserProfile");
-    Date lastLoginTime = profile.getLastLoginTime();
-    if (operation.equals(LOGIN) && DateUtils.isSameDay(new Date(), lastLoginTime) && !profile.getCreatedDate().equals(lastLoginTime)){
-      return;
-    }
+    String operation = isLogin ? "login" : "logout";
+
     StatisticData statisticData = new StatisticData();
     statisticData.setModule("portal");
-    statisticData.setSubModule(LOGIN);
+    statisticData.setSubModule("login");
     statisticData.setOperation(operation);
     statisticData.setUserId(userId);
     addStatisticData(statisticData);
