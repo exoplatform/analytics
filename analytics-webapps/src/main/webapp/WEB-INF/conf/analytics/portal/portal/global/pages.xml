@@ -931,6 +931,7 @@
                                      "title":"analytics.title",
                                      "align": "left",
                                      "width": "30vw",
+                                     "sortable":false,
                                      "valueAggregation":{
                                         "aggregation":{
                                           "field":"documentId.keyword",
@@ -986,7 +987,7 @@
                                             "type":"MAX"
                                           }
                                       },
-                                      "sortable":false,
+                                      "sortable":true,
                                       "dataType":"date"
                                    },
                                    {
@@ -1000,7 +1001,7 @@
                                             "type":"TERMS"
                                           }
                                       },
-                                      "sortable":false,
+                                      "sortable":true,
                                       "dataType":"long"
                                     },
                                    {
