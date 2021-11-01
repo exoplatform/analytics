@@ -52,6 +52,15 @@ export default {
     DocumentAccessDenied() {
       return this.attachment && this.attachment.acl && !this.attachment.acl.canAccess;
     },
+    currentLanguage() {
+      return eXo && eXo.env && eXo.env.portal && eXo.env.portal.language || 'en';
+    },
+    absoluteDateModified(options) {
+      return new Date(this.attachment.date).toLocaleString(this.currentLanguage, options).split('/').join('-');
+    },
+    fileInfo() {
+      return `${this.$t('documents.preview.updatedOn')} ${this.absoluteDateModified} ${this.$t('documents.preview.updatedBy')} ${this.attachment.lastEditor} ${this.attachment.size}`;
+    },
   },
   created() {
     if (this.value) {
@@ -77,15 +86,18 @@ export default {
           id: this.attachment.id,
           repository: 'repository',
           workspace: 'collaboration',
-          path: this.attachment.path,
+          path: this.attachment.nodePath || this.attachment.path,
           title: this.attachment.title,
-          icon: this.attachment.icon,
-          size: this.attachment.size,
-          openUrl: this.attachment.openUrl,
           downloadUrl: this.attachment.downloadUrl,
+          openUrl: this.attachment.url || this.attachment.openUrl,
+          breadCrumb: this.attachment.previewBreadcrumb,
+          fileInfo: this.fileInfo,
+          size: this.attachment.size
         },
-        author: this.attachment.updater,
-        showComments: false,
+        version: {
+          number: this.attachment.version
+        },
+        showComments: false
       });
     },
   },
