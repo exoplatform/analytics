@@ -2,6 +2,16 @@
   <span v-if="!value" :class="signClass">
     -
   </span>
+  <analytics-table-cell-document-title-value
+    v-else-if="isDocumentTitleAggregation"
+    :column="column"
+    :value="value" />
+  <analytics-table-cell-document-size-value
+    v-else-if="isDocumentSizeAggregation"
+    :value="value" />
+  <analytics-table-cell-document-origin-value
+    v-else-if="isDocumentOriginAggregation"
+    :value="value" />
   <analytics-table-cell-user-value
     v-else-if="isUserAggregation"
     :value="value"
@@ -14,16 +24,6 @@
     :labels="labels" />
   <analytics-table-cell-content-value
     v-else-if="isContentAggregation"
-    :value="value" />
-  <analytics-table-cell-document-title-value
-    v-else-if="isDocumentTitleAggregation"
-    :column="column"
-    :value="value" />
-  <analytics-table-cell-document-size-value
-    v-else-if="isDocumentSizeAggregation"
-    :value="value" />
-  <analytics-table-cell-document-origin-value
-    v-else-if="isDocumentOriginAggregation"
     :value="value" />
   <date-format
     v-else-if="dataType === 'date'"
@@ -173,13 +173,13 @@ export default {
       return this.field === 'contentId.keyword' && this.aggregationType === 'TERMS';
     },
     isDocumentTitleAggregation() {
-      return this.field === 'documentId.keyword' && this.aggregationType === 'TERMS';
+      return this.field === 'documentId.keyword';
     },
     isDocumentSizeAggregation() {
-      return this.field === 'documentSize' && this.aggregationType === 'TERMS';
+      return this.field === 'documentSize';
     },
     isDocumentOriginAggregation() {
-      return this.field === 'origin.keyword' && this.aggregationType === 'TERMS';
+      return this.field === 'origin.keyword';
     },
     sign() {
       if (!this.compare) {
