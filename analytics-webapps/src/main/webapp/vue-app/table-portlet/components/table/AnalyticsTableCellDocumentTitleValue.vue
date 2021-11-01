@@ -4,21 +4,25 @@
     size="24"
     color="primary"
     indeterminate />
-  <v-tooltip v-else-if="error" bottom>
-    <template v-slot:activator="{ on, attrs }">
-      <i
-        class="uiIconColorError"
-        v-bind="attrs"
-        v-on="on"></i>
-    </template>
-    <span>{{ $t('analytics.errorRetrievingDataForValue', {0: value}) }}</span>
-  </v-tooltip>
   <div
-    v-else
-    class="clickable primary--text text-truncate"
+    v-else-if="DocumentTitle"
+    class="clickable float-left primary--text text-truncate"
     :style="`max-width: ${cellWidth}`"
+    :title="DocumentTitle"
     @click="openPreview">
-    {{ attachment.title }}
+    {{ DocumentTitle }}
+  </div>
+  <div v-else-if="DocumentAccessDenied" class="d-flex">
+    <i :title="$t('analytics.errorRetrievingDataForValue', {0: value})" class="uiIconColorError my-auto"></i>
+    <span class="text-no-wrap text-sub-title my-auto ml-1">
+      {{ $t('analytics.notAccessibleFile') }}
+    </span>
+  </div>
+  <div v-else class="d-flex">
+    <i :title="$t('analytics.errorRetrievingDataForValue', {0: value})" class="uiIconColorError my-auto"></i>
+    <span class="text-no-wrap text-sub-title my-auto ml-1">
+      {{ $t('analytics.DeletedFile') }}
+    </span>
   </div>
 </template>
 
@@ -36,13 +40,18 @@ export default {
   },
   data: () => ({
     loading: true,
-    error: false,
     attachment: {},
   }),
   computed: {
     cellWidth() {
-      return this.column && this.column.width;
-    }
+      return this.column && this.column.width || '30vw';
+    },
+    DocumentTitle() {
+      return this.attachment && this.attachment.title && unescape(this.attachment.title);
+    },
+    DocumentAccessDenied() {
+      return this.attachment && this.attachment.acl && !this.attachment.acl.canAccess;
+    },
   },
   created() {
     if (this.value) {
@@ -52,7 +61,10 @@ export default {
         .then(attachment => {
           this.attachment = attachment;
         })
-        .catch(() => this.error = true)
+        .catch(() => this.attachment = {
+          notFound: true,
+          id: this.value
+        })
         .finally(() => this.loading = false);
     } else {
       this.loading = false;
