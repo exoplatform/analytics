@@ -927,6 +927,8 @@
                                 {
                                   "pageSize":20,
                                   "title":"",
+                                  "sortBy":"3",
+                                  "sortDirection":"desc",
                                   "mainColumn":{
                                      "title":"analytics.title",
                                      "align": "left",

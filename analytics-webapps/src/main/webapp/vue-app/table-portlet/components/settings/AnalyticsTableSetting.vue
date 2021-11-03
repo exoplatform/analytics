@@ -215,6 +215,12 @@ export default {
             dataType: settings.mainColumn.dataType || 'text',
           };
         }
+        if (settings.sortBy) {
+          tableSettings.sortBy = settings.sortBy;
+        }
+        if (settings.sortDirection) {
+          tableSettings.sortDirection = settings.sortDirection;
+        }
         if (settings.mainColumn.valueAggregation && settings.mainColumn.valueAggregation.filters && settings.mainColumn.valueAggregation.filters.length) {
           tableSettings.mainColumn.valueAggregation.filters = settings.mainColumn.valueAggregation.filters;
         }

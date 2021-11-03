@@ -99,8 +99,8 @@ export default {
     options: {},
     items: [],
     loading: false,
-    sortBy: 0,
-    sortDirection: 'desc',
+    sortBy: null,
+    sortDirection: null,
   }),
   computed: {
     hasMore() {
@@ -164,6 +164,16 @@ export default {
       },
       deep: true,
     },
+    settings: {
+      immediate: true,
+      handler () {
+        if (this.settings && !this.sortBy) {
+          this.options.sortBy = [`column${this.settings.sortBy}`];
+          this.options.sortDesc = [this.settings && this.settings.sortDirection === 'desc' || true];
+          this.refresh();
+        }
+      },
+    },
   },
   methods: {
     addHeader(headers, column, index) {
@@ -186,7 +196,6 @@ export default {
         this.sortBy = 0;
       } else {
         const { sortBy, sortDesc } = this.options;
-
         this.sortBy = sortBy.length && this.headers.findIndex(header => header.value === sortBy[0]) || 0;
         if (this.sortBy < 0) {
           this.sortBy = 0;
