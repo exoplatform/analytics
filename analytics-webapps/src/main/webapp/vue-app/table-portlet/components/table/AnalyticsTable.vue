@@ -99,8 +99,8 @@ export default {
     options: {},
     items: [],
     loading: false,
-    sortBy: 0,
-    sortDirection: 'desc',
+    sortBy: null,
+    sortDirection: null,
   }),
   computed: {
     hasMore() {
@@ -164,6 +164,15 @@ export default {
       },
       deep: true,
     },
+    settings: {
+      immediate: true,
+      handler () {
+        if (this.settings && !this.sortBy) {
+          this.options.sortBy = [`column${this.settings.sortBy}`];
+          this.options.sortDesc = [this.settings && this.settings.sortDirection || 'desc'];
+        }
+      },
+    },
   },
   methods: {
     addHeader(headers, column, index) {
@@ -186,7 +195,6 @@ export default {
         this.sortBy = 0;
       } else {
         const { sortBy, sortDesc } = this.options;
-
         this.sortBy = sortBy.length && this.headers.findIndex(header => header.value === sortBy[0]) || 0;
         if (this.sortBy < 0) {
           this.sortBy = 0;
@@ -217,7 +225,6 @@ export default {
       this.headers.forEach(header => {
         templateItem[header.value] = {value: 'loadingData'};
       });
-
       const columnAggregationField = column.valueAggregation && column.valueAggregation.aggregation && column.valueAggregation.aggregation.field;
       const columnAggregationType = column.valueAggregation && column.valueAggregation.aggregation && column.valueAggregation.aggregation.type;
       if (this.selectedIdentity && columnIndex === 0 && columnAggregationField === 'userId' && columnAggregationType === 'TERMS') {
@@ -283,6 +290,9 @@ export default {
           .then((data) => {
             if (limit) { // First retrieved column, coul be main or sorted column
               if (data && data.items && data.items.length) {
+                if (this.sortBy) {
+                  this.items = [];
+                }
                 data.items.forEach((columnItem, index) => {
                   const item = (this.items.length <= index || !this.items.length) && Object.assign({}, templateItem) || this.items[index][`column${columnIndex}`];
                   item[`column${columnIndex}`] = columnItem;
