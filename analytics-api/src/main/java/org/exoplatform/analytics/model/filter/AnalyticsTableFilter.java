@@ -31,12 +31,18 @@ public class AnalyticsTableFilter extends AbstractAnalyticsFilter {
 
   private int                              pageSize;
 
+  private String                           sortBy           = null;
+
+  private String                           sortDirection    = null;
+
   public AnalyticsTableFilter(String title,
                               String timeZone,
                               AnalyticsTableColumnFilter clonedMainColumn,
                               List<AnalyticsTableColumnFilter> clonedColumns,
-                              int pageSize) {
-    this(clonedMainColumn, clonedColumns, pageSize);
+                              int pageSize,
+                              String sortBy,
+                              String sortDirection) {
+    this(clonedMainColumn, clonedColumns, pageSize, sortBy, sortDirection);
     setTitle(title);
     setTimeZone(timeZone);
   }
@@ -148,7 +154,7 @@ public class AnalyticsTableFilter extends AbstractAnalyticsFilter {
                                                                      : columns.stream()
                                                                               .map(AnalyticsTableColumnFilter::clone)
                                                                               .collect(Collectors.toList());
-    return new AnalyticsTableFilter(getTitle(), getTimeZone(), clonedMainColumn, clonedColumns, pageSize);
+    return new AnalyticsTableFilter(getTitle(), getTimeZone(), clonedMainColumn, clonedColumns, pageSize, sortBy, sortDirection);
   }
 
   private void addPeriodFilter(AnalyticsPeriod period,
