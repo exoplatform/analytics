@@ -213,15 +213,7 @@ public class AnalyticsPercentageFilter extends AbstractAnalyticsFilter {
     xAxisAggregation.setMinBound(getPreviousAnalyticsPeriod().getFromInMS());
     xAxisAggregation.setMaxBound(getCurrentAnalyticsPeriod().getToInMS() - 1000);
     xAxisAggregation.setUseBounds(true);
-    if (customPeriod != null) {
-      long diffInDays = customPeriod.getDiffInDays();
-      if (diffInDays > 0) {
-        long offset = (xAxisAggregation.getMinBound() / 86400000l) % diffInDays;
-        if (offset > 0) {
-          xAxisAggregation.setOffset(offset + "d");
-        }
-      }
-    } else {
+    if (customPeriod == null) {
       AnalyticsPeriodType analyticsPeriodType = getAnalyticsPeriodType();
       if (analyticsPeriodType != null && analyticsPeriodType.getOffset(xAxisAggregation.getMinBound()) > 0) {
         long offset = analyticsPeriodType.getOffset(xAxisAggregation.getMinBound());
