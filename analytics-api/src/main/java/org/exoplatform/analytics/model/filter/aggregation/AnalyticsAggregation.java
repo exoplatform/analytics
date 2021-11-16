@@ -73,6 +73,9 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
   @Exclude
   private long                          maxBound;
 
+  @Exclude
+  private long                          minDocCount;
+
   public AnalyticsAggregation(AnalyticsAggregationType type, String field, String sortDirection, String interval, long limit) {
     super();
     this.type = type;
@@ -85,6 +88,19 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
   public AnalyticsAggregation(String field) {
     this.field = field;
     this.type = AnalyticsAggregationType.TERMS;
+  }
+
+  public AnalyticsAggregation(AnalyticsAggregationType type, String field, String sortDirection, String interval, String offset, long limit, boolean useBounds, long minBound, long maxBound) {
+    super();
+    this.type = type;
+    this.field = field;
+    this.sortDirection = sortDirection;
+    this.interval = interval;
+    this.limit = limit;
+    this.offset = offset;
+    this.useBounds = useBounds;
+    this.minBound = minBound;
+    this.maxBound = maxBound;
   }
 
   public String getSortDirection() {
@@ -139,7 +155,7 @@ public class AnalyticsAggregation implements Serializable, Cloneable {
 
   @Override
   public AnalyticsAggregation clone() { // NOSONAR
-    return new AnalyticsAggregation(type, field, sortDirection, interval, offset, limit, useBounds, minBound, maxBound);
+    return new AnalyticsAggregation(type, field, sortDirection, interval, offset, limit, useBounds, minBound, maxBound, minDocCount);
   }
 
 }
