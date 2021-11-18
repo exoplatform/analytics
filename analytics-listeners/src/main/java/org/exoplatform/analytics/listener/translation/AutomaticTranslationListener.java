@@ -21,8 +21,12 @@ import org.exoplatform.analytics.utils.AnalyticsUtils;
 import org.exoplatform.automatic.translation.api.dto.AutomaticTranslationEvent;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 
 public class AutomaticTranslationListener  extends Listener<String,AutomaticTranslationEvent> {
+
+  private static final Log LOG = ExoLogger.getLogger(AutomaticTranslationListener.class);
 
   @Override
   public void onEvent(Event<String, AutomaticTranslationEvent> event) throws Exception {
