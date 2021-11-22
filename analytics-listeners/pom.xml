@@ -81,6 +81,11 @@
       <artifactId>news-services</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.exoplatform.addons.automatic-translation</groupId>
+      <artifactId>automatic-translation-services-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <finalName>analytics-listeners</finalName>
