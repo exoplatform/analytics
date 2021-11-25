@@ -18,7 +18,7 @@
         class="mt-0" />
       <analytics-view-samples-drawer
         ref="viewSamplesDrawer"
-        :title="title"
+        :title="$t(title)"
         :selected-period="selectedPeriod"
         :users="userObjects"
         :spaces="spaceObjects"
