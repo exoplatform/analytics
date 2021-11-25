@@ -18,7 +18,7 @@
           @click="dialog = false">
         </a>
         <span class="ignore-vuetify-classes PopupTitle popupTitle">
-          JSON Panel of chart <span class="primary--text">{{ settings && settings.title }}</span>
+          JSON Panel of chart <span class="primary--text">{{ settings && $t(settings.title) }}</span>
         </span>
       </div>
       <v-card-text>
