@@ -53,7 +53,7 @@ export default {
       return this.attachment && this.attachment.acl && !this.attachment.acl.canAccess;
     },
     currentLanguage() {
-      return eXo && eXo.env && eXo.env.portal && eXo.env.portal.language || 'en';
+      return eXo && eXo.env && eXo.env.portal && eXo.env.portal.language.replace('_','-') || 'en';
     },
     absoluteDateModified(options) {
       return new Date(this.attachment.date).toLocaleString(this.currentLanguage, options).split('/').join('-');

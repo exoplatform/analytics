@@ -317,7 +317,7 @@ export default {
 
       this.loading = true;
       const params = {
-        lang: eXo.env.portal.language,
+        lang: eXo.env.portal.language && eXo.env.portal.language.replace('_','-'),
         min: this.selectedPeriod.min,
         max: this.selectedPeriod.max + 60000,
         timeZone: this.$analyticsUtils.USER_TIMEZONE_ID,

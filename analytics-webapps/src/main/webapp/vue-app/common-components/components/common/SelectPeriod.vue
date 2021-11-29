@@ -101,7 +101,7 @@ export default {
   },
   data: () => ({
     menu: false,
-    lang: eXo.env.portal.language,
+    lang: eXo.env.portal.language && eXo.env.portal.language.replace('_','-'),
     dates: [],
     fromTime: '00:00',
     toTime: '23:59',
