@@ -257,7 +257,7 @@ export default {
           });
       } else if (!column.userField && !column.spaceField && column.valueAggregation && column.valueAggregation.aggregation) {
         const params = {
-          lang: eXo.env.portal.language,
+          lang: eXo.env.portal.language && eXo.env.portal.language.replace('_','-'),
           column: columnIndex,
           limit: String(limit || 0),
           periodType: this.period.period || '',

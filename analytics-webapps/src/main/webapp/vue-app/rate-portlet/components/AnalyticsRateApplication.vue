@@ -309,7 +309,7 @@ export default {
 
       this.loading = true;
       const params = {
-        lang: eXo.env.portal.language,
+        lang: eXo.env.portal.language && eXo.env.portal.language.replace('_','-'),
         periodType: this.selectedPeriod.period || '',
         min: this.selectedPeriod.min,
         max: this.selectedPeriod.max + 60000,
