@@ -36,6 +36,7 @@ function() {
         // First time init, install listener
         document.addEventListener('exo-statistic-message', event => this.sendMessage(event && event.detail));
         document.addEventListener('search-connector-selected', event => this.addStatisticSearchFilter(event && event.detail));
+        document.addEventListener('favorite-added', event => this.addStatisticFavorite(event && event.detail));
         document.addEventListener('search-favorites-selected', () => this.sendMessage(
             {
               'module': 'portal',
@@ -86,6 +87,40 @@ function() {
         'timestamp': Date.now()
       };
       this.sendMessage(connectorAnalytics);
+    },
+
+    addStatisticFavorite: function (eventDetail) {
+      let favorite;
+      if (eventDetail.templateParams.newsId) {
+        favorite = {
+          'module': 'portal',
+          'subModule': 'ui',
+          'userId': eXo.env.portal.userIdentityId,
+          'userName': eXo.env.portal.userName,
+          'parameters': {
+            'type': 'News',
+            'contentId': eventDetail.templateParams.newsId,
+            'spaceId': eventDetail.spaceId ? eventDetail.spaceId : eventDetail.templateParams.spaceId,
+          },
+          'operation': 'Bookmark',
+          'timestamp': Date.now()
+        };
+      } else {
+        favorite = {
+          'module': 'portal',
+          'subModule': 'ui',
+          'userId': eXo.env.portal.userIdentityId,
+          'userName': eXo.env.portal.userName,
+          'parameters': {
+            'type': eventDetail.type,
+            'activityId': eventDetail.id,
+            'spaceId': eventDetail.spaceId,
+          },
+          'operation': 'Bookmark',
+          'timestamp': Date.now()
+        };
+      }
+      this.sendMessage(favorite);
     },
 
     installWatchers: function () {
