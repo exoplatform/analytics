@@ -156,6 +156,32 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>exo.upload.doc.newApp</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.documents.AnalyticsDocumentsListener</type>
+      <init-params>
+        <value-param>
+          <name>operation</name>
+          <value>documentUploadedNewApp</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>exo.upload.doc.oldApp</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.documents.AnalyticsDocumentsListener</type>
+      <init-params>
+        <value-param>
+          <name>operation</name>
+          <value>documentUploadedOldApp</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
   <external-component-plugins profiles="task">
     <target-component>org.exoplatform.services.listener.ListenerService</target-component>
     <component-plugin>
