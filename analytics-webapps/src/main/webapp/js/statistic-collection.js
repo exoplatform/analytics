@@ -37,6 +37,16 @@ function() {
         document.addEventListener('exo-statistic-message', event => this.sendMessage(event && event.detail));
         document.addEventListener('search-connector-selected', event => this.addStatisticSearchFilter(event && event.detail));
         document.addEventListener('favorite-added', event => this.addStatisticFavorite(event && event.detail));
+        document.addEventListener('search-favorites-selected', () => this.sendMessage(
+            {
+              'module': 'portal',
+              'subModule': 'ui',
+              'userId': eXo.env.portal.userIdentityId,
+              'userName': eXo.env.portal.userName,
+              'operation': 'click',
+              'name': 'search by favorite',
+              'timestamp': Date.now()
+            }));
       }
 
       this.cometdSubscription = cCometd.subscribe(this.settings.cometdChannel, null, event => {}, null, (subscribeReply) => {
