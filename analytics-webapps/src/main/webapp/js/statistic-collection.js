@@ -98,7 +98,7 @@ function() {
         'parameters': {
           'type': eventDetail.type,
           'activityId': eventDetail.id,
-          'spaceId': eXo.env.portal.spaceId,
+          'spaceId': eventDetail.spaceId,
         },
         'operation': 'Bookmark',
         'timestamp': Date.now()
