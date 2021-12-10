@@ -495,12 +495,9 @@
                                }
                             ],
                             "periodIndependent":false,
-                            "countDateHistogramBuckets":true,
                             "aggregation":{
-                               "field": "timestamp",
-                               "type": "DATE",
-                               "interval": "day",
-                               "minDocCount": 1
+                               "sortDirection":"desc",
+                               "type":"COUNT"
                             }
                          },
                          "sortable":true,
