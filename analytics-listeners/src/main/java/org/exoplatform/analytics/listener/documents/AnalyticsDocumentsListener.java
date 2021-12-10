@@ -33,15 +33,7 @@ public class AnalyticsDocumentsListener extends Listener<String, Node> {
   @Override
   public void onEvent(Event<String, Node> event) throws Exception {
     Node data = event.getData();
-    String operation = "";
-    switch (event.getEventName()) {
-    case "exo.upload.doc.newApp":
-      operation = UPLOAD_DOCUMENT_NEW_APP_OPERATION_NAME;
-      break;
-      case "exo.upload.doc.oldApp":
-        operation = UPLOAD_DOCUMENT_OLD_APP_OPERATION_NAME;
-        break;
-    }
+    String operation = event.getEventName().equals("exo.upload.doc.newApp") ? UPLOAD_DOCUMENT_NEW_APP_OPERATION_NAME : UPLOAD_DOCUMENT_OLD_APP_OPERATION_NAME;
     long userId = 0;
     Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, event.getSource());
     if (identity != null) {
