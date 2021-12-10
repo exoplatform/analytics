@@ -35,6 +35,7 @@ function() {
       if (!this.cometdSubscription) {
         // First time init, install listener
         document.addEventListener('exo-statistic-message', event => this.sendMessage(event && event.detail));
+        document.addEventListener('search-connector-selected', event => this.addStatisticSearchFilter(event && event.detail));
         document.addEventListener('search-favorites-selected', () => this.sendMessage(
             {
               'module': 'portal',
@@ -51,7 +52,43 @@ function() {
         self_.connected = subscribeReply && subscribeReply.successful;
       });
     },
-    installWatchers : function() {
+    addStatisticSearchFilter: function (connectorName) {
+      let uiInteraction;
+      switch (connectorName) {
+        case 'activity':
+          uiInteraction = 'searchActivities';
+          break;
+        case 'news':
+          uiInteraction = 'searchNews';
+          break;
+        case 'wiki':
+          uiInteraction = 'searchNotes';
+          break;
+        case 'people':
+          uiInteraction = 'searchPeople';
+          break;
+        case 'perkstore':
+          uiInteraction = 'searchProducts';
+          break;
+        case 'agenda':
+          uiInteraction = 'searchEvents';
+          break;
+        default:
+          uiInteraction = `search${connectorName.charAt(0).toUpperCase()}${connectorName.slice(1)}s`;
+      }
+      const connectorAnalytics = {
+        'module': 'portal',
+        'subModule': 'ui',
+        'userId': eXo.env.portal.userIdentityId,
+        'userName': eXo.env.portal.userName,
+        'operation': 'click',
+        'name': uiInteraction,
+        'timestamp': Date.now()
+      };
+      this.sendMessage(connectorAnalytics);
+    },
+
+    installWatchers: function () {
       const self_ = this;
       $(document).ready(() => {
         window.setTimeout(() => {
