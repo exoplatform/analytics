@@ -414,7 +414,8 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   private void addESDateSubField(String dateFieldName) {
-    StatisticFieldMapping fieldMapping = new StatisticFieldMapping("doc['timestamp'].date." + dateFieldName, "long", false, true);
+    StatisticFieldMapping fieldMapping =
+                                       new StatisticFieldMapping("doc['timestamp'].value." + dateFieldName, "long", false, true);
     esMappings.put(fieldMapping.getName(), fieldMapping);
   }
 
@@ -992,6 +993,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     addEmptyResultsToNotExistingEntries(chartsData);
     return chartsData;
   }
+
 
   private void computeAggregatedResultEntry(AnalyticsFilter filter,
                                             JSONObject aggregations,
