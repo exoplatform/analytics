@@ -431,7 +431,7 @@
               <preference>
                 <name>settings</name>
                 <value>{
-                   "pageSize": 20,
+                   "pageSize":20,
                    "mainColumn":{
                       "title":"analytics.users",
                       "valueAggregation":{
@@ -495,12 +495,10 @@
                                }
                             ],
                             "periodIndependent":false,
-                            "countDateHistogramBuckets":true,
                             "aggregation":{
-                               "field": "timestamp",
-                               "type": "DATE",
-                               "interval": "day",
-                               "minDocCount": 1
+                               "sortDirection":"desc",
+                               "field":"doc['timestamp'].value.dayOfYear",
+                               "type":"CARDINALITY"
                             }
                          },
                          "sortable":true,

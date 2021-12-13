@@ -23,14 +23,12 @@ public class AnalyticsTableColumnAggregation implements Serializable, Cloneable 
 
   private boolean                    periodIndependent;
 
-  private boolean                    countDateHistogramBuckets;
-
   @Override
   public AnalyticsTableColumnAggregation clone() { // NOSONAR
     AnalyticsAggregation clonedAggregation = aggregation == null ? null : aggregation.clone();
     List<AnalyticsFieldFilter> clonedFilters = filters.stream()
                                                       .map(AnalyticsFieldFilter::clone)
                                                       .collect(Collectors.toList());
-    return new AnalyticsTableColumnAggregation(clonedAggregation, clonedFilters, periodIndependent, countDateHistogramBuckets);
+    return new AnalyticsTableColumnAggregation(clonedAggregation, clonedFilters, periodIndependent);
   }
 }
