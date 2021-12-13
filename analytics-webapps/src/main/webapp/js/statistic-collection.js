@@ -90,19 +90,36 @@ function() {
     },
 
     addStatisticFavorite: function (eventDetail) {
-      const favorite = {
-        'module': 'portal',
-        'subModule': 'ui',
-        'userId': eXo.env.portal.userIdentityId,
-        'userName': eXo.env.portal.userName,
-        'parameters': {
-          'type': eventDetail.type,
-          'activityId': eventDetail.id,
-          'spaceId': eventDetail.spaceId,
-        },
-        'operation': 'Bookmark',
-        'timestamp': Date.now()
-      };
+      let favorite;
+      if (eventDetail.templateParams.newsId) {
+        favorite = {
+          'module': 'portal',
+          'subModule': 'ui',
+          'userId': eXo.env.portal.userIdentityId,
+          'userName': eXo.env.portal.userName,
+          'parameters': {
+            'type': 'News',
+            'contentId': eventDetail.templateParams.newsId,
+            'spaceId': eventDetail.spaceId,
+          },
+          'operation': 'Bookmark',
+          'timestamp': Date.now()
+        };
+      } else {
+        favorite = {
+          'module': 'portal',
+          'subModule': 'ui',
+          'userId': eXo.env.portal.userIdentityId,
+          'userName': eXo.env.portal.userName,
+          'parameters': {
+            'type': eventDetail.type,
+            'activityId': eventDetail.id,
+            'spaceId': eventDetail.spaceId,
+          },
+          'operation': 'Bookmark',
+          'timestamp': Date.now()
+        };
+      }
       this.sendMessage(favorite);
     },
 
