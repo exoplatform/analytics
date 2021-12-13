@@ -100,7 +100,7 @@ function() {
           'parameters': {
             'type': 'News',
             'contentId': eventDetail.templateParams.newsId,
-            'spaceId': eventDetail.spaceId,
+            'spaceId': eventDetail.spaceId ? eventDetail.spaceId : eventDetail.templateParams.spaceId,
           },
           'operation': 'Bookmark',
           'timestamp': Date.now()
