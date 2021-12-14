@@ -10,7 +10,7 @@
   </parent>
   <groupId>org.exoplatform.addons.analytics</groupId>
   <artifactId>analytics-parent</artifactId>
-  <version>1.2.x-SNAPSHOT</version>
+  <version>1.2.x-notes-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo Analytics - Parent POM</name>
   <description>eXo Analytics Addon</description>
@@ -29,10 +29,10 @@
   </scm>
   <properties>
     <!-- 3rd party libraries versions -->
-    <org.exoplatform.social.version>6.3.x-SNAPSHOT</org.exoplatform.social.version>
-    <org.exoplatform.platform-ui.version>6.3.x-SNAPSHOT</org.exoplatform.platform-ui.version>
+    <org.exoplatform.social.version>6.3.x-notes-SNAPSHOT</org.exoplatform.social.version>
+    <org.exoplatform.platform-ui.version>6.3.x-notes-SNAPSHOT</org.exoplatform.platform-ui.version>
     <addon.exo.jcr.version>6.3.x-SNAPSHOT</addon.exo.jcr.version>
-    <addon.exo.ecms.version>6.3.x-SNAPSHOT</addon.exo.ecms.version>
+    <addon.exo.ecms.version>6.3.x-notes-SNAPSHOT</addon.exo.ecms.version>
     <addon.exo.tasks.version>3.3.x-SNAPSHOT</addon.exo.tasks.version>
     <addon.exo.web-conferencing.version>2.3.x-SNAPSHOT</addon.exo.web-conferencing.version>
     <addon.exo.layout-management.version>1.3.x-SNAPSHOT</addon.exo.layout-management.version>
@@ -48,7 +48,7 @@
     <addon.exo.push-notifications.version>2.3.x-SNAPSHOT</addon.exo.push-notifications.version>
     <addon.exo.app-center.version>2.3.x-SNAPSHOT</addon.exo.app-center.version>
     <addon.exo.automatic-translation.version>1.0.x-SNAPSHOT</addon.exo.automatic-translation.version>
-    <addon.exo.notes.version>1.1.x-SNAPSHOT</addon.exo.notes.version>
+    <addon.exo.notes.version>1.1.x-notes-SNAPSHOT</addon.exo.notes.version>
     <!-- Used to generate default methods for POJO -->
     <org.lombok.version>1.18.2</org.lombok.version>
     <org.lombok.plugin.version>1.18.0.0</org.lombok.plugin.version>
