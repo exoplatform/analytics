@@ -414,7 +414,8 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   }
 
   private void addESDateSubField(String dateFieldName) {
-    StatisticFieldMapping fieldMapping = new StatisticFieldMapping("doc['timestamp'].date." + dateFieldName, "long", false, true);
+    StatisticFieldMapping fieldMapping =
+                                       new StatisticFieldMapping("doc['timestamp'].value." + dateFieldName, "long", false, true);
     esMappings.put(fieldMapping.getName(), fieldMapping);
   }
 
@@ -641,11 +642,10 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
                    .append(timeZone.getId())
                    .append("\"");
           }
-          esQuery.append(",")
-                  .append("           \"min_doc_count\": ")
-                  .append(aggregation.getMinDocCount());
           if (aggregation.isUseBounds()) {
-            esQuery.append( ",")
+            esQuery.append(",")
+                   .append("           \"min_doc_count\": 0,")
+                   .append("")
                    .append("           \"extended_bounds\": {")
                    .append("             \"min\": ")
                    .append(aggregation.getMinBound())
@@ -808,7 +808,6 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       return tableColumnResult;
     }
     AnalyticsTableColumnFilter columnFilter = tableFilter.getColumnFilter(columnIndex);
-    boolean isCountable = columnFilter.getValueAggregation().isCountDateHistogramBuckets();
     LinkedHashMap<String, TableColumnItemValue> itemValues = new LinkedHashMap<>();
     tableColumnResult.getItems().forEach(item -> itemValues.put(item.getKey(), item));
     if (columnFilter.isPreviousPeriod()) {
@@ -831,7 +830,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
             if (columnIndex == 0) {
               itemValue.setValue(key);
             } else {
-              computeColumnItemValue(itemValue, subBucket, isCurrent, isValue, isCountable);
+              computeColumnItemValue(itemValue, subBucket, isCurrent, isValue);
             }
           }
         }
@@ -845,7 +844,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
         if (columnIndex == 0) {
           itemValue.setValue(key);
         } else {
-          computeColumnItemValue(itemValue, bucket, true, isValue, isCountable);
+          computeColumnItemValue(itemValue, bucket, true, isValue);
         }
         itemValues.put(itemValue.getKey(), itemValue);
       }
@@ -863,8 +862,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
   private void computeColumnItemValue(TableColumnItemValue itemValue,
                                       JSONObject bucket,
                                       boolean isCurrent,
-                                      boolean isValue,
-                                      boolean isCountable) throws JSONException {
+                                      boolean isValue) throws JSONException {
     Object value;
     if (bucket.has(AGGREGATION_RESULT_VALUE_PARAM)) {
       value = bucket.getJSONObject(AGGREGATION_RESULT_VALUE_PARAM).getString("value");
@@ -873,13 +871,9 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
       List<String> values = new ArrayList<>();
       if (subAggregationResult.has("buckets")) {
         JSONArray subAggregationBuckets = subAggregationResult.getJSONArray("buckets");
-        if (isCountable) {
-          values.add(String.valueOf(subAggregationBuckets.length()));
-        } else {
-          for (int j = 0; j < subAggregationBuckets.length(); j++) {
-            JSONObject subAggregationBucket = subAggregationBuckets.getJSONObject(j);
-            values.add(subAggregationBucket.getString("key"));
-          }
+        for (int j = 0; j < subAggregationBuckets.length(); j++) {
+          JSONObject subAggregationBucket = subAggregationBuckets.getJSONObject(j);
+          values.add(subAggregationBucket.getString("key"));
         }
       }
       value = values;
@@ -999,6 +993,7 @@ public class ESAnalyticsService implements AnalyticsService, Startable {
     addEmptyResultsToNotExistingEntries(chartsData);
     return chartsData;
   }
+
 
   private void computeAggregatedResultEntry(AnalyticsFilter filter,
                                             JSONObject aggregations,
