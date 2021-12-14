@@ -48,6 +48,7 @@
     <addon.exo.push-notifications.version>2.3.x-SNAPSHOT</addon.exo.push-notifications.version>
     <addon.exo.app-center.version>2.3.x-SNAPSHOT</addon.exo.app-center.version>
     <addon.exo.automatic-translation.version>1.0.x-SNAPSHOT</addon.exo.automatic-translation.version>
+    <addon.exo.notes.version>1.1.x-SNAPSHOT</addon.exo.notes.version>
     <!-- Used to generate default methods for POJO -->
     <org.lombok.version>1.18.2</org.lombok.version>
     <org.lombok.plugin.version>1.18.0.0</org.lombok.plugin.version>
@@ -154,6 +155,12 @@
         <groupId>org.exoplatform.addons.automatic-translation</groupId>
         <artifactId>automatic-translation-services-api</artifactId>
         <version>${addon.exo.automatic-translation.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.addons.notes</groupId>
+        <artifactId>notes-service</artifactId>
+        <version>${addon.exo.notes.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- Current project artifacts -->
