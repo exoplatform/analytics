@@ -91,50 +91,50 @@ function() {
 
     addStatisticFavorite: function (eventDetail) {
       let favorite;
-      if(!eventDetail.templateParams) {
-        favorite = {
-          'module': 'portal',
-          'subModule': 'ui',
-          'userId': eXo.env.portal.userIdentityId,
-          'userName': eXo.env.portal.userName,
-          'parameters': {
-            'type': 'Documents',
-            'spaceId': eventDetail.spaceId,
-            'contentId': eventDetail.id,
-           },
-          'operation': 'Bookmark',
-          'timestamp': Date.now()
-        };
-      } else {
-        if (eventDetail.templateParams.newsId) {
+      if (!eventDetail.templateParams) {
           favorite = {
-            'module': 'portal',
-            'subModule': 'ui',
-            'userId': eXo.env.portal.userIdentityId,
-            'userName': eXo.env.portal.userName,
-            'parameters': {
-              'type': 'News',
-              'contentId': eventDetail.templateParams.newsId,
-              'spaceId': eventDetail.spaceId ? eventDetail.spaceId : eventDetail.templateParams.spaceId,
-             },
-             'operation': 'Bookmark',
-             'timestamp': Date.now()
-            };
-          } else {
-            favorite = {
               'module': 'portal',
               'subModule': 'ui',
               'userId': eXo.env.portal.userIdentityId,
               'userName': eXo.env.portal.userName,
               'parameters': {
-                'type': eventDetail.type,
-                'activityId': eventDetail.id,
-                'spaceId': eventDetail.spaceId,
+                  'type': 'Documents',
+                  'spaceId': eventDetail.spaceId,
+                  'contentId': eventDetail.id,
               },
               'operation': 'Bookmark',
               'timestamp': Date.now()
-            };
-          }
+          };
+      } else if (eventDetail.templateParams.newsId) {
+          favorite = {
+              'module': 'portal',
+              'subModule': 'ui',
+              'userId': eXo.env.portal.userIdentityId,
+              'userName': eXo.env.portal.userName,
+              'parameters': {
+                  'type': 'News',
+                  'contentId': eventDetail.templateParams.newsId,
+                  'spaceId': eventDetail.spaceId ? eventDetail.spaceId : eventDetail.templateParams.spaceId,
+              },
+              'operation': 'Bookmark',
+              'timestamp': Date.now()
+          };
+      } else if (eventDetail.templateParams.page_id) {
+          return;
+      } else {
+          favorite = {
+              'module': 'portal',
+              'subModule': 'ui',
+              'userId': eXo.env.portal.userIdentityId,
+              'userName': eXo.env.portal.userName,
+              'parameters': {
+                  'type': eventDetail.type,
+                  'activityId': eventDetail.id,
+                  'spaceId': eventDetail.spaceId,
+              },
+              'operation': 'Bookmark',
+              'timestamp': Date.now()
+          };
       }
       this.sendMessage(favorite);
     },
@@ -179,7 +179,7 @@ function() {
             }
           });
         }
-  
+
         if (watcher.domEventProperties) {
           watcher.domEventProperties.forEach(property => {
             if (event[property]) {
@@ -213,18 +213,18 @@ function() {
       eXo.env.portal.loadingAppsStartTime = {};
       const fullyLoadedCallbackIdle = 1000;
       const isMobile = navigator.userAgentData && navigator.userAgentData.mobile || (navigator.userAgent && /mobi/i.test(navigator.userAgent.toLowerCase())) || false;
-  
+
       function pageFullyLoadedCallback() {
         if (document.readyState === 'complete'
             && !eXo.env.portal.loadingAppsFinished
             && !Object.keys(eXo.env.portal.loadingAppsStartTime).length) {
-  
+
           const endLoadingTime = eXo.env.portal.lastAppLoadingFinished - eXo.env.portal.requestStartTime;
           const endTimeStyle = endLoadingTime > 3000 && 'color:red;font-weight:bold;' || 'color:green;font-weight:bold;';
           eXo.env.portal.loadingAppsFinished = true;
           if (eXo.developing) {
             // eslint-disable-next-line no-console
-            console.warn(`Overall %cpage applications%c finished loading at : %c${endLoadingTime} %cms`, 
+            console.warn(`Overall %cpage applications%c finished loading at : %c${endLoadingTime} %cms`,
               'font-weight:bold;',
               '',
               endTimeStyle,
@@ -270,7 +270,7 @@ function() {
           api.sendMessage();
         }
       });
-    
+
       function pageCompleteLoadedCallback (nowDate) {
         if (eXo.env.portal.requestStartTime && nowDate > eXo.env.portal.requestStartTime) {
           const loadingTime = nowDate - eXo.env.portal.requestStartTime;
@@ -332,7 +332,7 @@ function() {
             console.debug(`App %c${appName}%c
                Started at: %c${startLoadingTime} %cms
                End at: %c${endLoadingTime} %cms
-               Duration : %c${durationLoadingTime} %cms`, 
+               Duration : %c${durationLoadingTime} %cms`,
             'font-weight:bold;',
             '',
             startTimeStyle,
