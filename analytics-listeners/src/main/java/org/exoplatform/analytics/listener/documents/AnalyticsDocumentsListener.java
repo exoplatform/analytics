@@ -24,6 +24,10 @@ public class AnalyticsDocumentsListener extends Listener<String, Node> {
 
   private static final String UPLOAD_DOCUMENT_OLD_APP_OPERATION_NAME  = "documentUploadedOldApp";
 
+  private static final String UPLOAD_DOCUMENT_FROM_PLATFORM_OPERATION_NAME  = "documentUploadedFromPlatform";
+
+  private static final String UPLOAD_DOCUMENT_FROM_DEVICE_OPERATION_NAME  = "documentUploadedFromDevice";
+
   private static final String                   GROUPS_SPACES_PARENT_FOLDER          = "/Groups/spaces/";
 
   private IdentityManager     identityManager;
@@ -33,7 +37,21 @@ public class AnalyticsDocumentsListener extends Listener<String, Node> {
   @Override
   public void onEvent(Event<String, Node> event) throws Exception {
     Node data = event.getData();
-    String operation = event.getEventName().equals("exo.upload.doc.newApp") ? UPLOAD_DOCUMENT_NEW_APP_OPERATION_NAME : UPLOAD_DOCUMENT_OLD_APP_OPERATION_NAME;
+    String operation = "";
+    String creationType = "";
+    switch (event.getEventName()) {
+      case "exo.upload.doc.newApp":
+        operation = UPLOAD_DOCUMENT_NEW_APP_OPERATION_NAME;
+        creationType = UPLOAD_DOCUMENT_FROM_DEVICE_OPERATION_NAME;
+        break;
+      case "exo.upload.doc.oldApp":
+        operation = UPLOAD_DOCUMENT_OLD_APP_OPERATION_NAME;
+        break;
+      case "exo.upload.doc.from.platform":
+        operation = UPLOAD_DOCUMENT_NEW_APP_OPERATION_NAME;
+        creationType = UPLOAD_DOCUMENT_FROM_PLATFORM_OPERATION_NAME;
+        break;
+    }
     long userId = 0;
     Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, event.getSource());
     if (identity != null) {
@@ -47,7 +65,7 @@ public class AnalyticsDocumentsListener extends Listener<String, Node> {
     statisticData.setUserId(userId);
     statisticData.addParameter("documentsName", data.getName());
     statisticData.addParameter("documentsPath", data.getPath());
-    statisticData.addParameter("documentsOwner", ((NodeImpl) data).getACL().getOwner());
+    statisticData.addParameter("creationType", creationType);
     String nodePath = data.getPath();
     addSpaceStatistic(statisticData, nodePath);
     AnalyticsUtils.addStatisticData(statisticData);

@@ -170,6 +170,17 @@
       </init-params>
     </component-plugin>
     <component-plugin>
+      <name>exo.upload.doc.from.platform</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.analytics.listener.documents.AnalyticsDocumentsListener</type>
+      <init-params>
+        <value-param>
+          <name>operation</name>
+          <value>documentUploadedNewApp</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
       <name>exo.upload.doc.oldApp</name>
       <set-method>addListener</set-method>
       <type>org.exoplatform.analytics.listener.documents.AnalyticsDocumentsListener</type>
