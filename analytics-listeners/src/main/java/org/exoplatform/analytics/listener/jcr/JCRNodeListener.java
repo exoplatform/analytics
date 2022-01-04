@@ -231,9 +231,7 @@ public class JCRNodeListener implements Action {
         operation = DOCUMENT_MOVED_TO_TRASH_OPERATION;
       }
     } else if (isNew) {
-      if (isFile) {
-        operation = FILE_CREATED_OPERATION;
-      } else {
+      if (!isFile) {
         operation = DOCUMENT_CREATED_OPERATION;
       }
     } else {
