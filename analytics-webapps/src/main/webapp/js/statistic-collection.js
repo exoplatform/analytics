@@ -37,6 +37,7 @@ function() {
         document.addEventListener('exo-statistic-message', event => this.sendMessage(event && event.detail));
         document.addEventListener('search-connector-selected', event => this.addStatisticSearchFilter(event && event.detail));
         document.addEventListener('favorite-added', event => this.addStatisticFavorite(event && event.detail));
+        document.addEventListener('search-tag', event => this.addStatisticSearchByTag());
         document.addEventListener('search-favorites-selected', () => this.sendMessage(
             {
               'module': 'portal',
@@ -137,6 +138,17 @@ function() {
           };
       }
       this.sendMessage(favorite);
+    },
+    addStatisticSearchByTag: function () {
+      const tagSearch = {
+        'module': 'portal',
+        'subModule': 'ui',
+        'userId': eXo.env.portal.userIdentityId,
+        'userName': eXo.env.portal.userName,
+        'operation': 'search by tag',
+        'timestamp': Date.now()
+      }
+      this.sendMessage(tagSearch);
     },
 
     installWatchers: function () {
