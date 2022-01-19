@@ -56,6 +56,12 @@
         <visibility>DISPLAYED</visibility>
         <page-reference>portal::global::analytics-documents</page-reference>
       </node>
+      <node>
+        <name>analyticsMobile</name>
+        <label>#{analytics.navigation.analyticsMobile}</label>
+        <visibility>DISPLAYED</visibility>
+        <page-reference>portal::global::analytics-mobile</page-reference>
+      </node>
     </node>
   </page-nodes>
 </node-navigation>
