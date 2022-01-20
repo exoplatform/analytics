@@ -37,6 +37,7 @@ function() {
         document.addEventListener('exo-statistic-message', event => this.sendMessage(event && event.detail));
         document.addEventListener('search-connector-selected', event => this.addStatisticSearchFilter(event && event.detail));
         document.addEventListener('favorite-added', event => this.addStatisticFavorite(event && event.detail));
+        document.addEventListener('add-Tag', event => this.addStatisticAddTag(event && event.detail));
         document.addEventListener('search-tag', event => this.addStatisticSearchByTag());
         document.addEventListener('search-favorites-selected', () => this.sendMessage(
             {
@@ -138,6 +139,19 @@ function() {
           };
       }
       this.sendMessage(favorite);
+    },
+    addStatisticAddTag: function (tagsCount) {
+      const addedTag = {
+        'module': 'portal',
+        'subModule': 'ui',
+        'userId': eXo.env.portal.userIdentityId,
+        'userName': eXo.env.portal.userName,
+        'operation': 'Add tag',
+        'timestamp': Date.now()
+      }
+      for(let i=0 ; i < tagsCount ; i++) {
+        this.sendMessage(addedTag);
+      }
     },
     addStatisticSearchByTag: function () {
       const tagSearch = {
