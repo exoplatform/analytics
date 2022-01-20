@@ -1034,4 +1034,28 @@
           </container>
       </container>
   </page>
+  <page>
+    <name>analytics-mobile</name>
+    <title>Analytics</title>
+    <access-permissions>*:/platform/analytics;*:/platform/administrators</access-permissions>
+    <edit-permission>manager:/platform/analytics</edit-permission>
+    <container
+            id="topAnalyticsPage"
+            template="system:/groovy/portal/webui/container/UIContainer.gtmpl"
+            cssClass="singlePageApplication border-box-sizing">
+        <access-permissions>Everyone</access-permissions>
+        <container id="breadcrumbAnalytics" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+            <access-permissions>Everyone</access-permissions>
+            <portlet-application>
+                <portlet>
+                    <application-ref>analytics</application-ref>
+                    <portlet-ref>AnalyticsDashboardBreadcrumb</portlet-ref>
+                </portlet>
+                <title>Breadcrumb Analytics</title>
+                <access-permissions>Everyone</access-permissions>
+                <show-info-bar>false</show-info-bar>
+            </portlet-application>
+        </container>
+    </container>
+</page>
 </page-set>
