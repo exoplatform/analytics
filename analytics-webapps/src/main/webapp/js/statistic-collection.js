@@ -140,16 +140,20 @@ function() {
       }
       this.sendMessage(favorite);
     },
-    addStatisticAddTag: function (tagsCount) {
+    addStatisticAddTag: function (eventDetail) {
       const addedTag = {
         'module': 'portal',
         'subModule': 'ui',
         'userId': eXo.env.portal.userIdentityId,
         'userName': eXo.env.portal.userName,
+        'parameters': {
+          'type': eventDetail.type,
+          'spaceId': eXo.env.portal.spaceId,
+        },
         'operation': 'Add tag',
         'timestamp': Date.now()
       }
-      for(let i=0 ; i < tagsCount ; i++) {
+      for(let i=0 ; i < eventDetail.tagsCount ; i++) {
         this.sendMessage(addedTag);
       }
     },
