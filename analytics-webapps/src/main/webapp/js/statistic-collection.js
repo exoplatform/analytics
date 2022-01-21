@@ -153,7 +153,7 @@ function() {
         'operation': 'Add tag',
         'timestamp': Date.now()
       }
-      for(let i=0 ; i < eventDetail.tagsCount ; i++) {
+      for (let i = 0; i < eventDetail.tagsCount; i++) {
         this.sendMessage(addedTag);
       }
     },
