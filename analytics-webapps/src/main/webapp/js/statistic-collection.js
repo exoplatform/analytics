@@ -223,7 +223,7 @@ function() {
       eXo.env.portal.loadingAppsStartTime = {};
       const fullyLoadedCallbackIdle = 1000;
       const isMobile = navigator.userAgentData && navigator.userAgentData.mobile || (navigator.userAgent && /mobi/i.test(navigator.userAgent.toLowerCase())) || false;
-      const deviceType=  checkDeviceType(navigator.userAgent);
+      const deviceType = checkDeviceType(navigator.userAgent);
       function pageFullyLoadedCallback() {
         if (document.readyState === 'complete'
             && !eXo.env.portal.loadingAppsFinished
