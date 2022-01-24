@@ -209,8 +209,8 @@ function() {
     
   };
   function checkDeviceType(userAgent){
-    let mobile=  navigator.userAgentData && navigator.userAgentData.mobile || (navigator.userAgent && /mobi/i.test(navigator.userAgent.toLowerCase())) || false;
-    let tablet =false ;
+    let mobile =  navigator.userAgentData && navigator.userAgentData.mobile || (navigator.userAgent && /mobi/i.test(navigator.userAgent.toLowerCase())) || false;
+    let tablet = false ;
     tablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/.test(userAgent.toLowerCase());
     if(tablet)
       return "tablet" ;  
