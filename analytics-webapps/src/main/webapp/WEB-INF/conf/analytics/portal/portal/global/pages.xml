@@ -1131,7 +1131,7 @@
                     "multipleChartsField": null,
                     "limit": 0,
                     "timeZone": null,
-                    "title": "Devices"
+                    "title": "Display page per device"
                   }</value>
                 </preference>
               </preferences>
