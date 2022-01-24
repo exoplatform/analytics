@@ -163,7 +163,8 @@ function() {
         'subModule': 'ui',
         'userId': eXo.env.portal.userIdentityId,
         'userName': eXo.env.portal.userName,
-        'operation': 'search by tag',
+        'operation': 'click',
+        'name': 'search by tag',
         'timestamp': Date.now()
       }
       this.sendMessage(tagSearch);
