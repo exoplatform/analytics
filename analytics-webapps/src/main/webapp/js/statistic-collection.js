@@ -225,22 +225,66 @@ function() {
     },
     
   };
-  function checkDeviceType(userAgent){
-    let mobile = navigator.userAgentData && navigator.userAgentData.mobile || (navigator.userAgent && /mobi/i.test(navigator.userAgent.toLowerCase())) || false;
-    let tablet = false ;
-    tablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/.test(userAgent.toLowerCase());
-    if(tablet)
-      return "tablet" ;  
-    if(mobile)
-      return "mobile" ;
-    return "desktop"  ;   
+  function checkDeviceType(userAgentLowerCase){
+    let isMobileDevice = isIosApp(userAgentLowerCase) || isAndroidApp(userAgentLowerCase) || (navigator.userAgentData && navigator.userAgentData.mobile || (userAgentLowerCase && /mobi/i.test(userAgentLowerCase)) || false);
+    if(isTablet())
+      return "Tablet";
+    if(isMobileDevice)
+      return "Mobile";
+    return "Desktop";   
+  }
+  function isTablet(){
+    let realScreenWidth = (screen.width > screen.height) ? screen.height : screen.width;
+    if(realScreenWidth >= 481 && realScreenWidth < 1026)
+      return true; 
+    return false; 
+  }
+  function checkBrowserType(userAgentLowerCase){
+    if(userAgentLowerCase.indexOf("edg/") > -1 || userAgentLowerCase.indexOf("edga/") > -1 )
+      return "Edge";
+    else if(userAgentLowerCase.match(/firefox|fxios/i))
+      return "Firefox";
+    else if(userAgentLowerCase.match(/opera|opr\//))
+      return "Opera";
+    else if(navigator.brave !== undefined)
+      return "Brave";
+    else if(userAgentLowerCase.match(/safari/i) && userAgentLowerCase.match(/chrome|chromium|crios/i))
+      return "Chrome";
+    else if(userAgentLowerCase.match(/safari/i))
+      return "Safari";
+    else
+      return "others";
+  }
+  function checkconnectedWith(userAgentLowerCase){
+      let browserType = checkBrowserType(userAgentLowerCase);
+      if(isBrowserMobile(userAgentLowerCase,browserType))
+        return browserType + "-mobile"; 
+      if(isIosApp(userAgentLowerCase))
+        return "App-ios";
+      if(isAndroidApp(userAgentLowerCase))
+        return "App-android";
+      return browserType;   
+  }
+  function isBrowserMobile(userAgentLowerCase,browserType){
+    if(browserType !== "others" && (isAndroidApp(userAgentLowerCase) || isIosApp(userAgentLowerCase)))
+      return true; 
+    return false; 
+  }
+  function isIosApp(userAgentLowerCase){
+    if(/iphone|ipod|ipad/.test(userAgentLowerCase) && !/safari/.test(userAgentLowerCase))
+      return true; 
+    return false; 
+  }
+  function isAndroidApp(userAgentLowerCase){
+      return userAgentLowerCase.includes('android'); 
   }
   require(['SHARED/vue'], () => {
     if (eXo.env.portal.requestStartTime) {
       eXo.env.portal.loadingAppsStartTime = {};
       const fullyLoadedCallbackIdle = 1000;
       const isMobile = navigator.userAgentData && navigator.userAgentData.mobile || (navigator.userAgent && /mobi/i.test(navigator.userAgent.toLowerCase())) || false;
-      const deviceType = checkDeviceType(navigator.userAgent);
+      const deviceType = checkDeviceType(navigator.userAgent.toLowerCase());
+      const connectedWith = checkconnectedWith(navigator.userAgent.toLowerCase());
       function pageFullyLoadedCallback() {
         if (document.readyState === 'complete'
             && !eXo.env.portal.loadingAppsFinished
@@ -272,6 +316,7 @@ function() {
               applicationNames: eXo.env.portal.applicationNames,
               isMobile,
               deviceType: deviceType,
+              connectedWith: connectedWith,
             },
           });
         }
@@ -325,6 +370,7 @@ function() {
                 applicationNames: eXo.env.portal.applicationNames,
                 isMobile,
                 deviceType: deviceType,
+                connectedWith: connectedWith,
               },
             });
           }, 500);
@@ -388,6 +434,7 @@ function() {
                 applicationName: appName,
                 isMobile,
                 deviceType: deviceType,
+                connectedWith: connectedWith,
                 startLoadingTime: startLoadingTime,
                 endLoadingTime: endLoadingTime,
               },
