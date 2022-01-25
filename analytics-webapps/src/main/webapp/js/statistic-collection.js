@@ -218,14 +218,24 @@ function() {
         cCometd.publish(this.settings.cometdChannel, JSON.stringify(statisticMessage));
       }
     },
+    
   };
-
+  function checkDeviceType(userAgent){
+    let mobile = navigator.userAgentData && navigator.userAgentData.mobile || (navigator.userAgent && /mobi/i.test(navigator.userAgent.toLowerCase())) || false;
+    let tablet = false ;
+    tablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/.test(userAgent.toLowerCase());
+    if(tablet)
+      return "tablet" ;  
+    if(mobile)
+      return "mobile" ;
+    return "desktop"  ;   
+  }
   require(['SHARED/vue'], () => {
     if (eXo.env.portal.requestStartTime) {
       eXo.env.portal.loadingAppsStartTime = {};
       const fullyLoadedCallbackIdle = 1000;
       const isMobile = navigator.userAgentData && navigator.userAgentData.mobile || (navigator.userAgent && /mobi/i.test(navigator.userAgent.toLowerCase())) || false;
-
+      const deviceType = checkDeviceType(navigator.userAgent);
       function pageFullyLoadedCallback() {
         if (document.readyState === 'complete'
             && !eXo.env.portal.loadingAppsFinished
@@ -256,6 +266,7 @@ function() {
               pageUri: eXo.env.portal.selectedNodeUri,
               applicationNames: eXo.env.portal.applicationNames,
               isMobile,
+              deviceType: deviceType,
             },
           });
         }
@@ -308,6 +319,7 @@ function() {
                 pageUri: eXo.env.portal.selectedNodeUri,
                 applicationNames: eXo.env.portal.applicationNames,
                 isMobile,
+                deviceType: deviceType,
               },
             });
           }, 500);
@@ -370,6 +382,7 @@ function() {
                 pageUri: eXo.env.portal.selectedNodeUri,
                 applicationName: appName,
                 isMobile,
+                deviceType: deviceType,
                 startLoadingTime: startLoadingTime,
                 endLoadingTime: endLoadingTime,
               },
