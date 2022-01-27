@@ -229,46 +229,48 @@ function() {
     return "Desktop";   
   }
   function isTablet(userAgentLowerCase){
+    if((/exo\/6.2/).test(userAgentLowerCase)){
+      let realScreenWidth = (screen.width > screen.height) ? screen.height : screen.width;
+      if(realScreenWidth >= 481 && realScreenWidth < 1026)
+        return true; 
+      return false;
+    }
     return /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/.test(userAgentLowerCase);
   }
   function checkBrowserType(userAgentLowerCase){
-    if(userAgentLowerCase.indexOf("edg/") > -1 || userAgentLowerCase.indexOf("edga/") > -1 )
+    if(/edge|edga|edg/.test(userAgentLowerCase) )
       return "Edge";
-    else if(userAgentLowerCase.match(/firefox|fxios/i))
+    else if(/firefox|fxios/i.test(userAgentLowerCase))
       return "Firefox";
-    else if(userAgentLowerCase.match(/opera|opr\//))
+    else if(/opera|opr\//.test(userAgentLowerCase))
       return "Opera";
     else if(navigator.brave !== undefined)
       return "Brave";
-    else if(userAgentLowerCase.match(/safari/i) && userAgentLowerCase.match(/chrome|chromium|crios/i))
+    else if(/safari/i.test(userAgentLowerCase) && /chrome|chromium|crios/i.test(userAgentLowerCase))
       return "Chrome";
-    else if(userAgentLowerCase.match(/safari/i))
+    else if(/safari/i.test(userAgentLowerCase))
       return "Safari";
     else
       return "others";
   }
   function checkconnectedWith(userAgentLowerCase){
-      let browserType = checkBrowserType(userAgentLowerCase);
-      if(isBrowserMobile(userAgentLowerCase,browserType))
-        return browserType + "-mobile"; 
-      if(isIosApp(userAgentLowerCase))
-        return "App-ios";
-      if(isAndroidApp(userAgentLowerCase))
-        return "App-android";
-      return browserType;   
+    let browserType = checkBrowserType(userAgentLowerCase);
+    if(isIosApp(userAgentLowerCase))
+      return "App-ios";
+    if(isAndroidApp(userAgentLowerCase))
+      return "App-android";
+    if((checkDeviceType(userAgentLowerCase)!=="Desktop"))
+      return browserType + "-mobile"; 
+    return browserType;   
   }
-  function isBrowserMobile(userAgentLowerCase,browserType){
-    if(browserType !== "others" && (isAndroidApp(userAgentLowerCase) || isIosApp(userAgentLowerCase)))
-      return true; 
-    return false; 
+  function isExoApp(userAgentLowerCase){
+    return /exo/.test(userAgentLowerCase); 
   }
   function isIosApp(userAgentLowerCase){
-    if(/iphone|ipod|ipad/.test(userAgentLowerCase) && !/safari/.test(userAgentLowerCase))
-      return true; 
-    return false; 
+    return  isExoApp(userAgentLowerCase) && /iphone|ipad|ipad/.test(userAgentLowerCase) && !/safari/.test(userAgentLowerCase); 
   }
   function isAndroidApp(userAgentLowerCase){
-      return userAgentLowerCase.includes('android'); 
+      return isExoApp(userAgentLowerCase) && /android/.test(userAgentLowerCase); 
   }
   require(['SHARED/vue'], () => {
     if (eXo.env.portal.requestStartTime) {
