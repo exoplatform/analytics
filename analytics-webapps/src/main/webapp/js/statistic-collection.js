@@ -151,7 +151,6 @@ function() {
       }
       this.sendMessage(tagSearch);
     },
-
     installWatchers: function () {
       const self_ = this;
       $(document).ready(() => {
