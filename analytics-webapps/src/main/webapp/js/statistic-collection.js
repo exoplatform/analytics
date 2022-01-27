@@ -222,17 +222,14 @@ function() {
   };
   function checkDeviceType(userAgentLowerCase){
     let isMobileDevice = isIosApp(userAgentLowerCase) || isAndroidApp(userAgentLowerCase) || (navigator.userAgentData && navigator.userAgentData.mobile || (userAgentLowerCase && /mobi/i.test(userAgentLowerCase)) || false);
-    if(isTablet())
+    if(isTablet(userAgentLowerCase))
       return "Tablet";
     if(isMobileDevice)
       return "Mobile";
     return "Desktop";   
   }
-  function isTablet(){
-    let realScreenWidth = (screen.width > screen.height) ? screen.height : screen.width;
-    if(realScreenWidth >= 481 && realScreenWidth < 1026)
-      return true; 
-    return false; 
+  function isTablet(userAgentLowerCase){
+    return /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/.test(userAgentLowerCase);
   }
   function checkBrowserType(userAgentLowerCase){
     if(userAgentLowerCase.indexOf("edg/") > -1 || userAgentLowerCase.indexOf("edga/") > -1 )
