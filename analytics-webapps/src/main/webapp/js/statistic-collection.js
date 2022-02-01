@@ -256,9 +256,9 @@ function() {
   function checkconnectedWith(userAgentLowerCase){
     let browserType = checkBrowserType(userAgentLowerCase);
     if(isIosApp(userAgentLowerCase))
-      return "App-ios";
+      return "eXo-iOS";
     if(isAndroidApp(userAgentLowerCase))
-      return "App-android";
+      return "eXo-Android";
     if((checkDeviceType(userAgentLowerCase)!=="Desktop"))
       return browserType + "-mobile"; 
     return browserType;   
