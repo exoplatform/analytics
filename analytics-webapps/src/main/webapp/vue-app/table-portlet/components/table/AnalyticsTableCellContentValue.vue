@@ -38,12 +38,25 @@ export default {
   created() {
     if (this.value) {
       this.loading = true;
-      this.$analyticsUtils.getContent(this.value).then(content => {
+      this.getContent(this.value).then(content => {
         this.content = content;
         this.$forceUpdate();
       })
         .finally(() => this.loading = false);
     }
+  },
+  methods: {
+    getContent(contentId) {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/news/${contentId}`, {
+        credentials: 'include',
+        method: 'GET',
+      }).then((resp) => {
+        if (resp && resp.ok) {
+          return resp.json();
+        }
+        return null;
+      });
+    },
   },
 };
 </script>
