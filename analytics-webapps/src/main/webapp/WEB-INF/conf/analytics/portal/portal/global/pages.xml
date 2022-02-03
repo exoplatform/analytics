@@ -1230,12 +1230,17 @@
                     "filters": [
                       {
                         "field": "deviceType",
-                        "type": "EQUAL",
-                        "valueString": "Mobile",
+                        "type": "IN_SET",
+                        "valueString": "Mobile,Tablet",
                         "range": null
                       }
                     ],
                     "limit": 0,
+                    "multipleCharts": false,
+                    "chartType": "pie",
+                    "colors": null,
+                    "multipleChartsField": null,
+                    "lang": null,
                     "aggregations": [
                       {
                         "field": "pageTitle.keyword",
@@ -1249,7 +1254,7 @@
                         "sortDirection": "desc"
                       },
                       {
-                        "field": "subModule",
+                        "field": "pageTitle.keyword",
                         "type": "COUNT",
                         "offset": null,
                         "interval": null,
@@ -1261,7 +1266,7 @@
                       }
                     ],
                     "yAxisAggregation": {
-                      "field": "subModule",
+                      "field": "pageTitle.keyword",
                       "type": "COUNT",
                       "offset": null,
                       "interval": null,
@@ -1285,11 +1290,6 @@
                         "sortDirection": "desc"
                       }
                     ],
-                    "lang": null,
-                    "multipleCharts": false,
-                    "chartType": "pie",
-                    "colors": null,
-                    "multipleChartsField": null,
                     "timeZone": null,
                     "title": "App use in Mobile"
                   }</value>
