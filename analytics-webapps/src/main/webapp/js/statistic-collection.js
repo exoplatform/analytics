@@ -36,18 +36,18 @@ function() {
         // First time init, install listener
         document.addEventListener('exo-statistic-message', event => this.sendMessage(event && event.detail));
         document.addEventListener('search-connector-selected', event => this.addStatisticSearchFilter(event && event.detail));
-        document.addEventListener('favorite-added', event => this.addStatisticFavorite(event && event.detail));
-        document.addEventListener('search-tag', event => this.addStatisticSearchByTag());
-        document.addEventListener('search-favorites-selected', () => this.sendMessage(
-            {
-              'module': 'portal',
-              'subModule': 'ui',
-              'userId': eXo.env.portal.userIdentityId,
-              'userName': eXo.env.portal.userName,
-              'operation': 'click',
-              'name': 'search by favorite',
-              'timestamp': Date.now()
-            }));
+        document.addEventListener('favorite-added', event => this.addStatisticFavorite(true, event && event.detail));
+        document.addEventListener('favorite-removed', event => this.addStatisticFavorite(false, event && event.detail));
+        document.addEventListener('search-tag', () => this.addStatisticSearchByTag());
+        document.addEventListener('search-favorites-selected', () => this.sendMessage({
+          'module': 'portal',
+          'subModule': 'ui',
+          'userId': eXo.env.portal.userIdentityId,
+          'userName': eXo.env.portal.userName,
+          'operation': 'click',
+          'name': 'search by favorite',
+          'timestamp': Date.now()
+        }));
       }
 
       this.cometdSubscription = cCometd.subscribe(this.settings.cometdChannel, null, event => {}, null, (subscribeReply) => {
@@ -67,54 +67,21 @@ function() {
       };
       this.sendMessage(connectorAnalytics);
     },
-    addStatisticFavorite: function (eventDetail) {
-      let favorite;
-      if (!eventDetail.templateParams) {
-          favorite = {
-              'module': 'portal',
-              'subModule': 'ui',
-              'userId': eXo.env.portal.userIdentityId,
-              'userName': eXo.env.portal.userName,
-              'parameters': {
-                  'type': 'Documents',
-                  'spaceId': eventDetail.spaceId,
-                  'contentId': eventDetail.id,
-              },
-              'operation': 'Bookmark',
-              'timestamp': Date.now()
-          };
-      } else if (eventDetail.templateParams.newsId) {
-          favorite = {
-              'module': 'portal',
-              'subModule': 'ui',
-              'userId': eXo.env.portal.userIdentityId,
-              'userName': eXo.env.portal.userName,
-              'parameters': {
-                  'type': 'News',
-                  'contentId': eventDetail.templateParams.newsId,
-                  'spaceId': eventDetail.spaceId ? eventDetail.spaceId : eventDetail.templateParams.spaceId,
-              },
-              'operation': 'Bookmark',
-              'timestamp': Date.now()
-          };
-      } else if (eventDetail.templateParams.page_id) {
-          return;
-      } else {
-          favorite = {
-              'module': 'portal',
-              'subModule': 'ui',
-              'userId': eXo.env.portal.userIdentityId,
-              'userName': eXo.env.portal.userName,
-              'parameters': {
-                  'type': eventDetail.type,
-                  'activityId': eventDetail.id,
-                  'spaceId': eventDetail.spaceId,
-              },
-              'operation': 'Bookmark',
-              'timestamp': Date.now()
-          };
-      }
-      this.sendMessage(favorite);
+    addStatisticFavorite: function (bookmark, eventDetail) {
+      this.sendMessage({
+        'module': 'portal',
+        'subModule': 'ui',
+        'userId': eXo.env.portal.userIdentityId,
+        'userName': eXo.env.portal.userName,
+        'name': 'favorite',
+        'operation': bookmark && 'Bookmark' || 'UnBookmark',
+        'timestamp': Date.now(),
+        'parameters': {
+          'type': eventDetail.typeLabel || eventDetail.type,
+          'contentId': eventDetail.id,
+          'spaceId': eventDetail.spaceId,
+        },
+      });
     },
     addStatisticSearchByTag: function () {
       const tagSearch = {
