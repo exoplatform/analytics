@@ -363,7 +363,7 @@
                     {
                       "field": "operation",
                       "type": "IN_SET",
-                      "valueString": "fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined,documentUploadedNewApp,documentUploadedOldApp",
+                      "valueString": "noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,contactSection,experienceSection,avatar",
                       "range": null
                     }
                   ],
@@ -510,7 +510,7 @@
                          "valueAggregation":{
                             "filters":[
                                {
-                                  "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined",
+                                  "valueString":"noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,contactSection,experienceSection,avatar",
                                   "field":"operation",
                                   "type":"IN_SET"
                                }
@@ -530,7 +530,7 @@
                          "valueAggregation":{
                             "filters":[
                                {
-                                  "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined",
+                                  "valueString":"noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,contactSection,experienceSection,avatar",
                                   "field":"operation",
                                   "type":"IN_SET"
                                }
@@ -648,7 +648,7 @@
                                   "type":"GREATER"
                                },
                                {
-                                  "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined",
+                                  "valueString":"noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,contactSection,experienceSection,avatar",
                                   "field":"operation",
                                   "type":"IN_SET"
                                }
@@ -675,7 +675,7 @@
                          "valueAggregation":{
                             "filters":[
                                {
-                                  "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined",
+                                  "valueString":"noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,contactSection,experienceSection,avatar",
                                   "field":"operation",
                                   "type":"IN_SET"
                                },
@@ -698,7 +698,7 @@
                          "valueAggregation":{
                             "filters":[
                                {
-                                  "valueString":"fileCreated,fileUpdated,fileMovedToTrash,noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,eventCreated,eventUpdated,contactSection,experienceSection,avatar,eventResponse,sendChatMessage,callJoined",
+                                  "valueString":"noteCreated,noteUpdated,taskCreated,taskUpdated,taskCommented,taskCompleted,taskStatusChanged,createActivity,createComment,likeActivity,likeComment,sendKudos,contactSection,experienceSection,avatar",
                                   "field":"operation",
                                   "type":"IN_SET"
                                }
