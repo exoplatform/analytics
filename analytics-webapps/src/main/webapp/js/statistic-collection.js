@@ -55,29 +55,7 @@ function() {
       });
     },
     addStatisticSearchFilter: function (connectorName) {
-      let uiInteraction;
-      switch (connectorName) {
-        case 'activity':
-          uiInteraction = 'searchActivities';
-          break;
-        case 'news':
-          uiInteraction = 'searchNews';
-          break;
-        case 'wiki':
-          uiInteraction = 'searchNotes';
-          break;
-        case 'people':
-          uiInteraction = 'searchPeople';
-          break;
-        case 'perkstore':
-          uiInteraction = 'searchProducts';
-          break;
-        case 'agenda':
-          uiInteraction = 'searchEvents';
-          break;
-        default:
-          uiInteraction = `search${connectorName.charAt(0).toUpperCase()}${connectorName.slice(1)}s`;
-      }
+      let uiInteraction = `search${connectorName.charAt(0).toUpperCase()}${connectorName.slice(1)}`;
       const connectorAnalytics = {
         'module': 'portal',
         'subModule': 'ui',
@@ -89,7 +67,6 @@ function() {
       };
       this.sendMessage(connectorAnalytics);
     },
-
     addStatisticFavorite: function (eventDetail) {
       let favorite;
       if (!eventDetail.templateParams) {
