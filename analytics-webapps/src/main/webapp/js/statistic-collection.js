@@ -37,6 +37,7 @@ function() {
         document.addEventListener('exo-statistic-message', event => this.sendMessage(event && event.detail));
         document.addEventListener('search-connector-selected', event => this.addStatisticSearchFilter(event && event.detail));
         document.addEventListener('favorite-added', event => this.addStatisticFavorite(event && event.detail));
+        document.addEventListener('download-file', event => this.addStatisticDownload(event && event.detail));
         document.addEventListener('search-favorites-selected', () => this.sendMessage(
             {
               'module': 'portal',
@@ -138,6 +139,25 @@ function() {
       }
       this.sendMessage(favorite);
     },
+
+    addStatisticDownload: function (eventDetail) {
+      let download;
+      download = {
+        'module': 'portal',
+        'subModule': 'ui',
+        'userId': eXo.env.portal.userIdentityId,
+        'userName': eXo.env.portal.userName,
+        'parameters': {
+          'type': eventDetail.type,
+          'activityId': eventDetail.id,
+          'spaceId': eventDetail.spaceId,
+        },
+        'operation': 'click',
+        'name': 'Download file New App',
+        'timestamp': Date.now()
+      };
+      this.sendMessage(download);
+      },
 
     installWatchers: function () {
       const self_ = this;

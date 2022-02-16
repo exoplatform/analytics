@@ -1003,56 +1003,6 @@
     </component-plugin>
 
     <component-plugin>
-      <name>Download document New App</name>
-      <set-method>addUIWatcherPlugin</set-method>
-      <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
-      <init-params>
-        <object-param>
-          <name>watcher</name>
-          <object type="org.exoplatform.analytics.api.service.StatisticWatcher">
-            <!-- Statistic data: name field -->
-            <field name="name">
-              <string>Download document New App</string>
-            </field>
-            <!-- Statistic data: operation field -->
-            <field name="operation">
-              <string>Download document New App</string>
-            </field>
-            <!-- Statistic data: additional embedded parameters -->
-            <field name="parameters">
-              <map type="java.util.HashMap">
-                <entry>
-                  <key>
-                    <string>ui</string>
-                  </key>
-                  <value>
-                    <string>documents</string>
-                  </value>
-                </entry>
-                <entry>
-                  <key>
-                    <string>application</string>
-                  </key>
-                  <value>
-                    <string>documentsActions</string>
-                  </value>
-                </entry>
-              </map>
-            </field>
-            <!-- DOM jquery selector, used to search elements -->
-            <field name="domSelector">
-              <string>.downloadDocumentNewApp</string>
-            </field>
-            <!-- DOM jquery event, used to trigger storing new statistic data -->
-            <field name="domEvent">
-              <string>mousedown</string>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
-
-    <component-plugin>
       <name>Preview file on old document app</name>
       <set-method>addUIWatcherPlugin</set-method>
       <type>org.exoplatform.analytics.api.service.StatisticUIWatcherPlugin</type>
