@@ -3,6 +3,7 @@ package org.exoplatform.analytics.listener.webconferencing;
 import static org.exoplatform.analytics.utils.AnalyticsUtils.*;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.codec.binary.StringUtils;
@@ -20,7 +21,7 @@ import org.exoplatform.webconferencing.WebConferencingService.SpaceEventInfo;
 import org.exoplatform.webconferencing.WebConferencingService.SpaceInfo;
 
 @Asynchronous
-public class WebConferencingListener extends Listener<CallInfo, String> {
+public class WebConferencingListener extends Listener<CallInfo, Map<? extends String,? extends String>> {
 
   private static final Log LOG = ExoLogger.getLogger(WebConferencingListener.class);
 
@@ -33,9 +34,10 @@ public class WebConferencingListener extends Listener<CallInfo, String> {
   }
 
   @Override
-  public void onEvent(Event<CallInfo, String> event) throws Exception {
+  public void onEvent(Event<CallInfo, Map<? extends String,? extends String>> event) throws Exception {
     CallInfo callInfo = event.getSource();
-    String username = event.getData();
+    Map<? extends String, ? extends String> info = event.getData();
+    String username = info.get("user_id");
 
     if (callInfo == null) {
       LOG.warn("Call information is null.");
@@ -57,38 +59,38 @@ public class WebConferencingListener extends Listener<CallInfo, String> {
 
     String operation = null;
     switch (event.getEventName()) {
-      case WebConferencingService.EVENT_CALL_CREATED:
-        operation = "callCreated";
-        break;
-      case WebConferencingService.EVENT_CALL_JOINDED:
-        operation = "callJoined";
-        if (callInfo.getLastDate() != null) {
-          callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
-        }
-        break;
-      case WebConferencingService.EVENT_CALL_LEFT:
-        operation = "callLeft";
-        if (callInfo.getLastDate() != null) {
-          callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
-        }
-        break;
-      case WebConferencingService.EVENT_CALL_RECORDED:
-        operation = "callRecorded";
-        if (callInfo.getLastDate() != null) {
-          callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
-        }
-        break;
-      case WebConferencingService.EVENT_CALL_STARTED:
-        operation = "callStarted";
-        break;
-      case WebConferencingService.EVENT_CALL_STOPPED:
-        operation = "callStopped";
-        if (callInfo.getLastDate() != null) {
-          callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
-        }
-        break;
-      default:
-        break;
+    case WebConferencingService.EVENT_CALL_CREATED:
+      operation = "callCreated";
+      break;
+    case WebConferencingService.EVENT_CALL_JOINDED:
+      operation = "callJoined";
+      if (callInfo.getLastDate() != null) {
+        callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
+      }
+      break;
+    case WebConferencingService.EVENT_CALL_LEFT:
+      operation = "callLeft";
+      if (callInfo.getLastDate() != null) {
+        callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
+      }
+      break;
+    case WebConferencingService.EVENT_CALL_RECORDED:
+      operation = "callRecorded";
+      if (callInfo.getLastDate() != null) {
+        callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
+      }
+      break;
+    case WebConferencingService.EVENT_CALL_STARTED:
+      operation = "callStarted";
+      break;
+    case WebConferencingService.EVENT_CALL_STOPPED:
+      operation = "callStopped";
+      if (callInfo.getLastDate() != null) {
+        callDuration = (System.currentTimeMillis() - callInfo.getLastDate().getTime()) / 1000;
+      }
+      break;
+    default:
+      break;
     }
     statisticData.setOperation(operation);
     IdentityInfo callOwner = callInfo.getOwner();
@@ -110,9 +112,9 @@ public class WebConferencingListener extends Listener<CallInfo, String> {
     Set<UserInfo> participants = callInfo.getParticipants() == null ? Collections.emptySet() : callInfo.getParticipants();
     long participantsCount = participants.size();
     long activeParticipantsCount =
-                                 participants.stream()
-                                             .filter(participant -> StringUtils.equals(UserState.JOINED, participant.getState()))
-                                             .count();
+        participants.stream()
+                    .filter(participant -> StringUtils.equals(UserState.JOINED, participant.getState()))
+                    .count();
 
     statisticData.addParameter("participantsCount", participantsCount);
     statisticData.addParameter("activeParticipantsCount", activeParticipantsCount);
@@ -124,6 +126,12 @@ public class WebConferencingListener extends Listener<CallInfo, String> {
     statisticData.addParameter("callState", callInfo.getState());
     if (callDuration > 0) {
       statisticData.addParameter("callDuration", callDuration);
+    }
+    if (info.get("status") != null) {
+      statisticData.setStatus(info.get("status").equals(WebConferencingService.STATUS_OK) ? StatisticData.StatisticStatus.OK : StatisticData.StatisticStatus.KO);
+    }
+    if(info.containsKey("file_size")) {
+      statisticData.addParameter("recordedFileSizeInMB", info.get("file_size"));
     }
     addStatisticData(statisticData);
   }
